@@ -126,8 +126,22 @@ gate:
   4. FF-003                      # 8 interrupt/resume runs (slowest; last)
 ```
 
-Nothing merges unless every step passes. `[TODO: the exact CI provider and command — see
-cicd-pipeline.md, written in Round 8.]`
+Nothing merges unless every step passes.
+
+**Provider and command (DD-017, closes Q-010):** GitHub Actions on `ubuntu-latest`, defined in
+`.github/workflows/gate.yml`, with `gate` set as a **required status check on `main` that
+applies to administrators**. Step 1 is implemented; steps 2–4 arrive with the tasks that
+create a golden workspace to walk.
+
+```
+node ci/ff-001-single-command.mjs
+node ci/ff-002-module-independence.mjs
+node ci/ff-009-no-executable-payload.mjs
+node --test "tests/**/*.mjs"
+```
+
+All three checks run even when one fails, so a single log shows every violation rather than
+only the first.
 
 ---
 
@@ -149,11 +163,14 @@ golden set needs to grow whenever a real intake surfaces a shape the fixtures di
 
 ## What the register caught
 
-*(Empty. The kit has not been built. Add a dated row the first time a fitness function fails
-— that log is the evidence these are governing rather than decorating.)*
-
 | Date | FF | Event |
 |---|---|---|
-| | | |
+| 2026-08-03 | FF-001 | **Found a defect in itself.** Writing UTEST-013 exposed that FF-001 counted end-to-end paths over the user-invocable commands only, so a command hidden with `user-invocable: false` could add a second orchestration path unseen. Fixed; **BUG-001** in `debugging-specification.md` |
+| 2026-08-03 | FF-009 | **Seen to fail in CI**, deliberately. A branch adding `plugin/package.json` turned the gate red — `RESULT: FAIL — FF-009 blocks the merge`, job exit 1 — and FF-001 and FF-002 still reported their own results in the same log. Branch deleted. This is the drill, not a catch |
+| 2026-08-03 | FF-001, FF-002 | **Seen to fail locally** against deliberately broken inputs: a second command file, and one commit touching a blueprint and the question set together |
+
+> The first row is the one worth reading twice. A fitness function that has never been run
+> against a case designed to break it is a claim, and this register's first entry is the
+> register catching **itself** being narrower than its own written threshold.
 
 > Blueprint: ../../../spec-driven-template/01-docs/04-technical-spec/fitness-functions.md

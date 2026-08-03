@@ -62,7 +62,7 @@ intake · automatic drift detection · any hosted or team component · **telemet
 |---|---|---|
 | **Q-007** | Licence and attribution for blueprints derived from a published method | **Release.** Nothing in the build will ever fail because of it (RISK-013) |
 | **Q-002** | Drop SM-2, replace it, or qualify the privacy promise? | Release |
-| Q-008 | Familiarity with plugin internals — does TASK-001 need a spike first? | TASK-001 |
+| ~~Q-008~~ | ~~Familiarity with plugin internals — does TASK-001 need a spike first?~~ **Closed: no.** The manifest schema was read from the current plugin reference and it installed first time | ~~TASK-001~~ — done |
 | Q-003 | Is the blueprint library core rather than supporting? | Effort allocation, after ten real intakes |
 | Q-006 | Is the kit used on itself? | A decision either way, not a drift |
 | — | Do resume, contradiction detection, inference, and depth scaling move from `Should` to `Must`? | Scope, against CON-002 |

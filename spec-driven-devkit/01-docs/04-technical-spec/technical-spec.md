@@ -657,7 +657,7 @@ the merge. Detail in [`fitness-functions.md`](fitness-functions.md).
 | Q-003 | Is the blueprint library really supporting, or is it core? | Kit author | Implementation |
 | Q-006 | Is the kit built from this workspace, using its own method? | Kit author | Implementation |
 | Q-007 | Licence and attribution for blueprints derived from a published method. | Kit author | Release |
-| Q-008 | Team size and plugin-internals experience — fills CON-008. | Kit author | Design |
+| ~~Q-008~~ | ~~Team size and plugin-internals experience — fills CON-008.~~ **Closed at TASK-001**: no spike needed; CON-008 filled. | Kit author | ~~Design~~ — done |
 | — | Does the kit author track Claude Code plugin releases? RSK-3 currently has no detector. | Kit author | Release |
 | — | Do resume, contradiction detection, inference, and depth scaling move from Should to Must, given CON-002? | Kit author | Design |
 

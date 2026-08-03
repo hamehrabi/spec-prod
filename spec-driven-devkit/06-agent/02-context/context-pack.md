@@ -1,7 +1,7 @@
-# Context Pack — TASK-001
+# Context Pack — TASK-003
 
 > Source: Ch. 25 §25.9.
-> Everything an agent needs for **one** task, in one place. Pre-filled for TASK-001.
+> Everything an agent needs for **one** task, in one place. Pre-filled for TASK-003.
 > Replace this file's contents when moving to the next task — it is a working document, not
 > a record.
 
@@ -15,87 +15,95 @@ produces a specification workspace in a `spec/` folder. **The kit produces speci
 never writes the developer's application code.**
 
 **The distinction that matters most:** `spec/` **in this repository** is the specification of
-the kit. You never edit it. `spec/` in a *developer's* repository is what the kit creates for
-them. Full glossary in [`project-brief.md`](../../01-docs/01-intent/project-brief.md).
+the kit — it is the folder `spec-driven-devkit/`, and you never edit it. `spec/` in a
+*developer's* repository is what the kit creates for them. Full glossary in
+[`glossary.md`](../../01-docs/10-reference/glossary.md).
+
+## What already exists
+
+| Where | What |
+|---|---|
+| `plugin/` | The payload (DD-015). Manifest, one command, one orchestration module. v0.1.0 |
+| `ci/`, `tests/`, `.github/` | FF-001, FF-002, FF-009 and 19 tests, gating every merge (DD-016) |
+| `spec-driven-template/` | The ~90 blueprints **this task packages**. Not yet inside the plugin |
 
 ## This task
 
-**TASK-001 — Plugin skeleton: manifest, one command, preamble.**
+**TASK-003 — package the blueprint library, read-only.**
 
-The thinnest possible vertical slice: a developer installs the plugin, types one command, and
-sees the preamble. It writes nothing, asks nothing, and proves the delivery path works.
+Copy the existing library into the plugin so intake can read it with no network call, and
+make a missing blueprint a **named failure** rather than an improvisation.
 
-Full task file: [`TASK-001.md`](../../02-tasks/02-task-files/TASK-001.md)
+Full task file: [`TASK-003.md`](../../02-tasks/02-task-files/TASK-003.md)
 
 ## Its requirements
 
 | ID | Requirement |
 |---|---|
-| REQ-F-001 | Install via Claude Code's own plugin mechanism — no installer, script, account, or key |
-| REQ-F-002 | One command starts the intake; no configuration step in between |
-| REQ-F-004 | State what is about to happen **and** roughly how many rounds, before question one |
-| REQ-NF-006 | Plain text; no meaning carried by colour or symbol alone |
-| REQ-NF-008 | Identical behaviour on Windows, macOS, and Linux |
+| REQ-F-003 | The library ships **inside** the plugin, so intake works with no network access |
+| REQ-NF-008 | Identical on Windows, macOS, and Linux — including case sensitivity |
+| ADR-001 | The library is **read-only at run time** |
+| ADR-005 | A blueprint path is a **contract**. Renaming or moving one is a breaking change |
 
 ## Technical rules that bind this task
 
 | Rule | Source |
 |---|---|
-| **No executable code.** No script, CLI, package manifest, lockfile, or dependency — Markdown and the plugin manifest only | ADR-002 |
-| **Exactly one command.** Not two, not now, not ever | FF-001 |
-| **Module boundaries:** no question text and no blueprint content in `instructions/intake.md` | ADR-001 |
-| **Write nothing** into any repository in this task | Task scope |
-| Round count stated **in words**, not implied | REQ-NF-006 |
+| **Packaging only. Do not rewrite, reformat, or improve any blueprint** | TASK-003 constraints |
+| Preserve the folder structure exactly — **depth drives back-link arithmetic** | UTEST-014 |
+| Do **not** copy `appendix-index.md` — template scaffolding, not a project artifact | TASK-003 step 5 |
+| Record the blueprint **path map** in `instructions/intake.md`; never blueprint *content* | ADR-001 |
+| Every packaged file must be **byte-identical** to its source | TEST-003 |
+| The payload stays Markdown-only | ADR-002, FF-009 |
 
 ## File map
 
-**You may create:**
+**You may create or modify:**
 ```
-.claude-plugin/plugin.json      manifest: name, version, description
-commands/<command-name>.md      the single command entry point
-instructions/intake.md          orchestration - PREAMBLE ONLY for now
-README.md                       what it is, how to install
+plugin/blueprints/**            the library, mirroring spec-driven-template/'s structure
+plugin/instructions/intake.md   gains the path map and the MISSING_BLUEPRINT failure
 ```
 
 **You must not touch:**
 ```
-spec/**                         the specification. Never edit it.
-anything in a developer's repository
+spec-driven-devkit/**           the specification. Never edit it
+spec-driven-template/**         the SOURCE library. Copy from it; never edit it
+plugin/commands/**              one command, and this task does not change it
 ```
 
 ## Restrictions
 
-- **Do not guess the plugin manifest schema.** Confirm it from current documentation. If it
-  cannot be confirmed, **stop and ask** — a wrong manifest fails at install time, for everyone.
-- Do not add a second command.
-- Do not ask a question or write a file.
-- Do not add anything that is not Markdown or the manifest.
+- If a blueprint looks wrong, outdated, or inconsistent — **package it as-is and raise it.**
+  Fixing content inside a packaging task is an unrequested change.
+- Do not flatten, rename, or tidy the folder structure. A rename is a **breaking change**
+  requiring a migration note.
+- Do not add a second command, a script, or any non-Markdown file.
 
-## Open decision inside this task
+## Watch for
 
-**The command name has not been chosen.** It is referenced across the whole workspace and
-cannot be changed cheaply later. Choose it in this task and record it as a design decision in
-[`decisions.md`](../../01-docs/05-architecture/decisions.md).
+**This task is followed immediately by TASK-021 (integrity manifest), also P0.** Nothing may
+read a blueprint *for generation* until both are done — an unverified library produces
+specifications that are subtly wrong and entirely plausible, which is the worst failure this
+product has.
 
 ## Done when
 
-- [ ] Installs through the documented mechanism, no extra step
-- [ ] The command is registered and runs
-- [ ] Preamble prints two sentences **and** the round count, before anything else
-- [ ] Exits without asking or writing
-- [ ] The payload contains **zero** files that are not Markdown or the manifest
-- [ ] Works identically on all three platforms
+- [ ] Every blueprint from `spec-driven-template/` is present, except `appendix-index.md`
+- [ ] Each is **byte-identical** to its source
+- [ ] All read from local disk with the network blocked
+- [ ] A deliberately removed blueprint produces the named failure; prior rounds survive
+- [ ] All paths resolve on Windows, macOS, and Linux
+- [ ] No blueprint is modified by a run — verified by checksums before and after
+- [ ] FF-009 still passes: the payload gained ~90 Markdown files and nothing else
 
 ## Tests
 
 | Test ID | Proves |
 |---|---|
-| ATEST-001 | Installs with no account, key, or download |
-| ATEST-002 | Command runs; no configuration step between install and interview |
-| ATEST-004 | What happens **and** the round count are stated before question one |
-| UTEST-001 | Round count present, in words |
-| TEST-001 | **Installing creates no file anywhere** — installing is not running |
-| TEST-002 | Bare invocation is valid; it is the common case |
+| ATEST-003 | Full run with the network blocked reads every blueprint from local disk |
+| TEST-003 | Packaged vs. source byte-identical; `appendix-index.md` absent |
+| FTEST-004 | A removed blueprint is **named**, the run stops, nothing is improvised |
+| STEST-012 | Plugin file checksums unchanged before and after a run |
 
 ## Review rules
 
@@ -104,16 +112,18 @@ Report: files changed and why · requirement covered · tests added · risks and
 
 ## Stop and ask if
 
-- The manifest format cannot be confirmed from documentation
-- Anything appears to require a script, runtime, or dependency — **that contradicts ADR-002,
-  and the task is wrong rather than the ADR**
-- The command name is unclear
+- A blueprint seems wrong — **package it as-is and raise it**
+- The library will not fit, or the plugin mechanism restricts bundled files — that challenges
+  CON-003 and needs a decision, not a workaround
+- Two specification files disagree about a path. **That has happened twice already** (DD-015,
+  DD-016). Name both readings and ask; do not pick the convenient one
 
 ---
 
-## When TASK-001 is done
+## When TASK-003 is done
 
-Replace this file with TASK-002's context. Keep it to one task — the value of a context pack
+Replace this file with TASK-021's context — the integrity manifest, which must land before
+anything reads a blueprint to generate from. Keep it to one task: the value of a context pack
 is that it is small enough to be read completely.
 
 > Blueprint: ../../../spec-driven-template/06-agent/02-context/context-pack.md

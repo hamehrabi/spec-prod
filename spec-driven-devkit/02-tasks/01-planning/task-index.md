@@ -17,9 +17,9 @@ a time, directed by one developer (CON-008).
 
 | Task ID | Title | Requirement | Priority | Depends on | Status | Owner | Test IDs |
 |---|---|---|---|---|---|---|---|
-| TASK-001 | Plugin skeleton: manifest, one command, preamble | REQ-F-001, REQ-F-002, REQ-F-004 | **P0** | — | Not started | agent | ATEST-001, ATEST-002, ATEST-004, UTEST-001, TEST-001, TEST-002 |
-| TASK-002 | CI gate skeleton — FF-001, FF-002, FF-009 | ADR-001, ADR-002, REQ-NF-005 | **P0** | TASK-001 | Not started | agent | UTEST-013, UTEST-024, TEST-017 |
-| TASK-003 | Package the blueprint library, read-only | REQ-F-003, REQ-NF-008 | **P0** | TASK-001 | Not started | agent | ATEST-003, TEST-003, FTEST-004, STEST-012 |
+| TASK-001 | Plugin skeleton: manifest, one command, preamble | REQ-F-001, REQ-F-002, REQ-F-004 | **P0** | — | **Done** | agent | ATEST-001, ATEST-002, ATEST-004, UTEST-001, TEST-001, TEST-002 |
+| TASK-002 | CI gate skeleton — FF-001, FF-002, FF-009 | ADR-001, ADR-002, REQ-NF-005 | **P0** | TASK-001 | **Done** | agent | UTEST-013, UTEST-024, TEST-017 |
+| TASK-003 | Package the blueprint library, read-only | REQ-F-003, REQ-NF-008 | **P0** | TASK-001 | **In progress** | agent | ATEST-003, TEST-003, FTEST-004, STEST-012 |
 | TASK-004 | **The boundary layer** — path check, collisions, protected files | REQ-F-014, REQ-F-024, REQ-F-026, REQ-F-035, REQ-F-036, SEC-Z-001 | **P0** | TASK-001 | Not started | agent | UTEST-019, STEST-002…008, STEST-013, FTEST-003, FTEST-007, FTEST-008 |
 | TASK-005 | The fill procedure — copy, strip, fill, mint, back-link | REQ-F-016, REQ-F-018, REQ-F-019, REQ-F-027, ADR-003 | **P0** | TASK-003 | Not started | agent | UTEST-014, UTEST-016, UTEST-017, UTEST-020, TEST-005…008, TEST-014 |
 | TASK-006 | **Round 1 end to end** — ask, write three files, summarise | REQ-F-005…008, REQ-F-015 | **P0** | TASK-004, TASK-005 | Not started | agent | ATEST-005…008, ATEST-016, UTEST-002…005, ETEST-008, PTEST-001 |
