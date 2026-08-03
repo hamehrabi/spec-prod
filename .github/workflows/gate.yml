@@ -1,0 +1,60 @@
+# The merge gate (TASK-002).
+#
+# cicd-pipeline.md defines six stages. This workflow implements the first two; the rest need
+# a generated workspace, which does not exist yet:
+#
+#   stage 1  shape of the plugin itself     FF-001, FF-002, FF-009   <- here
+#   stage 2  unit and integration tests                              <- here
+#   stage 3  generate golden workspaces                              TASK-016
+#   stage 4  walk the golden workspaces     FF-004..FF-008, FF-010..FF-014
+#   stage 5  end-to-end, including resume x8 (FF-003)                TASK-007, TASK-016
+#   stage 6  eval scorers                                            TASK-016
+#
+# The scheduled install test (RISK-004's only detector) is decided as WEEKLY but not built
+# here: it installs the PUBLISHED plugin and runs a full intake from an answer script, and
+# neither exists yet. It arrives with TASK-016.
+#
+# A warning is not a gate. Every step below either passes or fails the build.
+
+name: gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # FF-002 compares this branch against its merge base. A shallow clone has no base.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      # Cheapest checks first: a structural violation should fail in seconds, not after
+      # generating 36 workspaces. All three run even when one fails, so a single log shows
+      # every violation rather than only the first.
+      - name: Stage 1 — shape of the plugin itself (FF-001, FF-002, FF-009)
+        run: |
+          failed=0
+          for check in \
+            ci/ff-001-single-command.mjs \
+            ci/ff-002-module-independence.mjs \
+            ci/ff-009-no-executable-payload.mjs
+          do
+            echo "::group::$check"
+            node "$check" || failed=1
+            echo "::endgroup::"
+          done
+          exit $failed
+
+      - name: Stage 2 — unit and integration tests
+        run: node --test "tests/**/*.mjs"
