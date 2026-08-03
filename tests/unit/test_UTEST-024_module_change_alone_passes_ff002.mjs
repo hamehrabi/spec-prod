@@ -15,8 +15,7 @@ const files = (...paths) => [`--files=${paths.join(',')}`]
 test('UTEST-024: changing only the question set passes', () => {
   const { code, stdout } = run(FF002, files('plugin/instructions/questions.md'))
   assert.equal(code, 0)
-  assert.match(stdout, /question set:  1/)
-  assert.match(stdout, /blueprints:    0/)
+  assert.match(stdout, /0 blueprint, 1 question, 0 instruction\/command/)
 })
 
 test('UTEST-024: changing only blueprints passes, however many', () => {
@@ -29,7 +28,7 @@ test('UTEST-024: changing only blueprints passes, however many', () => {
     )
   )
   assert.equal(code, 0, 'a packaging change touching many blueprints is normal and allowed')
-  assert.match(stdout, /blueprints:    3/)
+  assert.match(stdout, /3 blueprint, 0 question, 0 instruction\/command/)
 })
 
 test('UTEST-024: changing only the orchestration modules passes', () => {
@@ -47,5 +46,5 @@ test('UTEST-024: the question set and the orchestration may change together', ()
 test('UTEST-024: a commit touching neither module passes', () => {
   const { code, stdout } = run(FF002, files('README.md', 'ci/ff-002-module-independence.mjs'))
   assert.equal(code, 0)
-  assert.match(stdout, /files changed: 2/)
+  assert.match(stdout, /2 file\(s\): 0 blueprint, 0 question, 0 instruction\/command/)
 })

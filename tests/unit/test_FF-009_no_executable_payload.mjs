@@ -74,5 +74,9 @@ test('FF-009: a checks directory INSIDE the payload fails', () => {
 test('FF-009: the shipped payload passes today', () => {
   const { code, stdout } = run(FF009, [], REPO)
   assert.equal(code, 0)
-  assert.match(stdout, /files in payload: 4/)
+  // Assert the property, not the count. An exact file count is incidental — it changed the
+  // moment TASK-003 packaged the blueprints, and a test that has to be edited every time the
+  // payload grows is measuring the wrong thing.
+  assert.match(stdout, /found:\s+0/)
+  assert.match(stdout, /payload root: plugin\//)
 })

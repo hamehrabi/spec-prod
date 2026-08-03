@@ -12,6 +12,60 @@
 |---|---|---|---|---|---|---|
 | **BUG-001** | 2026-08-03 | FF-001 passed a payload containing a second command that routed to a second orchestration module. | **The check counted its two thresholds over the same set.** It derived entry paths from the *user-invocable* commands only, so `user-invocable: false` removed a command from the command count **and** hid its path. `fitness-functions.md` FF-001 states two independent counts; the implementation collapsed them into one. | UTEST-013, third case — **seen to fail** against the unfixed check | `fitness-functions.md` FF-001. The register was correct and unambiguous; the implementation narrowed it. Nothing needed changing in the spec | **Fixed** |
 
+| **BUG-002** | 2026-08-03 | FF-002 failed a TASK-003 commit correctly, then failed it again after the commit was split — the fix the check itself recommends had no effect. | **The check's unit was a branch, not a commit.** It diffed `origin/main...HEAD` in one go, so two deliberately separated commits and one coupled commit produced an identical file set. `fitness-functions.md` FF-002 says "For a **commit** touching the question set…"; the implementation aggregated. | TEST-017, "split into two commits, pass" — **seen to fail** against the unfixed check | `fitness-functions.md` FF-002. As with BUG-001 the register was right and the implementation was narrower. Unlike BUG-001, this one **also made the remedy message a lie** | **Fixed** |
+
+### BUG-002 in full — the more interesting of the two
+
+```
+Bug ID:        BUG-002
+Date:          2026-08-03
+Reported by:   TASK-003, by being blocked by it
+Version:       ci/ff-002-module-independence.mjs at TASK-002
+
+SYMPTOM
+  TASK-003 must change plugin/blueprints/** and plugin/instructions/intake.md --
+  its own task file lists both. FF-002 failed the commit, which is correct. The
+  commit was split in two, each half clean. FF-002 failed again, identically.
+
+ROOT CAUSE
+  FF-002 computed one file set for the whole branch (origin/main...HEAD). Under
+  that reading a split commit is indistinguishable from a coupled one, because
+  the aggregate diff is the same either way. The unit of REQ-NF-005 is whether
+  two changes COULD have been made separately, and the only evidence for that is
+  them having been -- which lives in commit boundaries, exactly the information
+  the aggregate threw away.
+
+WHY IT WAS MISSED
+  Which test should have caught it?  TEST-017.
+  Did that test exist?               Yes, and it PASSED.
+  Why did it pass?  It asserted the failure case only. Every case it contained
+  broke the rule, so aggregating and not aggregating gave the same verdict. Worse,
+  one assertion actively encoded the defect: "a range spanning both is coupled
+  again, and must fail" -- it had been written to match the behaviour rather than
+  the rule, and it had to be deleted, not adjusted.
+
+  This is the "why did the test pass?" table's first row, and it cost a real
+  blocked task to find. A check whose remedy does not work is worse than no
+  check: it fails you, tells you what to do, and fails you again for doing it.
+
+REGRESSION TEST
+  Test ID:                                    TEST-017, "split into two commits, pass"
+  Seen to FAIL against the unfixed version:   yes
+  Plus: one bad commit inside an otherwise clean range still fails, and a merge
+  commit -- whose combined diff always looks coupled -- is not judged at all.
+
+THE SPECIFICATION THAT SHOULD HAVE PREVENTED IT
+  fitness-functions.md FF-002 says "For a COMMIT touching the question set".
+  Singular, and it was there from Round 6. Nothing needed changing in the spec.
+
+REPEATABLE MISTAKE?
+  Yes. Row added to AGENT.md "Lessons from past mistakes".
+
+Artifacts updated:
+  ci/ff-002-module-independence.mjs
+  tests/integration/test_TEST-017_commit_touching_both_modules_fails_ff002.mjs
+```
+
 ### BUG-001 in full
 
 ```

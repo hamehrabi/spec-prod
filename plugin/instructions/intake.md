@@ -27,6 +27,54 @@ At default depth the interview takes eight rounds.
 The round count is stated **in words**, and it is stated every time. A developer who cannot
 see where an interview ends has no way to decide whether to start one now.
 
+## The blueprint library
+
+The library ships inside this plugin at **`blueprints/`**, relative to the plugin root. It is
+**read-only for the whole run.** Nothing in an intake ever writes to it, renames a file in it,
+or repairs one.
+
+### Where a blueprint's output goes
+
+The mapping is a **rule, not a list**:
+
+```
+blueprints/<relative-path>     ->     <repo>/spec/<relative-path>
+```
+
+A blueprint's path below `blueprints/` **is** its destination path below `spec/`. Nothing else
+determines it, and the folder depth is carried across unchanged — the back-link written at the
+foot of each generated file is computed from that depth, so flattening or re-nesting a path
+silently breaks it.
+
+**Never hardcode the set of files a stage produces.** Read the library and derive it. A list
+written here would mean adding a blueprint changes nothing until someone remembers to edit
+this file, and the whole point is that it changes something immediately.
+
+### A blueprint that is missing
+
+```
+- Failure state: MISSING_BLUEPRINT
+  - Trigger:       A blueprint required for the file being written is absent from the
+                   installed plugin.
+  - Recovery path: Stop at that file. Everything already written stays written.
+  - Message:       "Blueprint <path> is missing from the installed plugin.
+                    Rounds 1-N are intact. Stopping here."
+  - Never:         improvise a structure, substitute a similar blueprint, or write the
+                   file from memory of what that template usually contains.
+```
+
+A missing blueprint is a **named gap**, and naming it is the whole behaviour. A structure
+invented to keep going produces a specification that looks complete and answers to nothing —
+which is worse than stopping, because it is not visibly wrong.
+
+### What the library does not contain
+
+Six template artifacts are **deliberately not packaged**: `.gitignore`, `.env.example`,
+`Dockerfile.example`, and three `.gitkeep` files. They are not Markdown, and this plugin ships
+Markdown and its manifest only. **A generated workspace therefore has no `.gitignore` and no
+`.env.example`, and the intake must not improvise either one** — writing a `.gitignore` from
+memory is exactly the invention this file forbids everywhere else.
+
 ## Step 2 — Stop
 
 Stop. This version of the plugin ends after the preamble.

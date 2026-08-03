@@ -21,55 +21,66 @@ const arg = (name) => process.argv.slice(2).find((a) => a.startsWith(`--${name}=
 
 const repo = arg('repo') ?? process.cwd()
 const files = arg('files')
-const changed = files !== undefined
-  ? files.split(',').filter(Boolean)
-  : gitChanged(arg('range') ?? defaultRange())
 
 function defaultRange() {
-  // On a pull request the base branch is the honest comparison point; the merge-base form
-  // (three dots) asks what this branch changed, not what has happened on main meanwhile.
   const base = process.env.GITHUB_BASE_REF
-  return base ? `origin/${base}...HEAD` : 'HEAD~1...HEAD'
+  return base ? `origin/${base}..HEAD` : 'HEAD~1..HEAD'
 }
 
-function gitChanged(range) {
-  return execFileSync('git', ['diff', '--name-only', range], { cwd: repo, encoding: 'utf8' })
-    .split('\n')
-    .map((s) => s.trim())
-    .filter(Boolean)
-}
+const git = (...args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' })
+const lines = (s) => s.split('\n').map((x) => x.trim()).filter(Boolean)
+
+// --no-merges: a merge commit introduces no changes of its own, and its combined diff would
+// look exactly like the coupling this check forbids.
+const revList = (range) => lines(git('rev-list', '--no-merges', range))
+const filesIn = (sha) => lines(git('show', '--name-only', '--format=', sha))
+
+// THE UNIT IS A COMMIT, not a branch. Checking a branch's aggregate diff would conflate two
+// commits that were correctly kept separate — and it would make splitting a commit, which is
+// the fix this check tells you to apply, do nothing at all. Each commit is judged alone.
+const commits = files !== undefined
+  ? [{ sha: '(supplied)', changed: files.split(',').filter(Boolean) }]
+  : revList(arg('range') ?? defaultRange()).map((sha) => ({ sha, changed: filesIn(sha) }))
 
 const matches = (file, prefixes) => prefixes.some((p) => (p.endsWith('/') ? file.startsWith(p) : file === p))
 
-const questions = changed.filter((f) => matches(f, MODULES.questions))
-const blueprints = changed.filter((f) => matches(f, MODULES.blueprints))
-const flow = changed.filter((f) => matches(f, MODULES.flow) && !matches(f, MODULES.questions))
+const short = (list) => (list.length > 3 ? `${list.slice(0, 3).join(', ')} +${list.length - 3} more` : list.join(', '))
 
-// One rule, stated once: a blueprint change and a flow-or-question change may not share a
-// commit. Either direction of the register's wording reduces to this.
-const otherSide = [...questions, ...flow]
-const violated = blueprints.length > 0 && otherSide.length > 0
+const verdicts = commits.map(({ sha, changed }) => {
+  const questions = changed.filter((f) => matches(f, MODULES.questions))
+  const blueprints = changed.filter((f) => matches(f, MODULES.blueprints))
+  const flow = changed.filter((f) => matches(f, MODULES.flow) && !matches(f, MODULES.questions))
+  // One rule, stated once: a blueprint change and a flow-or-question change may not share a
+  // commit. Either direction of the register's wording reduces to this.
+  const otherSide = [...questions, ...flow]
+  return { sha, changed, questions, blueprints, flow, otherSide, violated: blueprints.length > 0 && otherSide.length > 0 }
+})
+
+const bad = verdicts.filter((v) => v.violated)
 
 process.exit(
   report({
     id: 'FF-002',
     guards: 'REQ-NF-005 — blueprints and interview logic change independently (ADR-001)',
     threshold: '0 blueprint files in a question/flow commit, and 0 question/flow files in a blueprint commit',
-    found: violated ? blueprints.length + otherSide.length : 0,
+    found: bad.length,
     detail: [
-      `files changed: ${changed.length}`,
-      `  question set:  ${questions.length}${questions.length ? ` (${questions.join(', ')})` : ''}`,
-      `  blueprints:    ${blueprints.length}${blueprints.length ? ` (${blueprints.join(', ')})` : ''}`,
-      `  instruction set / commands: ${flow.length}${flow.length ? ` (${flow.join(', ')})` : ''}`,
-      ...(violated
-        ? [
-            'VIOLATION: one commit changed a blueprint AND the interview logic that reads it.',
-            '           REQ-NF-005 requires either to change without the other. Split the commit.',
-          ]
-        : []),
+      `commits examined: ${verdicts.length}`,
+      ...verdicts.flatMap((v) => [
+        `  ${v.sha === '(supplied)' ? 'supplied list' : v.sha.slice(0, 8)} — ${v.changed.length} file(s): ${v.blueprints.length} blueprint, ${v.questions.length} question, ${v.flow.length} instruction/command`,
+        ...(v.violated
+          ? [
+              `    VIOLATION: this commit changed a blueprint AND the interview logic that reads it.`,
+              `      blueprints:  ${short(v.blueprints)}`,
+              `      other side:  ${short(v.otherSide)}`,
+              `      REQ-NF-005 requires either to change without the other. Split the commit.`,
+            ]
+          : []),
+      ]),
     ],
     scope: [
       'whether the two changes were semantically related — only that they were separable',
+      'merge commits, which introduce no changes of their own',
       'commits that predate the range being examined',
     ],
   })

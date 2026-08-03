@@ -76,9 +76,9 @@ gate:     .github/workflows/gate.yml        # required check on main, admins inc
 
 ## Where things stand
 
-- **Stage:** specifications complete · **TASK-001 and TASK-002 done** · the plugin installs, runs, and is gated
-- **Next task:** [`02-tasks/02-task-files/TASK-003.md`](02-tasks/02-task-files/TASK-003.md) — package the blueprint library
-- **Open questions blocking work:** [`01-docs/01-intent/open-questions.md`](01-docs/01-intent/open-questions.md) — 14 open, **3 block release** (Q-002, Q-007, Q-016). **Q-007 is escalated: the repository is public and has no `LICENSE`**
+- **Stage:** specifications complete · **TASK-001, TASK-002, TASK-003 done** · the plugin installs, runs, is gated, and carries its 79-blueprint library
+- **Next task:** [`02-tasks/02-task-files/TASK-021.md`](02-tasks/02-task-files/TASK-021.md) — blueprint integrity manifest (P0, before anything reads a blueprint to generate from)
+- **Open questions blocking work:** [`01-docs/01-intent/open-questions.md`](01-docs/01-intent/open-questions.md) — 15 open, **3 block release** (Q-002, Q-007, Q-016). **Q-024 blocks TASK-005**. **Q-007 is escalated: the repository is public and has no `LICENSE`**
 - **Change log:** [`05-review/01-logs/change-log.md`](05-review/01-logs/change-log.md) · spec changes: [`01-docs/09-change-control/spec-change-log.md`](01-docs/09-change-control/spec-change-log.md)
 - **Produced by:** the intake in `spec-driven-template/MASTER-PROMPT.md`, 2026-08-03
 - **Plugin version:** `0.1.0` — read it from `plugin/.claude-plugin/plugin.json`, never from here

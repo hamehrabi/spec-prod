@@ -165,6 +165,7 @@ golden set needs to grow whenever a real intake surfaces a shape the fixtures di
 
 | Date | FF | Event |
 |---|---|---|
+| 2026-08-03 | FF-002 | **Blocked a real task, then found a defect in itself.** TASK-003 must change `blueprints/**` and `instructions/intake.md`; FF-002 failed the commit correctly, and failed the *split* commit identically — it measured a branch where the rule says *commit*. Its own remedy did not work. Fixed; **BUG-002** |
 | 2026-08-03 | FF-001 | **Found a defect in itself.** Writing UTEST-013 exposed that FF-001 counted end-to-end paths over the user-invocable commands only, so a command hidden with `user-invocable: false` could add a second orchestration path unseen. Fixed; **BUG-001** in `debugging-specification.md` |
 | 2026-08-03 | FF-009 | **Seen to fail in CI**, deliberately. A branch adding `plugin/package.json` turned the gate red — `RESULT: FAIL — FF-009 blocks the merge`, job exit 1 — and FF-001 and FF-002 still reported their own results in the same log. Branch deleted. This is the drill, not a catch |
 | 2026-08-03 | FF-001, FF-002 | **Seen to fail locally** against deliberately broken inputs: a second command file, and one commit touching a blueprint and the question set together |
