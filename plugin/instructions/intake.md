@@ -19,6 +19,12 @@ This runs **before the preamble and before question one** — not before the fir
 developer who answers eight rounds and is only then told the library was corrupt has been made
 to waste the entire interview.
 
+## Step 0b — Check the workspace folder, before the first write
+
+Follow `instructions/boundary.md`. If `spec/` already exists and holds files this kit did not
+generate, **stop before writing anything**, say what was found, and offer an alternative
+folder name. Never merge into it and never rename the developer's folder for them.
+
 ## Step 1 — Print the preamble
 
 Print the following as plain terminal text, before anything else. Do not add a heading, a
@@ -105,6 +111,9 @@ incomplete one, and it must not be reported as an error or as a failure to start
 
 | Rule | Why |
 |---|---|
+| **Every proposed write passes `instructions/boundary.md` first** | Normalise, then compare as a path. There is no undo, so the check never runs after the write |
+| **The developer's root `CLAUDE.md` and `.gitignore` are never proposed at all** | Not refused after asking — never asked. A stop that asks and a stop that never asks are different promises (REQ-F-026, REQ-F-035) |
+| **Blanket write permission is never requested** | The host's per-file prompt is the only enforcement independent of this kit's own behaviour (SEC-Z-002) |
 | No question text lives in this file | Questions are their own module; this one sequences, it does not ask |
 | No template or blueprint content lives in this file | Templates are their own module, and are read-only while the intake runs |
 | This module never writes a file itself | It directs; the host's file tools write, and only after the developer approves each one |
