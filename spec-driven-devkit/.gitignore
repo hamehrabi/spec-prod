@@ -1,0 +1,60 @@
+# Secrets — never commit, even though this project has none of its own.
+# The rule stands regardless: a stray file does not care that the kit is secret-free.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials.json
+.netrc
+
+# Build and dependency output.
+# NOTE: none of this should ever exist here — ADR-002 forbids a runtime, and FF-009
+# fails the build if a package manifest or lockfile enters the published payload.
+# These entries are a tripwire, not an expectation: if git starts ignoring files
+# matched below, something has been added that supersedes an accepted ADR.
+node_modules/
+dist/
+build/
+out/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Test and CI artifacts. The plans and fixtures ARE committed; run output is not.
+coverage/
+.coverage
+*.log
+03-tests/05-executable/**/tmp/
+03-tests/05-executable/**/output/
+
+# Editor and OS noise.
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
+
+# =============================================================================
+# NOT IGNORED, DELIBERATELY
+# =============================================================================
+#
+# spec/                    The specification IS the source of truth. Committed, always.
+#                          A git history of specification changes is the closest thing to
+#                          observability this project can honestly have — every other
+#                          signal is forbidden by CON-007.
+#
+# 03-tests/.../fixtures/   Answer scripts and golden workspaces are fixtures, not output.
+#                          They are how a question change is proved to have helped.
+#
+# .env.example             Empty by design, with the reasons. Explicitly un-ignored above.
+#
+# The same rule is a product requirement: REQ-F-035 keeps a DEVELOPER'S generated spec/
+# folder committed too — and the kit must never add an ignore rule for it in their
+# .gitignore, or modify that file at all (CON-005).

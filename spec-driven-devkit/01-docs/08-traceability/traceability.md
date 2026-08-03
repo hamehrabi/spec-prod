@@ -1,0 +1,202 @@
+# Requirements Traceability Matrix (RTM)
+
+> Source: Ch. 10 + Appendix F.
+> Traceability is a **chain of evidence**. A requirement is a promise; traceability is how
+> you prove the promise did not disappear while the software was being built.
+
+Keep this file next to the requirements. If it lives in another tool, you will not
+maintain it.
+
+> **Code links are blank throughout, and that is correct.** No code exists — this workspace
+> was produced before implementation, which is the whole point. Every code cell fills in as
+> its task completes. **Blank cells are the point of this document.**
+
+---
+
+## The matrix
+
+### Functional — installation and entry
+
+| Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
+|---|---|---|---|---|---|---|
+| REQ-F-001 | Install via the plugin mechanism | ADR-002, tech §1 | TASK-001 | ATEST-001, TEST-001 | — | Ready |
+| REQ-F-002 | One command starts intake | API C1 | TASK-001 | ATEST-002, TEST-002 | — | Ready |
+| REQ-F-003 | Library ships inside the plugin | ADR-001, tech §2 | TASK-003 | ATEST-003, TEST-003, FTEST-004 | — | Ready |
+| REQ-F-004 | Preamble states the round count | `frontend-component-spec` | TASK-001 | ATEST-004, UTEST-001 | — | Ready |
+
+### Functional — the interview (core subdomain)
+
+| Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
+|---|---|---|---|---|---|---|
+| REQ-F-005 | ≤ 4 questions per round | `frontend-component-spec` | TASK-006 | ATEST-005, UTEST-002 | — | Ready |
+| REQ-F-006 | Recommended first, marked, with a reason | `frontend-component-spec` | TASK-006 | ATEST-006, UTEST-003 | — | Ready |
+| REQ-F-007 | Free text always accepted | `frontend-component-spec` | TASK-006 | ATEST-007, UTEST-004, FTEST-015 | — | Ready |
+| REQ-F-008 | One non-MCQ question | `frontend-component-spec` | TASK-006 | ATEST-008, UTEST-005, FTEST-013 | — | Ready |
+| REQ-F-009 | Never ask the derivable | **DD-007** | TASK-011 | ATEST-009, UTEST-006/007, ETEST-005 | — | Ready |
+| REQ-F-010 | Contradiction stops, quotes both | BR-012 | TASK-011 | ATEST-010, UTEST-008, FTEST-010 | — | Ready |
+| REQ-F-011 | Eight-round hard stop | BR-004 | TASK-011 | ATEST-011, UTEST-009, ETEST-006 | — | Ready |
+| REQ-F-012 | Name the core subdomain | `subdomain-map` | TASK-008 | ATEST-012, UTEST-010 | — | Ready |
+| REQ-F-013 | Refuse > 3 drivers, push back once | BR-011 | TASK-008 | ATEST-013, UTEST-011 | — | Ready |
+| REQ-F-033 | Express depth | **DD-006** | TASK-015 | ATEST-014, UTEST-012, ETEST-007 | — | Ready |
+| REQ-F-034 | Depth is a parameter, not a flow | DD-006, FF-001 | TASK-015 | UTEST-013 | — | Ready |
+
+### Functional — generating the workspace
+
+| Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
+|---|---|---|---|---|---|---|
+| REQ-F-014 | Fixed `spec/` at repo root | **ADR-004** | TASK-004 | ATEST-015, TEST-004, STEST-004 | — | Ready |
+| REQ-F-015 | Write after each round | BR-005 | TASK-006 | ATEST-016, ETEST-008, PTEST-001 | — | Ready |
+| REQ-F-016 | Blueprint structure + back-link | **ADR-003** | TASK-005 | ATEST-017, UTEST-014, TEST-005/006 | — | Ready |
+| REQ-F-017 | Depth scaled by subdomain | BR-013 | TASK-008 | ATEST-018, UTEST-015 | — | Ready |
+| REQ-F-018 | Stable, consistent identifiers | BR-007 | TASK-005 | ATEST-019, UTEST-016, TEST-007, ETEST-002 | — | Ready |
+| REQ-F-019 | `[TODO]`, never invention | BR-003 | TASK-005 | ATEST-020, UTEST-017, TEST-008 | — | Ready |
+| REQ-F-020 | Entry point written last | BR-006, ADR-005 | TASK-013 | ATEST-021, TEST-009, ETEST-001 | — | Ready |
+| REQ-F-021 | Deny test per permission rule | BR-010 | TASK-009 | ATEST-022, TEST-010 | — | Ready |
+| REQ-F-022 | Fitness function per driver | BR-010 | TASK-009 | ATEST-023, TEST-011 | — | Ready |
+| REQ-F-037 | Retry once, then flag | `ai-boundary-spec` §5 | TASK-012 | ATEST-024, UTEST-018, FTEST-006 | — | Ready |
+
+### Functional — boundaries and safety
+
+| Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
+|---|---|---|---|---|---|---|
+| REQ-F-023 | Never write application code | BR-001 | TASK-004 | ATEST-025, TEST-012, STEST-001 | — | Ready |
+| REQ-F-024 | Nothing outside `spec/` unasked | BR-008, SEC-Z-001 | TASK-004 | ATEST-026, UTEST-019, STEST-002/003 | — | Ready |
+| REQ-F-025 | No blanket write permission | SEC-Z-002 | TASK-004 | ATEST-027, STEST-006 | — | Ready |
+| REQ-F-026 | Existing `CLAUDE.md` untouched | **DD-011** | TASK-004, TASK-013 | ATEST-028, TEST-013, STEST-007 | — | Ready |
+| REQ-F-027 | No worked-example content | BR-002 | TASK-005 | ATEST-029, UTEST-020, TEST-014 | — | Ready |
+| REQ-F-035 | `.gitignore` untouched | Round 6 | TASK-004 | ATEST-030, STEST-008 | — | Ready |
+| REQ-F-036 | Non-kit `spec/` → stop and ask | Round 6 | TASK-004 | ATEST-031, STEST-005, FTEST-007 | — | Ready |
+
+### Functional — acceptance gate and library authority *(added after the first complete draft)*
+
+| Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
+|---|---|---|---|---|---|---|
+| REQ-F-038 | Gate presents and blocks the next round | **ADR-006**, `StageReview` | TASK-020 | ATEST-041, UTEST-026/027, **ETEST-013** | — | Ready |
+| REQ-F-039 | Accept · revise · stop | `StageReview` | TASK-020 | ATEST-042/043, FTEST-022 | — | Ready |
+| REQ-F-040 | Blueprint coverage | FF-015, check 13 | TASK-022 | ATEST-044, UTEST-031, FTEST-021 | — | Ready |
+| REQ-F-041 | Acceptance recorded in the workspace | **ADR-006** | TASK-020 | ATEST-045, UTEST-028/029, **ETEST-014 ×8** | — | Ready |
+| REQ-F-042 | Blueprint integrity manifest | FF-017, check 15 | TASK-021 | ATEST-046, UTEST-030, FTEST-020, **STEST-015** | — | Ready |
+| REQ-F-043 | Stage outputs derived from the library | FF-018 | TASK-022 | ATEST-047, UTEST-031, TEST-019 | — | Ready |
+
+### Functional — resuming and finishing
+
+| Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
+|---|---|---|---|---|---|---|
+| REQ-F-028 | Resume from first incomplete stage | **ADR-004** | TASK-007 | ATEST-032, UTEST-021, **ETEST-009 ×8** | — | Ready |
+| REQ-F-029 | Validate before reporting success | BR-009 | TASK-012 | ATEST-033, UTEST-022, TEST-015, FTEST-005 | — | Ready |
+| REQ-F-030 | Closing report contents | `frontend-component-spec` | TASK-014 | ATEST-034, ETEST-010 | — | Ready |
+| REQ-F-031 | Hand-off instruction | API C3 | TASK-014 | ATEST-035, **ETEST-003** | — | Ready |
+| REQ-F-032 | Round progress visible *(Should)* | `frontend-component-spec` | TASK-017 (P2) | ATEST-036 | — | **Draft — P2, may be cut** |
+
+### Non-functional
+
+| Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
+|---|---|---|---|---|---|---|
+| REQ-NF-001 | Output within one round | tech §8 | TASK-006 | **PTEST-001** | — | Ready |
+| REQ-NF-002 | No credential; `.gitignore` first | security §5 | TASK-010 | UTEST-023, TEST-016, STEST-009 | — | Ready |
+| REQ-NF-003 | Interrupted run resumable | reliability §3 | TASK-007 | **ETEST-009 ×8**, FTEST-001/011 | — | Ready |
+| REQ-NF-004 | Usable without documentation | product §6 | TASK-001, TASK-006 | ATEST-037 | — | **Needs update — see gaps** |
+| REQ-NF-005 | Blueprint/flow swap cost = 0 | **ADR-001** | TASK-002 | UTEST-024, TEST-017 | — | Ready |
+| REQ-NF-006 | Plain text, no colour-only meaning | `frontend-component-spec` | TASK-001, TASK-006 | ATEST-038, UTEST-025 | — | Ready |
+| REQ-NF-007 | Zero network calls | CON-003 | TASK-016 | ETEST-011, STEST-010 | — | Ready |
+| REQ-NF-008 | Identical on three platforms | CON-004 | TASK-003, TASK-018 | ETEST-012 ×3, FTEST-009 | — | Ready |
+| REQ-NF-009 | Entry point under 100 lines | BR-006 | TASK-013 | ATEST-021, TEST-009 | — | Ready |
+
+### Roles and business rules
+
+| Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
+|---|---|---|---|---|---|---|
+| REQ-R-001 | Four actor boundaries enforced | security §2 | TASK-004 | STEST-001…014 | — | Ready |
+| REQ-R-002 | No write outside `spec/` unasked | BR-008 | TASK-004 | STEST-002/003, FTEST-003 | — | Ready |
+| REQ-R-003 | No application source code | BR-001 | TASK-004 | TEST-012, STEST-001 | — | Ready |
+| REQ-R-004 | Declined write → resumable | reliability §3 | TASK-006 | ATEST-039, FTEST-002, STEST-011 | — | Ready |
+| REQ-R-005 | Task files name allowed + forbidden | API C3 | TASK-010 | ATEST-040, TEST-018, **ETEST-003** | — | Ready |
+| BR-001…BR-014 | *(all fourteen)* | See `requirements.md` §4 | TASK-004…012 | See `test-plan.md` coverage matrix | — | Ready |
+| SEC-A-001…003 | Authentication rules | security §1 | TASK-004 | STEST-009/010, FTEST-003 | — | Ready |
+| SEC-Z-001…004 | Authorization rules | security §2 | TASK-004 | STEST-002/003/006, TEST-003 | — | Ready |
+
+**Status values:** Draft · Ready · In review · Approved · Needs update · Released
+
+---
+
+## The chain (Ch. 10 §10.1)
+
+| Item | Simple question it answers |
+|---|---|
+| Requirement | What must the system do? |
+| Design decision | How will the system support it? |
+| Task | What work must be completed? |
+| Test | How will you verify it? |
+| Code reference | Where is it implemented? |
+| Review status | Is the chain complete and approved? |
+
+### Traced chain — REQ-F-024 end to end
+
+```
+REQ-F-024   The kit must not write outside the generated workspace folder without an
+            explicit confirmation naming the file.
+     |
+DD-004 / ADR-004   A fixed spec/ folder is the only writable target.
+BR-008             A write outside spec/ requires confirmation naming the file.
+SEC-Z-001          The path check runs AFTER normalisation.
+     |
+TASK-004    The boundary layer - built BEFORE the first write exists.
+     |
+UTEST-019   spec/../../etc rejected; specimen/x.md rejected; spec/../spec/x.md allowed
+STEST-002   Write to <repo>/README.md stops and asks
+STEST-003   Path traversal rejected despite the spec/ prefix
+STEST-004   Files outside spec/ identical before and after a full run
+STEST-013   The refusal names the path, never the file's contents
+FTEST-003   BOUNDARY_BLOCKED failure state
+     |
+code: instructions/boundary.md        <- blank until TASK-004 completes
+     |
+Review: Ready
+```
+
+---
+
+## Gap analysis (Ch. 10 §10.8)
+
+A **gap is any missing link**. Blank cells are the point of this document.
+
+| Gap found | What it may mean | What is being done |
+|---|---|---|
+| **Every code link is blank.** | No implementation exists. | Correct and expected — the workspace was written before code. Each fills in as its task completes. |
+| **REQ-NF-004** (usable without documentation) has one acceptance test and no automatable one. | It is genuinely a human judgement — *did a person understand it?* | Marked **Needs update**. Covered by the manual smoke test (`end-to-end-tests.md`) step 3, which is explicitly the one step that cannot be automated. |
+| **REQ-F-032** (round progress) is P2 with a single acceptance test. | It may be cut under CON-002. | Deliberate. Thin coverage makes it cheap to drop, and the matrix shows exactly what would be lost. |
+| **SM-2** (intake completion rate) has no requirement, task, or test. | The kit author's own definition of first-month success is unmeasurable under CON-007. | **Q-002 — open and unresolved.** It appears in `intent.md` §4 and `product-spec.md` §4 rather than being quietly dropped. |
+| **TASK-019** (two sessions, one repository) has **no requirement**. | It came from the seven-questions worksheet, not from an answer. | Stays **P3 and blocked** until it passes through `scope-change-log.md`. Code with no requirement is suspicious; so is a task with none. |
+| **Q-003** — the blueprint library may be core, not supporting. | If wrong, the library's thin specs and acceptance-only tests are the wrong strategy. | Open. Revisit after the first ten real intakes. |
+| **RSK-3** (host plugin format changes) has **no detector**. | It would be discovered from a user report. | `[TODO]` in `intent.md` and `data-and-integration-spec.md`. Open. |
+
+> Treat code with no requirement as **suspicious until approved.**
+
+---
+
+## AI-specific risks this catches (Ch. 10 §10.2)
+
+| AI risk | Traceability response |
+|---|---|
+| The agent builds a related but wrong feature. | Every task names its requirement; TASK-019 has none and is therefore blocked. |
+| The agent skips an edge case. | Every acceptance criterion produced an `ATEST`; the seven-questions worksheet produced eighteen `FTEST`s. |
+| Code passes basic tests but breaks a rule. | All fourteen business rules appear in the coverage matrix with named tests. |
+| The implementation changes architecture silently. | Every ADR's Compliance field names a fitness function, and `adr-index.md`'s rules are copied into `AGENT.md`. |
+
+---
+
+## Traceability review checklist
+
+- [x] Every important requirement has a unique ID.
+- [x] Every Must requirement has at least one task.
+- [x] Every Must requirement has at least one test.
+- [x] Every requirement links to a design decision or spec section.
+- [x] Every design decision links to one or more small tasks.
+- [ ] Every implemented feature has a code link — **none yet; expected.**
+- [x] Every security rule maps to a denial test.
+- [ ] Every released feature maps back to a PRD requirement — **nothing released yet.**
+- [ ] Any code without a requirement has been removed, documented, or approved — **no code yet**; the analogous case, TASK-019, is blocked.
+- [x] Any blank matrix cell has been reviewed — see the gap analysis; every blank is deliberate and named.
+- [x] Every changed behavior is reflected in updated specs.
+
+> Blueprint: ../../../spec-driven-template/01-docs/08-traceability/traceability.md

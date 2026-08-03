@@ -1,0 +1,44 @@
+# =============================================================================
+# THIS PROJECT HAS NO CONTAINER, AND THIS FILE IS AN EXPLANATION, NOT A BUILD.
+# =============================================================================
+#
+# The template ships a Dockerfile.example because most projects deploy something.
+# This one does not. Kept rather than deleted, because "we have no container"
+# and "nobody thought about packaging" look identical from outside.
+#
+# WHY THERE IS NOTHING TO CONTAINERISE
+#
+#   ADR-002   The kit ships no executable code. There is no process, no server,
+#             no entrypoint - nothing a container would start.
+#   CON-001   It is a Claude Code plugin: Markdown files installed into a
+#             repository by the host's own mechanism.
+#   CON-003   No network calls at run time. Nothing to expose, nothing to reach.
+#   CON-006   No runtime, no package manager, no dependency to install.
+#
+#   The unit of distribution is a PLUGIN VERSION on a marketplace, not an image
+#   on a registry. See 07-ops/01-deployment/deployment-plan.md.
+#
+# THE ONE PLACE A CONTAINER *IS* USED
+#
+#   CI. The gate and the scheduled install test run somewhere, and that somewhere
+#   is whatever the chosen provider gives us. That belongs to cicd-pipeline.md,
+#   not here - it is infrastructure for CHECKING the kit, never for SHIPPING it.
+#
+#   FF-009 asserts the published payload contains zero files that are not Markdown
+#   or the plugin manifest. A Dockerfile inside the payload would fail that check,
+#   correctly.
+#
+# IF YOU ARE ABOUT TO WRITE A REAL DOCKERFILE HERE, STOP.
+#
+#   A container implies a process, which implies a runtime, which supersedes
+#   ADR-002. Write the superseding ADR first; the Dockerfile follows from that
+#   decision rather than leading it.
+#
+#   The likely honest reason you are here is that you want a reproducible
+#   environment for CI. That is cicd-pipeline.md's job, and it does not need this
+#   file to exist.
+#
+# See also:
+#   01-docs/05-architecture/architecture-decisions/ADR-002-instructions-only-no-runtime.md
+#   07-ops/01-deployment/deployment-plan.md
+#   .env.example                                     (empty, for the same reason)
