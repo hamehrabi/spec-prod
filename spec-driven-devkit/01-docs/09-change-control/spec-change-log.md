@@ -85,6 +85,9 @@ implementation **learned**, not something it wished the specification said.*
 | 2026-08-03 | `fitness-functions.md` | CI provider and command filled; "What the register caught" gains 3 rows | Q-010 closed. The register's first entry is it catching **itself** being narrower than its written threshold | **v1.1** |
 | 2026-08-03 | `cicd-pipeline.md`, `runtime-and-scale.md` §4, `executable-tests.md` | Five `[TODO]` markers closed | Each was waiting on Q-010, Q-011, or Q-012. A closed decision contradicted by an open `[TODO]` elsewhere is drift of exactly the kind this file exists to catch | **v1.1** |
 | 2026-08-03 | `task-index.md`, `CLAUDE.md`, `context-pack.md` | TASK-001/002 marked Done; entry point's stage, version, and commands filled; context pack moved to TASK-003 | Stage changed, so the map has to | **v1.2** / **v1.1** |
+| 2026-08-03 | `decisions.md` | **+DD-020** — the library ships 79 Markdown blueprints; six non-Markdown artifacts are dropped | TASK-003 hit a real conflict: ADR-002/FF-009 require a Markdown-only payload, and six genuine blueprints are not Markdown. Kit author chose to drop them | **v1.2** |
+| 2026-08-03 | `open-questions.md` | **+Q-024**, blocking TASK-005 | DD-020 leaves **REQ-NF-002 with no implementation path**. Recorded as a live conflict rather than a quiet exception | **v1.2** |
+| 2026-08-03 | `traceability.md` | REQ-NF-002 → **Needs update**; +2 gap rows | A requirement whose tests will now fail. They keep their tests deliberately — a passing suite would mean the gap had been papered over | **v1.2** |
 
 **What was NOT changed, deliberately:** no requirement, no acceptance criterion, no ADR, and
 no threshold. Nothing above weakens a rule to match what was built — the one spec change the
