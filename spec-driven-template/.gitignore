@@ -1,0 +1,43 @@
+# Secrets — never commit real values (Ch. 21 §21.6)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets/
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Build output
+dist/
+build/
+.next/
+out/
+*.egg-info/
+
+# Test / coverage output
+coverage/
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Logs
+logs/
+*.log

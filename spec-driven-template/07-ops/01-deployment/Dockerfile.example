@@ -1,0 +1,48 @@
+# Example Dockerfile (Ch. 23 §23.5)
+#
+# A container packages an application with the runtime instructions it needs to run
+# consistently. It reduces the gap between "it works here" and "it works there."
+#
+# IMPORTANT: this example is intentionally simple. In a real project the container design
+# must match your application type, security requirements, and deployment environment.
+#
+# In a spec-driven workflow, do not just ask the agent for "a Dockerfile." Specify:
+#   - runtime and version
+#   - working directory
+#   - build command
+#   - startup command
+#   - exposed port
+#   - required environment variables
+#   - health check expectations
+#   - non-root user
+#
+# ---------------------------------------------------------------------------
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies first so this layer caches
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# Copy source and build
+COPY . .
+RUN npm run build
+
+# Do not run as root
+RUN addgroup -S app && adduser -S app -G app
+USER app
+
+EXPOSE 3000
+
+# Health check — the smoke test target referenced in 06-release/deployment-plan.md
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+
+CMD ["npm", "start"]
+
+# ---------------------------------------------------------------------------
+# Never bake secrets into the image. Pass them at runtime:
+#   docker run --env-file .env -p 3000:3000 <image>
+# See 07-ops/environment-config.md for the full key list.

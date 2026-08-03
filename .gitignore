@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------------
+# Copyrighted source material — NOT redistributable.
+# These are the books and book distillations this blueprint was built FROM.
+# The blueprint itself is original work and is committed; the sources are not.
+# ---------------------------------------------------------------------------
+mainbook.pdf
+*.pdf
+architecture-artefacts/
+architecture-artefacts.zip
+
+# Tooling
+.qodo/
+
+# Secrets — never commit real values
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+
+# Dependencies / build (for when 04-src/ has real code)
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+dist/
+build/
+coverage/
+.pytest_cache/
+*.log
