@@ -169,6 +169,8 @@ golden set needs to grow whenever a real intake surfaces a shape the fixtures di
 | 2026-08-03 | FF-001 | **Found a defect in itself.** Writing UTEST-013 exposed that FF-001 counted end-to-end paths over the user-invocable commands only, so a command hidden with `user-invocable: false` could add a second orchestration path unseen. Fixed; **BUG-001** in `debugging-specification.md` |
 | 2026-08-03 | FF-009 | **Seen to fail in CI**, deliberately. A branch adding `plugin/package.json` turned the gate red — `RESULT: FAIL — FF-009 blocks the merge`, job exit 1 — and FF-001 and FF-002 still reported their own results in the same log. Branch deleted. This is the drill, not a catch |
 | 2026-08-03 | FF-001, FF-002 | **Seen to fail locally** against deliberately broken inputs: a second command file, and one commit touching a blueprint and the question set together |
+| 2026-08-03 | FF-017 | **Caught a cross-platform defect before it could ship.** The working tree held CRLF while Git stored LF, so every blueprint would have hashed differently on Windows and on CI — the check would have gone red on its first push while detecting nothing real. Fixed at the source by pinning the payload to LF (DD-021) rather than by normalising inside the hasher, which would have hidden real alterations behind encoding changes |
+| 2026-08-03 | FF-017 | **Seen to fail** in all four modes: altered (one trailing space), missing (one file deleted), unlisted (one file added), and absent manifest. Each names the file and which of the three problems it is |
 
 > The first row is the one worth reading twice. A fitness function that has never been run
 > against a case designed to break it is a claim, and this register's first entry is the
