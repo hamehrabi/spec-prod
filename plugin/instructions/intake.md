@@ -9,6 +9,16 @@ takes, and then stops.
 
 ---
 
+## Step 0 — Verify the library, before anything else
+
+**A precondition of the run, not a step inside it.** Follow `instructions/integrity.md` and
+compare `blueprints/MANIFEST.md` against the library on disk. If anything is altered, missing,
+or unlisted: name which of the three it is, say that nothing was written, and **stop**.
+
+This runs **before the preamble and before question one** — not before the first write. A
+developer who answers eight rounds and is only then told the library was corrupt has been made
+to waste the entire interview.
+
 ## Step 1 — Print the preamble
 
 Print the following as plain terminal text, before anything else. Do not add a heading, a
@@ -77,7 +87,9 @@ memory is exactly the invention this file forbids everywhere else.
 
 ## Step 2 — Stop
 
-Stop. This version of the plugin ends after the preamble.
+Stop. This version of the plugin ends after the preamble. The end-of-run integrity re-check
+(`instructions/integrity.md`, run 2) belongs with validation, which arrives with the rounds
+that actually write something — there is nothing yet for a run to have modified.
 
 - Ask **no** question.
 - Create, modify, or delete **no** file — not in `spec/`, not anywhere.

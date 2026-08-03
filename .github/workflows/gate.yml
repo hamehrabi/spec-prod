@@ -4,6 +4,7 @@
 # a generated workspace, which does not exist yet:
 #
 #   stage 1  shape of the plugin itself     FF-001, FF-002, FF-009   <- here
+#            library integrity              FF-017                   <- here
 #   stage 2  unit and integration tests                              <- here
 #   stage 3  generate golden workspaces                              TASK-016
 #   stage 4  walk the golden workspaces     FF-004..FF-008, FF-010..FF-014
@@ -42,13 +43,14 @@ jobs:
       # Cheapest checks first: a structural violation should fail in seconds, not after
       # generating 36 workspaces. All three run even when one fails, so a single log shows
       # every violation rather than only the first.
-      - name: Stage 1 — shape of the plugin itself (FF-001, FF-002, FF-009)
+      - name: Stage 1 — shape of the plugin itself (FF-001, FF-002, FF-009, FF-017)
         run: |
           failed=0
           for check in \
             ci/ff-001-single-command.mjs \
             ci/ff-002-module-independence.mjs \
-            ci/ff-009-no-executable-payload.mjs
+            ci/ff-009-no-executable-payload.mjs \
+            ci/ff-017-blueprint-integrity.mjs
           do
             echo "::group::$check"
             node "$check" || failed=1
