@@ -345,6 +345,13 @@ Python FastAPI + React · Django · Other.
 - `01-docs/05-architecture/architecture-decisions/ADR-001-*.md` — the architecture-style
   decision. **Compare at least two genuinely different options** (not one option and two
   strawmen), and fill the **Compliance** field naming how it will be enforced.
+  Write a separate ADR for **every** consequential choice made in this round — stack,
+  data store, and auth model each get one if the trade-off was real.
+- `01-docs/05-architecture/architecture-decisions/ADR-000-template.md` — copy the blank
+  template through, so the team has a form for future decisions.
+- `01-docs/05-architecture/architecture-decisions/adr-index.md` — the index table (ID,
+  title, status, date, supersedes) **plus the "rules the ADRs impose on the AI assistant"
+  table**. Every rule in that table must also appear in `06-agent/01-instructions/AGENT.md`.
 - `01-docs/04-technical-spec/fitness-functions.md` — **one per driving characteristic,
   minimum.** Each must be an automated check with a threshold that **fails the build**.
   A warning is a decoration. Wire them into the CI gate you define in Round 8.
@@ -444,9 +451,22 @@ Which ONE budget should structure the AI feature?**
 - A team of developers
 
 **Then write:**
-- `03-tests/01-plan/test-plan.md` and `test-specification.md`, plus the level files under
-  `02-functional/`, `03-non-functional/`, `04-failure/`, and `05-executable/`.
-  **Tests come from acceptance criteria, never from imagined code.**
+**Tests come from acceptance criteria, never from imagined code.** Write **every** file
+below — do not summarise a folder and move on:
+
+| File | Must contain |
+|---|---|
+| `03-tests/01-plan/test-plan.md` | Strategy + a **coverage matrix**: every requirement × every level, showing which cells are intentionally empty |
+| `03-tests/01-plan/test-specification.md` | Per-test fields (ID, requirement, level, preconditions, input, expected, risk covered) |
+| `03-tests/02-functional/acceptance-tests.md` | Given–When–Then, one per acceptance criterion, `ATEST-###` |
+| `03-tests/02-functional/unit-tests.md` | Rule under test + **normal / edge / failure** case each, `UTEST-###` |
+| `03-tests/02-functional/integration-tests.md` | Contract tests: status **and side effect** (`assert nothing was written`), `TEST-###` |
+| `03-tests/02-functional/end-to-end-tests.md` | Only flows a user would complain loudly about + the production smoke script, `ETEST-###` |
+| `03-tests/03-non-functional/security-tests.md` | One **deny** test per role per protected action, `STEST-###` |
+| `03-tests/03-non-functional/performance-tests.md` | Workflow, metric, target, data volume, action if exceeded, `PTEST-###` |
+| `03-tests/04-failure/edge-cases-and-failures.md` | The **seven questions** worksheet (empty · too long · duplicated · expired · unauthorised · dependency down · repeated) |
+| `03-tests/04-failure/failure-tests.md` | The resulting cases: expected status, safe message, **and what must NOT be in the response or the database**, `FTEST-###` |
+| `03-tests/05-executable/executable-tests.md` | Plan → runnable mapping, file-naming convention (`test_<ID>_<slug>`), and the run commands |
 - **Weight the test shape by subdomain type** (from Round 2's map): core → pyramid,
   mostly unit; supporting → reversed, mostly end-to-end. Do not prescribe one shape
   for everything.
@@ -511,16 +531,48 @@ how long could you be down?**
 - `07-ops/02-monitoring/` — monitoring-plan (signals, log events, never-log list), runbook.
 - `07-ops/03-maintenance/` — maintenance-notes, maintenance-log, spec-drift-checklist.
 - `07-ops/04-release/` — release-notes (empty `[Unreleased]`), engineering-quality-review.
-- `05-review/` — all four sub-folders, checklists pre-filled for their stack and roles.
-- `06-agent/01-instructions/AGENT.md` — **the most important file.** Project goal, current
-  stage, source-of-truth order, the boundary rules, output format, and a table of *rules
-  the ADRs impose*. This is what a coding agent reads first.
-- `06-agent/` — agent-rules-and-coding-standards, context-pack (pre-filled for TASK-001),
-  prompt-library, the three handoff files.
-- `01-docs/09-change-control/spec-change-log.md` — versions at v1.0.
-- `01-docs/10-reference/glossary.md`, `repeatable-system.md`.
-- `04-src/README.md` — layer boundaries for their stack. **No code.**
-- `.gitignore`.
+**`05-review/` — write all eleven files, named:**
+
+| File | Must contain |
+|---|---|
+| `01-logs/change-log.md` | Dated entries; **include a rejected change** so the log records *why the product does not do something* |
+| `01-logs/review-log.md` | Entry template + the five team review layers |
+| `01-logs/feedback-register.md` | Feedback → affected requirement → owner → decision |
+| `02-checklists/code-review-checklist.md` | Seven review layers **+ the 12 design red flags** |
+| `02-checklists/security-review.md` | Auth, authorization, validation, secrets — pre-filled with **their** roles |
+| `02-checklists/traceability-review.md` | Forward **and backward** trace (code with no requirement) |
+| `02-checklists/risk-storming.md` | Grid rows = their driving characteristics; score alone → consensus → mitigate |
+| `03-version-control/version-control-checklist.md` | Branch naming with requirement IDs, commit format `type(scope): action for REQ-###` |
+| `03-version-control/issue-template.md` | Requirement ID, acceptance criteria, likely files, out of scope |
+| `03-version-control/pull-request-template.md` | Requirement link, what changed, how tested, **rollback notes**, reviewer checklist |
+| `04-debugging/debugging-checklist.md` | Evidence-first: state expected, actual, failing test, logs **before** asking an agent |
+| `04-debugging/debugging-specification.md` | Bug log with **root cause ≠ symptom**, regression test, and the spec that should have prevented it |
+
+**`06-agent/` — write all seven files, named:**
+
+| File | Must contain |
+|---|---|
+| `01-instructions/AGENT.md` | **The most important file.** Project goal, current stage, source-of-truth order, folder table, the boundary rules, output format, and a table of *rules the ADRs impose*. A coding agent reads this first. |
+| `01-instructions/agent-rules-and-coding-standards.md` | Naming, layer responsibilities, error handling, logging, and a **rule-version log** to append to when an AI mistake repeats |
+| `02-context/context-pack.md` | **Pre-filled for TASK-001** — background, that task, its requirement, technical rules, file map, restrictions, review rules |
+| `03-prompts/prompt-library.md` | The prompts adapted to **their** stack and IDs — not generic ones |
+| `04-handoffs/product-to-engineering-handoff.md` | Problem statement, users, must-haves with pass/fail criteria, non-goals, risks, open questions, decision owner |
+| `04-handoffs/developer-to-agent-handoff.md` | Task boundary, context to use, **files in and out of scope**, expected output, review rules, "do not proceed if" |
+| `04-handoffs/team-workflow-pack.md` | The eight-step workflow and alignment rhythm — **keep it short if they answered "solo developer"** |
+- `01-docs/09-change-control/spec-change-log.md` — all artifacts at v1.0, with the
+  versioning table (what changes each one, who approves, what evidence is needed).
+- `01-docs/10-reference/glossary.md` — **their** domain terms, not generic definitions.
+  Every term that appears in a requirement belongs here with one agreed meaning.
+- `01-docs/10-reference/repeatable-system.md` — the process, the template library, and an
+  **empty improvement log** to fill in after the project.
+- `01-docs/10-reference/recommended-tools.md` — the tools actually chosen, **each
+  justified against a constraint**, plus what was rejected and why.
+- `04-src/README.md` — layer boundaries for their stack, and the rule that a handler never
+  imports the data layer. **No code.**
+- `.gitignore` — must exclude `.env`, secrets, and build output.
+
+> **Do not create `appendix-index.md`.** It maps the source book's appendices to blueprint
+> files — it is template scaffolding, not a project artifact. `CLAUDE.md` is the user's map.
 
 ---
 
