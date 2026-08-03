@@ -63,22 +63,25 @@ If you cannot name the requirement, stop and ask.
 ## Commands
 
 ```
-install:  [TODO: ask the team - TASK-001 chooses the plugin install path]
-test:     [TODO: ask the team - test runner unchosen, Q-011]
+install:  claude --plugin-dir plugin        # local; marketplace at release
+test:     node --test "tests/**/*.mjs"      # zero dependencies (DD-018)
 lint:     n/a - the payload is Markdown and a manifest (ADR-002)
-run:      [TODO: ask the team - the intake command name is unchosen, Q-009]
-gate:     [TODO: ask the team - CI provider unchosen, Q-010]
-          # 14 fitness functions + six test levels; must pass before merge
+run:      /spec-driven-devkit:spec-intake   # the one command, forever (DD-014)
+gate:     .github/workflows/gate.yml        # required check on main, admins included
+          # FF-001, FF-002, FF-009 + tests today; the other 11 need a golden workspace
 ```
+
+> **The plugin payload lives at `plugin/`, not in `04-src/`** (DD-015). `04-src/README.md`
+> still describes the module layout and is still accurate about *what* the modules are.
 
 ## Where things stand
 
-- **Stage:** specifications complete · implementation not started
-- **Next task:** [`02-tasks/02-task-files/TASK-001.md`](02-tasks/02-task-files/TASK-001.md)
-- **Open questions blocking work:** [`01-docs/01-intent/open-questions.md`](01-docs/01-intent/open-questions.md) — 20 open, **4 block release** (Q-002, Q-007, Q-016, Q-022)
-- **Change log:** [`05-review/01-logs/change-log.md`](05-review/01-logs/change-log.md)
+- **Stage:** specifications complete · **TASK-001 and TASK-002 done** · the plugin installs, runs, and is gated
+- **Next task:** [`02-tasks/02-task-files/TASK-003.md`](02-tasks/02-task-files/TASK-003.md) — package the blueprint library
+- **Open questions blocking work:** [`01-docs/01-intent/open-questions.md`](01-docs/01-intent/open-questions.md) — 14 open, **3 block release** (Q-002, Q-007, Q-016). **Q-007 is escalated: the repository is public and has no `LICENSE`**
+- **Change log:** [`05-review/01-logs/change-log.md`](05-review/01-logs/change-log.md) · spec changes: [`01-docs/09-change-control/spec-change-log.md`](01-docs/09-change-control/spec-change-log.md)
 - **Produced by:** the intake in `spec-driven-template/MASTER-PROMPT.md`, 2026-08-03
-- **Plugin version:** `[TODO: no version exists yet — TASK-001 creates the manifest]`
+- **Plugin version:** `0.1.0` — read it from `plugin/.claude-plugin/plugin.json`, never from here
 
 > Keep this file under 100 lines and update it when the structure or stage changes.
 > A stale map sends agents to files that moved.

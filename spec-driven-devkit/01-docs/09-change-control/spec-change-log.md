@@ -70,6 +70,28 @@ All at **v1.0**, created 2026-08-03 by the eight-round intake.
 | 2026-08-03 | All of `03-tests/` | +24 test IDs | Every new requirement got tests **before** any task was written | v1.1 |
 | 2026-08-03 | `task-index.md` | +TASK-020 (P0), TASK-021 (P0), TASK-022 (P1) | Two are P0: the gate changes what a round means; integrity must precede the fill procedure | v1.1 |
 
+### After implementation began — authorised by the kit author, 2026-08-03
+
+*The first spec change not made by the intake. Every row below records something the
+implementation **learned**, not something it wished the specification said.*
+
+| Date | Artifact | Change | Reason | Version |
+|---|---|---|---|---|
+| 2026-08-03 | `decisions.md` | +DD-014…DD-019 | Six decisions the tasks could not proceed without: command name, payload location, test location, CI provider, test runner, install-test cadence | **v1.1** |
+| 2026-08-03 | `open-questions.md` | Q-008, Q-009, Q-010, Q-011, Q-012, Q-022 closed; **Q-007 escalated**; "four that block release" → three | Five were answered by the kit author when the tasks stopped and asked; Q-022 was answered by running the scan. Q-007 stopped being pending the moment the repository went public | **v1.1** |
+| 2026-08-03 | `traceability.md` | Four code links filled; three gap rows added | First implemented requirements. The new gaps are the spec's self-contradiction on payload location, the Windows-only platform evidence, and the do-not-change catch-22 | **v1.1** |
+| 2026-08-03 | `debugging-specification.md` | **+BUG-001**, in full | FF-001 computed two independent thresholds over one filtered set. Found by UTEST-013 while it was being written | **v1.1** |
+| 2026-08-03 | `AGENT.md` | +3 rows in "Lessons from past mistakes" | The table was empty because nothing had been built. It is not any more | **v1.1** |
+| 2026-08-03 | `fitness-functions.md` | CI provider and command filled; "What the register caught" gains 3 rows | Q-010 closed. The register's first entry is it catching **itself** being narrower than its written threshold | **v1.1** |
+| 2026-08-03 | `cicd-pipeline.md`, `runtime-and-scale.md` §4, `executable-tests.md` | Five `[TODO]` markers closed | Each was waiting on Q-010, Q-011, or Q-012. A closed decision contradicted by an open `[TODO]` elsewhere is drift of exactly the kind this file exists to catch | **v1.1** |
+| 2026-08-03 | `task-index.md`, `CLAUDE.md`, `context-pack.md` | TASK-001/002 marked Done; entry point's stage, version, and commands filled; context pack moved to TASK-003 | Stage changed, so the map has to | **v1.2** / **v1.1** |
+
+**What was NOT changed, deliberately:** no requirement, no acceptance criterion, no ADR, and
+no threshold. Nothing above weakens a rule to match what was built — the one spec change the
+implementation *would* have benefited from (loosening TASK-001's "nothing else" so the
+preamble could explain that this version stops there) was left alone, and recorded as a risk
+in the report instead.
+
 ---
 
 ## The rule that matters most

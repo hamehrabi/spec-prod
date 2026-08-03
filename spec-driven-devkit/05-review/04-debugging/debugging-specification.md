@@ -10,7 +10,50 @@
 
 | ID | Date | Symptom | **Root cause** (≠ symptom) | Regression test | **Spec that should have prevented it** | Status |
 |---|---|---|---|---|---|---|
-| *(empty — nothing has been built yet)* | | | | | | |
+| **BUG-001** | 2026-08-03 | FF-001 passed a payload containing a second command that routed to a second orchestration module. | **The check counted its two thresholds over the same set.** It derived entry paths from the *user-invocable* commands only, so `user-invocable: false` removed a command from the command count **and** hid its path. `fitness-functions.md` FF-001 states two independent counts; the implementation collapsed them into one. | UTEST-013, third case — **seen to fail** against the unfixed check | `fitness-functions.md` FF-001. The register was correct and unambiguous; the implementation narrowed it. Nothing needed changing in the spec | **Fixed** |
+
+### BUG-001 in full
+
+```
+Bug ID:        BUG-001
+Date:          2026-08-03
+Reported by:   UTEST-013, while it was being written
+Version:       plugin 0.1.0, ci/ff-001-single-command.mjs at TASK-002
+
+SYMPTOM
+  A payload with two command files passed FF-001, provided the second carried
+  user-invocable: false.
+
+ROOT CAUSE
+  FF-001 guards two thresholds: "exactly 1 user-invocable command" AND "exactly 1
+  end-to-end path". The check computed both from the same filtered list, so the
+  filter that correctly excluded a hidden command from the FIRST count also,
+  incorrectly, excluded its orchestration reference from the SECOND.
+
+WHY IT WAS MISSED
+  Which test should have caught it?   UTEST-013.
+  Did that test exist?                No — it was being written when it caught this.
+  The first two cases of UTEST-013 passed against the unfixed check, because both
+  broke the command count, which worked. Only the third case separated the two
+  thresholds, and it is the one that found the defect.
+
+REGRESSION TEST
+  Test ID:                                    UTEST-013, case 3
+  Seen to FAIL against the unfixed version:   yes
+
+THE SPECIFICATION THAT SHOULD HAVE PREVENTED IT
+  fitness-functions.md FF-001 already says "Count of user-invocable intake commands,
+  AND of distinct end-to-end paths". Two counts, stated plainly. The spec was not
+  unclear and was not ignored — it was read, and then implemented narrowly. That is a
+  third failure mode the entry template does not list, and the more common one for a
+  check written by the same session that read the rule.
+
+REPEATABLE MISTAKE?
+  Yes. Row added to AGENT.md "Lessons from past mistakes".
+
+Artifacts updated:
+  ci/ff-001-single-command.mjs, tests/unit/test_UTEST-013_second_command_fails_ff001.mjs
+```
 
 ---
 

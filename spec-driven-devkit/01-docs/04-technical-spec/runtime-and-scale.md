@@ -108,9 +108,9 @@ CON-003 currently forbids outright, so this trigger fires only if that constrain
 | Instance size | n/a |
 | **Monthly cost ceiling** | **$0 to run.** No hosting, no service, no API key, no per-seat charge — CON-006 makes this a product requirement, not a happy accident. |
 | Cost per unit | **$0** per user, per run, and per generated workspace, to the kit author. |
-| Biggest cost driver | **The kit author's CI**, which is the only thing here that costs money: golden-workspace generation and 14 fitness functions on every change. `[TODO: cost ceiling and alert threshold for CI minutes — kit author to set a number, even if it is $0 on a free tier. See Round 8.]` |
-| Quotas & hard limits | CI provider minutes, once chosen (`cicd-pipeline.md`, Round 8). No other quota exists. |
-| Alert at | `[TODO: percentage of the CI ceiling — set with the number above.]` |
+| Biggest cost driver | **The kit author's CI**, which is the only thing here that costs money: golden-workspace generation and 14 fitness functions on every change. **Ceiling: $0/month** (DD-017, closes Q-010) — GitHub Actions minutes are unmetered for public repositories, so the ceiling is removed rather than budgeted. |
+| Quotas & hard limits | **None while the repository is public.** If it is ever made private, the Free plan allows 2,000 Linux minutes a month and this row changes from *no quota* to *a real one* — see `cicd-pipeline.md` Cost. |
+| Alert at | **n/a — there is no metered quantity to alert on.** Not "unset": the alert exists to warn before a ceiling is reached, and there is no ceiling. Revisit the moment the repository goes private or a macOS runner is added — macOS bills at 10× and TASK-018 will want one. |
 
 > **Cost is an architectural characteristic.** It behaves like latency: unmeasured, it
 > only surfaces as a surprise. A cost ceiling with an alert is the cheapest fitness

@@ -4,8 +4,15 @@
 > The pipeline is where written governance becomes enforced governance. **Until a fitness
 > function actually runs and fails a build, it is a document.**
 
-**Provider:** `[TODO: not chosen — pick one free at this scale, and record the monthly
-ceiling and alert threshold that `runtime-and-scale.md` §4 leaves open.]`
+**Provider:** **GitHub Actions**, `ubuntu-latest`, on a **public** repository (DD-017, closes
+Q-010). Monthly ceiling **$0**; no minute threshold to alert on, because Actions minutes are
+unmetered for public repositories.
+
+**Public was a requirement, not a preference.** Branch protection is unavailable on a private
+repository at this plan, so the gate could have run and gone red without ever blocking a
+merge — and a check that does not block is what `fitness-functions.md` calls a decoration.
+The trade is recorded in DD-017 and it escalated **Q-007**, which is now live rather than
+pending.
 
 ---
 
@@ -55,7 +62,10 @@ useful script appears. Skipping it does not weaken a rule; it deletes the archit
 ## The scheduled job — RISK-004's detector
 
 ```
-schedule:  [TODO: cadence not set - weekly is likely enough for under 50 users]
+schedule:  WEEKLY (DD-019, closes Q-012).
+           NOT YET BUILT: it installs the PUBLISHED plugin and runs a fixed answer
+           script. Nothing is published and no answer scripts exist before TASK-016,
+           so a job written now could only ever report a failure it caused itself.
 
   1. Install the PUBLISHED plugin (not the branch) into a clean repository, as a user would.
   2. Run one full intake with a fixed answer script.
@@ -98,7 +108,7 @@ what people actually have installed.
 
 | Item | Value |
 |---|---|
-| Expected cost | `[TODO: set a monthly ceiling and an alert threshold, even if it is $0 on a free tier. This is the only thing in the project that costs money — see runtime-and-scale.md §4.]` |
+| Expected cost | **$0/month, with no threshold to alert on** (DD-017). GitHub Actions minutes are unmetered for public repositories, which is what removes the number rather than setting it. **If the repository is ever made private again, this row is wrong from that day** — the free tier becomes 2,000 Linux minutes a month, and both a ceiling and a threshold have to be set |
 | Biggest driver | Stage 3 (generating 36 golden workspaces) and stage 5 (eight resume runs). |
 | If it becomes expensive | Reduce the **scheduled** job's frequency first, never the merge gate. |
 

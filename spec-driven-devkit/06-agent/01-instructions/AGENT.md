@@ -164,7 +164,9 @@ Each will look like a small, helpful improvement. Each supersedes an accepted AD
 
 | Date | Mistake | Rule added |
 |---|---|---|
-| *(empty — nothing has been built yet)* | | |
+| 2026-08-03 | **BUG-001.** FF-001 states two independent counts — user-invocable commands, and end-to-end paths. The check computed both from one filtered list, so a filter that was right for the first count silently narrowed the second. | When a rule names **two** thresholds, compute each over its own set. Write the case that breaks only the second one — if every test you can think of trips both, you have not tested the second. |
+| 2026-08-03 | Two tasks instructed the agent to record a decision in `decisions.md` and update `traceability.md`, while the same tasks' do-not-change lists forbade editing `spec/`. The instinct is to pick the reading that lets the task finish. | **A task that contradicts itself is a stop-and-ask, not a judgement call.** Do the part that is unambiguous, report the conflict, and let the kit author resolve it. A spec change is theirs to authorise — an agent editing `spec/` to complete its own task is the exact failure this product exists to prevent. |
+| 2026-08-03 | The specification placed the plugin payload in `04-src/` in two files and outside `spec/` in a third. Both readings were defensible; neither was flagged in any stop condition. | **When two spec files disagree about a path, treat it as a conflict even when one reading looks obviously intended.** Name both readings, say which constraints each satisfies, and ask. Record the answer as a `DD-###` so the next reader is not asked to re-derive it. |
 
 ---
 

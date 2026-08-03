@@ -190,7 +190,7 @@ Referenced here as `CON-###`.
 | CON-005 | Never modify an existing file unasked | REQ-F-024, REQ-F-025, REQ-F-026, REQ-R-002, BR-008 |
 | CON-006 | No paid services or API keys | REQ-F-001, REQ-F-003 |
 | CON-007 | Developer data stays local; no telemetry | REQ-NF-007, BR-014 |
-| CON-008 | `[TODO: team size and plugin-internals experience — see Q-008]` | — |
+| CON-008 | One developer directing an AI coding agent, one task at a time. Plugin-internals experience proved sufficient at TASK-001 (Q-008 closed) | REQ-F-001, REQ-R-005 |
 
 ---
 
@@ -254,7 +254,8 @@ Format: Given–When–Then. These become the acceptance tests in
 
 Q-001, Q-004, and Q-005 were **closed** in Round 3 and are reflected above (validation is
 intake-only; an existing `CLAUDE.md` is never touched; the workspace has a fixed root
-folder). Q-002, Q-003, Q-006, Q-007, and Q-008 remain open.
+folder). **Q-008 was closed at TASK-001** — no spike was needed, and CON-008 is now filled.
+Q-002, Q-003, Q-006, and Q-007 remain open.
 
 ---
 

@@ -30,9 +30,22 @@ true, because they live in different places:
 performed by the agent at the end of intake (REQ-F-029). These tests are the kit author's
 independent check — the one that does not share a failure mode with the thing it checks.
 
-`[TODO: the test runner and language have not been chosen. It must be something the kit
-author already has, since nothing here ships. Pick it when writing TASK-002; the naming
-convention and run commands below hold regardless.]`
+**Runner: `node --test`** (DD-018, closes Q-011). Built into an already-installed Node, so
+there is **no package manifest, no lockfile, and no install step anywhere in the repository**
+— which keeps it clean of exactly the files FF-009 exists to find, and removes any argument
+about whether ADR-002 was bent for the tests that enforce it.
+
+**Location: `tests/` at the repository root, not here** (DD-016). This folder is inside the
+specification workspace, which every task's do-not-change list forbids editing; the tests it
+describes live beside `ci/` and `.github/` instead. The structure, naming convention, and
+mapping below hold unchanged — only the root differs:
+
+```
+tests/
+  unit/           # one rule of the intake, in isolation
+  integration/    # blueprint -> artifact; contract conformance; denials
+  end-to-end/     # full intakes, resume, platforms, hand-off
+```
 
 ---
 
@@ -146,11 +159,11 @@ end-to-end/test_FTEST-004_missing_blueprint_halts
 ## Run commands
 
 ```
-Unit only:        <runner> 03-tests/05-executable/unit
-Integration:      <runner> 03-tests/05-executable/integration
-End-to-end:       <runner> 03-tests/05-executable/end-to-end
-Evals:            <runner> 03-tests/05-executable/end-to-end -k "EV-"
-One requirement:  <runner> 03-tests/05-executable -k "UTEST-019 or STEST-003"
+Everything:       node --test "tests/**/*.mjs"
+Unit only:        node --test "tests/unit/*.mjs"
+Integration:      node --test "tests/integration/*.mjs"
+End-to-end:       node --test "tests/end-to-end/*.mjs"
+One requirement:  node --test "tests/**/*.mjs" --test-name-pattern "UTEST-019|STEST-003"
 
 Full gate (must pass before merge):
   1. FF-001, FF-002, FF-009        # shape of the plugin itself - fastest, fail early
@@ -161,8 +174,9 @@ Full gate (must pass before merge):
   6. eval scorers                  # 11 deterministic; the 2 human ones gate RELEASE, not merge
 ```
 
-`[TODO: `<runner>` is unchosen — see the note above. The step order is not arbitrary:
-cheapest and most likely to fail first, `resume ×8` last because it is the slowest.]`
+The step order is not arbitrary: cheapest and most likely to fail first, `resume ×8` last
+because it is the slowest. Steps 1 and 2 are implemented in `.github/workflows/gate.yml`;
+steps 3–6 need a golden workspace to walk and arrive with TASK-016.
 
 ---
 

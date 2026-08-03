@@ -19,10 +19,10 @@ maintain it.
 
 | Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
 |---|---|---|---|---|---|---|
-| REQ-F-001 | Install via the plugin mechanism | ADR-002, tech §1 | TASK-001 | ATEST-001, TEST-001 | — | Ready |
-| REQ-F-002 | One command starts intake | API C1 | TASK-001 | ATEST-002, TEST-002 | — | Ready |
+| REQ-F-001 | Install via the plugin mechanism | ADR-002, tech §1 | TASK-001 ✅ | ATEST-001, TEST-001 | `plugin/.claude-plugin/plugin.json` | **Approved** |
+| REQ-F-002 | One command starts intake | API C1 | TASK-001 ✅ | ATEST-002, TEST-002 | `plugin/commands/spec-intake.md` (DD-014) | **Approved** |
 | REQ-F-003 | Library ships inside the plugin | ADR-001, tech §2 | TASK-003 | ATEST-003, TEST-003, FTEST-004 | — | Ready |
-| REQ-F-004 | Preamble states the round count | `frontend-component-spec` | TASK-001 | ATEST-004, UTEST-001 | — | Ready |
+| REQ-F-004 | Preamble states the round count | `frontend-component-spec` | TASK-001 ✅ | ATEST-004, UTEST-001 | `plugin/instructions/intake.md` | **Approved** |
 
 ### Functional — the interview (core subdomain)
 
@@ -96,10 +96,10 @@ maintain it.
 | REQ-NF-002 | No credential; `.gitignore` first | security §5 | TASK-010 | UTEST-023, TEST-016, STEST-009 | — | Ready |
 | REQ-NF-003 | Interrupted run resumable | reliability §3 | TASK-007 | **ETEST-009 ×8**, FTEST-001/011 | — | Ready |
 | REQ-NF-004 | Usable without documentation | product §6 | TASK-001, TASK-006 | ATEST-037 | — | **Needs update — see gaps** |
-| REQ-NF-005 | Blueprint/flow swap cost = 0 | **ADR-001** | TASK-002 | UTEST-024, TEST-017 | — | Ready |
-| REQ-NF-006 | Plain text, no colour-only meaning | `frontend-component-spec` | TASK-001, TASK-006 | ATEST-038, UTEST-025 | — | Ready |
+| REQ-NF-005 | Blueprint/flow swap cost = 0 | **ADR-001** | TASK-002 ✅ | UTEST-024, TEST-017 | `ci/ff-002-module-independence.mjs` | **Approved** |
+| REQ-NF-006 | Plain text, no colour-only meaning | `frontend-component-spec` | TASK-001 ✅, TASK-006 | ATEST-038, UTEST-025 | `plugin/instructions/intake.md` *(preamble only)* | Ready |
 | REQ-NF-007 | Zero network calls | CON-003 | TASK-016 | ETEST-011, STEST-010 | — | Ready |
-| REQ-NF-008 | Identical on three platforms | CON-004 | TASK-003, TASK-018 | ETEST-012 ×3, FTEST-009 | — | Ready |
+| REQ-NF-008 | Identical on three platforms | CON-004 | TASK-003, TASK-018 | ETEST-012 ×3, FTEST-009 | — | Ready — **verified on Windows only so far; see gaps** |
 | REQ-NF-009 | Entry point under 100 lines | BR-006 | TASK-013 | ATEST-021, TEST-009 | — | Ready |
 
 ### Roles and business rules
@@ -162,7 +162,10 @@ A **gap is any missing link**. Blank cells are the point of this document.
 
 | Gap found | What it may mean | What is being done |
 |---|---|---|
-| **Every code link is blank.** | No implementation exists. | Correct and expected — the workspace was written before code. Each fills in as its task completes. |
+| **Most code links are still blank.** | Implementation has started but is four tasks in. | Expected. TASK-001 and TASK-002 are complete and their four links are filled. Every remaining blank fills in as its task completes. |
+| **REQ-NF-008** (identical on three platforms) is filled in by inspection, not by running. | The payload contains no shell, no path separator, and no case-sensitivity assumption — but TASK-001 was only ever *run* on Windows, and CI runs only `ubuntu-latest`. | Named rather than assumed. **TASK-018** owns the real three-platform run; until it completes, this row is an argument rather than evidence. |
+| **The specification contradicted itself on where the plugin lives.** | `AGENT.md` and `04-src/README.md` place the payload in `04-src/`; the TASK-001 hand-off lists its files unprefixed and marks `spec/**` do-not-change. Both readings cannot hold. | Resolved deliberately by **DD-015** and **DD-016**, not by picking quietly. `04-src/README.md` now documents a layout that lives at `plugin/` — a real inconsistency, and the next task to touch either file should close it. |
+| **Every task forbids editing `spec/`, yet several instruct the agent to record decisions in `decisions.md` and update this matrix.** | A catch-22 that made TASK-001 and TASK-002 both structurally incompletable. | Surfaced rather than resolved by the agent. The kit author authorised this change explicitly; **that is the correct shape** — a spec change made by its owner, not an agent editing `spec/` to make its own task pass. |
 | **REQ-NF-004** (usable without documentation) has one acceptance test and no automatable one. | It is genuinely a human judgement — *did a person understand it?* | Marked **Needs update**. Covered by the manual smoke test (`end-to-end-tests.md`) step 3, which is explicitly the one step that cannot be automated. |
 | **REQ-F-032** (round progress) is P2 with a single acceptance test. | It may be cut under CON-002. | Deliberate. Thin coverage makes it cheap to drop, and the matrix shows exactly what would be lost. |
 | **SM-2** (intake completion rate) has no requirement, task, or test. | The kit author's own definition of first-month success is unmeasurable under CON-007. | **Q-002 — open and unresolved.** It appears in `intent.md` §4 and `product-spec.md` §4 rather than being quietly dropped. |
@@ -192,7 +195,7 @@ A **gap is any missing link**. Blank cells are the point of this document.
 - [x] Every Must requirement has at least one test.
 - [x] Every requirement links to a design decision or spec section.
 - [x] Every design decision links to one or more small tasks.
-- [ ] Every implemented feature has a code link — **none yet; expected.**
+- [x] Every implemented feature has a code link — **four so far**: REQ-F-001, REQ-F-002, REQ-F-004, REQ-NF-005.
 - [x] Every security rule maps to a denial test.
 - [ ] Every released feature maps back to a PRD requirement — **nothing released yet.**
 - [ ] Any code without a requirement has been removed, documented, or approved — **no code yet**; the analogous case, TASK-019, is blocked.
