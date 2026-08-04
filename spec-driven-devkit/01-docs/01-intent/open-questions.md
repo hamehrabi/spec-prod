@@ -30,7 +30,6 @@
 | Q-020 | Who is the **named decision owner** for product scope disputes? | Currently "kit author". With one person it is moot; it stops being moot the moment anyone else contributes | Kit author | Before a second contributor | Open |
 | Q-021 | Which **two of the three platforms** are practical to smoke-test manually each release? | ETEST-012 automates all three; the manual install check cannot realistically cover all three every time | Kit author | Before release | Open |
 | Q-023 | Is the **per-file confirmation volume** (~90 prompts) actually tolerable on a full run? | RISK-007. Unmeasured. If it is not, confirmation fatigue becomes blanket approval — worse than a stated rule | Kit author | Before release | Open |
-| **Q-024** | **How does a generated workspace get a `.gitignore` and a `.env.example`?** DD-020 drops both from the library so the payload stays Markdown-only, which leaves **REQ-NF-002 unsatisfiable as written** — it requires the generated `.gitignore` to exclude `.env` **before** `.env.example` is written, and neither file can now be produced. | **A requirement that no longer has an implementation path.** Three ways out, none free: amend REQ-NF-002 to match what the kit will actually do; ship the two as Markdown-wrapped blueprints and unwrap them on fill; or supersede ADR-002. Doing nothing means every generated workspace invites a developer to create a `.env` with no ignore rule protecting it | Kit author | **Before TASK-005** — the fill procedure cannot be specified without the answer | Open — **opened by DD-020** |
 
 ## Closed during implementation
 
@@ -44,6 +43,7 @@
 | Q-010 | CI provider, monthly ceiling, alert threshold. | **GitHub Actions on a public repository. $0/month, no minute threshold** (DD-017). Public was required, not preferred: branch protection is unavailable on a private repo at this plan, so the gate could otherwise report but never block | TASK-002 |
 | Q-011 | Test runner and language. | **`node --test`** — no package manifest, no lockfile, no install step anywhere in the repository (DD-018) | TASK-002 |
 | Q-012 | Cadence for the scheduled install test. | **Weekly** (DD-019). Recorded but not built — it installs the *published* plugin and runs a fixed answer script, and neither exists before TASK-016 | TASK-002 |
+| Q-024 | How does a generated workspace get `.gitignore` and `.env.example`, when neither is Markdown and the payload ships Markdown only? | **Wrapper blueprints** (DD-023, supersedes DD-020): the blueprint is Markdown that carries the artifact in a fenced block and declares its target. FF-009 unchanged, ADR-002 untouched, REQ-NF-002 now implementable | TASK-010 |
 | Q-022 | Has a secret scan been run over the kit's own git history? | **Yes, 2026-08-03, before the repository was made public.** Every blob across all commits: zero matches for OpenAI, GitHub, AWS, Slack, Google, or private-key patterns. No `.env`, key, certificate, or credential file in the tree; no book PDFs. `.gitignore` excludes them | TASK-002 |
 
 ## Closed during intake

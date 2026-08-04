@@ -126,6 +126,38 @@ export function mint(prefix, used = []) {
   return `${prefix}-${String(next).padStart(3, '0')}`
 }
 
+// --- Wrapper blueprints (Q-024) ---------------------------------------------------------
+//
+// Some artifacts a workspace needs are not Markdown — `.gitignore`, `.env.example`. The
+// plugin ships Markdown only, so those blueprints CARRY their file rather than being it:
+// a declared target, and one fenced block holding the content.
+//
+// This is not a special case per file. It is one rule for a category, and a blueprint is
+// either a wrapper or it is not — decided by whether it declares a target.
+
+/** `> Writes: \`.gitignore\`` → '.gitignore', or null for an ordinary blueprint. */
+export const wrapperTarget = (text) => text.match(/^>\s*Writes:\s*`([^`]+)`/m)?.[1] ?? null
+
+/** `> Comment: \`#\`` → the target's comment prefix, so the back-link survives (C2). */
+export const wrapperComment = (text) => text.match(/^>\s*Comment:\s*`([^`]+)`/m)?.[1] ?? null
+
+/**
+ * The artifact a wrapper produces: the fenced block, plus the back-link as a comment.
+ * A .gitignore cannot carry a Markdown back-link, but it can carry a `#` one — and dropping
+ * it would make these two files the only unauditable things in the workspace.
+ */
+export function wrapperArtifact(text, blueprintRelPath) {
+  const target = wrapperTarget(text)
+  if (!target) return null
+  const block = text.match(/^```[\w-]*\r?\n([\s\S]*?)^```/m)
+  if (!block) return null
+  const comment = wrapperComment(text) ?? '#'
+  return {
+    target,
+    content: `${block[1].replace(/\s*$/, '')}\n\n${comment} Blueprint: blueprints/${blueprintRelPath}\n`,
+  }
+}
+
 /** Headings, in order — what "the structure matches the blueprint" is checked against. */
 export const headings = (text) =>
   [...text.matchAll(/^(#{1,6})\s+(.+?)\s*$/gm)].map((m) => `${m[1]} ${m[2]}`)

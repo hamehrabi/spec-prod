@@ -142,6 +142,41 @@ authoritative while resolving nowhere, which is worse than an honest name.
 
 ---
 
+---
+
+## Wrapper blueprints — when the artifact is not Markdown
+
+A workspace needs two files that are not Markdown: `.gitignore` and `.env.example`. This
+plugin ships Markdown only, so those blueprints **carry** their artifact rather than being it.
+They declare a target and hold the content in one fenced block:
+
+```
+> Writes: `.gitignore`
+> Comment: `#`
+```
+
+For a wrapper, the six steps become:
+
+1. Read the blueprint. **Do not copy it to the destination** — the destination is not Markdown.
+2. Take the content of its single fenced block.
+3. Adapt it to this project, by the same rules as step 4 above. Placeholders only in
+   `.env.example` — **a real credential written there is a real credential in version control.**
+4. Write it to the declared target, inside `spec/`.
+5. Append the back-link as a **comment**, using the declared prefix:
+   `# Blueprint: blueprints/gitignore.md`.
+
+The back-link matters as much here as anywhere. A `.gitignore` cannot carry a Markdown
+back-link, but it can carry a `#` one — and skipping it would make these the only two
+unauditable files in the workspace.
+
+**`.gitignore` is always written before `.env.example`.** The ignore rule has to exist before
+the file that invites someone to copy it, or the first copy made is the one that gets
+committed.
+
+**A blueprint is a wrapper or it is not, decided by whether it declares a target.** This is one
+rule for a category, not a special case per filename — if a third artifact ever needs it, it
+declares a target and nothing here changes.
+
 ## When the file is finished
 
 Re-read it against the inventory in step 4. The question is not *"does this look complete?"*
