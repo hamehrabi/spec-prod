@@ -1,4 +1,4 @@
-# Questions — Rounds 1 to 4
+# Questions — Rounds 1 to 8
 
 This module holds **question text only**. No orchestration, no destinations, no blueprint
 structure — those belong to `intake.md`, `fill.md` and the library (ADR-001).
@@ -19,6 +19,24 @@ the list would mislead.
 > asked at **both** depths, always: one grounds the workspace in their problem, the other
 > decides where the remaining depth goes. See `instructions/depth.md`.
 
+### Which two — decided here, once, not per run
+
+**Exactly two questions in every round are marked `*(express keeps)*`.** Express asks those
+and no others.
+
+The selection is written down because the principle alone does not decide it. `depth.md` says
+to drop the questions that only shape prose and keep the ones that change what gets built —
+and in Round 2 all four change what gets built. A rule that selects everything selects
+nothing, so the run would have to invent the answer, and two runs at the same depth would ask
+different questions (BUG-012).
+
+**The reason for each choice is on the question.** A mark with no reason is a preference, and
+the next person to add a question has nothing to weigh their new one against.
+
+**Dropping a question never means answering it.** The un-asked question becomes a `[TODO]`
+paired with a `Q-###` row and a named decision owner — visible, and answerable at the next
+gate. Express asks less; it never assumes more (`instructions/depth.md`).
+
 > **Check `instructions/inference.md` before composing any round.** A question whose answer
 > the developer has already given is not asked — and the inference drawn instead is always
 > stated, never silent.
@@ -31,7 +49,12 @@ the list would mislead.
 
 # Round 1 — the idea
 
-## Q1. What kind of application is this?
+## Q1. What kind of application is this? *(express keeps)*
+
+**Why express keeps it:** it is the only answer that can remove a whole blueprint from the run
+— *API or backend service only* skips the interface specification (`instructions/inference.md`).
+A question that changes which files exist cannot be deferred to a `[TODO]` inside a file that
+should not have been written.
 
 - **Web application with a UI** — *(Recommended)* the most common shape, and the easiest to narrow later once the rest is known.
 - **API or backend service only** — no interface of its own; something else consumes it.
@@ -39,7 +62,11 @@ the list would mislead.
 - **AI-powered application** — an assistant, retrieval, or generation product.
 - **CLI or developer tool** — used from a terminal, by people who build software.
 
-## Q2. Who is the primary user?
+## Q2. Who is the primary user? *(express keeps)*
+
+**Why express keeps it:** it is the input to the tenancy inference, and tenancy is a data-model
+decision that is expensive to reverse. Round 3 Q3 is derived from this answer rather than asked
+— so dropping this one would drop two.
 
 - **A team inside one company** — *(Recommended)* the fewest unknowns: you can name the actual users and ask them, which nothing else on this list lets you do.
 - **Paying business customers (B2B)** — buying decisions and daily use come from different people.
@@ -81,7 +108,11 @@ extract a better sentence from someone who has already answered.
 
 # Round 2 — scope boundaries
 
-## Q1. Which capabilities must exist in version one? *(multi-select · derived)*
+## Q1. Which capabilities must exist in version one? *(express keeps · multi-select · derived)*
+
+**Why express keeps it:** every later round is derived from this list — Q4 below offers it back,
+Round 3's data model is drawn from it, Round 7's tasks are built from it. There is nothing to
+infer it from, and a workspace whose capability list is a `[TODO]` has no subject.
 
 **Derived** from their Round 1 answers. Offer four, most-likely first and marked
 `(Recommended)`, each with a one-line reason — for example: create and edit the core record ·
@@ -103,7 +134,18 @@ will be assumed in by whoever reads the specification next.
 - **Certain data cannot be stored** — payment, health, or personal data changes the design rather than decorating it.
 - **A specific technology is mandated** — a decision already made, which the specification should record rather than re-litigate.
 
-## Q4. Of those capabilities, which ONE do you actually compete on?
+> **At express this one is dropped, and it is the drop most likely to be got wrong.** A
+> constraint changes the architecture, and `instructions/inference.md` forbids inferring
+> anything that changes the architecture. So the constraint table is written **empty and
+> marked** — every row a `[TODO]` paired with a `Q-###` and a decision owner — never filled
+> with the defaults that would "probably" apply. A guessed constraint reads exactly like a
+> stated one, and nobody downstream can tell them apart.
+
+## Q4. Of those capabilities, which ONE do you actually compete on? *(express keeps)*
+
+**Why express keeps it:** `depth.md` requires it at both depths. It is the question that decides
+where the depth express saved is then spent, so dropping it would make express thinner
+everywhere instead of thinner in the right places.
 
 **Ask this every time — even when only one capability is in scope.** The answer is the **core
 subdomain**, and it decides where depth goes. Getting it wrong is how teams spend their first
@@ -119,14 +161,22 @@ three weeks building authentication.
 
 # Round 3 — users, roles, and data
 
-## Q1. What is the permission model?
+## Q1. What is the permission model? *(express keeps)*
+
+**Why express keeps it:** roles are structural. Retrofitting authorisation onto a system built
+without it touches every read query in the product, and the deny tests validation check 8 looks
+for cannot be written until the roles exist.
 
 - **Owner / Admin / Member / Viewer** — *(Recommended)* covers most business applications, and it is easier to remove a role later than to retrofit one.
 - **Single user only, no sharing** — the simplest thing that works, and honest if true.
 - **Two roles: admin and user** — enough for an internal tool where everyone is trusted.
 - **Complex or custom RBAC** — real, but expensive; it earns its cost only when the rules differ per record.
 
-## Q2. What are the core things the system must remember? *(multi-select · derived)*
+## Q2. What are the core things the system must remember? *(express keeps · multi-select · derived)*
+
+**Why express keeps it:** this is the data model. Round 5's data-store question and the whole
+API and data design folder are derived from it, and it is the one answer a later round cannot
+route around.
 
 **Derived** from their idea. Typically: the user · the main record · a container or grouping ·
 comments or activity · files · audit events. Offer the most likely first with reasons.
@@ -153,7 +203,11 @@ have.
 - **A manual process is eliminated** — easy to verify, and it names what to delete.
 - **A business number moves** — the strongest claim, and the one most likely to depend on things outside the software.
 
-## Q2. What matters most in the interface?
+## Q2. What matters most in the interface? *(express keeps)*
+
+**Why express keeps it:** it decides what the interface specification contains, and Round 1 Q1
+may already have removed that file entirely. When it has, this question is not asked and the
+round drops to one — which is correct, not a shortfall.
 
 **May be suppressed entirely by inference** — see `instructions/inference.md`.
 
@@ -162,7 +216,11 @@ have.
 - **Density for power users** — more on screen; costs approachability.
 - **Visual polish** — worth naming as a priority only when the first three are already settled.
 
-## Q3. Pick the three qualities that matter most. *(multi-select · maximum three)*
+## Q3. Pick the three qualities that matter most. *(express keeps · multi-select · maximum three)*
+
+**Why express keeps it:** `depth.md` sets the driving-characteristics limit at three for both
+depths and says plainly that the limit is not a depth setting. These become the fitness
+functions, and a product with no stated drivers has nothing to measure itself against.
 
 - **Simplicity / feasibility** — *(Recommended for a first version)* it is the one that keeps a version one finishable.
 - **Reliability / graceful failure** — what happens when something breaks, rather than whether it does.
@@ -191,7 +249,11 @@ made rather than a preference expressed — and it is what makes the choice revi
 
 # Round 5 — architecture and stack
 
-## Q1. Which architecture style?
+## Q1. Which architecture style? *(express keeps)*
+
+**Why express keeps it:** it is shape, not detail, and `instructions/inference.md` draws that
+line explicitly — detail can be inferred, shape cannot. Everything in the architecture folder
+is written against this answer.
 
 - **Modular monolith** — *(Recommended)* structure without deployment complexity, and it is the only option here you can reverse cheaply once you know more.
 - **Simple monolith** — fine while one person builds it; the boundaries live in someone's head rather than in the folder layout.
@@ -202,7 +264,11 @@ made rather than a preference expressed — and it is what makes the choice revi
 > genuinely requires distribution. *The most expensive failure is not a badly executed
 > decomposition — it is a beautifully executed one along the wrong lines.*
 
-## Q2. Which data store? *(derived)*
+## Q2. Which data store? *(express keeps · derived)*
+
+**Why express keeps it:** the store decides what the data model can promise — transactions,
+constraints, joins, migrations. It is also the decision developers most often already have an
+answer to, so asking it is cheap and inferring it is not.
 
 **Derived** — offer options that fit the stack and scale already established, most likely
 first with a one-line reason each. Typically: a relational database for anything with
@@ -233,7 +299,12 @@ become the fitness functions.
 - **Payment information** — storing it at all is a decision with obligations attached.
 - **Customer business data** — the thing your users would consider theirs, whatever the law says about it.
 
-## Q2. Which external services will you depend on? *(multi-select)*
+## Q2. Which external services will you depend on? *(express keeps · multi-select)*
+
+**Why express keeps it:** it is the one question in this round with a **full**-confidence
+derivation rule hanging off it — *none in version one* settles the integration specification
+and the rate-limit question outright (`instructions/inference.md`). Asking it buys back more
+than it costs.
 
 **May be narrowed by inference** — see `instructions/inference.md`.
 
@@ -248,7 +319,11 @@ become the fitness functions.
 - **A queued or pending status they can check later** — right for genuinely long work; wrong if it hides a failure.
 - **Silent retry, telling them only if it finally fails** — the best experience when it works, and the worst when the retry loop is the bug.
 
-## Q4. Does the system store files that users upload or generate?
+## Q4. Does the system store files that users upload or generate? *(express keeps)*
+
+**Why express keeps it:** *yes* adds storage, size limits, scanning, and a retention rule —
+a body of work no other answer implies. It is the clearest case in the kit of a single
+yes/no that changes what gets built rather than how it is described.
 
 - **No** — *(Recommended if unsure)* files bring their own transactional problem: the row and the file can disagree, and almost none of the database rules apply to them.
 - **Yes, and they are private to one user or organisation** — access control now has a second surface that database permissions do not cover.
@@ -258,7 +333,10 @@ become the fitness functions.
 
 # Round 7 — tasks and tests
 
-## Q1. How should the work be sequenced?
+## Q1. How should the work be sequenced? *(express keeps)*
+
+**Why express keeps it:** the task plan is the artifact a build agent actually consumes, and
+its order is the plan. A sequence chosen by whoever reads the file first is not a sequence.
 
 - **Thin vertical slices — one feature end to end at a time** — *(Recommended)* every slice is reviewable by using it, which is the only review that catches "built the wrong thing".
 - **Layer by layer — all data, then all API, then all interface** — feels orderly, and nothing works until the last layer lands.
@@ -270,7 +348,11 @@ become the fitness functions.
 - **Minimal — acceptance and critical failure paths only** — honest for a prototype; say so rather than pretending.
 - **Thorough — all six levels, including performance and full negative RBAC** — earned when a driver demands it, expensive when it does not.
 
-## Q3. Who or what will write the code?
+## Q3. Who or what will write the code? *(express keeps)*
+
+**Why express keeps it:** it decides whether `06-agent/` is the centre of the workspace or a
+formality, and this whole kit exists for the answer *an AI agent* — the case where an
+unstated boundary becomes code nobody asked for.
 
 - **An AI coding agent, one task at a time** — *(Recommended)* this whole system exists for that case, and it is why task files carry a do-not-change list.
 - **A human developer using AI assistance** — the specification is a reference rather than a contract; keep it, lighten the enforcement.
@@ -280,7 +362,10 @@ become the fitness functions.
 
 # Round 8 — operations
 
-## Q1. Where will this run?
+## Q1. Where will this run? *(express keeps)*
+
+**Why express keeps it:** the deployment target constrains everything above it — the runtime,
+the data store's managed options, the secrets mechanism, and what a rollback even means.
 
 - **Not decided yet** — *(Recommended if unsure)* perfectly fine; plan for a container and the decision stays open at no cost.
 - **A managed platform** — least operational work, most constraints you do not control.
@@ -299,7 +384,12 @@ become the fitness functions.
 - **Logs only** — you will find out from a user; sometimes that is an acceptable trade at small scale.
 - **Full metrics, tracing and dashboards** — real value at real scale, and a project of its own before then.
 
-## Q4. If the data were lost right now, how much could you afford to lose, and how long could you be down?
+## Q4. If the data were lost right now, how much could you afford to lose, and how long could you be down? *(express keeps)*
+
+**Why express keeps it:** these two numbers decide the backup design, and there is no honest
+default for them. It is also the last round, so an unanswered version of this ships as a
+`[TODO]` into production planning — which is exactly the gap `report.md` names as the one
+that matters at 3am.
 
 - **Up to a day of data, up to four hours down** — *(Recommended default)* what a nightly backup actually buys, stated honestly.
 - **Up to an hour of each** — needs more than a nightly job, and the backup frequency has to match the number.

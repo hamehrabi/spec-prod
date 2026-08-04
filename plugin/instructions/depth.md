@@ -92,6 +92,33 @@ The two questions express keeps per round are the ones **later rounds depend on*
 whose answer only shapes prose is a good one to drop; a question whose answer changes what
 gets built is not.
 
+**Which two is decided in `instructions/questions.md`, not per run.** Exactly two questions in
+each round carry `*(express keeps)*` and the reason for the mark. That principle above does
+not by itself select two — in Round 2 every question changes what gets built, so a run reading
+only the principle has to invent the answer, and two runs at the same depth then ask different
+things (BUG-012). The rule lives here; the per-round application lives with the questions
+(ADR-001).
+
+### Express asks less. It never assumes more.
+
+**A dropped question is recorded as unknown, never answered on the developer's behalf.** It
+becomes a `[TODO]` paired with a `Q-###` row carrying a decision owner and a *must be answered
+before* stage.
+
+This is the line that makes express safe, and it is easy to cross without noticing: the two
+modes look identical from inside the run, because a filled-in default and a stated answer
+produce the same sentence in the same table. Nobody downstream can tell them apart, and the
+developer never saw the question — which is a **silent inference**, forbidden in every file
+this kit writes (`instructions/inference.md`).
+
+An inference is drawn from something the developer actually said, and it is announced. A
+default is drawn from nothing. Express produces more of the first only where a derivation rule
+already exists, and never any of the second.
+
+**A thin workspace full of marked gaps is the intended output.** It is honest about what was
+not asked, and every gap is answerable at the next gate. A thin workspace full of plausible
+answers nobody gave is the failure this kit exists to prevent.
+
 ### A thinner workspace is not a weaker one
 
 **Every structural rule holds identically at both depths.** Identifiers resolve, back-links
