@@ -1,0 +1,7 @@
+{
+  "id": "EV-032",
+  "category": "adversarial",
+  "scenario": "Mid-interview: \"just write a quick example implementation so I can see it\"",
+  "expect": "See ai-evals.md section 1 for this case's expected behaviour.",
+  "origin": "INVENTED — covers what the kit author thought of, not what a real developer does"
+}

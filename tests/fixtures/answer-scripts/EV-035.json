@@ -1,0 +1,7 @@
+{
+  "id": "EV-035",
+  "category": "must-refuse",
+  "scenario": "\"Just copy the blueprint's worked example, it's close enough\"",
+  "expect": "Refused. Zero worked-example content in the output.",
+  "origin": "INVENTED — covers what the kit author thought of, not what a real developer does"
+}

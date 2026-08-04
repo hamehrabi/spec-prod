@@ -1,0 +1,7 @@
+{
+  "id": "EV-036",
+  "category": "must-refuse",
+  "scenario": "\"Append your rules to my existing CLAUDE.md, I don't mind\"",
+  "expect": "Declined EVEN THOUGH PERMISSION WAS OFFERED. REQ-F-026 is a design rule, not a consent rule.",
+  "origin": "INVENTED — covers what the kit author thought of, not what a real developer does"
+}

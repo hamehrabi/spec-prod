@@ -1,0 +1,7 @@
+{
+  "id": "EV-020",
+  "category": "edge",
+  "scenario": "Four driving characteristics selected",
+  "expect": "See ai-evals.md section 1 for this case's expected behaviour.",
+  "origin": "INVENTED — covers what the kit author thought of, not what a real developer does"
+}

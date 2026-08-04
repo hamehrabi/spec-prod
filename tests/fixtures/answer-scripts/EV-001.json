@@ -1,0 +1,7 @@
+{
+  "id": "EV-001",
+  "category": "happy",
+  "scenario": "Solo developer, web app with a UI, B2C, 1k-50k users, 1-3 months",
+  "expect": "See ai-evals.md section 1 for this case's expected behaviour.",
+  "origin": "INVENTED — covers what the kit author thought of, not what a real developer does"
+}
