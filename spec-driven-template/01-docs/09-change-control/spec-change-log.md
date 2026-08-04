@@ -43,11 +43,13 @@ Notes:
 
 ---
 
-## Stage acceptance and skips (ADR-006)
+## Stage acceptance and skips
 
-Two things are recorded here as **dated rows**, and neither is ever a file of its own
-(ADR-004, ADR-006): the acceptance of each round's gate, and any blueprint deliberately
-skipped with its reason.
+Two things are recorded here as **dated rows**, and neither is ever a file of its own: the
+acceptance of each round's gate, and any blueprint deliberately skipped with its reason.
+
+A separate acceptance file would be a second place to look for the same fact, and the two
+would disagree within a week. A row in the log that already exists cannot.
 
 **The date is the first column.** That is what makes a row findable — an acceptance buried
 in a nine-column change entry is not a record anyone can check, and the change-entries table

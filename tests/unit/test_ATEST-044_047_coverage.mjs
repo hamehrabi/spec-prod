@@ -130,9 +130,28 @@ test('BUG-010: the change log carries a table shaped like the row the parser rea
   // started with `Change ID`, so there was nowhere in the generated file for the row to go
   // and still be found.
   const blueprint = readFileSync('plugin/blueprints/01-docs/09-change-control/spec-change-log.md', 'utf8')
-  assert.match(blueprint, /## Stage acceptance and skips \(ADR-006\)/)
+  assert.match(blueprint, /## Stage acceptance and skips$/m)
   assert.match(blueprint, /\|\s*Date\s*\|\s*Stage or type\s*\|/, 'date must be the first column')
   assert.match(blueprint, /\*\*The date is the first column\.\*\*/, 'and the reason why is stated')
+})
+
+test('BUG-015: the blueprint states the rule WITHOUT citing the kit\'s own decision records', () => {
+  // The heading used to read "Stage acceptance and skips (ADR-006)" and the body cited
+  // "(ADR-004, ADR-006)". Those are THIS repository's decisions. Shipped into a developer's
+  // workspace they point at nothing — and the day that developer writes their own ADR-006
+  // they point at the wrong thing. Check 1 failed on every workspace the kit produced.
+  //
+  // A blueprint may state a rule. It may not cite the authority for a rule, because the
+  // authority lives in a repository the reader does not have.
+  const shipped = readFileSync('plugin/blueprints/01-docs/09-change-control/spec-change-log.md', 'utf8')
+    .split(/^# WORKED EXAMPLE/m)[0]
+  const cited = [...new Set(shipped.match(/\bADR-\d{3}\b/g) ?? [])]
+  assert.deepEqual(cited, [], `the kit's own identifiers must not ship: ${cited.join(', ')}`)
+
+  // And the reason the rule exists is still given — dropping the citation must not drop the
+  // argument, or the next reader restores the file-per-acceptance it was written to prevent.
+  assert.match(shipped, /neither is ever a file of its own/)
+  assert.match(shipped, /would disagree within a week/)
 })
 
 test('the gap this task closes is stated, not assumed', () => {
