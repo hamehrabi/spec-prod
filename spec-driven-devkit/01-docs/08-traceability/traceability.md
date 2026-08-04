@@ -44,7 +44,7 @@ maintain it.
 
 | Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
 |---|---|---|---|---|---|---|
-| REQ-F-014 | Fixed `spec/` at repo root | **ADR-004** | TASK-004 | ATEST-015, TEST-004, STEST-004 | — | Ready |
+| REQ-F-014 | Fixed `spec/` at repo root | **ADR-004** | TASK-004 ✅ | ATEST-015, TEST-004, STEST-004 | `plugin/instructions/boundary.md` · `ci/boundary.mjs` | **Approved** — *rule verified; STEST-004 needs a full run (TASK-006)* |
 | REQ-F-015 | Write after each round | BR-005 | TASK-006 | ATEST-016, ETEST-008, PTEST-001 | — | Ready |
 | REQ-F-016 | Blueprint structure + back-link | **ADR-003** | TASK-005 | ATEST-017, UTEST-014, TEST-005/006 | — | Ready |
 | REQ-F-017 | Depth scaled by subdomain | BR-013 | TASK-008 | ATEST-018, UTEST-015 | — | Ready |
@@ -60,12 +60,12 @@ maintain it.
 | Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
 |---|---|---|---|---|---|---|
 | REQ-F-023 | Never write application code | BR-001 | TASK-004 | ATEST-025, TEST-012, STEST-001 | — | Ready |
-| REQ-F-024 | Nothing outside `spec/` unasked | BR-008, SEC-Z-001 | TASK-004 | ATEST-026, UTEST-019, STEST-002/003 | — | Ready |
-| REQ-F-025 | No blanket write permission | SEC-Z-002 | TASK-004 | ATEST-027, STEST-006 | — | Ready |
-| REQ-F-026 | Existing `CLAUDE.md` untouched | **DD-011** | TASK-004, TASK-013 | ATEST-028, TEST-013, STEST-007 | — | Ready |
+| REQ-F-024 | Nothing outside `spec/` unasked | BR-008, SEC-Z-001 | TASK-004 ✅ | ATEST-026, UTEST-019, STEST-002/003 | `plugin/instructions/boundary.md` (rule) · `ci/boundary.mjs` (executable check) | **Approved** — *17 path cases; the prefix check seen to fail 13 of 22* |
+| REQ-F-025 | No blanket write permission | SEC-Z-002 | TASK-004 ✅ | ATEST-027, STEST-006 | `plugin/instructions/boundary.md` — stated rule only | **Needs update** — *STEST-006 observes a real run's permission requests; unreachable until TASK-006* |
+| REQ-F-026 | Existing `CLAUDE.md` untouched | **DD-011** | TASK-004 ✅, TASK-013 | ATEST-028, TEST-013, STEST-007 | `plugin/instructions/boundary.md` — protected, never proposed | **Approved** — *root-only; a `CLAUDE.md` inside `spec/` is the kit's own output* |
 | REQ-F-027 | No worked-example content | BR-002 | TASK-005 | ATEST-029, UTEST-020, TEST-014 | — | Ready |
-| REQ-F-035 | `.gitignore` untouched | Round 6 | TASK-004 | ATEST-030, STEST-008 | — | Ready |
-| REQ-F-036 | Non-kit `spec/` → stop and ask | Round 6 | TASK-004 | ATEST-031, STEST-005, FTEST-007 | — | Ready |
+| REQ-F-035 | `.gitignore` untouched | Round 6 | TASK-004 ✅ | ATEST-030, STEST-008 | `plugin/instructions/boundary.md` — protected, never proposed | **Approved** |
+| REQ-F-036 | Non-kit `spec/` → stop and ask | Round 6 | TASK-004 ✅ | ATEST-031, STEST-005, FTEST-007 | `plugin/instructions/boundary.md` · `ci/boundary.mjs` — recognised by artifacts, never a marker file | **Approved** |
 
 ### Functional — acceptance gate and library authority *(added after the first complete draft)*
 
@@ -107,7 +107,7 @@ maintain it.
 | Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
 |---|---|---|---|---|---|---|
 | REQ-R-001 | Four actor boundaries enforced | security §2 | TASK-004 | STEST-001…014 | — | Ready |
-| REQ-R-002 | No write outside `spec/` unasked | BR-008 | TASK-004 | STEST-002/003, FTEST-003 | — | Ready |
+| REQ-R-002 | No write outside `spec/` unasked | BR-008 | TASK-004 ✅ | STEST-002/003, FTEST-003 | `plugin/instructions/boundary.md` | **Approved** — *see REQ-F-024* |
 | REQ-R-003 | No application source code | BR-001 | TASK-004 | TEST-012, STEST-001 | — | Ready |
 | REQ-R-004 | Declined write → resumable | reliability §3 | TASK-006 | ATEST-039, FTEST-002, STEST-011 | — | Ready |
 | REQ-R-005 | Task files name allowed + forbidden | API C3 | TASK-010 | ATEST-040, TEST-018, **ETEST-003** | — | Ready |
@@ -149,9 +149,17 @@ STEST-004   Files outside spec/ identical before and after a full run
 STEST-013   The refusal names the path, never the file's contents
 FTEST-003   BOUNDARY_BLOCKED failure state
      |
-code: instructions/boundary.md        <- blank until TASK-004 completes
+code: plugin/instructions/boundary.md    <- the rule the agent follows
+      ci/boundary.mjs                    <- the same rule, executable, so the
+                                            denials assert an OUTCOME rather
+                                            than assert a sentence exists
      |
-Review: Ready
+Review: Approved -- with one honest gap. UTEST-019, STEST-003, STEST-005,
+        STEST-007, STEST-008 and STEST-013 are verified against the RULE.
+        STEST-002, STEST-004 and STEST-006 assert what a real run does to a
+        real filesystem, and nothing writes until TASK-006. The chain is
+        complete in specification and partial in evidence, and saying so is
+        the point of this column.
 ```
 
 ---
@@ -165,6 +173,7 @@ A **gap is any missing link**. Blank cells are the point of this document.
 | **Most code links are still blank.** | Implementation has started but is four tasks in. | Expected. TASK-001 and TASK-002 are complete and their four links are filled. Every remaining blank fills in as its task completes. |
 | **REQ-NF-008** (identical on three platforms) is filled in by inspection, not by running. | The payload contains no shell, no path separator, and no case-sensitivity assumption — but TASK-001 was only ever *run* on Windows, and CI runs only `ubuntu-latest`. | Named rather than assumed. **TASK-018** owns the real three-platform run; until it completes, this row is an argument rather than evidence. |
 | **The specification contradicted itself on where the plugin lives.** | `AGENT.md` and `04-src/README.md` place the payload in `04-src/`; the TASK-001 hand-off lists its files unprefixed and marks `spec/**` do-not-change. Both readings cannot hold. | Resolved deliberately by **DD-015** and **DD-016**, not by picking quietly. `04-src/README.md` now documents a layout that lives at `plugin/` — a real inconsistency, and the next task to touch either file should close it. |
+| **Six of the twelve denial tests are verified against the rule, not against a run.** | `ci/boundary.mjs` proves the path rule is correct; it cannot prove the agent follows it. `security-tests.md` is blunt about the difference — *"an agent reading them will usually comply. Usually is not a boundary."* | Named, not glossed. STEST-002, STEST-004 and STEST-006 assert an observable filesystem outcome — a diff, a checksum, an observed permission request — and become reachable at **TASK-006**, when something first writes. FF-010 is the CI-side version and needs a golden run (TASK-016). |
 | **Every task forbids editing `spec/`, yet several instruct the agent to record decisions in `decisions.md` and update this matrix.** | A catch-22 that made TASK-001 and TASK-002 both structurally incompletable. | Surfaced rather than resolved by the agent. The kit author authorised this change explicitly; **that is the correct shape** — a spec change made by its owner, not an agent editing `spec/` to make its own task pass. |
 | **REQ-NF-002 has no implementation path.** | DD-020 drops `.gitignore` and `.env.example` from the library so the payload stays Markdown-only, and REQ-NF-002 requires both. The requirement is not wrong; it is currently unreachable. | **Q-024, open, blocking TASK-005.** Recorded as a live conflict rather than a quiet exception. The requirement keeps its tests — they will fail, and they should, until the kit author picks one of the three ways out. |
 | **The `.gitignore` gap has a safety consequence, not only a traceability one.** | A generated workspace invites a developer to create `.env` (the `.env.example` pattern) with no ignore rule protecting it. Here that risk is nil — this project has no secrets — but the kit generates workspaces for projects that do. | Named in Q-024 and in `instructions/intake.md`, which forbids the intake from improvising either file. **An improvised `.gitignore` would be worse than none**: it would look like protection. |
