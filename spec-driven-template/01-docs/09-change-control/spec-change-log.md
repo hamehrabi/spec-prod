@@ -43,6 +43,26 @@ Notes:
 
 ---
 
+## Stage acceptance and skips (ADR-006)
+
+Two things are recorded here as **dated rows**, and neither is ever a file of its own
+(ADR-004, ADR-006): the acceptance of each round's gate, and any blueprint deliberately
+skipped with its reason.
+
+**The date is the first column.** That is what makes a row findable — an acceptance buried
+in a nine-column change entry is not a record anyone can check, and the change-entries table
+above starts with an identifier rather than a date, so it cannot serve.
+
+| Date | Stage or type | Artifact | Note or reason |
+|---|---|---|---|
+| YYYY-MM-DD | Round 1 — the idea | — | *Accepted by whom.* |
+| YYYY-MM-DD | Skipped | *blueprint path* | *Why this project does not need it.* |
+
+**A skip with no reason is a silent skip wearing a label.** The reason is what lets a later
+reader tell a decision from an omission.
+
+---
+
 ## When implementation reveals something the spec missed (Ch. 15 §15.8)
 
 | When this happens | Update this document |
