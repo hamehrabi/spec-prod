@@ -26,14 +26,29 @@ directory is that round's responsibility.
 
 | Round | Owns |
 |---|---|
-| 1 | `01-docs/01-intent/` *(intent, brief)* · the workspace `README.md` |
+| 1 | `01-docs/01-intent/` *(intent, brief)* · `01-docs/09-change-control/` · the workspace `README.md` |
 | 2 | `01-docs/01-intent/` *(constraints, open questions, subdomain map)* |
 | 3 | `01-docs/02-requirements/` · `01-docs/06-api-and-data-design/` |
 | 4 | `01-docs/03-product-spec/` · `01-docs/04-technical-spec/` |
 | 5 | `01-docs/05-architecture/` |
 | 6 | `01-docs/07-security-and-reliability/` · `gitignore.md` · `env-example.md` |
 | 7 | `02-tasks/` · `03-tests/` |
-| 8 | `05-review/` · `06-agent/` · `07-ops/` · `01-docs/08-…10-` · `04-src/` |
+| 8 | `05-review/` · `06-agent/` · `07-ops/` · `01-docs/08-` · `01-docs/10-` · `04-src/` |
+
+### The change log belongs to Round 1, not to the round that reads like its home
+
+`01-docs/09-change-control/spec-change-log.md` is **infrastructure for all eight rounds**,
+not an artifact of the eighth. Every round appends its acceptance row to it
+(`instructions/review.md`), and every skip is recorded in it (below) — so it has to exist
+before Round 1's gate is answered.
+
+Filed under `01-docs/09-…` it looks like late-stage bookkeeping and was originally owned by
+Round 8. That ordering is unsatisfiable: Round 1 would have to append to a file five rounds
+away from being created, and the only ways out are to record no acceptance at all or to
+write a Round 8 file during Round 1 — which check 13 would then read as coverage the run
+had not actually reached.
+
+**A file that every round writes to is created by the first round that writes to it.**
 
 **Adding a blueprint inside an owned directory makes it required, with no change to any
 instruction.** That is the property this design exists for.

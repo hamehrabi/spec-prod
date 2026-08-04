@@ -44,7 +44,7 @@ failure, not a bonus.
 | `01-docs/07-security-and-reliability/reliability-specification.md` | `e57c09390b3e01016544857435170631dfa5190d9e7994a38314d595b061085b` |
 | `01-docs/07-security-and-reliability/security-specification.md` | `70cb4bd6e05973ba4d5340a4e5926ce6d8262cc60922792dedb8dad7a51ed397` |
 | `01-docs/08-traceability/traceability.md` | `f7db9b214a9aa5620e1483fab08e04415fad897d6e102b1d5ed3662a04aaa495` |
-| `01-docs/09-change-control/spec-change-log.md` | `a3d40a305af66eae2820d1ac5146b91ba3efb46eeccf3741e8a8803fd88a6023` |
+| `01-docs/09-change-control/spec-change-log.md` | `98ba63d9930b5ae28c30a352addd04c37fe266b4122ae9dbc42e5ffd4a8394d8` |
 | `01-docs/10-reference/glossary.md` | `51eb99881fc8d754d6cdc4b32e053102fb92d4e7a262f1eacd9e995ab3c35601` |
 | `01-docs/10-reference/recommended-tools.md` | `55d9d570fe2bccc6008096afd2d3eefaab15cded9bf88cc1102c8207e5c06232` |
 | `01-docs/10-reference/repeatable-system.md` | `632fe60b8be4219fa001c71d91e6a3a819386c756750433fa79c5cab7fc422b5` |

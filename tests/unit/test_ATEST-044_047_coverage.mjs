@@ -98,6 +98,43 @@ test('check 13 is documented in the validation module and names paths', () => {
   assert.match(validation, /the path is the only actionable part/i)
 })
 
+// --- BUG-010: a round cannot write to a file a later round owns ------------------------------
+
+test('BUG-010: every directory the gate writes to is owned by Round 1', () => {
+  // Found by running a real intake. intake.md and review.md both require an acceptance row in
+  // `01-docs/09-change-control/spec-change-log.md` at the end of EVERY round — including the
+  // first. The round map originally gave `01-docs/09-…` to Round 8, five rounds after the
+  // first write to it.
+  //
+  // That ordering is unsatisfiable, and both ways out are wrong: record no acceptance (the
+  // gate becomes unverifiable, ADR-006), or write a Round 8 file during Round 1 (check 13
+  // then reads coverage the run never reached).
+  //
+  // The general rule this asserts: A FILE EVERY ROUND WRITES TO IS CREATED BY THE FIRST ROUND
+  // THAT WRITES TO IT. Filing it under a late-looking number is not the same as it arriving late.
+  const gateTargets = [...intake.matchAll(/spec\/(01-docs\/[\w-]+)\//g)].map((m) => m[1])
+  assert.ok(gateTargets.length > 0, 'intake.md must name where the acceptance row goes')
+
+  const round1 = coverage.split('\n').find((l) => /^\| 1 \|/.test(l))
+  for (const dir of new Set(gateTargets)) {
+    assert.ok(
+      round1.includes(dir),
+      `${dir} is written during Round 1's gate, so Round 1 must own it — it currently does not`
+    )
+  }
+})
+
+test('BUG-010: the change log carries a table shaped like the row the parser reads', () => {
+  // The second half of the same defect. ADR-006 says acceptance is a dated row in the change
+  // log; acceptance.mjs finds it by DATE IN THE FIRST COLUMN. The blueprint's only table
+  // started with `Change ID`, so there was nowhere in the generated file for the row to go
+  // and still be found.
+  const blueprint = readFileSync('plugin/blueprints/01-docs/09-change-control/spec-change-log.md', 'utf8')
+  assert.match(blueprint, /## Stage acceptance and skips \(ADR-006\)/)
+  assert.match(blueprint, /\|\s*Date\s*\|\s*Stage or type\s*\|/, 'date must be the first column')
+  assert.match(blueprint, /\*\*The date is the first column\.\*\*/, 'and the reason why is stated')
+})
+
 test('the gap this task closes is stated, not assumed', () => {
   assert.match(coverage, /a gap nothing else caught/i)
   assert.match(coverage, /no file, no mismatch and no complaint/i)
