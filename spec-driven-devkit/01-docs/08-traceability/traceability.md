@@ -82,7 +82,7 @@ maintain it.
 
 | Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
 |---|---|---|---|---|---|---|
-| REQ-F-028 | Resume from first incomplete stage | **ADR-004** | TASK-007 | ATEST-032, UTEST-021, **ETEST-009 ×8** | — | Ready |
+| REQ-F-028 | Resume from first incomplete stage | **ADR-004** | TASK-007 ✅ | ATEST-032, UTEST-021, **ETEST-009 ×8** | `plugin/instructions/resume.md` · `ci/resume.mjs` | **Approved** — *8/8 interrupt cases; the two-state check seen to fail 17 of 24* |
 | REQ-F-029 | Validate before reporting success | BR-009 | TASK-012 | ATEST-033, UTEST-022, TEST-015, FTEST-005 | — | Ready |
 | REQ-F-030 | Closing report contents | `frontend-component-spec` | TASK-014 | ATEST-034, ETEST-010 | — | Ready |
 | REQ-F-031 | Hand-off instruction | API C3 | TASK-014 | ATEST-035, **ETEST-003** | — | Ready |
@@ -94,7 +94,7 @@ maintain it.
 |---|---|---|---|---|---|---|
 | REQ-NF-001 | Output within one round | tech §8 | TASK-006 | **PTEST-001** | — | Ready |
 | REQ-NF-002 | No credential; `.gitignore` first | security §5 | TASK-010 | UTEST-023, TEST-016, STEST-009 | — | **Needs update — no implementation path (DD-020, Q-024)** |
-| REQ-NF-003 | Interrupted run resumable | reliability §3 | TASK-007 | **ETEST-009 ×8**, FTEST-001/011 | — | Ready |
+| REQ-NF-003 | Interrupted run resumable | reliability §3 | TASK-007 ✅ | **ETEST-009 ×8**, FTEST-001/011 | `plugin/instructions/resume.md` — whole-file redo | **Approved** |
 | REQ-NF-004 | Usable without documentation | product §6 | TASK-001, TASK-006 | ATEST-037 | — | **Needs update — see gaps** |
 | REQ-NF-005 | Blueprint/flow swap cost = 0 | **ADR-001** | TASK-002 ✅ | UTEST-024, TEST-017 | `ci/ff-002-module-independence.mjs` | **Approved** |
 | REQ-NF-006 | Plain text, no colour-only meaning | `frontend-component-spec` | TASK-001 ✅, TASK-006 | ATEST-038, UTEST-025 | `plugin/instructions/intake.md` *(preamble only)* | Ready |

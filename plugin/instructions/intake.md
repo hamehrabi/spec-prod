@@ -23,6 +23,18 @@ This runs **before the preamble and before question one** — not before the fir
 developer who answers eight rounds and is only then told the library was corrupt has been made
 to waste the entire interview.
 
+## Step 0c — Check for an existing workspace, before Round 1
+
+Follow `instructions/resume.md`. If `spec/` already holds a workspace this kit generated,
+read it, report each stage as **complete**, **partial** or **absent**, and continue from the
+first stage that is not complete — never re-asking a completed round.
+
+Derive that position by **reading the workspace**. There is no state file and never will be
+(ADR-004).
+
+If there is no workspace: *"No workspace found — starting a new intake at Round 1."* That is
+a normal outcome, not an error.
+
 ## Step 0b — Check the workspace folder, before the first write
 
 Follow `instructions/boundary.md`. If `spec/` already exists and holds files this kit did not
