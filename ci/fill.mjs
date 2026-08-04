@@ -57,17 +57,49 @@ const RULES = [
   { kind: 'prompt-box', re: /^>\s*\*\*(?:Prompt|Ask|Paste)\b/gm },
 ]
 
-/** Every unfilled thing in a generated file. Empty array means step 4 finished. */
+/**
+ * Where a match sits decides whether it is a gap or content (BUG-006).
+ *
+ * A blueprint's illustrative FORMULA is content it intends to keep:
+ *
+ *   > [Affected user] currently faces [difficulty], which causes [consequence].
+ *   **Your problem statement:** A charity's fundraising team currently tracks donors in...
+ *
+ * The first line is the shape; the second is the answer. Both are correct, and a checker
+ * that calls the first one unfilled is wrong about a *correctly filled file* — which is the
+ * one kind of false positive that gets a control switched off. Same for `TASK-###.md` inside
+ * backticks, which documents a naming pattern rather than waiting to be replaced.
+ */
+function contextOf(text, index) {
+  const lineStart = text.lastIndexOf('\n', index - 1) + 1
+  const lineEnd = text.indexOf('\n', index)
+  const line = text.slice(lineStart, lineEnd === -1 ? text.length : lineEnd)
+  if (/^\s*>/.test(line)) return 'quote'
+  const before = line.slice(0, index - lineStart)
+  if ((before.match(/`/g) ?? []).length % 2 === 1) return 'code'
+  return 'body'
+}
+
+/** Every candidate, each tagged with the context that decides how to read it. */
 export function placeholders(text) {
   const found = []
   for (const { kind, re } of RULES) {
     for (const m of text.matchAll(re)) {
       const line = text.slice(0, m.index).split('\n').length
-      found.push({ kind, text: m[0].trim(), line })
+      found.push({ kind, text: m[0].trim(), line, context: contextOf(text, m.index) })
     }
   }
   return found.sort((a, b) => a.line - b.line)
 }
+
+/**
+ * The gaps that mean step 4 did not finish. Empty array means it did.
+ *
+ * Illustrative matches are reported by `placeholders()` and excluded here rather than
+ * discarded — "we saw it and judged it content" is a different claim from "we never looked",
+ * and only the first one is honest.
+ */
+export const unfilled = (text) => placeholders(text).filter((p) => p.context === 'body')
 
 /**
  * A `[TODO: ...]` is the SANCTIONED outcome of step 4 when a fact is unknown (BR-003), not a

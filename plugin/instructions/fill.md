@@ -75,6 +75,29 @@ check nobody believes is a check nobody runs.
 | `[text](path.md)` | A markdown link — a bracket followed by `(` |
 | `[TODO: <question>]` | **The sanctioned outcome of this step**, not a leftover |
 
+### Where it sits decides what it is
+
+Some blueprints show the **shape** of an answer before asking for one:
+
+```
+> [Affected user] currently faces [difficulty], which causes [consequence].
+
+**Your problem statement:** A charity's fundraising team currently tracks donors in
+shared spreadsheets, which causes them to miss repeat donations worth thousands a year.
+```
+
+The quoted line is the formula. It is **content the blueprint keeps**, and the answer goes
+below it. Replacing the formula would delete the thing that explains the answer.
+
+The same holds for an identifier pattern inside backticks — `` `TASK-###.md` `` documents a
+naming convention; it is not waiting to be replaced.
+
+So: a bracket span **in body text** is a gap. The same span **inside a blockquote or inside
+backticks** is usually illustration. Read it and decide — but do not report it as unfilled
+without looking, and do not silently ignore it either. This distinction is BUG-006: the first
+version of the check called a correctly filled file unfilled, and a control that cries wolf on
+correct work is a control that gets switched off.
+
 ### The distinction the whole step rests on
 
 ```

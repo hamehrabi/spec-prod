@@ -10,6 +10,7 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import {
   stripWorkedExample, backLink, blueprintOf, placeholders, todos, mint, headings,
+  unfilled,
 } from '../../ci/fill.mjs'
 
 // --- Step 6: the back-link (UTEST-014, TEST-006) ---------------------------------------
@@ -184,4 +185,31 @@ test('TEST-007: two files defining identifiers produce no duplicates', () => {
   for (let i = 0; i < 5; i += 1) issued.push(mint('REQ-F', issued))
   assert.deepEqual(issued, ['REQ-F-001', 'REQ-F-002', 'REQ-F-003', 'REQ-F-004', 'REQ-F-005'])
   assert.equal(new Set(issued).size, issued.length, 'no duplicates')
+})
+
+// --- BUG-006: a correctly filled file must not be reported as unfilled -------------------
+
+test('BUG-006: an illustrative formula in a blockquote is content, not a gap', () => {
+  const filled = `## Problem statement formula
+
+> [Affected user] currently faces [difficulty], which causes [consequence].
+> The system should [desired improvement].
+
+**Your problem statement:** A charity's fundraising team tracks donors in spreadsheets
+where records get lost, which costs them repeat donations worth thousands a year.
+`
+  assert.equal(unfilled(filled).length, 0, 'this file IS filled; the formula explains the answer below it')
+  assert.equal(placeholders(filled).filter((p) => p.context === 'quote').length, 4, 'seen and judged, not ignored')
+})
+
+test('BUG-006: an identifier pattern in backticks documents a convention', () => {
+  const doc = 'The next unit of work | `02-tasks/02-task-files/TASK-###.md` |\n'
+  assert.equal(unfilled(doc).length, 0)
+  assert.equal(placeholders(doc).length, 1, 'still reported, still visible')
+})
+
+test('BUG-006: a real gap in body text is still a gap', () => {
+  // The fix must not have bought quiet by going blind.
+  assert.equal(unfilled('| Owner | [who owns this decision] |\n').length, 1)
+  assert.equal(unfilled('Retention is REQ-F-### and the date is YYYY-MM-DD.\n').length, 2)
 })

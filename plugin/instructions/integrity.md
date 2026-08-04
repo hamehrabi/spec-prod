@@ -9,6 +9,54 @@ This check runs **twice**, and both runs are obligatory.
 
 ---
 
+## How to verify — and what you must never do to manage it
+
+**Never create a file to perform this check.** Not a script, not a helper, not a temporary
+file, not in `spec/`, not in the developer's repository, not anywhere. A check that writes
+something in order to run has already broken the boundary it exists to protect, and it does
+it *before the preamble* — before the developer has seen a single word.
+
+This is not hypothetical: it is BUG-004, and it happened on the first real run.
+
+Use the host's own tools:
+
+1. **Read** `blueprints/MANIFEST.md`.
+2. **Hash the whole library in ONE command.** Not one command per blueprint — one command for
+   all of them, printing every digest at once:
+
+   ```
+   sha256sum      find . -name '*.md' ! -name MANIFEST.md -exec sha256sum {} +
+   macOS          find . -name '*.md' ! -name MANIFEST.md -exec shasum -a 256 {} +
+   PowerShell     Get-ChildItem -Recurse -Filter *.md | Where-Object Name -ne MANIFEST.md |
+                  Get-FileHash -Algorithm SHA256
+   ```
+
+   A command that computes and prints is fine. **A command that creates a file is not.**
+3. Compare the printed digests against the manifest, and compare the file list both ways to
+   find anything missing or unlisted.
+
+> **Why "one command" is a rule and not a nicety.** Hashing all 79 blueprints costs **0.19
+> seconds** as a single command. Done one file at a time it is 79 round-trips, and a run
+> measured at over **thirty minutes** produced no output at all and never reached the
+> preamble — the developer sees a silent, apparently hung tool before they have been asked
+> anything. That is BUG-005, and it made the product unusable while every individual step
+> behaved exactly as written.
+>
+> The same rule applies to every future check that walks the library: **the library is
+> examined in one pass, never per file.**
+
+**If the host cannot compute a digest at all**, stop and say so:
+
+```
+"I could not verify the blueprint library, because this session has no way to compute
+ file checksums. Nothing was written. Verification is required before any file is
+ created, so I am stopping rather than proceeding on an unverified library."
+```
+
+Stopping is correct here. Proceeding would be reporting success on a check that did not run,
+which is the one thing this product must never do (BR-009) — and improvising a way to run it
+is how BUG-004 happened.
+
 ## Run 1 — before the first question
 
 Not before the first write. **Before question one.** A developer who answers eight rounds and

@@ -15,6 +15,10 @@ takes, and then stops.
 compare `blueprints/MANIFEST.md` against the library on disk. If anything is altered, missing,
 or unlisted: name which of the three it is, say that nothing was written, and **stop**.
 
+**Create nothing to perform this check** — no script, no helper, no temporary file, anywhere.
+If the host cannot compute checksums, stop and say so. See BUG-004: this step wrote two shell
+scripts into a developer's repository on the first real run, before the preamble.
+
 This runs **before the preamble and before question one** — not before the first write. A
 developer who answers eight rounds and is only then told the library was corrupt has been made
 to waste the entire interview.
@@ -101,19 +105,62 @@ Markdown and its manifest only. **A generated workspace therefore has no `.gitig
 `.env.example`, and the intake must not improvise either one** — writing a `.gitignore` from
 memory is exactly the invention this file forbids everywhere else.
 
-## Step 2 — Stop
+## Step 2 — Round 1
 
-Stop. This version of the plugin ends after the preamble. The end-of-run integrity re-check
+One round is always **ask → write → summarise**, in that order, with nothing deferred.
+
+### 2a. Ask
+
+Ask the four questions in `instructions/questions.md`, then its free-text question. At most
+four multiple-choice questions in a round — the limit is a requirement, not a guideline.
+
+Compose the whole round before showing any of it, so the developer never waits inside a round
+with a blank screen.
+
+A typed answer is used **verbatim** and is never snapped to a listed option.
+
+### 2b. Write
+
+Write these three files, each one produced by `instructions/fill.md` and each destination
+checked by `instructions/boundary.md` first:
+
+```
+spec/01-docs/01-intent/project-brief.md
+spec/01-docs/01-intent/intent.md
+spec/README.md
+```
+
+**Write them now, before the next round is asked** — not at the end of the run. An interrupted
+intake has to leave usable output behind, and a run that holds everything until the end leaves
+nothing when it is closed at round three.
+
+Propose each file singly and let the host's per-file prompt decide. If the developer **declines**
+one, record it as skipped, say so, and **continue the round.** A decline is a normal outcome, not
+a failure state: the run stays resumable and the file is offered again next time.
+
+### 2c. Summarise
+
+One line, naming the count:
+
+```
+Round 1 — wrote 3 files
+```
+
+If a file was skipped, the line says so rather than reporting a number that implies more was
+written than was.
+
+## Step 3 — Stop
+
+Stop after Round 1's summary. This version of the plugin ends there.
+
+Rounds 2 to 8 are not yet built. Ending here is the correct outcome, not an incomplete one,
+and it must not be reported as an error. The end-of-run integrity re-check
 (`instructions/integrity.md`, run 2) belongs with validation, which arrives with the rounds
-that actually write something — there is nothing yet for a run to have modified.
+that complete a workspace.
 
-- Ask **no** question.
-- Create, modify, or delete **no** file — not in `spec/`, not anywhere.
-- Read nothing from the developer's repository.
+- Ask no question beyond Round 1's.
+- Create, modify, or delete no file outside the three named above.
 - Make no network call.
-
-Printing the preamble is the whole of the run. Ending here is the correct outcome, not an
-incomplete one, and it must not be reported as an error or as a failure to start.
 
 ---
 
