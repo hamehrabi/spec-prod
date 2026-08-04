@@ -17,6 +17,11 @@
 //   BUG-014  a later round's answer had no way to reach an earlier round's [TODO].
 //   BUG-015  the change-log blueprint cited the KIT's ADR numbers in text that ships, so
 //            every generated workspace failed check 1 on identifiers it never defined.
+//   BUG-016  the round map was prose, and it gave Round 3 a file only Round 4 could fill.
+//   BUG-017  a placeholder inside a FENCED BLOCK counted as an unfilled gap, so every
+//            blueprint carrying a template block to copy failed check 5 by design.
+//   BUG-018  check 9 read an EXAMPLE row in a kept table as a declared driver, and failed a
+//            workspace that had not yet reached the file where drivers are declared.
 //
 // A synthetic workspace built inside a test would have had none of them, because the author
 // of the test also authors the input. This fixture was not authored — it was produced.
@@ -64,9 +69,13 @@ const failing = scored.breaches.map((b) => b.name).sort()
 
 // --- What has been produced -------------------------------------------------------------------
 
-test('GOLD-001: the run has reached Round 2, and the artifact is what says so', () => {
-  assert.deepEqual(acceptedStages(changeLog), ['Round 1 — the idea', 'Round 2 — scope boundaries'])
-  assert.equal(rounds, 2)
+test('GOLD-001: the run has reached Round 3, and the artifact is what says so', () => {
+  assert.deepEqual(acceptedStages(changeLog), [
+    'Round 1 — the idea',
+    'Round 2 — scope boundaries',
+    'Round 3 — users, roles, and data',
+  ])
+  assert.equal(rounds, 3)
 })
 
 test('GOLD-001: every file belongs to a round that has actually run', () => {
@@ -80,9 +89,17 @@ test('GOLD-001: every file belongs to a round that has actually run', () => {
     'spec/01-docs/01-intent/open-questions.md',
     'spec/01-docs/01-intent/project-brief.md',
     'spec/01-docs/01-intent/subdomain-map.md',
+    'spec/01-docs/02-requirements/requirements.md',
+    'spec/01-docs/06-api-and-data-design/api-specification.md',
+    'spec/01-docs/06-api-and-data-design/data-and-integration-spec.md',
+    'spec/01-docs/06-api-and-data-design/database-design.md',
     'spec/01-docs/09-change-control/spec-change-log.md',
     'spec/README.md',
   ])
+
+  // driving-characteristics.md is NOT here, and that is BUG-016: it lives in Round 3's
+  // directory and only Round 4's question can fill it.
+  assert.ok(!workspace['spec/01-docs/02-requirements/driving-characteristics.md'])
 })
 
 test('GOLD-001: the workspace README is about THIS project, not about the template', () => {
@@ -200,7 +217,7 @@ test('GOLD-001: Round 2 closed the marker Round 1 left in files Round 2 does not
 test('GOLD-001: gaps are recorded as [TODO], not filled with plausible values', () => {
   const count = Object.values(workspace).reduce((n, t) => n + todos(t).length, 0)
   assert.ok(count > 0, 'a two-question interview cannot honestly fill an intent document')
-  assert.ok(count < 60, 'but a workspace that is nothing but TODOs is not a specification')
+  assert.ok(count < 90, 'but a workspace that is nothing but TODOs is not a specification')
 })
 
 test('GOLD-001: the ONE failing scorer is the unfinished run, not a defect', () => {
@@ -241,4 +258,70 @@ test('GOLD-001: todo_density is recorded, still ungated — one run of the ten Q
   const density = scored.results.find((x) => x.name === 'todo_density')
   assert.equal(density.floor, null, 'Q-014 stays open until ten real runs exist')
   assert.ok(density.value > 0, 'and this run contributes a real number rather than a guess')
+})
+
+// --- Round 3: the data model, and the two checks it broke --------------------------------------
+
+test('GOLD-001: Round 3 declared one role, and wrote the denials that make it testable', () => {
+  // Check 8 wants a deny test for every permission rule, and it is right to: a test proving
+  // the cook can read their own recipes passes identically on a system with no access control
+  // at all. Single-user was chosen, which is the answer most likely to be mistaken for "no
+  // permissions needed".
+  const req = workspace['spec/01-docs/02-requirements/requirements.md']
+  assert.match(req, /REQ-R-002 \| A cook must not be able to read, change, or delete a record owned by another account/)
+  assert.match(req, /REQ-R-003 \| A signed-out visitor must not be able to read/)
+  assert.match(req, /One role is a decision, not an omission/)
+
+  const check8 = validate(workspace, library).results.find((c) => c.n === 8)
+  assert.equal(check8.state, 'passed', check8.detail.join(' · '))
+})
+
+test('GOLD-001: BUG-017 — a placeholder inside a fenced template block is not a gap', () => {
+  // Round 3 is the first round whose blueprints keep a fenced block the developer is meant to
+  // COPY — "copy per table", "copy this block for every endpoint". Every placeholder in those
+  // blocks was reported as an unfilled gap, so the blueprints were unfillable by construction.
+  // fill.md already drew this line for inline backticks; a fence is the strongest form of it.
+  const db = workspace['spec/01-docs/06-api-and-data-design/database-design.md']
+  assert.match(db, /Copy per table/, 'the template block is kept, as the blueprint intends')
+  assert.match(db, /- id: {10}UUID, required, primary key/, 'including its placeholders')
+  assert.deepEqual(unfilled(db), [], 'and none of them counts as an unfilled gap')
+})
+
+test('GOLD-001: BUG-018 — an example row in a kept table is not a declared driver', () => {
+  // requirements.md keeps the blueprint's own examples table, whose rows begin `| Performance |`
+  // and `| Security |`. Check 9 counted those as drivers and then failed the workspace for
+  // having no fitness function — a false positive on correct work, one round before the file
+  // that declares drivers is even written.
+  const req = workspace['spec/01-docs/02-requirements/requirements.md']
+  assert.match(req, /^\| Performance \| The dashboard must load within three seconds/m)
+
+  const check9 = validate(workspace, library).results.find((c) => c.n === 9)
+  assert.equal(check9.state, 'not-run')
+  assert.match(check9.detail[0], /no driving characteristics file exists yet/)
+})
+
+test('GOLD-001: the core rule reached the schema, not just the prose', () => {
+  // BR-001 is the product. A rule that lives only in a sentence is a rule the first refactor
+  // removes; as a uniqueness constraint it is one the store enforces.
+  const db = workspace['spec/01-docs/06-api-and-data-design/database-design.md']
+  assert.match(db, /unique on \(shopping_list_id, ingredient_name, unit\) {3}-- BR-001/)
+  assert.match(db, /The uniqueness constraint on `ShoppingListItem` is the core rule made structural/)
+})
+
+test('GOLD-001: the API answers 404 rather than 403 for another account\'s record', () => {
+  // The disclosure AC-005 tests for. 403 confirms the record exists, which is the one thing
+  // the response must not reveal.
+  const api = workspace['spec/01-docs/06-api-and-data-design/api-specification.md']
+  assert.match(api, /403 is deliberately unused/)
+  assert.match(api, /Everything not theirs is 404/)
+})
+
+test('GOLD-001: no external provider was named before one was chosen', () => {
+  // Round 6's question. Two candidates are visible and both are held open — a provider named
+  // in a specification becomes the choice, and nobody made it.
+  const integ = workspace['spec/01-docs/06-api-and-data-design/data-and-integration-spec.md']
+  assert.match(integ, /No external service is specified here, and that is not the same as none being needed/)
+  assert.match(integ, /a provider named before it is chosen\s*\n?becomes the choice/)
+  // But the rules that hold for ANY provider are written, because those do not depend on it.
+  assert.match(integ, /The six rules written above hold for every provider/)
 })

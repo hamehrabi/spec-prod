@@ -300,3 +300,46 @@ test('BUG-009: the README blueprint has fields to fill', () => {
   assert.doesNotMatch(readme, /Copy this folder for each new project/, 'template usage is not workspace content')
   assert.doesNotMatch(readme, /Gem Iroko/, "the kit's provenance belongs in ATTRIBUTION.md, not the developer's repo")
 })
+
+// --- BUG-017: a fenced block is illustration, not a gap ---------------------------------------
+
+test('BUG-017: placeholders inside a fenced block are context "code", never "body"', () => {
+  // Several blueprints carry a template block the developer is meant to KEEP and copy — "copy
+  // per table", "copy this block for every endpoint". Their placeholders are the point of the
+  // block. Reported as body gaps, they made those blueprints unfillable by construction.
+  //
+  // fill.md already drew this line for inline backticks. A fence is the strongest form of the
+  // same thing, and it was the only one contextOf did not handle. It surfaced at Round 3,
+  // because Round 3 is the first round whose blueprints keep a fence at all — the earlier ones
+  // only had prompt boxes, which step 3 deletes.
+  const text = [
+    '# Doc',
+    '',
+    'Copy per table.',
+    '',
+    '```',
+    'Table: [name]',
+    'Purpose: [what it stores]',
+    '- id: UUID, required',
+    '```',
+    '',
+    'And a real gap: [who owns this]',
+  ].join('\n')
+
+  const all = placeholders(text)
+  assert.ok(all.some((p) => p.text === '[name]'), 'still REPORTED — "we looked and judged it content"')
+  assert.deepEqual(all.filter((p) => p.context === 'code').map((p) => p.text).sort(), ['[name]', '[what it stores]'])
+  assert.deepEqual(unfilled(text).map((p) => p.text), ['[who owns this]'], 'only the one outside the fence is a gap')
+})
+
+test('BUG-017: the fence closes, and text after it is body again', () => {
+  // The failure mode of a naive fix: treat everything after the first fence as code, and the
+  // check goes silent for the rest of the file — which is how three defects this session
+  // passed for months.
+  const text = '# D\n\n```\n[inside]\n```\n\n[outside]\n\n```\n[inside again]\n```\n\n[outside again]\n'
+  assert.deepEqual(unfilled(text).map((p) => p.text), ['[outside]', '[outside again]'])
+})
+
+test('BUG-017: tilde fences count too', () => {
+  assert.deepEqual(unfilled('# D\n\n~~~\n[inside]\n~~~\n\n[outside]\n').map((p) => p.text), ['[outside]'])
+})

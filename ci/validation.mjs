@@ -164,10 +164,23 @@ export const CHECKS = {
   9: {
     name: 'every driving characteristic has at least one fitness function',
     run(ws) {
-      const text = all(ws)
-      const drivers = (text.match(/^\|\s*\*?\*?(?:Simplicity|Reliability|Auditability|Performance|Security|Scalability|Accessibility)/gim) ?? []).length
-      if (drivers === 0) return notRun('no driving characteristics were declared')
-      return /\bFF-\d{3}\b/.test(text) ? passed([`${drivers} driver rows`]) : failed(['drivers are declared with no fitness function'])
+      // ASK THE FILE THAT DECLARES THEM, not the whole workspace. This used to count any table
+      // row anywhere beginning with a quality word — so `| Performance | The dashboard must
+      // load within three seconds |`, an EXAMPLE row the requirements blueprint keeps as
+      // content, was counted as a declared driver. The check then failed a workspace that had
+      // not reached the drivers file yet, which is a false positive on correct work (BUG-018).
+      //
+      // A control that cries wolf is a control that gets switched off. It is the same lesson
+      // as BUG-006, one layer up.
+      const declaring = Object.entries(ws).find(([p]) => p.endsWith('driving-characteristics.md'))
+      if (!declaring) return notRun('no driving characteristics file exists yet — it is written in Round 4')
+
+      const [, text] = declaring
+      const drivers = (text.match(/^\|\s*[123]\s*\|\s*\S/gm) ?? []).length
+      if (drivers === 0) return notRun('the driving characteristics file exists but declares no driver')
+      return /\bFF-\d{3}\b/.test(all(ws))
+        ? passed([`${drivers} drivers declared`])
+        : failed(['drivers are declared with no fitness function'])
     },
   },
   10: {

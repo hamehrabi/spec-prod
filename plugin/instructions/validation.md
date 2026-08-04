@@ -61,6 +61,19 @@ is missing without telling them what, and the path is the only actionable part. 
 *(Checks 14 and 15 — stage acceptance and library integrity — join the same walk from their
 own modules. They report in the same three states.)*
 
+### Check 9: ask the file that declares them
+
+**A driver is a row in `driving-characteristics.md`, not a word that appears in a table.**
+
+The check used to count any row anywhere beginning with a quality word — so `| Performance |
+The dashboard must load within three seconds |`, an *example* row the requirements blueprint
+keeps as content, was read as a declared driver. It then failed a workspace for having no
+fitness function, a round before the file that declares drivers is written (BUG-018).
+
+**A control that cries wolf on correct work is a control that gets switched off.** Where the
+drivers file does not exist yet, the check reports **not run** — which blocks a success claim
+exactly as firmly as a failure, and says something true while doing it.
+
 ### Check 6: matching means matching
 
 **A `[TODO]` pairs with the question that asks it** — never with the mere existence of a question
