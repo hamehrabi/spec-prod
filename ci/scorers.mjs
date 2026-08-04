@@ -21,6 +21,11 @@ const files = (ws) => Object.entries(ws)
 const markdown = (ws) => files(ws).filter(([p]) => p.endsWith('.md'))
 const text = (ws) => Object.values(ws).join('\n')
 
+/** Every fictional product the blueprint library's worked examples name, plus the heading
+ *  itself. Kept beside `NO_EXAMPLE_EXPECTED` in the C2 test conceptually: adding a worked
+ *  example about a new fictional product means adding its name here, or the leak is silent. */
+export const EXAMPLE_MARKERS = /ProjectBoard|TeamTask Lite|SaaS task app|# WORKED EXAMPLE/g
+
 /** A scorer: { name, kind, measure(run) -> number, floor, hardFail }.
  *  `run` is { workspace, library, rounds, outside, notices, suppressed }. */
 export const SCORERS = [
@@ -49,7 +54,11 @@ export const SCORERS = [
   {
     name: 'no_example_content',
     kind: 'deterministic',
-    measure: (r) => (text(r.workspace).match(/ProjectBoard|# WORKED EXAMPLE/g) ?? []).length,
+    // Every product the library's worked examples name — not just ProjectBoard. 24 blueprints
+    // had an example that ADR-003 step 2 could not strip, and the two that leaked "TeamTask
+    // Lite" and "SaaS task app" were invisible to a one-name check. A leak detector that knows
+    // one name reports zero leaks for every other name (BR-002).
+    measure: (r) => (text(r.workspace).match(EXAMPLE_MARKERS) ?? []).length,
     floor: 0,
     hardFail: true,
   },

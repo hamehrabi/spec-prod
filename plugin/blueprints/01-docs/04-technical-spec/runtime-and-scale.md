@@ -90,7 +90,12 @@ Protects three different things. Say which one you are protecting — they need 
 
 ---
 
-## WORKED EXAMPLE — ProjectBoard
+> Blueprint source: this file is new to the template — added to close the runtime layers
+> (rate limiting, cache/CDN, scaling, cost) that the spec-driven method does not cover.
+
+---
+
+# WORKED EXAMPLE — ProjectBoard
 
 Drivers were **simplicity, security, performance**. Scalability was explicitly rejected.
 That single fact decided most of this file.
@@ -159,8 +164,3 @@ scalability was explicitly rejected as a driver. *Revisit when:* concurrent user
 - **A cross-tenant cache bug was prevented before it was written.**
 - **Three sections say "not needed", with reasons and revisit triggers.** That took ten
   minutes and is worth more than an unused Redis instance.
-
----
-
-> Blueprint source: this file is new to the template — added to close the runtime layers
-> (rate limiting, cache/CDN, scaling, cost) that the spec-driven method does not cover.

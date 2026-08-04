@@ -61,18 +61,6 @@ rate-limit, and return the unexpected — specify that **before** implementation
 > **Security reminder (Ch. 9 §9.7):** never design an integration that exposes secrets to
 > the frontend or stores tokens in plain text.
 
-### Worked example (Ch. 22 §22.5)
-
-```
-Reliability rule example — external email service
-- Timeout: stop waiting after 5 seconds.
-- Retry: retry up to 2 times for temporary network errors.
-- Do not retry: invalid email address or rejected permission.
-- If retries fail: mark the email as pending_review.
-- Log: EMAIL_SEND_FAILED with request_id, user_id, and safe error_code.
-- User message: "Your action was saved, but the email could not be sent yet."
-```
-
 ## 6. Versioning rules
 
 - Current version:
@@ -90,3 +78,17 @@ Reliability rule example — external email service
 - [ ] Secrets are configured through the environment, never hardcoded.
 - [ ] Failure paths have tests (`../tests/edge-cases-and-failures.md`).
 - [ ] Monitoring covers this integration (`../ops/monitoring-plan.md`).
+
+---
+
+# WORKED EXAMPLE (Ch. 22 §22.5)
+
+```
+Reliability rule example — external email service
+- Timeout: stop waiting after 5 seconds.
+- Retry: retry up to 2 times for temporary network errors.
+- Do not retry: invalid email address or rejected permission.
+- If retries fail: mark the email as pending_review.
+- Log: EMAIL_SEND_FAILED with request_id, user_id, and safe error_code.
+- User message: "Your action was saved, but the email could not be sent yet."
+```

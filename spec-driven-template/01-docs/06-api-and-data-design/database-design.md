@@ -214,7 +214,9 @@ database tables yet. Focus only on meaning and relationships.
 - **Bound the total, not just each file.** Per-user and per-tenant quotas.
 - Orphan cleanup is a **scheduled job**, not a hope.
 
-## WORKED EXAMPLE — ProjectBoard CSV exports
+# WORKED EXAMPLE — ProjectBoard
+
+## File storage — CSV exports
 
 The only files ProjectBoard stores. Uploads were explicitly out of scope for v1.
 
@@ -240,7 +242,7 @@ have shown the user a **Ready** button that downloads nothing.
 > readable by anyone who guessed a UUID — no login required. It passed every functional
 > test, because the download worked.
 
-# WORKED EXAMPLE — ProjectBoard
+## Entity model and schema
 
 ## 1. Entity model
 

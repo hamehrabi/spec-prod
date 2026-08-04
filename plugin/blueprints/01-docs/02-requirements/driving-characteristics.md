@@ -51,7 +51,11 @@ Keep roughly seven. Preserve the rejected ones — that list is why the decision
 
 ---
 
-## WORKED EXAMPLE — ProjectBoard
+> Blueprint source: this file is new to the template — added from the architecture review.
+
+---
+
+# WORKED EXAMPLE — ProjectBoard
 
 **Business concerns heard:** *"teams waste time in status meetings"*, *"we have one
 developer and one week"*, *"clients' data must not mix"*.
@@ -93,7 +97,3 @@ developer and one week"*, *"clients' data must not mix"*.
 - **Performance got a number** → "fast" became `p95 < 2 s for 500 tasks`, which became
   PTEST-003, which failed at 7.1 s, which produced ADR-003 (pagination). None of that
   happens if the requirement stays as the word *fast*.
-
----
-
-> Blueprint source: this file is new to the template — added from the architecture review.

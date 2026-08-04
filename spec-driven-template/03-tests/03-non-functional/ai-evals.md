@@ -74,7 +74,11 @@ Re-run the full set on **any** of these:
 
 ---
 
-## WORKED EXAMPLE — ProjectBoard "summarise my week"
+> Blueprint source: this file is new to the template — added from the architecture review.
+
+---
+
+# WORKED EXAMPLE — ProjectBoard "summarise my week"
 
 ### Golden set — 40 cases
 
@@ -130,7 +134,3 @@ Re-run the full set on **any** of these:
 > **EV-004 failed on day one.** Task titles are user input and went straight into the
 > prompt unescaped. A user could write "ignore previous instructions…" as a task title.
 > No feature test would ever have found this — the feature worked perfectly.
-
----
-
-> Blueprint source: this file is new to the template — added from the architecture review.

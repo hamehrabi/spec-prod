@@ -69,7 +69,9 @@ export const CHECKS = {
   4: {
     name: 'no worked-example content survives',
     run(ws) {
-      const hits = md(ws).filter(([, t]) => /^# WORKED EXAMPLE/m.test(t) || /ProjectBoard/.test(t))
+      // Every fictional product the library names, not just ProjectBoard — "TeamTask Lite"
+      // and "SaaS task app" lived in examples this check could not see (BR-002).
+      const hits = md(ws).filter(([, t]) => /^# WORKED EXAMPLE/m.test(t) || /ProjectBoard|TeamTask Lite|SaaS task app/.test(t))
       return hits.length === 0
         ? passed()
         : failed(hits.slice(0, 5).map(([p]) => `${p} still contains worked-example content`))

@@ -231,7 +231,7 @@ The task exists; no consumer ever hears about it. Publishing *before* the commit
 
 ---
 
-## WORKED EXAMPLE — ProjectBoard
+# WORKED EXAMPLE — ProjectBoard
 
 ### The bug this addendum exists because of
 
@@ -276,7 +276,7 @@ in one transaction?"* The first schema said yes — task creation also bumped
 them (task count became a derived read) removed the contention **and** revealed that
 `task_count` was never a real invariant, only a convenience.
 
-# WORKED EXAMPLE — ProjectBoard CSV export
+## CSV export
 
 > Based on the Ch. 22 report-generation example, applied to ProjectBoard's CSV export.
 

@@ -416,50 +416,7 @@ Side effects:         [database writes, emails, jobs, audit events]
 Tests required:       TEST-### (unit, integration, edge cases)
 ```
 
-### 6.3 Worked example (Ch. 9 §9.5)
-
-**Request**
-```
-POST /api/v1/projects/{project_id}/tasks
-Content-Type: application/json
-
-{
-  "title": "Prepare launch checklist",
-  "description": "Confirm release tasks before deployment.",
-  "assignee_id": "user_102",
-  "due_date": "2026-07-15"
-}
-```
-
-**Success response**
-```
-201 Created
-
-{
-  "id": "task_501",
-  "project_id": "project_200",
-  "title": "Prepare launch checklist",
-  "status": "todo",
-  "assignee_id": "user_102",
-  "due_date": "2026-07-15",
-  "created_at": "2026-06-26T10:15:00Z"
-}
-```
-
-**Error response**
-```
-400 Bad Request
-
-{
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "The task title is required.",
-    "field": "title"
-  }
-}
-```
-
-### 6.4 Status code response principles (Appendix D)
+### 6.3 Status code response principles (Appendix D)
 
 | Status | Use | Response principle |
 |---|---|---|
@@ -470,7 +427,7 @@ Content-Type: application/json
 | 404 | Resource not found. | Avoid confirming whether another user's resource exists. |
 | 500 | Unexpected server failure. | Safe generic message; log the internal reason. |
 
-### 6.5 Contract rules (Ch. 9 §9.9)
+### 6.4 Contract rules (Ch. 9 §9.9)
 
 | Rule | Specification |
 |---|---|
@@ -480,7 +437,7 @@ Content-Type: application/json
 | Validation timing | Validation happens **before** saving data. |
 | Audit trail | Important create and status-change events are recorded. |
 
-### 6.6 Validation rules (Ch. 9 §9.6)
+### 6.5 Validation rules (Ch. 9 §9.6)
 
 | Rule type | Example rule |
 |---|---|
@@ -1016,3 +973,48 @@ Do not invent new metrics, roles, or endpoints.
 
 **Next:** [`traceability.md`](../08-traceability/traceability.md) · [`decisions.md`](../05-architecture/decisions.md) ·
 [`../tasks/task-index.md`](../../02-tasks/01-planning/task-index.md)
+
+---
+
+# WORKED EXAMPLE — API request and response (Ch. 9 §9.5)
+
+**Request**
+```
+POST /api/v1/projects/{project_id}/tasks
+Content-Type: application/json
+
+{
+  "title": "Prepare launch checklist",
+  "description": "Confirm release tasks before deployment.",
+  "assignee_id": "user_102",
+  "due_date": "2026-07-15"
+}
+```
+
+**Success response**
+```
+201 Created
+
+{
+  "id": "task_501",
+  "project_id": "project_200",
+  "title": "Prepare launch checklist",
+  "status": "todo",
+  "assignee_id": "user_102",
+  "due_date": "2026-07-15",
+  "created_at": "2026-06-26T10:15:00Z"
+}
+```
+
+**Error response**
+```
+400 Bad Request
+
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "The task title is required.",
+    "field": "title"
+  }
+}
+```

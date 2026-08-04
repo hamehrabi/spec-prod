@@ -37,7 +37,28 @@ Owner:
 
 ---
 
-## Worked example (Ch. 24)
+## Known issues and limitations
+
+| ID | Issue | Impact | Workaround | Planned fix | Documented for support |
+|---|---|---|---|---|---|
+| KI-001 | | | | | Yes / No |
+
+---
+
+## Operational notes
+
+| Topic | Note |
+|---|---|
+| Capacity assumptions | |
+| Recurring manual steps | |
+| Seasonal/traffic patterns | |
+| Dependencies with known instability | |
+
+Runbook → [`../ops/runbook.md`](../02-monitoring/runbook.md)
+
+---
+
+# WORKED EXAMPLE (Ch. 24)
 
 > Users report the dashboard loads slowly for large projects. No error appears, but the
 > experience is poor.
@@ -60,24 +81,3 @@ Do not change authentication, authorization, or unrelated API responses.
 Goal: reduce large-project dashboard load time by returning paginated data.
 Also update or add tests for the new pagination behavior.
 ```
-
----
-
-## Known issues and limitations
-
-| ID | Issue | Impact | Workaround | Planned fix | Documented for support |
-|---|---|---|---|---|---|
-| KI-001 | | | | | Yes / No |
-
----
-
-## Operational notes
-
-| Topic | Note |
-|---|---|
-| Capacity assumptions | |
-| Recurring manual steps | |
-| Seasonal/traffic patterns | |
-| Dependencies with known instability | |
-
-Runbook → [`../ops/runbook.md`](../02-monitoring/runbook.md)

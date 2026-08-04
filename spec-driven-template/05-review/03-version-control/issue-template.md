@@ -37,7 +37,17 @@ Owner:
 
 ---
 
-## Worked example (Ch. 15 §15.5)
+## Issue quality check
+
+- [ ] Points to a requirement ID that exists.
+- [ ] Acceptance criteria are testable, not aspirational.
+- [ ] Likely files are named (so unrelated changes are visible in the diff).
+- [ ] Out-of-scope items are stated.
+- [ ] Tests are identified before implementation.
+
+---
+
+# WORKED EXAMPLE (Ch. 15 §15.5)
 
 ```
 Issue Title:    Implement failed login lockout
@@ -59,13 +69,3 @@ Files likely affected:
 
 > This gives the agent a controlled target. It also gives **you** a clear review checklist
 > before you accept the change.
-
----
-
-## Issue quality check
-
-- [ ] Points to a requirement ID that exists.
-- [ ] Acceptance criteria are testable, not aspirational.
-- [ ] Likely files are named (so unrelated changes are visible in the diff).
-- [ ] Out-of-scope items are stated.
-- [ ] Tests are identified before implementation.

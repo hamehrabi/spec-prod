@@ -91,7 +91,7 @@
 
 ---
 
-## Worked example (Ch. 1 §1.8)
+# WORKED EXAMPLE (Ch. 1 §1.8)
 
 ```
 Task ID: TASK-001

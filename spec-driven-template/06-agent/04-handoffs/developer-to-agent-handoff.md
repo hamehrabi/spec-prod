@@ -71,23 +71,6 @@ Completion check: [How the work will be verified]
 
 ---
 
-## Worked example (Ch. 11 §11.8)
-
-```
-Task: Implement REQ-AUTH-001 validation for login.
-Source of truth: Requirements section REQ-AUTH-001 and API error rules.
-Allowed files: auth-service, login-controller, login-validation-test.
-Do not change: user registration, password reset, database schema, or user roles.
-Expected output: validation logic and tests for missing email and missing password.
-Completion check: tests pass and error responses match the API contract.
-```
-
-> Notice this does **not** say "build authentication." It says exactly which part of
-> authentication to work on. That is the difference between uncontrolled AI coding and
-> spec-driven agent work.
-
----
-
 ## Pre-flight checklist (Ch. 11)
 
 Before you let an agent work, confirm that:
@@ -125,3 +108,20 @@ then use the agent to perform a narrow, approved implementation task.
 | Creating tests from acceptance criteria. | Detecting every security or performance risk without guidance. |
 | Explaining code and proposing refactors. | Understanding undocumented legacy behavior. |
 | Speeding up repetitive edits. | Protecting your architecture if you give it no boundaries. |
+
+---
+
+# WORKED EXAMPLE (Ch. 11 §11.8)
+
+```
+Task: Implement REQ-AUTH-001 validation for login.
+Source of truth: Requirements section REQ-AUTH-001 and API error rules.
+Allowed files: auth-service, login-controller, login-validation-test.
+Do not change: user registration, password reset, database schema, or user roles.
+Expected output: validation logic and tests for missing email and missing password.
+Completion check: tests pass and error responses match the API contract.
+```
+
+> Notice this does **not** say "build authentication." It says exactly which part of
+> authentication to work on. That is the difference between uncontrolled AI coding and
+> spec-driven agent work.
