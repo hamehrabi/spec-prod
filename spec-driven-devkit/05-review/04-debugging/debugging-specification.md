@@ -66,6 +66,58 @@ Artifacts updated:
   tests/integration/test_TEST-017_commit_touching_both_modules_fails_ff002.mjs
 ```
 
+| **BUG-003** | 2026-08-04 | Three blueprints carried 224 lines of real template guidance **after** their `# WORKED EXAMPLE` heading. ADR-003 step 2 deletes from that heading to end of file, so every workspace generated from them would have silently lost a whole section. | **A blueprint-side contract guarantee was never checked.** `api-specification.md` C2 states *"a `# WORKED EXAMPLE` section, **always last**, always removable as a whole"* — and nothing verified it. The fill procedure was correct given the guarantee; the guarantee was false for 3 of 54 blueprints, and no test asserted the precondition the algorithm depends on. | `tests/integration/test_C2_worked_example_is_always_last.mjs` — **seen to fail**, naming all three | `api-specification.md` C2. The rule existed and was precise. What was missing was any check that the *library* honoured it — a contract asserted only on the side that consumes it | **Fixed** — addenda moved above the worked example; content byte-preserved (316/357/328 lines before and after) |
+
+### BUG-003 in full
+
+```
+Bug ID:        BUG-003
+Date:          2026-08-04
+Reported by:   TASK-005 stop condition 2, before the fill procedure was written
+Version:       plugin 0.1.0, blueprint library at TASK-003/TASK-021
+
+SYMPTOM
+  Applying ADR-003 step 2 to database-design.md, reliability-specification.md and
+  code-review-checklist.md would delete their ADDENDUM sections -- File and Object
+  Storage, Transactional Reliability, and The 12 Design Red Flags. 224 lines of
+  generic guidance, gone, with no error.
+
+ROOT CAUSE
+  Not "step 2 is too aggressive". Step 2 is correct GIVEN contract C2, which
+  guarantees the worked example is always last. The defect is that C2 was a
+  promise nothing tested, and three blueprints had quietly broken it.
+
+WHY IT WAS MISSED
+  Which test should have caught it?  A test of C2's blueprint-side guarantee.
+  Did that test exist?               No. C2's guarantees were all asserted on the
+                                     GENERATED side -- headings match, back-link
+                                     resolves, no example content survives. The
+                                     side that PRODUCES those properties was
+                                     unchecked, so a library defect could only
+                                     ever surface as a mysterious output defect.
+
+  This is the failure mode with the worst signature in the whole product: the
+  output would have been structurally valid, internally consistent, and missing a
+  section nobody could see was missing. FF-005, FF-006 and FF-007 would all pass.
+
+REGRESSION TEST
+  Test ID:                                    C2 worked-example-is-last (2 cases)
+  Seen to FAIL against the unfixed version:   yes -- named all three blueprints
+
+THE SPECIFICATION THAT SHOULD HAVE PREVENTED IT
+  api-specification.md C2. It was neither unclear nor ignored; it was simply
+  never enforced in the direction that mattered. A contract with a guaranteeing
+  side and a relying side needs a test on the guaranteeing side, or it is a
+  comment.
+
+REPEATABLE MISTAKE?
+  Yes. Row added to AGENT.md "Lessons from past mistakes".
+
+Artifacts updated:
+  spec-driven-template/ x3, plugin/blueprints/ x3, plugin/blueprints/MANIFEST.md,
+  tests/integration/test_C2_worked_example_is_always_last.mjs
+```
+
 ### BUG-001 in full
 
 ```

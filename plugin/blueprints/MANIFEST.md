@@ -39,9 +39,9 @@ failure, not a bonus.
 | `01-docs/05-architecture/decisions.md` | `18cf2be60bd1bffb8052fdbe908885a5bf8ea0cfb66c869cbb6df1e6a017a079` |
 | `01-docs/06-api-and-data-design/api-specification.md` | `82bd86bb184e387b828f30fac7158d224a4839eabf8ad6d6d502d908aad62d7a` |
 | `01-docs/06-api-and-data-design/data-and-integration-spec.md` | `5c51044d79cc2c728df6a3e50ba2be9e5cc0938dbb4a07ed7a53f8e555673d46` |
-| `01-docs/06-api-and-data-design/database-design.md` | `093ee22b0f0c8d122acb5e7a65651f6276db10e0edf2868e18ea72f2cd6b695c` |
+| `01-docs/06-api-and-data-design/database-design.md` | `fa8a8bdbb71819e655af477160d2f63a180d73fa4f594820f6834bc714dbb167` |
 | `01-docs/07-security-and-reliability/ai-boundary-spec.md` | `1cc92f1cee8cf177c538e74a6c6fde6f618cbd8212461c12f0f5c5a7ef9001eb` |
-| `01-docs/07-security-and-reliability/reliability-specification.md` | `5211c73c105dec490d9bf73f59fa3454df2e67d20e7cc2680f7259fe56e71190` |
+| `01-docs/07-security-and-reliability/reliability-specification.md` | `b838db83ba5df23304cef109ad1df5314c0ff3536562a546eb9d543e4be51304` |
 | `01-docs/07-security-and-reliability/security-specification.md` | `70cb4bd6e05973ba4d5340a4e5926ce6d8262cc60922792dedb8dad7a51ed397` |
 | `01-docs/08-traceability/traceability.md` | `f7db9b214a9aa5620e1483fab08e04415fad897d6e102b1d5ed3662a04aaa495` |
 | `01-docs/09-change-control/spec-change-log.md` | `a3d40a305af66eae2820d1ac5146b91ba3efb46eeccf3741e8a8803fd88a6023` |
@@ -69,7 +69,7 @@ failure, not a bonus.
 | `05-review/01-logs/change-log.md` | `88856d29f1b397e1dfff8a2efc39817395e82848349d4e01b4e57add104746a6` |
 | `05-review/01-logs/feedback-register.md` | `ccca20eadf50446507128d55542a3e0a81e8bc100d6c72cc8cb49aac827210ed` |
 | `05-review/01-logs/review-log.md` | `5afd93cb912f8ed351fa3a9c3460f13173648bfe7fbd8ddebc00fad27cbc9c9d` |
-| `05-review/02-checklists/code-review-checklist.md` | `313a480b1fb1247e49362a65729711eff7f4ab03c120ea6ffba8055a694743d9` |
+| `05-review/02-checklists/code-review-checklist.md` | `16ad91d9e87d132cd7fc0ded00a2344394eb612c629f84ec8e3c2aebefbf8e49` |
 | `05-review/02-checklists/risk-storming.md` | `cf304ea7102b14be9c78b3b8b30ac0450dd532369990d84f089dc9ce00ae80fa` |
 | `05-review/02-checklists/security-review.md` | `20ad5a3af7b684dce4e9208b64744dfd1b13daf943016b3cb826fabe44b041c5` |
 | `05-review/02-checklists/traceability-review.md` | `25d2d796af3e2f944bab81690267f53053edc619993c1102361a0474db24bfb1` |

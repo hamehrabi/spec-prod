@@ -207,6 +207,62 @@ Explain:
 
 ---
 
+# ADDENDUM — The 12 Design Red Flags
+
+> Added from the architecture review. Source: Ousterhout, *A Philosophy of Software Design*.
+> The checklist above verifies **the code does what was asked**. This one verifies **the
+> design will survive the next six months**. Scan the diff against these and nothing else —
+> twenty minutes.
+
+| Signal | What you are seeing | First move |
+|---|---|---|
+| **Shallow module** | Interface nearly as complex as the implementation | Merge it, absorb it into the caller, or delete it |
+| **Information leakage** | One design decision reflected in several modules | Merge them, or extract a module that owns the decision — only if that module gets a *simpler* interface |
+| **Temporal decomposition** | Structure follows execution order rather than knowledge | Ask *"what does this module **know**"*, not *"when does it run"*. Redraw the boundaries |
+| **Overexposure** | Using a common feature forces you to learn rare ones | Add defaults; move the rare feature to a separate method |
+| **Pass-through method** | A method that just forwards, same signature | Expose the lower class, redistribute responsibility, or merge |
+| **Repetition** | The same nontrivial code, again and again | You have not found the abstraction yet |
+| **Special-general mixture** | Specialised code tangled into a general mechanism | Push the specialisation up or down; leave the mechanism clean |
+| **Conjoined methods** | You cannot understand one without reading the other | Undo the split, or move the boundary to a real seam |
+| **Comment repeats code** | The comment reuses the identifier's own words | Change altitude: units and invariants below, purpose above |
+| **Impl. doc in the interface** | Interface comment describes internals | Cut it, or move it inside the body |
+| **Vague / hard-to-pick name** | Too broad, or you cannot find a good one | Rename. If naming stays hard, the entity does two jobs — split it |
+| **Hard to describe** | Docs must be long to be complete | Fix the abstraction, not the prose. **Long comment = wrong abstraction** |
+
+## Two questions to add to every review
+
+1. **For each new abstraction:** does it hide more than it exposes?
+2. **For each new configuration parameter:** *can the caller genuinely determine a better
+   value than you can here?* If no — **compute it**, do not export it.
+
+> **Complexity is measured by readers, not writers.** If a reviewer says your code is not
+> obvious, it is not obvious — regardless of how clear it looks to you. You are the one
+> person who already holds the missing context in your head.
+
+---
+
+## WORKED EXAMPLE — ProjectBoard
+
+### Flags that fired in real reviews
+
+| Date | Flag | What it was | Fix |
+|---|---|---|---|
+| 2026-03-12 | **Pass-through method** | `TaskService.getTask(id)` did nothing but call `TaskRepo.getTask(id)` | Deleted; handler calls the repo through the service's real operations |
+| 2026-03-19 | **Information leakage** | Both `create_task()` and `csv_export()` knew the status enum's display strings | Extracted `TaskStatus` value object owning the strings — a *simpler* interface, so the extraction was justified |
+| 2026-04-02 | **Overexposure** | Every caller of `list_tasks()` had to pass `page_size`, though 9 of 10 wanted the default | Defaulted to 50 (ADR-003); rare callers override |
+| 2026-04-22 | **Temporal decomposition** | The AI summary feature was drafted as `fetch → filter → format → call model → parse`, five modules. Prompt format was known by **three** of them. | Redrawn around knowledge: one module owns *prompt construction and parsing together*, because they share the format. Order still exists at runtime — it just stopped dictating the boundaries. |
+| 2026-04-24 | **Configuration knob** | `retrieval_k` exported as a request parameter | Derived from score distribution. Nobody calling the endpoint could have set it better. |
+
+### The one that mattered most
+
+> **2026-04-22 — temporal decomposition.** This is the classic AI-system failure and it
+> looked completely reasonable: five clean modules, each doing one step of the pipeline.
+> The problem only appears when you change the prompt format — three modules change, and
+> the parser breaks *silently* because nothing links them. It is back-door information
+> leakage, which behaves exactly like an unknown unknown.
+>
+> No test would have caught it. Only reading the diff against this list did.
+
 # WORKED EXAMPLE — ProjectBoard, TASK-006 first pass
 
 **Feature or module:** Task creation
@@ -270,59 +326,3 @@ def validate_task_input(data, today):
 > file list *before* reading the code is what surfaced it.
 
 ---
-
-# ADDENDUM — The 12 Design Red Flags
-
-> Added from the architecture review. Source: Ousterhout, *A Philosophy of Software Design*.
-> The checklist above verifies **the code does what was asked**. This one verifies **the
-> design will survive the next six months**. Scan the diff against these and nothing else —
-> twenty minutes.
-
-| Signal | What you are seeing | First move |
-|---|---|---|
-| **Shallow module** | Interface nearly as complex as the implementation | Merge it, absorb it into the caller, or delete it |
-| **Information leakage** | One design decision reflected in several modules | Merge them, or extract a module that owns the decision — only if that module gets a *simpler* interface |
-| **Temporal decomposition** | Structure follows execution order rather than knowledge | Ask *"what does this module **know**"*, not *"when does it run"*. Redraw the boundaries |
-| **Overexposure** | Using a common feature forces you to learn rare ones | Add defaults; move the rare feature to a separate method |
-| **Pass-through method** | A method that just forwards, same signature | Expose the lower class, redistribute responsibility, or merge |
-| **Repetition** | The same nontrivial code, again and again | You have not found the abstraction yet |
-| **Special-general mixture** | Specialised code tangled into a general mechanism | Push the specialisation up or down; leave the mechanism clean |
-| **Conjoined methods** | You cannot understand one without reading the other | Undo the split, or move the boundary to a real seam |
-| **Comment repeats code** | The comment reuses the identifier's own words | Change altitude: units and invariants below, purpose above |
-| **Impl. doc in the interface** | Interface comment describes internals | Cut it, or move it inside the body |
-| **Vague / hard-to-pick name** | Too broad, or you cannot find a good one | Rename. If naming stays hard, the entity does two jobs — split it |
-| **Hard to describe** | Docs must be long to be complete | Fix the abstraction, not the prose. **Long comment = wrong abstraction** |
-
-## Two questions to add to every review
-
-1. **For each new abstraction:** does it hide more than it exposes?
-2. **For each new configuration parameter:** *can the caller genuinely determine a better
-   value than you can here?* If no — **compute it**, do not export it.
-
-> **Complexity is measured by readers, not writers.** If a reviewer says your code is not
-> obvious, it is not obvious — regardless of how clear it looks to you. You are the one
-> person who already holds the missing context in your head.
-
----
-
-## WORKED EXAMPLE — ProjectBoard
-
-### Flags that fired in real reviews
-
-| Date | Flag | What it was | Fix |
-|---|---|---|---|
-| 2026-03-12 | **Pass-through method** | `TaskService.getTask(id)` did nothing but call `TaskRepo.getTask(id)` | Deleted; handler calls the repo through the service's real operations |
-| 2026-03-19 | **Information leakage** | Both `create_task()` and `csv_export()` knew the status enum's display strings | Extracted `TaskStatus` value object owning the strings — a *simpler* interface, so the extraction was justified |
-| 2026-04-02 | **Overexposure** | Every caller of `list_tasks()` had to pass `page_size`, though 9 of 10 wanted the default | Defaulted to 50 (ADR-003); rare callers override |
-| 2026-04-22 | **Temporal decomposition** | The AI summary feature was drafted as `fetch → filter → format → call model → parse`, five modules. Prompt format was known by **three** of them. | Redrawn around knowledge: one module owns *prompt construction and parsing together*, because they share the format. Order still exists at runtime — it just stopped dictating the boundaries. |
-| 2026-04-24 | **Configuration knob** | `retrieval_k` exported as a request parameter | Derived from score distribution. Nobody calling the endpoint could have set it better. |
-
-### The one that mattered most
-
-> **2026-04-22 — temporal decomposition.** This is the classic AI-system failure and it
-> looked completely reasonable: five clean modules, each doing one step of the pipeline.
-> The problem only appears when you change the prompt format — three modules change, and
-> the parser breaks *silently* because nothing links them. It is back-door information
-> leakage, which behaves exactly like an unknown unknown.
->
-> No test would have caught it. Only reading the diff against this list did.
