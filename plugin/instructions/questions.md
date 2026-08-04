@@ -14,6 +14,10 @@ A developer may type their own answer to any question. **Use it verbatim.** Neve
 the nearest listed option: someone whose situation is not in the list is exactly the person
 the list would mislead.
 
+> **Check `instructions/inference.md` before composing any round.** A question whose answer
+> the developer has already given is not asked — and the inference drawn instead is always
+> stated, never silent.
+
 > **Some questions have options that cannot be written down here**, because they are derived
 > from what the developer already said. Those are marked **derived**. The rule still holds:
 > present the most likely first, marked `(Recommended)`, each with a one-line reason.
@@ -127,6 +131,8 @@ have.
 
 ## Q3. Does data need to be isolated between customers?
 
+**May be narrowed by inference** — see `instructions/inference.md`.
+
 - **No — a single organisation** — *(Recommended if unsure)* it matches the most common first version, and it is the honest answer for an internal tool.
 - **Yes — organisations must never see each other's data** — this is a design constraint, not a feature, and it reaches every query.
 - **Not yet, but likely later** — say so now; retrofitting isolation is materially harder than designing for it.
@@ -143,6 +149,8 @@ have.
 - **A business number moves** — the strongest claim, and the one most likely to depend on things outside the software.
 
 ## Q2. What matters most in the interface?
+
+**May be suppressed entirely by inference** — see `instructions/inference.md`.
 
 - **Speed of the core task** — *(Recommended)* it is the thing users notice daily, and it constrains design decisions usefully.
 - **Clarity for non-technical users** — fewer options, more explanation; costs density.
@@ -221,6 +229,8 @@ become the fitness functions.
 - **Customer business data** — the thing your users would consider theirs, whatever the law says about it.
 
 ## Q2. Which external services will you depend on? *(multi-select)*
+
+**May be narrowed by inference** — see `instructions/inference.md`.
 
 - **None in version one** — *(Recommended if budget-constrained)* every dependency you do not add is an outage you cannot have and a bill you do not pay.
 - **Email delivery** — the most commonly needed, and the one most likely to fail silently.

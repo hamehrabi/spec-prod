@@ -126,8 +126,14 @@ One round is always **ask → write → summarise**, in that order, with nothing
 
 ### 2a. Ask
 
-Ask the four questions in `instructions/questions.md`, then its free-text question. At most
-four multiple-choice questions in a round — the limit is a requirement, not a guideline.
+**First consult `instructions/inference.md`.** Any question the developer's earlier answers
+already settle is not asked, and the inference drawn instead is stated with the answer it
+came from. Any two answers that cannot both hold **stop the round** and are quoted verbatim.
+
+Then ask what remains from `instructions/questions.md`, followed by its free-text question.
+At most four multiple-choice questions in a round — the limit is a requirement, not a
+guideline. **There is never a ninth round**; anything still unknown after the eighth becomes
+an open question with a decision owner.
 
 Compose the whole round before showing any of it, so the developer never waits inside a round
 with a blank screen.
