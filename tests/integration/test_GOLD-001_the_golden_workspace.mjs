@@ -87,6 +87,7 @@ test('GOLD-001: Round 4 is part-written, with no acceptance row — the state `s
   assert.equal(rounds, 3, 'three accepted rounds, and a fourth in progress')
   assert.ok(workspace['spec/01-docs/02-requirements/driving-characteristics.md'])
   assert.ok(workspace['spec/01-docs/04-technical-spec/fitness-functions.md'])
+  assert.ok(workspace['spec/01-docs/04-technical-spec/runtime-and-scale.md'])
   assert.doesNotMatch(changeLog, /Round 4/, 'an unfinished round records nothing (BR-009)')
   assert.deepEqual(Object.keys(workspace).sort(), [
     'spec/01-docs/01-intent/constraints-and-non-goals.md',
@@ -97,6 +98,7 @@ test('GOLD-001: Round 4 is part-written, with no acceptance row — the state `s
     'spec/01-docs/02-requirements/driving-characteristics.md',
     'spec/01-docs/02-requirements/requirements.md',
     'spec/01-docs/04-technical-spec/fitness-functions.md',
+    'spec/01-docs/04-technical-spec/runtime-and-scale.md',
     'spec/01-docs/06-api-and-data-design/api-specification.md',
     'spec/01-docs/06-api-and-data-design/data-and-integration-spec.md',
     'spec/01-docs/06-api-and-data-design/database-design.md',
@@ -364,4 +366,29 @@ test('GOLD-001: no external provider was named before one was chosen', () => {
   assert.match(integ, /a provider named before it is chosen\s*\n?becomes the choice/)
   // But the rules that hold for ANY provider are written, because those do not depend on it.
   assert.match(integ, /The six rules written above hold for every provider/)
+})
+
+test('GOLD-001: "not needed" is written as a decision with a revisit trigger, never left blank', () => {
+  // depth.md calls this a first-class answer, and until now nothing had exercised it. Three of
+  // runtime-and-scale.md's four layers are not needed here, because performance and
+  // scalability were both considered as drivers and both rejected — so this file is where that
+  // rejection becomes written decisions rather than four empty tables that read as an oversight.
+  const rs = workspace['spec/01-docs/04-technical-spec/runtime-and-scale.md']
+  const notNeeded = rs.match(/☐ Not needed — \*why:\*/g) ?? []
+  assert.ok(notNeeded.length >= 6, `expected several explicit refusals, found ${notNeeded.length}`)
+  assert.match(rs, /☑ \*\*Single instance is fine\*\* — \*why:\*/)
+  assert.match(rs, /\*Revisit when:\*/, 'a refusal without a revisit trigger expires silently')
+
+  // The one row that stays "yes" is the one an attacker can reach before authenticating.
+  assert.match(rs, /Login is the exception, and it stays "yes" even though nothing else does/)
+})
+
+test('GOLD-001: the per-user cache row is refused on principle, not on volume', () => {
+  // The distinction that matters: every other refusal here would flip if the numbers changed.
+  // This one would not — a shared cache without the account in the key breaks REQ-NF-002, and
+  // it passes every functional test because the tests only ever run one account.
+  const rs = workspace['spec/01-docs/04-technical-spec/runtime-and-scale.md']
+  assert.match(rs, /a decision, not a measurement/)
+  assert.match(rs, /passes every\s*\n?functional test because the tests only ever run one account/)
+  assert.match(rs, /this row needs an ADR rather than an edit/)
 })
