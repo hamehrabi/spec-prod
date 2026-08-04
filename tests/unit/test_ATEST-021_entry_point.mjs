@@ -16,10 +16,10 @@ test('TEST-009: the entry point is written LAST, after validation', () => {
   assert.match(doc, /After validation, after every other file, and never before/i)
   assert.match(doc, /a link nobody verified/i)
   assert.ok(
-    intake.search(/## Step 2e — Validate/) < intake.search(/## Step 2f — Write the entry point/),
+    intake.search(/## Step \d+ — Validate/) < intake.search(/## Step \d+ — Write the entry point/),
     'validation precedes the entry point'
   )
-  assert.ok(intake.search(/### 2b\. Write/) < intake.search(/## Step 2f/), 'and everything it links to is already written')
+  assert.ok(intake.search(/### 2b\. Write/) < intake.search(/## Step \d+ — Write the entry point/), 'and everything it links to is already written')
 })
 
 test('a failed or unrun check means the entry point is NOT written', () => {
