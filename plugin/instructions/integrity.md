@@ -9,6 +9,35 @@ This check runs **twice**, and both runs are obligatory.
 
 ---
 
+## How to verify — and what you must never do to manage it
+
+**Never create a file to perform this check.** Not a script, not a helper, not a temporary
+file, not in `spec/`, not in the developer's repository, not anywhere. A check that writes
+something in order to run has already broken the boundary it exists to protect, and it does
+it *before the preamble* — before the developer has seen a single word.
+
+This is not hypothetical: it is BUG-004, and it happened on the first real run.
+
+Use the host's own tools:
+
+1. **Read** `blueprints/MANIFEST.md`.
+2. Ask the host to compute the digests — its shell can hash a file on every platform
+   (`sha256sum`, `shasum -a 256`, `Get-FileHash`). A one-off command that computes and prints
+   is fine. **A command that creates a file is not.**
+3. Compare against the manifest. List the blueprints on disk to find unlisted ones.
+
+**If the host cannot compute a digest at all**, stop and say so:
+
+```
+"I could not verify the blueprint library, because this session has no way to compute
+ file checksums. Nothing was written. Verification is required before any file is
+ created, so I am stopping rather than proceeding on an unverified library."
+```
+
+Stopping is correct here. Proceeding would be reporting success on a check that did not run,
+which is the one thing this product must never do (BR-009) — and improvising a way to run it
+is how BUG-004 happened.
+
 ## Run 1 — before the first question
 
 Not before the first write. **Before question one.** A developer who answers eight rounds and

@@ -52,6 +52,25 @@ Normalise, then compare **segment by segment**. One line of ordering; the whole 
 
 ---
 
+## No working files, anywhere
+
+**The kit never creates a file in order to do its own work.** No script, no helper, no
+scratch file, no temporary file, no notes-to-self — not in `spec/`, not in the developer's
+repository, not in a temp directory.
+
+The only files this kit ever creates are **the specification artifacts it was asked for**,
+each one proposed singly and approved by the developer.
+
+This rule exists because it was broken. On the first end-to-end run the intake needed to
+compare 79 checksums, had no sanctioned way to do it, and wrote two shell scripts into the
+developer's repository root to manage — **before the preamble, before a single question**
+(BUG-004). Nothing the developer owned was modified, but two files appeared in their project
+that they never asked for and never saw proposed.
+
+The lesson generalises past checksums: **when a step needs a capability the kit does not
+have, the answer is to say so and stop — never to build the capability out of files in
+someone else's repository.**
+
 ## The two protected files
 
 `<repo>/CLAUDE.md` and `<repo>/.gitignore` are **never written to and never proposed** — not

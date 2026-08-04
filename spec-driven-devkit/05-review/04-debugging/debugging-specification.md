@@ -68,6 +68,79 @@ Artifacts updated:
 
 | **BUG-003** | 2026-08-04 | Three blueprints carried 224 lines of real template guidance **after** their `# WORKED EXAMPLE` heading. ADR-003 step 2 deletes from that heading to end of file, so every workspace generated from them would have silently lost a whole section. | **A blueprint-side contract guarantee was never checked.** `api-specification.md` C2 states *"a `# WORKED EXAMPLE` section, **always last**, always removable as a whole"* — and nothing verified it. The fill procedure was correct given the guarantee; the guarantee was false for 3 of 54 blueprints, and no test asserted the precondition the algorithm depends on. | `tests/integration/test_C2_worked_example_is_always_last.mjs` — **seen to fail**, naming all three | `api-specification.md` C2. The rule existed and was precise. What was missing was any check that the *library* honoured it — a contract asserted only on the side that consumes it | **Fixed** — addenda moved above the worked example; content byte-preserved (316/357/328 lines before and after) |
 
+| **BUG-004** | 2026-08-04 | On the **first end-to-end run**, the intake wrote `_integrity_check.sh` and `_integrity_check.ps1` into the developer's repository root — outside `spec/`, executable, and **before the preamble**. | **An instruction demanded an outcome without supplying a means, and without forbidding the obvious wrong one.** `integrity.md` said "compare MANIFEST.md against the library on disk". Comparing 79 SHA-256 digests is not something an agent can do by reading, so it built the capability it was missing out of files in someone else's repository. Improvising was the rational move given what the instruction said. | Re-run on a seeded repository: **0 files outside `spec/`** | `boundary.md` and `integrity.md`, both of which I wrote. The boundary rule covered *destinations for artifacts* and never contemplated the kit needing a **working file** of its own | **Fixed** |
+
+### BUG-004 in full
+
+```
+Bug ID:        BUG-004
+Date:          2026-08-04
+Reported by:   The first real end-to-end run of TASK-006
+Version:       plugin 0.1.0, at TASK-006
+
+SYMPTOM
+  Two files appeared in the developer's repository root that they never asked for
+  and never saw proposed:
+      _integrity_check.sh    (executable, chmod 755)
+      _integrity_check.ps1
+  Written at Step 0, before the preamble and before any question.
+
+ROOT CAUSE
+  Not "the agent ignored the boundary". The boundary rule I wrote governs where
+  ARTIFACTS go. It never contemplated the kit needing a working file of its own,
+  so nothing forbade one -- and integrity.md required a check the agent had no
+  sanctioned way to perform. Told to compare 79 digests with no means offered and
+  no prohibition stated, writing a script is the reasonable thing to do.
+
+  The gap is a class, not an instance: an instruction that demands a capability
+  the kit does not have, and does not say what to do when it is missing.
+
+WHY IT WAS MISSED
+  Which test should have caught it?  STEST-004 -- "complete a full intake and diff
+                                     the repository; the set of files outside spec/
+                                     is identical before and after".
+  Did that test exist?               No. It was recorded in TASK-004 as verified
+                                     against the RULE and explicitly NOT against a
+                                     run, because nothing could write yet. The
+                                     traceability gap row said exactly this, and
+                                     said it would become reachable at TASK-006.
+                                     It did, and the first run it became reachable
+                                     on is the run that failed it.
+
+  So the gap was known, named, and correctly predicted. What it was not, was
+  closed -- and the thing it was guarding went wrong at the first opportunity.
+
+WHAT HELD
+  The developer's own files were byte-for-byte unchanged: CLAUDE.md, .gitignore,
+  README.md, src/app.js all verified by checksum after the run. The failure was
+  CREATION of new files where the kit had no right to create any, not modification
+  of anything the developer owned.
+
+WHAT THIS SAYS ABOUT THE PERMISSION PROMPT
+  The run used --permission-mode acceptEdits, which removes the host's per-file
+  prompt. That was my harness's choice, and it is exactly the condition
+  SEC-Z-002 describes: "the host's per-file prompt is the only enforcement
+  independent of the kit's own behaviour". With it removed, the kit's own rules
+  did not hold. This is the clearest possible evidence for REQ-F-025 -- the
+  requirement that the kit must never ask for that prompt to be lifted.
+
+REGRESSION TEST
+  Re-ran on a seeded repository after the fix.
+  Seen to FAIL against the unfixed version:   yes -- 2 files, reproducibly
+
+THE SPECIFICATION THAT SHOULD HAVE PREVENTED IT
+  boundary.md needed an absolute rule -- the kit creates no working files of any
+  kind, anywhere -- and integrity.md needed to name the sanctioned method and say
+  what to do when it is unavailable: stop and report, never improvise.
+  Both now do.
+
+REPEATABLE MISTAKE?
+  Yes, and it is the most general lesson so far. Row added to AGENT.md.
+
+Artifacts updated:
+  plugin/instructions/boundary.md, integrity.md, intake.md
+```
+
 ### BUG-003 in full
 
 ```
