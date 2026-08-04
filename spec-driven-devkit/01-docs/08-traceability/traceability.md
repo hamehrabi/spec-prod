@@ -50,7 +50,7 @@ maintain it.
 | REQ-F-017 | Depth scaled by subdomain | BR-013 | TASK-008 ✅ | ATEST-018, UTEST-015 | `plugin/instructions/depth.md` | **Approved** — *class decides depth, never the filename* |
 | REQ-F-018 | Stable, consistent identifiers | BR-007 | TASK-005 ✅ | ATEST-019, UTEST-016, TEST-007, ETEST-002 | `plugin/instructions/fill.md` step 5 · `ci/fill.mjs` `mint()` | **Approved** — *a deleted ID leaves a permanent hole* |
 | REQ-F-019 | `[TODO]`, never invention | BR-003 | TASK-005 ✅ | ATEST-020, UTEST-017, TEST-008 | `plugin/instructions/fill.md` step 4 · `ci/fill.mjs` `placeholders()` | **Approved** — *TEST-008's matching `Q-###` needs TASK-012* |
-| REQ-F-020 | Entry point written last | BR-006, ADR-005 | TASK-013 | ATEST-021, TEST-009, ETEST-001 | — | Ready |
+| REQ-F-020 | Entry point written last | BR-006, ADR-005 | TASK-013 ✅ | ATEST-021, TEST-009, ETEST-001 | `plugin/instructions/entrypoint.md` | **Approved** — *written last; not written at all if validation did not pass* |
 | REQ-F-021 | Deny test per permission rule | BR-010 | TASK-009 ✅ | ATEST-022, TEST-010 | `plugin/instructions/governance.md` — deny-test rule | **Approved** — *allow-only tests named as the characteristic failure* |
 | REQ-F-022 | Fitness function per driver | BR-010 | TASK-009 ✅ | ATEST-023, TEST-011 | `plugin/instructions/governance.md` — fitness-function rule | **Approved** — *a warning is a decoration; the build must fail* |
 | REQ-F-037 | Retry once, then flag | `ai-boundary-spec` §5 | TASK-012 ✅ | ATEST-024, UTEST-018, FTEST-006 | `plugin/instructions/validation.md` — retry once | **Approved** — *no third attempt; a second failure is evidence about the instruction* |
@@ -62,7 +62,7 @@ maintain it.
 | REQ-F-023 | Never write application code | BR-001 | TASK-004 | ATEST-025, TEST-012, STEST-001 | — | Ready |
 | REQ-F-024 | Nothing outside `spec/` unasked | BR-008, SEC-Z-001 | TASK-004 ✅ | ATEST-026, UTEST-019, STEST-002/003 | `plugin/instructions/boundary.md` (rule) · `ci/boundary.mjs` (executable check) | **Approved** — *17 path cases; the prefix check seen to fail 13 of 22* |
 | REQ-F-025 | No blanket write permission | SEC-Z-002 | TASK-004 ✅ | ATEST-027, STEST-006 | `plugin/instructions/boundary.md` — stated rule only | **Needs update** — *still unevidenced. Every run so far used `--permission-mode acceptEdits`, which removes the very prompt STEST-006 exists to observe. Needs an interactive run* |
-| REQ-F-026 | Existing `CLAUDE.md` untouched | **DD-011** | TASK-004 ✅, TASK-013 | ATEST-028, TEST-013, STEST-007 | `plugin/instructions/boundary.md` — protected, never proposed | **Approved** — *root-only; a `CLAUDE.md` inside `spec/` is the kit's own output* |
+| REQ-F-026 | Existing `CLAUDE.md` untouched | **DD-011** | TASK-004 ✅, TASK-013 | ATEST-028, TEST-013, STEST-007 | `plugin/instructions/boundary.md` · `entrypoint.md` | **Approved** — *never proposed, even if offered; the exact line to add is printed instead* |
 | REQ-F-027 | No worked-example content | BR-002 | TASK-005 ✅ | ATEST-029, UTEST-020, TEST-014 | `plugin/instructions/fill.md` step 2 · `ci/fill.mjs` `stripWorkedExample()` | **Approved** — *C2's "always last" now enforced by test, after BUG-003* |
 | REQ-F-035 | `.gitignore` untouched | Round 6 | TASK-004 ✅ | ATEST-030, STEST-008 | `plugin/instructions/boundary.md` — protected, never proposed | **Approved** |
 | REQ-F-036 | Non-kit `spec/` → stop and ask | Round 6 | TASK-004 ✅ | ATEST-031, STEST-005, FTEST-007 | `plugin/instructions/boundary.md` · `ci/boundary.mjs` — recognised by artifacts, never a marker file | **Approved** |
@@ -100,7 +100,7 @@ maintain it.
 | REQ-NF-006 | Plain text, no colour-only meaning | `frontend-component-spec` | TASK-001 ✅, TASK-006 | ATEST-038, UTEST-025 | `plugin/instructions/intake.md` *(preamble only)* | Ready |
 | REQ-NF-007 | Zero network calls | CON-003 | TASK-016 | ETEST-011, STEST-010 | — | Ready |
 | REQ-NF-008 | Identical on three platforms | CON-004 | TASK-003, TASK-018 | ETEST-012 ×3, FTEST-009 | — | Ready — **verified on Windows only so far; see gaps** |
-| REQ-NF-009 | Entry point under 100 lines | BR-006 | TASK-013 | ATEST-021, TEST-009 | — | Ready |
+| REQ-NF-009 | Entry point under 100 lines | BR-006 | TASK-013 ✅ | ATEST-021, TEST-009 | `plugin/instructions/entrypoint.md` · `ci/validation.mjs` check 10 | **Approved** — *the cap is a signal about layout, not an obstacle to route around* |
 
 ### Roles and business rules
 
