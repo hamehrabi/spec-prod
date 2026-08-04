@@ -17,7 +17,10 @@ one person planning their own meals.
 one shopping list.
 
 **Must-have features:**
-- [TODO: which capabilities must exist in version one?]
+- Save a recipe with its ingredients.
+- Plan which meals to cook in a week.
+- Generate one shopping list from that week's meals.
+- Search saved recipes.
 - [TODO: is capturing a recipe manual entry, a link, a photo, or more than one of these?]
 
 **Out-of-scope features:**

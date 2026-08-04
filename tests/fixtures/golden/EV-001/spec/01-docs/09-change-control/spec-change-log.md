@@ -26,11 +26,13 @@
 
 ---
 
-## Stage acceptance and skips (ADR-006)
+## Stage acceptance and skips
 
-Two things are recorded here as **dated rows**, and neither is ever a file of its own
-(ADR-004, ADR-006): the acceptance of each round's gate, and any blueprint deliberately
-skipped with its reason.
+Two things are recorded here as **dated rows**, and neither is ever a file of its own: the
+acceptance of each round's gate, and any blueprint deliberately skipped with its reason.
+
+A separate acceptance file would be a second place to look for the same fact, and the two
+would disagree within a week. A row in the log that already exists cannot.
 
 **The date is the first column.** That is what makes a row findable — an acceptance buried
 in a nine-column change entry is not a record anyone can check, and the change-entries table
@@ -39,6 +41,7 @@ above starts with an identifier rather than a date, so it cannot serve.
 | Date | Stage or type | Artifact | Note or reason |
 |---|---|---|---|
 | 2026-08-04 | Round 1 — the idea | — | Four files written: brief, intent, README, this log. |
+| 2026-08-04 | Round 2 — scope boundaries | — | Three files written: constraints and non-goals, open questions, subdomain map. Two questions asked at `express` depth; the other two are recorded as Q-002 and Q-003 rather than answered. Q-001 closed, and its marker replaced in intent and brief. |
 
 **A skip with no reason is a silent skip wearing a label.** The reason is what lets a later
 reader tell a decision from an omission.

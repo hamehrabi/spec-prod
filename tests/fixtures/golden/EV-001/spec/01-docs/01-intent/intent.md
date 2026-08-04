@@ -32,7 +32,7 @@ agent this instead of a vague idea.
 | **Business goal** | [TODO: what does success mean for you as the owner of this project?] |
 | **User goal** | Keep every recipe in one place, and get one shopping list from the meals chosen for the week. |
 | **Current pain points** | Recipes live in screenshots, bookmarks and handwritten cards. Planning a week means opening six places. Items are forgotten at the shop, causing a second trip and food waste. |
-| **Core capabilities** | [TODO: which capabilities must exist in version one?] |
+| **Core capabilities** | Save a recipe with its ingredients · plan which meals to cook in a week · generate one shopping list from that week · search saved recipes. |
 | **Desired outcome** | A home cook finds any saved recipe without hunting, and shops for the week in one trip. |
 | **Out of scope** | → [`constraints-and-non-goals.md`](constraints-and-non-goals.md) |
 | **Success measures** | [TODO: what three to five measurable signs would tell you this is working?] |
@@ -72,7 +72,7 @@ agent this instead of a vague idea.
 | A clear problem statement. | [x] |
 | Defined primary and secondary users. | [ ] |
 | Separated vision from implementation details. | [x] |
-| Listed first-version capabilities. | [ ] |
+| Listed first-version capabilities. | [x] |
 | Listed what is out of scope. | [ ] |
 | Identified constraints and risks. | [ ] |
 | Defined simple success criteria. | [ ] |
