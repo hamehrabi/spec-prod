@@ -18,7 +18,7 @@ const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
 const fixed = questions.filter((q) => !q.derived)
 
 test('UTEST-002 / ATEST-005: EVERY round asks at most four questions', () => {
-  assert.deepEqual(rounds, [1, 2, 3, 4], 'rounds 1 to 4 are built')
+  assert.deepEqual(rounds, [1, 2, 3, 4, 5, 6], 'rounds 1 to 6 are built')
   for (const r of rounds) {
     const n = inRound(r).length
     assert.ok(n > 0, `Round ${r} must ask something`)
@@ -53,7 +53,7 @@ test('REQ-F-006 still binds when the options cannot be listed here', () => {
   const derived = questions.filter((q) => q.derived)
   assert.ok(derived.length > 0, 'rounds 2 and 3 have derived questions')
   for (const q of derived) {
-    assert.match(q.body, /most likely first|most-likely first/i, `R${q.round}Q${q.number} must say how to order them`)
+    assert.match(q.body, /most[\s-]likely\s+first/i, `R${q.round}Q${q.number} must say how to order them`)
   }
   assert.match(text, /present the most likely first, marked `\(Recommended\)`, each with a one-line reason/i)
 })
