@@ -245,210 +245,68 @@ AI-generated UIs fail.
 
 ## 5. Database Requirements
 
-> **Beginner rule (Ch. 9 §9.3):** a schema should make invalid data *harder to store*. Do
-> not rely only on code to protect important rules.
+**The database design is not written here.** It is written once, in
+[`../06-api-and-data-design/database-design.md`](../06-api-and-data-design/database-design.md),
+a round earlier — entity model, schema, ownership and isolation rules, sensitive fields,
+retention, migration, and file storage.
 
-### 5.1 Entity model (meaning before storage)
+This section used to carry all eight of those subsections, with the same titles in the same
+order as that document. Two copies of a schema is the drift this whole kit exists to prevent:
+they disagree within a week, both look authoritative, and nothing tells the reader which one
+the code was built from (BUG-019).
 
-| Entity | Purpose | Key fields | Relationships | Rule that must always be true |
-|---|---|---|---|---|
-| | | | | |
-
-| Question | Your answer |
+| What you need | Where it is |
 |---|---|
-| What objects must the system remember? | |
-| What details describe each object? | |
-| How do objects relate? | |
-| What rule must always be true? | |
+| Entity model, and the rule that must always be true of each | `database-design.md` §1 |
+| Schema, keys, constraints, indexes | `database-design.md` §3 |
+| Ownership and isolation — which query is scoped by what | `database-design.md` §5 |
+| Sensitive fields, storage and logging rules | `database-design.md` §6 |
+| Retention and deletion | `database-design.md` §7 |
+| Migration reversibility | `database-design.md` §8 |
 
-### 5.2 Entity definition template (Appendix E)
+**What belongs here instead:** anything about the database that only makes sense next to the
+rest of the technical specification — a store chosen because of an architecture decision, a
+constraint the schema imposes on deployment, a performance limit that comes from the data
+shape rather than from the data model.
 
-```
-Table: [name]
-Purpose: [what real-world object or concept it stores]
-
-Fields:
-- id:          UUID, required, primary key
-- owner_id:    UUID, required, foreign key -> users.id
-- title:       string, required, max 120 chars
-- description: text, optional
-- status:      enum(todo, doing, done), required, default 'todo'
-- due_date:    date, optional
-- created_at:  timestamp, required
-- updated_at:  timestamp, required
-
-Primary key:      id
-Relationships:    [one-to-one / one-to-many / many-to-many links]
-Indexes:          owner_id, status, due_date
-Constraints:      [uniqueness, foreign keys, required fields, allowed values]
-Sensitive data:   [personal, confidential, or security-sensitive fields]
-Migration notes:  [how schema changes will be applied safely]
-Retention rules:  [how long data is kept and when it is deleted]
-```
-
-### 5.3 Schema
-
-```
-users
-- id: string, primary key
-- name: string, required
-- email: string, required, unique
-- password_hash: string, required
-- role: string, required
-- created_at: datetime, required
-
-projects
-- id: string, primary key
-- owner_id: string, foreign key -> users.id
-- name: string, required
-- description: string, optional
-- status: string, required
-- created_at: datetime, required
-
-tasks
-- id: string, primary key
-- project_id: string, foreign key -> projects.id
-- title: string, required, max 120
-- description: string, optional
-- status: string, required   -- todo | in_progress | done
-- priority: string, optional -- low | medium | high
-- assignee_id: string, optional foreign key -> users.id
-- due_date: date, optional
-- created_at: datetime, required
-- updated_at: datetime, required
-```
-
-*Replace the example with your project's real schema.*
-
-### 5.4 Schema concepts (Ch. 9 §9.3)
-
-| Item | Meaning | Example |
-|---|---|---|
-| Primary key | Unique identifier for one row. | `users.id` |
-| Foreign key | Field pointing to another table. | `tasks.project_id` |
-| Unique constraint | Prevents duplicates. | `users.email` must be unique |
-| Index | Makes common lookups faster. | index `tasks` by `project_id` |
-| Status field | Controlled value showing state. | `todo`, `doing`, `done` |
-
-### 5.5 Ownership and isolation rules
-
-| Entity | Scoping rule |
+| Cross-cutting database decision | Consequence elsewhere in this document |
 |---|---|
-| | All reads/writes must be scoped by `owner_id` / `tenant_id`. |
+| | |
 
-### 5.6 Sensitive data
-
-| Field | Sensitivity | Storage rule | Logging rule |
-|---|---|---|---|
-| `password_hash` | Credential | Hashed only — never plain text. | Never logged. |
-| | | | |
-
-### 5.7 Retention and deletion
-
-| Data | Retention period | Deletion behavior (hard / soft / archive) |
-|---|---|---|
-| | | |
-
-### 5.8 Migration planning (Ch. 23 §23.6)
-
-Detailed release procedure → [`../ops/deployment-checklist.md`](../../07-ops/01-deployment/deployment-checklist.md)
-
-| Migration question | Answer |
-|---|---|
-| Is the migration reversible? | *Provide an up and down migration.* |
-| Will existing data break? | *Backfill missing values before making a field required.* |
-| Can code and database deploy safely? | *Deploy the schema change before the code that depends on it.* |
-| Is downtime required? | *Use a staged migration for large tables.* |
-
-> **Deployment caution:** never treat database changes as ordinary code changes. A broken
-> file can be redeployed. A careless database change can damage production data.
+Leave this table empty if there are none. An empty table with a heading is a statement; a
+copied schema is a second source of truth.
 
 ---
 
 ## 6. API Requirements
 
-> An API contract stops the agent from inventing endpoint names, request formats, response
-> formats, or ownership behavior while coding.
+**The API contract is not written here.** It is written once, in
+[`../06-api-and-data-design/api-specification.md`](../06-api-and-data-design/api-specification.md),
+a round earlier — endpoint index, per-endpoint contracts, status code principles, contract
+rules, validation rules, and versioning.
 
-**Base path:** `/api/v1` · **Auth model:** · **Version:** API v1.0
+Same reason as §5. This section used to repeat the endpoint index and the endpoint template
+verbatim, so a developer filled the same table twice, three rounds apart, and the build agent
+had two of them to choose between.
 
-### 6.1 Endpoint index
-
-| Method | Path | Purpose | Requirement | Permission |
-|---|---|---|---|---|
-| POST | `/api/v1/…` | | REQ-F-001 | |
-| GET | `/api/v1/…` | | | |
-| PATCH | `/api/v1/…` | | | |
-| DELETE | `/api/v1/…` | | | |
-
-### 6.2 Endpoint template (Appendix D)
-
-Copy for **every** endpoint before implementation begins.
-
-```
-Endpoint name:        [e.g. Create Task]
-Method and path:      POST /api/v1/projects/{project_id}/tasks
-Purpose:              [what it does and why it exists]
-Requirement:          REQ-F-###
-Authentication:       [login / token / none]
-Authorization rules:  [who can access, under what conditions]
-
-Request body:
-{
-  "field": "type — required/optional — validation rule"
-}
-
-Success response:     201 Created
-{
-  "field": "type"
-}
-
-Error responses:
-  400 — validation error
-  401 — not authenticated
-  403 — authenticated but not allowed
-  404 — resource not found
-  409 — conflict / duplicate
-  500 — unexpected server failure
-
-Business rules:       [rules enforced beyond basic validation]
-Side effects:         [database writes, emails, jobs, audit events]
-Tests required:       TEST-### (unit, integration, edge cases)
-```
-
-### 6.3 Status code response principles (Appendix D)
-
-| Status | Use | Response principle |
-|---|---|---|
-| 200 / 201 | Successful read or creation. | Return only the fields the user is allowed to see. |
-| 400 | Invalid request data. | Explain the invalid field without exposing internals. |
-| 401 | User is not authenticated. | Ask the user to sign in again. |
-| 403 | Authenticated but not allowed. | Do not reveal protected resource details. |
-| 404 | Resource not found. | Avoid confirming whether another user's resource exists. |
-| 500 | Unexpected server failure. | Safe generic message; log the internal reason. |
-
-### 6.4 Contract rules (Ch. 9 §9.9)
-
-| Rule | Specification |
+| What you need | Where it is |
 |---|---|
-| Response consistency | Every success response returns a predictable object shape. |
-| Error consistency | Every error uses `code`, `message`, and optional `field`. |
-| Permission check | Every endpoint checks user access before returning data. |
-| Validation timing | Validation happens **before** saving data. |
-| Audit trail | Important create and status-change events are recorded. |
+| Every endpoint, its requirement, and its permission | `api-specification.md` — endpoint index |
+| The full contract for one endpoint | `api-specification.md` — endpoint template |
+| Which status code means what, and what it must not reveal | `api-specification.md` — status code principles |
+| Validation rules | `api-specification.md` — validation rules |
+| Breaking-change policy | `api-specification.md` — versioning and compatibility |
 
-### 6.5 Validation rules (Ch. 9 §9.6)
+**What belongs here instead:** the API decisions that are architectural rather than
+contractual — where the boundary sits, what is synchronous and what is not, what the API
+promises about consistency.
 
-| Rule type | Example rule |
+| Cross-cutting API decision | Consequence elsewhere in this document |
 |---|---|
-| Required field | A task title is required. |
-| Length rule | A task title must be 3–120 characters. |
-| Allowed value | Status must be `todo`, `doing`, `blocked`, or `done`. |
-| Relationship rule | The assignee must belong to the project. |
-| Permission rule | Only members with write access can create tasks. |
-| Date rule | Due date cannot be before the project start date. |
+| | |
 
 ---
+
 
 ## 7. Security Requirements
 
@@ -748,53 +606,32 @@ payment data.
 
 ## 10. Integration & Versioning Requirements
 
-### 10.1 Integration specification (Ch. 9 §9.7)
+**The integration rules are not written here.** They are written once, in
+[`../06-api-and-data-design/data-and-integration-spec.md`](../06-api-and-data-design/data-and-integration-spec.md)
+§5 and §6 — provider, data in and out, timeout, retry rule, idempotency, failure behaviour,
+secrets, rate limits, and the breaking-change policy.
 
-An integration connects your system to something outside it: payments, email, calendars,
-identity providers, storage, analytics, AI model APIs. Outside services fail, change,
-rate-limit, and return the unexpected — specify that **before** implementation.
+The third instance of the same duplication as §5 and §6 (BUG-019). The integration table here
+carried the identical eleven rows, so an outbound call could have one timeout in this document
+and a different one three files away.
 
-| Item | Definition |
+| What you need | Where it is |
 |---|---|
-| Provider | *The external service being used.* |
-| Purpose | *Why the system needs the service.* |
-| Data sent | *The exact fields sent out of your system.* |
-| Data received | *The exact fields returned to your system.* |
-| Data stored | *What of that is persisted, and where.* |
-| Timeout | *Maximum wait before giving up.* |
-| Retry rule | *How many times, with what delay, for which error classes only.* |
-| Idempotency | *Is this operation safe to retry without duplicate effects?* |
-| Failure behavior | *Retry / show message / log error / queue for later / mark pending.* |
-| Security rule | *How secrets, tokens, and sensitive data are protected.* |
-| Rate limits | *Known provider limits and how we stay inside them.* |
+| Provider, purpose, data sent and received, what is stored | `data-and-integration-spec.md` §5 |
+| Timeout, retry rule, idempotency, failure behaviour | `data-and-integration-spec.md` §5 |
+| Secrets handling and known rate limits | `data-and-integration-spec.md` §5 |
+| Current version, breaking-change policy, compatibility notes | `data-and-integration-spec.md` §6 |
 
-> **Security reminder (Ch. 9 §9.7):** never design an integration that exposes secrets to
-> the frontend or stores tokens in plain text.
+**What belongs here instead:** what an outside dependency does to *this* system's shape — a
+service whose failure takes a whole capability with it, a call on a path the user waits on, a
+provider whose rate limit becomes a design constraint rather than a configuration value.
 
-**Worked example (Ch. 22 §22.5)**
-```
-External email service
-- Timeout: stop waiting after 5 seconds.
-- Retry: retry up to 2 times for temporary network errors.
-- Do not retry: invalid email address or rejected permission.
-- If retries fail: mark the email as pending_review.
-- Log: EMAIL_SEND_FAILED with request_id, user_id, and safe error_code.
-- User message: "Your action was saved, but the email could not be sent yet."
-```
-
-### 10.2 Versioning and compatibility (Ch. 9 §9.8)
-
-**Current version:** v1 · **Breaking-change policy:** · **Compatibility notes:**
-
-| Change type | Usually safe? | Example |
-|---|---|---|
-| Add optional field | Usually safe | Add `priority` to a task response. |
-| Add new endpoint | Usually safe | Add `GET /api/v1/tasks/{id}/history`. |
-| Rename field | **Breaking** | Change `due_date` to `deadline`. |
-| Remove field | **Breaking** | Remove `assignee_id` from task response. |
-| Change data type | **Breaking** | Return `due_date` as an object instead of a string. |
+| Dependency | What its failure costs, and what that forces here |
+|---|---|
+| | |
 
 ---
+
 
 ## 11. Testing Approach
 
