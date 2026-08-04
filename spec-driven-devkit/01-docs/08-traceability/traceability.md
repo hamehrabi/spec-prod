@@ -46,10 +46,10 @@ maintain it.
 |---|---|---|---|---|---|---|
 | REQ-F-014 | Fixed `spec/` at repo root | **ADR-004** | TASK-004 ✅ | ATEST-015, TEST-004, STEST-004 | `plugin/instructions/boundary.md` · `ci/boundary.mjs` | **Approved** — *rule verified; STEST-004 needs a full run (TASK-006)* |
 | REQ-F-015 | Write after each round | BR-005 | TASK-006 | ATEST-016, ETEST-008, PTEST-001 | — | Ready |
-| REQ-F-016 | Blueprint structure + back-link | **ADR-003** | TASK-005 | ATEST-017, UTEST-014, TEST-005/006 | — | Ready |
+| REQ-F-016 | Blueprint structure + back-link | **ADR-003**, DD-022 | TASK-005 ✅ | ATEST-017, UTEST-014, TEST-005/006 | `plugin/instructions/fill.md` steps 1–2, 6 · `ci/fill.mjs` | **Approved** |
 | REQ-F-017 | Depth scaled by subdomain | BR-013 | TASK-008 | ATEST-018, UTEST-015 | — | Ready |
-| REQ-F-018 | Stable, consistent identifiers | BR-007 | TASK-005 | ATEST-019, UTEST-016, TEST-007, ETEST-002 | — | Ready |
-| REQ-F-019 | `[TODO]`, never invention | BR-003 | TASK-005 | ATEST-020, UTEST-017, TEST-008 | — | Ready |
+| REQ-F-018 | Stable, consistent identifiers | BR-007 | TASK-005 ✅ | ATEST-019, UTEST-016, TEST-007, ETEST-002 | `plugin/instructions/fill.md` step 5 · `ci/fill.mjs` `mint()` | **Approved** — *a deleted ID leaves a permanent hole* |
+| REQ-F-019 | `[TODO]`, never invention | BR-003 | TASK-005 ✅ | ATEST-020, UTEST-017, TEST-008 | `plugin/instructions/fill.md` step 4 · `ci/fill.mjs` `placeholders()` | **Approved** — *TEST-008's matching `Q-###` needs TASK-012* |
 | REQ-F-020 | Entry point written last | BR-006, ADR-005 | TASK-013 | ATEST-021, TEST-009, ETEST-001 | — | Ready |
 | REQ-F-021 | Deny test per permission rule | BR-010 | TASK-009 | ATEST-022, TEST-010 | — | Ready |
 | REQ-F-022 | Fitness function per driver | BR-010 | TASK-009 | ATEST-023, TEST-011 | — | Ready |
@@ -63,7 +63,7 @@ maintain it.
 | REQ-F-024 | Nothing outside `spec/` unasked | BR-008, SEC-Z-001 | TASK-004 ✅ | ATEST-026, UTEST-019, STEST-002/003 | `plugin/instructions/boundary.md` (rule) · `ci/boundary.mjs` (executable check) | **Approved** — *17 path cases; the prefix check seen to fail 13 of 22* |
 | REQ-F-025 | No blanket write permission | SEC-Z-002 | TASK-004 ✅ | ATEST-027, STEST-006 | `plugin/instructions/boundary.md` — stated rule only | **Needs update** — *STEST-006 observes a real run's permission requests; unreachable until TASK-006* |
 | REQ-F-026 | Existing `CLAUDE.md` untouched | **DD-011** | TASK-004 ✅, TASK-013 | ATEST-028, TEST-013, STEST-007 | `plugin/instructions/boundary.md` — protected, never proposed | **Approved** — *root-only; a `CLAUDE.md` inside `spec/` is the kit's own output* |
-| REQ-F-027 | No worked-example content | BR-002 | TASK-005 | ATEST-029, UTEST-020, TEST-014 | — | Ready |
+| REQ-F-027 | No worked-example content | BR-002 | TASK-005 ✅ | ATEST-029, UTEST-020, TEST-014 | `plugin/instructions/fill.md` step 2 · `ci/fill.mjs` `stripWorkedExample()` | **Approved** — *C2's "always last" now enforced by test, after BUG-003* |
 | REQ-F-035 | `.gitignore` untouched | Round 6 | TASK-004 ✅ | ATEST-030, STEST-008 | `plugin/instructions/boundary.md` — protected, never proposed | **Approved** |
 | REQ-F-036 | Non-kit `spec/` → stop and ask | Round 6 | TASK-004 ✅ | ATEST-031, STEST-005, FTEST-007 | `plugin/instructions/boundary.md` · `ci/boundary.mjs` — recognised by artifacts, never a marker file | **Approved** |
 

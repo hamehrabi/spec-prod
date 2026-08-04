@@ -121,8 +121,12 @@ The generated artifact guarantees:
     survives. Anything unanswered is "[TODO: <exact question>]" with a
     matching Q-### row.                                                  -> FF-005, FF-012
   - Every identifier it defines is unique in the workspace.              -> FF-008
-  - Its final line is a blueprint back-link that resolves at the correct
-    relative depth.                                                      -> FF-007
+  - Its final line names the blueprint it came from, as the library path
+    "blueprints/<relative-path>" (DD-022). It NAMES a blueprint; it is not
+    a filesystem link -- the library lives in the version-stamped plugin
+    cache, so a relative path would resolve nowhere on any machine but the
+    kit author's. Resolution is mechanical: the blueprint's path below
+    blueprints/ IS the artifact's path below spec/.                      -> FF-007
 
 Business rules:       BR-002 (no example content), BR-003 (no invention),
                       BR-007 (no identifier reuse), BR-013 (depth by subdomain class)
