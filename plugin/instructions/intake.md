@@ -205,6 +205,17 @@ If the developer already has a `CLAUDE.md` at their repository root, the kit's o
 **inside `spec/`** and the exact line to add is printed. Theirs is never modified and never
 proposed — not even if they offer.
 
+## Step 2g — Report, and hand off
+
+Follow `instructions/report.md`. **After validation, never before** (BR-009).
+
+Five sections: what was created, what is still `[TODO]`, which open questions block coding,
+**what was assumed rather than asked**, and where the entry point is. Every empty section is
+stated as a sentence — a blank one reads as forgotten.
+
+**If any check failed or could not run, print no hand-off block.** Say which checks, and say
+the workspace is not finished. It stays resumable.
+
 ## Step 3 — Stop
 
 Stop after Round 1's gate is answered. This version of the plugin ends there.
