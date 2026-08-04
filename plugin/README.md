@@ -48,28 +48,48 @@ Both work identically on Windows, macOS, and Linux.
 ## Use
 
 ```
-/spec-driven-devkit:spec-intake
+/spec-driven-devkit:spec-intake            # full depth
+/spec-driven-devkit:spec-intake express    # thinner, fewer rounds
 ```
 
-The command takes no arguments, and running it bare is the ordinary case.
+Running it bare is the ordinary case. `depth` is the only argument it will ever take — it
+changes how much is asked and written, never which path runs.
 
 ## What this version does
 
-`0.1.0` is the first vertical slice: it installs, registers the command, and prints the
-preamble — the two sentences describing the interview, and the number of rounds it takes.
-Then it stops. **It asks no question and writes no file.** Installing this plugin creates
-nothing in your repository, and neither does running it.
+The full interview runs: eight rounds of questions, files written after each round, an
+acceptance gate you must pass before the next round begins, and — if you stop part-way — a
+resume that works out where you were by reading the workspace rather than from a saved
+position.
 
-The interview rounds themselves arrive in later versions. This release exists to prove the
-delivery path — install, invoke, respond — end to end before any of it can write to a
-repository.
+Before it writes anything it verifies the blueprint library against a checksum manifest.
+Before it claims anything worked it runs twelve validation checks, and reports each one as
+**passed**, **failed** or **not run** — never inferring the first from an absence of the
+second.
+
+**Still to come:** golden fixtures and the evaluation harness, blueprint coverage checks, and
+a verified run on all three platforms.
 
 ## What is inside
 
 ```
 .claude-plugin/plugin.json   the manifest: name, version, description
 commands/spec-intake.md      the single command. There is exactly one, deliberately
-instructions/intake.md       orchestration: what happens, in what order
+blueprints/**                the template library, with a checksum manifest
+instructions/
+    intake.md        orchestration: what happens, in what order
+    questions.md     what to ask, and how it is offered
+    inference.md     what not to ask, and what to say instead
+    boundary.md      where writes are allowed, and what a refusal says
+    fill.md          turning one blueprint into one filled artifact
+    integrity.md     verifying the library before anything is written
+    depth.md         how much specification each area gets
+    governance.md    the rules that make the output governable
+    review.md        the acceptance gate
+    resume.md        working out where you were, by looking
+    validation.md    the twelve checks, and three-state reporting
+    entrypoint.md    the map, written last
+    report.md        the closing report and the hand-off
 ```
 
 Nothing here executes. The plugin ships Markdown and one manifest, and it has no code of its

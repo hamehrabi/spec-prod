@@ -37,8 +37,8 @@ maintain it.
 | REQ-F-011 | Eight-round hard stop | BR-004 | TASK-011 ✅ | ATEST-011, UTEST-009, ETEST-006 | `plugin/instructions/inference.md` — the ceiling | **Approved** — *no ninth round; unknowns become open questions* |
 | REQ-F-012 | Name the core subdomain | `subdomain-map` | TASK-008 ✅ | ATEST-012, UTEST-010 | `plugin/instructions/questions.md` Round 2 Q4 | **Approved** — *asked every time, even with one capability* |
 | REQ-F-013 | Refuse > 3 drivers, push back once | BR-011 | TASK-008 ✅ | ATEST-013, UTEST-011 | `plugin/instructions/questions.md` Round 4 Q3 | **Approved** — *one push-back, then accept; rejects recorded* |
-| REQ-F-033 | Express depth | **DD-006** | TASK-015 | ATEST-014, UTEST-012, ETEST-007 | — | Ready |
-| REQ-F-034 | Depth is a parameter, not a flow | DD-006, FF-001 | TASK-015 | UTEST-013 | — | Ready |
+| REQ-F-033 | Express depth | **DD-006** | TASK-015 ✅ | ATEST-014, UTEST-012, ETEST-007 | `plugin/instructions/depth.md` — express reductions | **Approved** — *fewer questions per round; no stage deleted* |
+| REQ-F-034 | Depth is a parameter, not a flow | DD-006, FF-001 | TASK-015 ✅ | UTEST-013 | `plugin/instructions/intake.md` step 0a · `commands/spec-intake.md` | **Approved** — *one command, one path; FF-001 still counts 1* |
 
 ### Functional — generating the workspace
 

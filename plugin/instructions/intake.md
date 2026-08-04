@@ -23,6 +23,18 @@ This runs **before the preamble and before question one** — not before the fir
 developer who answers eight rounds and is only then told the library was corrupt has been made
 to waste the entire interview.
 
+## Step 0a — Read the depth argument
+
+The command takes **one argument, and only one**: `depth`, which is either `default` (the
+value when nothing is given) or `express`.
+
+It changes **how much** is asked and written — never **which path runs**. There is one flow
+and both depths go through all of it. A second flow would be exercised half as often and
+would rot; that is why this is a parameter and not a mode.
+
+Anything other than those two values is rejected, naming both: *"depth must be `default` or
+`express`."*
+
 ## Step 0c — Check for an existing workspace, before Round 1
 
 Follow `instructions/resume.md`. If `spec/` already holds a workspace this kit generated,

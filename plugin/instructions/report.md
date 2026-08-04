@@ -25,7 +25,7 @@ still be resumed, and saying which checks failed is more useful than a summary.
 
 ---
 
-## The five sections
+## The sections
 
 ### 1. What was created
 
@@ -54,7 +54,14 @@ rounds ago.
 **An incomplete list here is worse than no list**, because it implies completeness. If
 assumptions cannot be collected reliably, say that instead of listing some.
 
-### 5. Where the entry point is
+### 5. Which stages were written thin
+
+At `express` depth, name them. The developer should know where to look first if the workspace
+later feels shallow — and should know it was **a choice they made**, not a gap the intake left.
+
+> *"Written at full depth throughout."*
+
+### 6. Where the entry point is
 
 Name it, and say it is the single entry point for every future session.
 
