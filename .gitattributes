@@ -1,0 +1,24 @@
+# Line endings are a correctness concern here, not a style one.
+#
+# The blueprint library carries an integrity manifest of SHA-256 checksums over RAW BYTES
+# (TASK-021, REQ-F-042). With Git's default autocrlf on Windows, the same blueprint is LF in
+# the repository and CRLF in the working tree — so the same file would hash differently on
+# Windows and Linux, and the control would fire on every clone while catching nothing.
+#
+# Pinning eol=lf means every checkout, on every platform, has identical bytes. That is what
+# lets the checksum be over raw bytes rather than over content normalised at hash time —
+# normalising inside the hasher would hide a real alteration behind an encoding change.
+#
+# REQ-NF-008 says behaviour must be identical on Windows, macOS, and Linux. For a payload
+# whose checksums are a control, "identical" has to mean the bytes.
+
+plugin/**                text eol=lf
+spec-driven-template/**  text eol=lf
+
+# Compared byte-for-byte against the packaged library by TEST-003; must convert identically.
+spec-driven-devkit/**    text eol=lf
+
+ci/**                    text eol=lf
+tests/**                 text eol=lf
+
+*.png binary

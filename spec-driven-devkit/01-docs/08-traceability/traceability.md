@@ -75,7 +75,7 @@ maintain it.
 | REQ-F-039 | Accept · revise · stop | `StageReview` | TASK-020 | ATEST-042/043, FTEST-022 | — | Ready |
 | REQ-F-040 | Blueprint coverage | FF-015, check 13 | TASK-022 | ATEST-044, UTEST-031, FTEST-021 | — | Ready |
 | REQ-F-041 | Acceptance recorded in the workspace | **ADR-006** | TASK-020 | ATEST-045, UTEST-028/029, **ETEST-014 ×8** | — | Ready |
-| REQ-F-042 | Blueprint integrity manifest | FF-017, check 15 | TASK-021 | ATEST-046, UTEST-030, FTEST-020, **STEST-015** | — | Ready |
+| REQ-F-042 | Blueprint integrity manifest | FF-017, check 15 | TASK-021 ✅ | ATEST-046, UTEST-030, FTEST-020, **STEST-015** | `plugin/blueprints/MANIFEST.md`, `plugin/instructions/integrity.md` (DD-021) | **Approved** — *pre-write check only; the end-of-run re-check needs TASK-012* |
 | REQ-F-043 | Stage outputs derived from the library | FF-018 | TASK-022 | ATEST-047, UTEST-031, TEST-019 | — | Ready |
 
 ### Functional — resuming and finishing

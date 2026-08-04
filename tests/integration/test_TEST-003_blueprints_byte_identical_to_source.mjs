@@ -26,7 +26,11 @@ const NOT_PACKAGED = {
 }
 
 const sourceMarkdown = rel(SOURCE, walk(SOURCE)).filter((f) => f.endsWith('.md'))
-const packaged = rel(PACKAGED, walk(PACKAGED))
+
+// MANIFEST.md lives in the library but is not OF it: it is the integrity control (TASK-021),
+// it has no counterpart in the source, and it produces no generated file. FF-017 draws the
+// same distinction, and both have to, or each would flag the other's correct behaviour.
+const packaged = rel(PACKAGED, walk(PACKAGED)).filter((f) => f !== 'MANIFEST.md')
 
 test('TEST-003: every packaged blueprint is byte-identical to its source', () => {
   assert.ok(packaged.length > 0, 'the library must actually be packaged')
