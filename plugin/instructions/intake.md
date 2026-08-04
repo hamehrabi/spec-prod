@@ -111,11 +111,14 @@ which is worse than stopping, because it is not visibly wrong.
 
 ### What the library does not contain
 
-Six template artifacts are **deliberately not packaged**: `.gitignore`, `.env.example`,
-`Dockerfile.example`, and three `.gitkeep` files. They are not Markdown, and this plugin ships
-Markdown and its manifest only. **A generated workspace therefore has no `.gitignore` and no
-`.env.example`, and the intake must not improvise either one** — writing a `.gitignore` from
-memory is exactly the invention this file forbids everywhere else.
+`Dockerfile.example` and three `.gitkeep` files are **deliberately not packaged** — the
+`.gitkeep`s hold empty folders open and have no generated counterpart, and the Dockerfile is
+an illustration rather than a specification.
+
+`.gitignore` and `.env.example` **are** packaged, as **wrapper blueprints** that carry their
+content in a fenced block (`gitignore.md`, `env-example.md`). See `instructions/fill.md`.
+Neither is ever improvised from memory — writing a `.gitignore` from memory is exactly the
+invention this file forbids everywhere else.
 
 ## Step 2 — Round 1
 

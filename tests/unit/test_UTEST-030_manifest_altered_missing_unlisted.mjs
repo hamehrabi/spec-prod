@@ -27,7 +27,12 @@ test('UTEST-030: an intact library passes', () => {
   try {
     const { code, stdout } = run(FF017, [`--root=${lib.dir}`])
     assert.equal(code, 0)
-    assert.match(stdout, /listed: 79 · on disk: 79/)
+    // The property, not the count: "listed matches on disk" is the invariant. An exact
+    // number has to be edited every time a blueprint is added, which trains people to edit
+    // the assertion rather than read it.
+    const [, listed, onDisk] = stdout.match(/listed: (\d+) · on disk: (\d+)/)
+    assert.equal(listed, onDisk)
+    assert.ok(Number(listed) > 50, 'the whole library, not a fragment of it')
   } finally {
     lib.cleanup()
   }

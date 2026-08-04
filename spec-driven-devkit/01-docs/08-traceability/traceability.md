@@ -93,7 +93,7 @@ maintain it.
 | Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
 |---|---|---|---|---|---|---|
 | REQ-NF-001 | Output within one round | tech §8 | TASK-006 | **PTEST-001** | — | Ready |
-| REQ-NF-002 | No credential; `.gitignore` first | security §5 | TASK-010 | UTEST-023, TEST-016, STEST-009 | — | **Needs update — no implementation path (DD-020, Q-024)** |
+| REQ-NF-002 | No credential; `.gitignore` first | security §5 | TASK-010 | UTEST-023, TEST-016, STEST-009 | `plugin/blueprints/gitignore.md`, `env-example.md` (DD-023) | **Ready** — *implementable at last; the ordering rule travels with the blueprint* |
 | REQ-NF-003 | Interrupted run resumable | reliability §3 | TASK-007 ✅ | **ETEST-009 ×8**, FTEST-001/011 | `plugin/instructions/resume.md` — whole-file redo | **Approved** |
 | REQ-NF-004 | Usable without documentation | product §6 | TASK-001, TASK-006 | ATEST-037 | — | **Needs update — see gaps** |
 | REQ-NF-005 | Blueprint/flow swap cost = 0 | **ADR-001** | TASK-002 ✅ | UTEST-024, TEST-017 | `ci/ff-002-module-independence.mjs` | **Approved** |

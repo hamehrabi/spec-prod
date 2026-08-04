@@ -10,7 +10,7 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import {
   stripWorkedExample, backLink, blueprintOf, placeholders, todos, mint, headings,
-  unfilled,
+  unfilled, wrapperTarget, wrapperComment, wrapperArtifact,
 } from '../../ci/fill.mjs'
 
 // --- Step 6: the back-link (UTEST-014, TEST-006) ---------------------------------------
@@ -212,4 +212,41 @@ test('BUG-006: a real gap in body text is still a gap', () => {
   // The fix must not have bought quiet by going blind.
   assert.equal(unfilled('| Owner | [who owns this decision] |\n').length, 1)
   assert.equal(unfilled('Retention is REQ-F-### and the date is YYYY-MM-DD.\n').length, 2)
+})
+
+// --- Q-024: wrapper blueprints, for artifacts that are not Markdown ----------------------
+
+test('Q-024: a wrapper blueprint declares its target and yields the artifact', () => {
+  const blueprint = readFileSync('plugin/blueprints/gitignore.md', 'utf8')
+  assert.equal(wrapperTarget(blueprint), '.gitignore')
+  assert.equal(wrapperComment(blueprint), '#')
+
+  const artifact = wrapperArtifact(blueprint, 'gitignore.md')
+  assert.match(artifact.content, /^\.env$/m, 'REQ-NF-002: the generated ignore file excludes .env')
+  assert.doesNotMatch(artifact.content, /^```/m, 'the fence itself must not reach the artifact')
+  // C2 holds even here: a .gitignore cannot carry a Markdown back-link, but it can carry a
+  // comment one, and skipping it would make this the only unauditable file in a workspace.
+  assert.match(artifact.content, /^# Blueprint: blueprints\/gitignore\.md$/m)
+})
+
+test('Q-024: .env.example carries placeholders only, never a real value', () => {
+  const blueprint = readFileSync('plugin/blueprints/env-example.md', 'utf8')
+  const artifact = wrapperArtifact(blueprint, 'env-example.md')
+  assert.equal(artifact.target, '.env.example')
+  assert.match(artifact.content, /Placeholders only/i)
+  // Every sample assignment is commented out, so nothing in it can be mistaken for live config.
+  const assignments = artifact.content.split('\n').filter((l) => /^[A-Z_]+=/.test(l))
+  assert.deepEqual(assignments, [], 'no uncommented assignment may ship')
+})
+
+test('Q-024: an ordinary blueprint is not a wrapper', () => {
+  const ordinary = readFileSync('plugin/blueprints/01-docs/01-intent/intent.md', 'utf8')
+  assert.equal(wrapperTarget(ordinary), null)
+  assert.equal(wrapperArtifact(ordinary, 'x.md'), null, 'the rule is a category, not a filename list')
+})
+
+test('Q-024: the ignore file is written before the file that invites copying it', () => {
+  const fill = readFileSync('plugin/instructions/fill.md', 'utf8')
+  assert.match(fill, /always written before `\.env\.example`/i)
+  assert.match(fill, /the first copy made is the one that gets\s*\n?committed/i)
 })
