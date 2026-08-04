@@ -146,9 +146,26 @@ content in a fenced block (`gitignore.md`, `env-example.md`). See `instructions/
 Neither is ever improvised from memory — writing a `.gitignore` from memory is exactly the
 invention this file forbids everywhere else.
 
-## Step 2 — Round 1
+## Step 2 — Each round, in turn
 
-One round is always **ask → write → summarise**, in that order, with nothing deferred.
+**This step runs once per round, and it is written once.** The round number is the only thing
+that changes between iterations. There is no per-round instruction anywhere in this kit, and
+adding one would be eight places to keep correct instead of one — the same reason the file
+list is derived rather than written down (REQ-F-043).
+
+Everything that varies comes from two modules, both read at the round that needs them:
+
+| What varies | Comes from |
+|---|---|
+| Which questions this round asks | `instructions/questions.md`, under that round's own heading |
+| Which files this round writes | The round map in `instructions/coverage.md` — it names the **directories** that round owns, and the manifest lists what is in them |
+
+**How many rounds there are is fixed at eight, and is not a depth setting.** `express` reduces
+the questions asked inside a round, never the number of rounds (`instructions/depth.md`).
+Every round still runs, and every round still produces its minimum artifacts — a stage that
+was skipped to save time is not a thinner specification, it is a missing one.
+
+One round is always **ask → write → summarise → gate**, in that order, with nothing deferred.
 
 ### 2a. Ask
 
@@ -212,7 +229,28 @@ accepted, and **silence is not acceptance** — if no answer comes, keep waiting
 On **accept**, append a dated row to `spec/01-docs/09-change-control/spec-change-log.md`.
 Never create an acceptance, progress, or approval file (ADR-006).
 
-## Step 2e — Validate, before claiming anything worked
+That file is **Round 1's to create**, because Round 1 is the first round to write to it. A
+file every round appends to cannot be owned by the round its folder number resembles — see
+the note in `instructions/coverage.md` (BUG-010).
+
+### 2e. Go back to 2a for the next round — or leave the loop
+
+**Round 8's gate is the last.** There is no ninth round, for any reason — not for one more
+question, not because something important is still unclear, not if the developer offers
+(`instructions/inference.md`). Anything still unknown becomes a `[TODO]` with a matching open
+question and a named decision owner.
+
+That is a **better outcome** than a longer interview: a recorded gap is visible, and an
+interview that expands to fit the ambiguity gets abandoned — which loses everything rather
+than one answer.
+
+On **stop** at any round, the run ends where it is. Everything written stays written, the
+workspace stays resumable, and steps 3 to 5 do **not** run — there is nothing finished to
+validate or report on, and saying otherwise would be BR-009's exact failure.
+
+---
+
+## Step 3 — Validate, before claiming anything worked
 
 Follow `instructions/validation.md`. Run the whole walk over the finished workspace **before**
 saying it worked, before the entry point is written, and before the hand-off block is printed.
@@ -223,7 +261,7 @@ failure, and it is how a hollow workspace ships looking complete.
 
 If any check failed or could not run: say so, name it, and **claim no success**.
 
-## Step 2f — Write the entry point, last
+## Step 4 — Write the entry point, last
 
 Follow `instructions/entrypoint.md`. The entry point is the **last file written** — after
 every file it links to exists, so every link is verifiable the day it is written.
@@ -235,7 +273,7 @@ If the developer already has a `CLAUDE.md` at their repository root, the kit's o
 **inside `spec/`** and the exact line to add is printed. Theirs is never modified and never
 proposed — not even if they offer.
 
-## Step 2g — Report, and hand off
+## Step 5 — Report, and hand off
 
 Follow `instructions/report.md`. **After validation, never before** (BR-009).
 
@@ -246,18 +284,20 @@ stated as a sentence — a blank one reads as forgotten.
 **If any check failed or could not run, print no hand-off block.** Say which checks, and say
 the workspace is not finished. It stays resumable.
 
-## Step 3 — Stop
+## Step 6 — Stop
 
-Stop after Round 1's gate is answered. This version of the plugin ends there.
+The run ends after the report. Nothing follows it.
 
-Rounds 2 to 8 are not yet built. Ending here is the correct outcome, not an incomplete one,
-and it must not be reported as an error. The end-of-run integrity re-check
-(`instructions/integrity.md`, run 2) belongs with validation, which arrives with the rounds
-that complete a workspace.
-
-- Ask no question beyond Round 1's.
-- Create, modify, or delete no file outside the three named above.
+- Ask no further question. The eighth round was the last one.
+- Create, modify, or delete no file outside `spec/`.
 - Make no network call.
+- Do not offer to start building. This kit writes specifications and stops (BR-001) —
+  the hand-off names the entry point, and the developer decides what happens next.
+
+**A run that ends early is not a failed run.** A developer who stopped at round three has a
+three-round workspace and a resumable one, and it must be reported as exactly that: what was
+written, what was not reached, and where to continue. An early end reported as a failure
+teaches people not to stop, and an interview nobody dares pause is one they abandon instead.
 
 ---
 

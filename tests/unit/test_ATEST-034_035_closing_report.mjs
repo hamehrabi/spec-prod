@@ -115,6 +115,6 @@ test('ETEST-003 failing is raised, not patched by rewording', () => {
 })
 
 test('the report runs after validation in the intake, never before', () => {
-  assert.ok(intake.search(/## Step 2e — Validate/) < intake.search(/## Step 2g — Report/))
+  assert.ok(intake.search(/## Step \d+ — Validate/) < intake.search(/## Step \d+ — Report/))
   assert.match(intake, /After validation, never before/i)
 })

@@ -142,7 +142,7 @@ test('the empty state is an assertion, never silence', () => {
 
 test('validation runs before any success claim in the intake', () => {
   assert.match(intake, /Validate, before claiming anything worked/i)
-  assert.ok(intake.search(/### 2b\. Write/) < intake.search(/## Step 2e — Validate/))
+  assert.ok(intake.search(/### 2b\. Write/) < intake.search(/## Step \d+ — Validate/))
   assert.match(intake, /claim no success/i)
 })
 
