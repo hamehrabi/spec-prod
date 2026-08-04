@@ -37,7 +37,7 @@ a time, directed by one developer (CON-008).
 | TASK-018 | Cross-platform verification on all three OSes | REQ-NF-008 | P2 | TASK-016 | Not started | — | ETEST-012 (×3), FTEST-009 |
 | **TASK-020** | **The stage acceptance gate** — present, then accept / revise / stop | REQ-F-038, REQ-F-039, REQ-F-041, ADR-006 | **P0** | TASK-006 | **Done** — *resume half waits for TASK-007* | agent | ATEST-041…043, ATEST-045, UTEST-026…029, **ETEST-013**, **ETEST-014 (×8)**, FTEST-019, FTEST-022, STEST-016 |
 | **TASK-021** | **Blueprint integrity manifest and verification** | REQ-F-042 | **P0** | TASK-003 | **Done** | agent | ATEST-046, UTEST-030, FTEST-020, STEST-015, ETEST-015 |
-| **TASK-022** | **Blueprint coverage — every template used or recorded as skipped** | REQ-F-040, REQ-F-043 | **P1** | TASK-012, TASK-021 | Not started | agent | ATEST-044, ATEST-047, UTEST-031, TEST-019, FTEST-021, ETEST-015 |
+| **TASK-022** | **Blueprint coverage — every template used or recorded as skipped** | REQ-F-040, REQ-F-043 | **P1** | TASK-012, TASK-021 | **Done** | agent | ATEST-044, ATEST-047, UTEST-031, TEST-019, FTEST-021, ETEST-015 |
 | TASK-019 | Two-sessions-in-one-repo concurrency | — | **P3 — blocked** | — | **Blocked** | — | — |
 
 **Status values:** Not started · In progress · Blocked · In review · Done · Rejected

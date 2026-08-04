@@ -167,6 +167,30 @@ export const CHECKS = {
       return /^\.env$/m.test(ignore[1]) ? passed() : failed(['.gitignore does not exclude .env'])
     },
   },
+  13: {
+    name: 'every blueprint was filled, or recorded as skipped with a reason',
+    // Added by TASK-022, for the gap nothing else caught: a blueprint the intake never
+    // reached produces no file, no mismatch, and no complaint.
+    run(ws, library = null) {
+      if (!library) return notRun('the blueprint manifest was not supplied, so coverage could not be derived')
+      const produced = new Set(Object.values(ws).map((t) => blueprintOf(t)).filter(Boolean))
+      // A skip counts ONLY when it carries a reason. A skip with no reason is a silent skip
+      // wearing a label, and it must not satisfy this check.
+      const skipped = new Set(
+        [...all(ws).matchAll(/^\|[^|]*\|\s*Skipped\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|/gm)]
+          .filter((m) => m[2].trim().length > 3)
+          .map((m) => m[1].trim())
+      )
+      const uncovered = library.filter((b) => !produced.has(b) && !skipped.has(b) && !b.endsWith('appendix-index.md'))
+      return uncovered.length === 0
+        ? passed([`${produced.size} filled, ${skipped.size} skipped with a reason`])
+        : failed([
+            `${uncovered.length} blueprint(s) neither filled nor skipped:`,
+            // Named by path: a count says something is missing without saying what.
+            ...uncovered.slice(0, 8).map((b) => `  ${b}`),
+          ])
+    },
+  },
 }
 
 /**

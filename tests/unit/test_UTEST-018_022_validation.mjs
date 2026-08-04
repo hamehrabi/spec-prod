@@ -13,6 +13,7 @@ import { CHECKS, validate, report } from '../../ci/validation.mjs'
 const doc = readFileSync('plugin/instructions/validation.md', 'utf8')
 const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
 
+// Check 13 reads this as the manifest: every entry must be filled or skipped.
 const LIBRARY = ['01-docs/01-intent/intent.md', 'README.md', 'gitignore.md']
 
 /** A minimal workspace that passes everything. */
@@ -33,12 +34,12 @@ const clean = () => ({
     '| Why this exists | [intent](01-docs/01-intent/intent.md) |\n\n> Blueprint: blueprints/README.md\n',
 })
 
-test('a clean workspace passes all twelve, and may claim success', () => {
+test('a clean workspace passes every check, and may claim success', () => {
   const v = validate(clean(), LIBRARY)
   const bad = v.results.filter((r) => r.state !== 'passed')
   assert.deepEqual(bad.map((r) => `${r.n}: ${r.state} — ${r.detail[0]}`), [], 'every check must pass on a clean workspace')
   assert.equal(v.mayClaimSuccess, true)
-  assert.equal(report(v), 'All 12 checks ran; all 12 passed.')
+  assert.equal(report(v), `All ${v.total} checks ran; all ${v.total} passed.`)
 })
 
 // --- Each check, seen to fail -------------------------------------------------------------
@@ -83,19 +84,21 @@ test('UTEST-022: a check that cannot run reports NOT RUN, never passed', () => {
   assert.match(r.detail[0], /could not be checked/i)
 
   const v = validate(ws, LIBRARY)
-  assert.equal(v.ran, 11)
+  assert.equal(v.ran, v.total - 1, 'exactly one check could not run')
   assert.equal(v.mayClaimSuccess, false, 'not-run must block a success claim as firmly as failed')
-  assert.match(report(v), /11 of 12 checks ran/)
+  assert.match(report(v), /\d+ of \d+ checks ran/)
   assert.match(report(v), /NOT fully validated/)
 })
 
 test('BR-009: success is never inferred from an absence of failures', () => {
-  const ws = clean()
-  delete ws['spec/.gitignore']
-  const v = validate(ws, LIBRARY)
+  // The sharpest shape this rule exists for: a perfectly good workspace, examined without
+  // the manifest. Nothing is wrong with it — and two checks simply could not be performed.
+  const v = validate(clean(), null)
   assert.equal(v.failed, 0, 'nothing FAILED...')
+  assert.ok(v.notRun > 0, '...but not everything ran...')
   assert.equal(v.mayClaimSuccess, false, '...and it still cannot claim success')
   assert.doesNotMatch(report(v), /all \d+ passed/i)
+  assert.match(report(v), /could not run/)
 })
 
 test('ATEST-033: any failure blocks the success claim outright', () => {
@@ -143,8 +146,10 @@ test('validation runs before any success claim in the intake', () => {
   assert.match(intake, /claim no success/i)
 })
 
-test('twelve, fixed — not a rules engine', () => {
+test('fixed, not a rules engine — and the count is asserted, not open-ended', () => {
   assert.match(doc, /Twelve, fixed/i)
   assert.match(doc, /has\s*\n?become a second product/i)
-  assert.equal(Object.keys(CHECKS).length, 12)
+  // Twelve core checks plus check 13 from TASK-022. The number is a decision rather than a
+  // ceiling someone raises quietly, which is the only reason asserting it is worth anything.
+  assert.equal(Object.keys(CHECKS).length, 13)
 })

@@ -73,10 +73,10 @@ maintain it.
 |---|---|---|---|---|---|---|
 | REQ-F-038 | Gate presents and blocks the next round | **ADR-006**, `StageReview` | TASK-020 ✅ | ATEST-041, UTEST-026/027, **ETEST-013** | `plugin/instructions/review.md` · `plugin/instructions/intake.md` 2d | **Approved** — *gate specified and blocking; ETEST-013 needs a multi-round run* |
 | REQ-F-039 | Accept · revise · stop | `StageReview` | TASK-020 ✅ | ATEST-042/043, FTEST-022 | `plugin/instructions/review.md` — accept · revise · stop | **Approved** |
-| REQ-F-040 | Blueprint coverage | FF-015, check 13 | TASK-022 | ATEST-044, UTEST-031, FTEST-021 | — | Ready |
+| REQ-F-040 | Blueprint coverage | FF-015, check 13 | TASK-022 ✅ | ATEST-044, UTEST-031, FTEST-021 | `plugin/instructions/coverage.md` · `ci/validation.mjs` check 13 | **Approved** — *a skip without a reason does not satisfy it* |
 | REQ-F-041 | Acceptance recorded in the workspace | **ADR-006** | TASK-020 ✅ | ATEST-045, UTEST-028/029, **ETEST-014 ×8** | `plugin/instructions/review.md` · `ci/acceptance.mjs` | **Approved** — *rows, never a file; FF-016 checkable* |
 | REQ-F-042 | Blueprint integrity manifest | FF-017, check 15 | TASK-021 ✅ | ATEST-046, UTEST-030, FTEST-020, **STEST-015** | `plugin/blueprints/MANIFEST.md`, `plugin/instructions/integrity.md` (DD-021) | **Approved** — *pre-write check only; the end-of-run re-check needs TASK-012* |
-| REQ-F-043 | Stage outputs derived from the library | FF-018 | TASK-022 | ATEST-047, UTEST-031, TEST-019 | — | Ready |
+| REQ-F-043 | Stage outputs derived from the library | FF-018 | TASK-022 ✅ | ATEST-047, UTEST-031, TEST-019 | `plugin/instructions/coverage.md` — rounds own directories | **Approved** — *the hardcoded list is gone from `intake.md`* |
 
 ### Functional — resuming and finishing
 
