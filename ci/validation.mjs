@@ -20,6 +20,15 @@ const notRun = (reason) => ({ state: 'not-run', detail: [reason] })
 const md = (ws) => Object.entries(ws).filter(([p]) => p.endsWith('.md'))
 const all = (ws) => Object.values(ws).join('\n')
 
+/** Compare question text the way a reader would: same words, same order, punctuation and
+ *  line-wrapping ignored. The library hard-wraps at ~95 columns, so the same sentence appears
+ *  broken in one file and whole in another — comparing raw strings would call those different
+ *  questions, which is line-wrap blindness for the ninth time in this repository. */
+// TRIM BEFORE STRIPPING PUNCTUATION. A table cell is padded — `| What exists? |` collapses to
+// " what exists? " and the trailing `?` is no longer at the end, so the strip silently does
+// nothing and the cell never matches the marker it came from.
+const norm = (s) => s.toLowerCase().replace(/[*`_]/g, '').replace(/\s+/g, ' ').trim().replace(/[.?!,;:]+$/, '')
+
 // Identifiers this workspace uses. Deliberately narrow: a pattern loose enough to catch
 // everything also catches prose, and a check with false positives gets switched off.
 const ID = /\b(REQ-[A-Z]+|BR|CON|AC|US|ADR|DD|FF|TASK|Q|RISK|SEC-[AZ]|EV|[UAEFSP]?TEST)-\d{3}\b/g
@@ -89,16 +98,33 @@ export const CHECKS = {
   6: {
     name: 'every [TODO] has a matching Q-### row',
     run(ws) {
-      const questions = new Set(all(ws).match(/\bQ-\d{3}\b/g) ?? [])
+      // MATCHING means matching. The previous rule ended in `&& questions.size === 0`, so the
+      // whole check went silent the moment ONE Q-### row existed anywhere in the workspace —
+      // and Round 2 creates open-questions.md, so from the second round onwards it passed
+      // unconditionally. The check named after the pairing rule exempted every workspace old
+      // enough to break it, which is BUG-008's shape exactly (BUG-013).
+      //
+      // Two things count as a pairing, and both are real:
+      //   1. the TODO cites a Q-### beside itself — an explicit reference
+      //   2. an open-question row asks the same question — the normal case, since fill.md
+      //      writes both from one source, so the texts are the same text
+      //
+      // Matching on TEXT rather than on a cited ID is deliberate: it needs no ID allocated at
+      // the round that writes the TODO, for a row a later round creates. It fails on drift —
+      // one side reworded and not the other — which is the defect, not a false positive.
+      const rows = new Map()
+      for (const m of all(ws).matchAll(/^\|\s*\**(Q-\d{3})\**\s*\|([^|]*)\|/gm)) {
+        rows.set(norm(m[2]), m[1])
+      }
       const orphans = md(ws)
         .flatMap(([p, t]) => todos(t).map((q) => [p, q]))
         .filter(([p, q]) => {
-          // A TODO is paired if its own file or the open-questions file cites a Q-###.
-          const near = ws[p].slice(Math.max(0, ws[p].indexOf(q) - 300), ws[p].indexOf(q) + 300)
-          return !/\bQ-\d{3}\b/.test(near) && questions.size === 0
+          const at = ws[p].indexOf(q)
+          const near = ws[p].slice(Math.max(0, at - 300), at + 300)
+          return !/\bQ-\d{3}\b/.test(near) && !rows.has(norm(q))
         })
       return orphans.length === 0
-        ? passed()
+        ? passed([`${rows.size} open questions; every [TODO] resolves to one`])
         : failed(orphans.slice(0, 5).map(([p, q]) => `${p}: [TODO: ${q.slice(0, 40)}] has no Q-### row`))
     },
   },

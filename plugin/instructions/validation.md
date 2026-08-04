@@ -61,6 +61,26 @@ is missing without telling them what, and the path is the only actionable part. 
 *(Checks 14 and 15 — stage acceptance and library integrity — join the same walk from their
 own modules. They report in the same three states.)*
 
+### Check 6: matching means matching
+
+**A `[TODO]` pairs with the question that asks it** — never with the mere existence of a question
+somewhere in the workspace. Two things count, and both are a real link a reader can follow:
+
+- the marker **cites** a `Q-###` beside itself, or
+- an open-question row **asks the same question**, in the same words
+
+The second is the ordinary case, because step 4 writes the marker and the row from one source.
+
+**The rewritten check is stricter than the one it replaces, and that was the defect.** The old
+rule went quiet as soon as one `Q-###` existed anywhere — and Round 2 creates the open-questions
+file, so from the second round on it passed unconditionally (BUG-013). A check that exempts
+every workspace old enough to break it is not a lenient check; it is an absent one that prints
+a green line.
+
+**Rewording one side and not the other now fails.** That is drift, and drift is what this check
+is for — a marker whose question has quietly become a different question has no owner and no
+deadline, while still looking recorded.
+
 ---
 
 ## Retry once, then flag
