@@ -24,16 +24,48 @@ point is that it changes something immediately.
 Each round owns a set of **directories**. Everything the manifest lists under an owned
 directory is that round's responsibility.
 
+**An entry ending in `/` or `-` is a prefix and covers everything beneath it.** Anything else
+is one exact path, and naming a file is how a directory gets split between two rounds.
+
 | Round | Owns |
 |---|---|
-| 1 | `01-docs/01-intent/` *(intent, brief)* · `01-docs/09-change-control/` · the workspace `README.md` |
-| 2 | `01-docs/01-intent/` *(constraints, open questions, subdomain map)* |
-| 3 | `01-docs/02-requirements/` · `01-docs/06-api-and-data-design/` |
-| 4 | `01-docs/03-product-spec/` · `01-docs/04-technical-spec/` |
+| 1 | `01-docs/01-intent/intent.md` · `01-docs/01-intent/project-brief.md` · `01-docs/09-change-control/` · `README.md` |
+| 2 | `01-docs/01-intent/constraints-and-non-goals.md` · `01-docs/01-intent/open-questions.md` · `01-docs/01-intent/subdomain-map.md` |
+| 3 | `01-docs/02-requirements/requirements.md` · `01-docs/06-api-and-data-design/` |
+| 4 | `01-docs/02-requirements/driving-characteristics.md` · `01-docs/03-product-spec/` · `01-docs/04-technical-spec/` |
 | 5 | `01-docs/05-architecture/` |
 | 6 | `01-docs/07-security-and-reliability/` · `gitignore.md` · `env-example.md` |
 | 7 | `02-tasks/` · `03-tests/` |
 | 8 | `05-review/` · `06-agent/` · `07-ops/` · `01-docs/08-` · `01-docs/10-` · `04-src/` |
+
+**Every path in that table is written in full, and that is what makes it checkable.** It used
+to name the split files in prose — *(intent, brief)* — which reads well and cannot be compared
+against anything. A round map nobody can compare to the manifest is a claim, and the whole
+point of deriving the file set was to stop making claims about coverage.
+
+The comparison is now a test: every blueprint the manifest lists resolves to **exactly one**
+round. Nought is a hole, two is a file written twice.
+
+### A file is owned by the round that can fill it
+
+`driving-characteristics.md` sits in `01-docs/02-requirements/`, so Round 3 owned it. Every one
+of its three steps is the answer to **Round 4's** question — pick three qualities, keep the
+rejected candidates, state a measure for each. Round 3 could only have written it as a page of
+markers for a question the developer had not been asked yet.
+
+That is not fatal, because a later round may close a marker it answers. It is still wrong:
+the gate at the end of Round 3 would show the developer a document with nothing in it, one
+round before the question that fills it. **An interview that appears to produce empty files
+reads as a broken tool**, and a developer who thinks the tool is broken stops
+(`instructions/inference.md`).
+
+So the file moved to Round 4 and the directory is split — the second half of the same rule that
+moved the change log to Round 1 (BUG-010). There, a file every round writes to belongs to the
+first round that writes to it. Here, a file **one** round can fill belongs to that round.
+
+**A few later-round fields in a file is normal and is not this.** `api-specification.md` has an
+auth model it cannot know until Round 5, and it stays with Round 3, because the rest of it is
+Round 3's answer. The test is whether the round that owns it can write something real.
 
 ### The change log belongs to Round 1, not to the round that reads like its home
 
