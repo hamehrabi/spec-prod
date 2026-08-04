@@ -35,8 +35,8 @@ maintain it.
 | REQ-F-009 | Never ask the derivable | **DD-007** | TASK-011 | ATEST-009, UTEST-006/007, ETEST-005 | — | Ready |
 | REQ-F-010 | Contradiction stops, quotes both | BR-012 | TASK-011 | ATEST-010, UTEST-008, FTEST-010 | — | Ready |
 | REQ-F-011 | Eight-round hard stop | BR-004 | TASK-011 | ATEST-011, UTEST-009, ETEST-006 | — | Ready |
-| REQ-F-012 | Name the core subdomain | `subdomain-map` | TASK-008 | ATEST-012, UTEST-010 | — | Ready |
-| REQ-F-013 | Refuse > 3 drivers, push back once | BR-011 | TASK-008 | ATEST-013, UTEST-011 | — | Ready |
+| REQ-F-012 | Name the core subdomain | `subdomain-map` | TASK-008 ✅ | ATEST-012, UTEST-010 | `plugin/instructions/questions.md` Round 2 Q4 | **Approved** — *asked every time, even with one capability* |
+| REQ-F-013 | Refuse > 3 drivers, push back once | BR-011 | TASK-008 ✅ | ATEST-013, UTEST-011 | `plugin/instructions/questions.md` Round 4 Q3 | **Approved** — *one push-back, then accept; rejects recorded* |
 | REQ-F-033 | Express depth | **DD-006** | TASK-015 | ATEST-014, UTEST-012, ETEST-007 | — | Ready |
 | REQ-F-034 | Depth is a parameter, not a flow | DD-006, FF-001 | TASK-015 | UTEST-013 | — | Ready |
 
@@ -47,7 +47,7 @@ maintain it.
 | REQ-F-014 | Fixed `spec/` at repo root | **ADR-004** | TASK-004 ✅ | ATEST-015, TEST-004, STEST-004 | `plugin/instructions/boundary.md` · `ci/boundary.mjs` | **Approved** — *STEST-004 now run: 0 files outside `spec/`, developer's files unchanged by checksum. It failed first (BUG-004)* |
 | REQ-F-015 | Write after each round | BR-005 | TASK-006 ✅ | ATEST-016, ETEST-008, PTEST-001 | `plugin/instructions/intake.md` step 2b | **Approved** — *3 files written on a real run; PTEST-001 unmet, see BUG-005* |
 | REQ-F-016 | Blueprint structure + back-link | **ADR-003**, DD-022 | TASK-005 ✅ | ATEST-017, UTEST-014, TEST-005/006 | `plugin/instructions/fill.md` steps 1–2, 6 · `ci/fill.mjs` | **Approved** |
-| REQ-F-017 | Depth scaled by subdomain | BR-013 | TASK-008 | ATEST-018, UTEST-015 | — | Ready |
+| REQ-F-017 | Depth scaled by subdomain | BR-013 | TASK-008 ✅ | ATEST-018, UTEST-015 | `plugin/instructions/depth.md` | **Approved** — *class decides depth, never the filename* |
 | REQ-F-018 | Stable, consistent identifiers | BR-007 | TASK-005 ✅ | ATEST-019, UTEST-016, TEST-007, ETEST-002 | `plugin/instructions/fill.md` step 5 · `ci/fill.mjs` `mint()` | **Approved** — *a deleted ID leaves a permanent hole* |
 | REQ-F-019 | `[TODO]`, never invention | BR-003 | TASK-005 ✅ | ATEST-020, UTEST-017, TEST-008 | `plugin/instructions/fill.md` step 4 · `ci/fill.mjs` `placeholders()` | **Approved** — *TEST-008's matching `Q-###` needs TASK-012* |
 | REQ-F-020 | Entry point written last | BR-006, ADR-005 | TASK-013 | ATEST-021, TEST-009, ETEST-001 | — | Ready |
