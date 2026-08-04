@@ -177,86 +177,6 @@ user-visible status behavior before changing production code.
 
 ---
 
-# WORKED EXAMPLE — ProjectBoard CSV export
-
-> Based on the Ch. 22 report-generation example, applied to ProjectBoard's CSV export.
-
-**Feature name:** Export project tasks to CSV
-**Requirement ID:** REQ-F-007
-
-## 1. Normal behavior
-
-The user clicks **Export**. The system creates a background job, shows status `Pending`,
-and makes the file available when the job completes.
-
-## 2. Important failure states
-
-```
-- Failure state: Export job fails
-  - Trigger:        Worker crashes or the query times out
-  - Recovery path:  Retry up to 2 times; then mark the export Failed
-  - User message:   "Your export could not be generated. Please try again."
-  - Log event:      EXPORT_GENERATION_FAILED with request_id, project_id, user_id, error_code
-  - Test case:      FTEST-010
-
-- Failure state: Export is slow
-  - Trigger:        Project has more than 10,000 tasks
-  - Recovery path:  Keep the job Pending and continue in the background; do not time out the user
-  - User message:   "Still working. We will notify you when the file is ready."
-  - Log event:      EXPORT_SLOW with duration_ms and task_count
-  - Test case:      PTEST-004
-```
-
-| Error state | Recovery path | What to test |
-|---|---|---|
-| Invalid login input | Reject with field-level feedback. | Empty password returns a validation error. |
-| Wrong credentials | Same safe message for wrong password and unknown email. | Both paths produce identical output. |
-| Database timeout on task create | Stop, log the timeout, ask the user to retry. | Simulated timeout never shows "Task created". |
-| Expired session | Redirect to login, preserve the intended destination. | Protected route redirects instead of crashing. |
-
-## 3. Timeout and retry rules
-
-| Operation | Safe to retry? | Max retries | Delay | On give-up |
-|---|---|---|---|---|
-| Export job | Yes (idempotent — regenerates the same file) | 2 | 5 s, 15 s | Status `Failed`; user can retry manually |
-| Send invite email | Yes for network errors only | 2 | 5 s, 15 s | Mark `pending_review`; task itself still saved |
-| Create task (DB write) | **No** — would duplicate | 0 | — | Return retry-safe 500; nothing written |
-
-## 4. Background job rules
-
-| Requirement | Value |
-|---|---|
-| Job name | `export_project_tasks` |
-| Trigger | User clicks Export |
-| Input data | project_id, requested_by, filter state — nothing else |
-| Retry rule | 2 retries on transient errors only |
-| Failure state | `Failed`, visible to the requesting user |
-| User visibility | Pending / Ready / Failed shown in the export panel |
-
-## 5. Logging
-
-```json
-{
-  "level": "error",
-  "event": "export_generation_failed",
-  "request_id": "REQ-20491",
-  "user_id": "USER-118",
-  "project_id": "PROJ-42",
-  "reason": "database_timeout",
-  "duration_ms": 12000,
-  "recovery_action": "user_can_retry"
-}
-```
-
-## 6. Definition of done — checked
-
-- [x] All expected failure states are handled (slow, failed, retries exhausted).
-- [x] Logs are safe and useful — no email addresses, no tokens.
-- [x] User-facing errors are clear and offer a next action.
-- [x] Tests cover the happy path **and** FTEST-010 / PTEST-004.
-
----
-
 # ADDENDUM — Transactional Reliability
 
 > Added from the architecture review. Source: Khononov, *Learning DDD*, Ch. 5 & 9.
@@ -355,3 +275,83 @@ in one transaction?"* The first schema said yes — task creation also bumped
 `projects.task_count`. That made every task write contend on the project row. Splitting
 them (task count became a derived read) removed the contention **and** revealed that
 `task_count` was never a real invariant, only a convenience.
+
+# WORKED EXAMPLE — ProjectBoard CSV export
+
+> Based on the Ch. 22 report-generation example, applied to ProjectBoard's CSV export.
+
+**Feature name:** Export project tasks to CSV
+**Requirement ID:** REQ-F-007
+
+## 1. Normal behavior
+
+The user clicks **Export**. The system creates a background job, shows status `Pending`,
+and makes the file available when the job completes.
+
+## 2. Important failure states
+
+```
+- Failure state: Export job fails
+  - Trigger:        Worker crashes or the query times out
+  - Recovery path:  Retry up to 2 times; then mark the export Failed
+  - User message:   "Your export could not be generated. Please try again."
+  - Log event:      EXPORT_GENERATION_FAILED with request_id, project_id, user_id, error_code
+  - Test case:      FTEST-010
+
+- Failure state: Export is slow
+  - Trigger:        Project has more than 10,000 tasks
+  - Recovery path:  Keep the job Pending and continue in the background; do not time out the user
+  - User message:   "Still working. We will notify you when the file is ready."
+  - Log event:      EXPORT_SLOW with duration_ms and task_count
+  - Test case:      PTEST-004
+```
+
+| Error state | Recovery path | What to test |
+|---|---|---|
+| Invalid login input | Reject with field-level feedback. | Empty password returns a validation error. |
+| Wrong credentials | Same safe message for wrong password and unknown email. | Both paths produce identical output. |
+| Database timeout on task create | Stop, log the timeout, ask the user to retry. | Simulated timeout never shows "Task created". |
+| Expired session | Redirect to login, preserve the intended destination. | Protected route redirects instead of crashing. |
+
+## 3. Timeout and retry rules
+
+| Operation | Safe to retry? | Max retries | Delay | On give-up |
+|---|---|---|---|---|
+| Export job | Yes (idempotent — regenerates the same file) | 2 | 5 s, 15 s | Status `Failed`; user can retry manually |
+| Send invite email | Yes for network errors only | 2 | 5 s, 15 s | Mark `pending_review`; task itself still saved |
+| Create task (DB write) | **No** — would duplicate | 0 | — | Return retry-safe 500; nothing written |
+
+## 4. Background job rules
+
+| Requirement | Value |
+|---|---|
+| Job name | `export_project_tasks` |
+| Trigger | User clicks Export |
+| Input data | project_id, requested_by, filter state — nothing else |
+| Retry rule | 2 retries on transient errors only |
+| Failure state | `Failed`, visible to the requesting user |
+| User visibility | Pending / Ready / Failed shown in the export panel |
+
+## 5. Logging
+
+```json
+{
+  "level": "error",
+  "event": "export_generation_failed",
+  "request_id": "REQ-20491",
+  "user_id": "USER-118",
+  "project_id": "PROJ-42",
+  "reason": "database_timeout",
+  "duration_ms": 12000,
+  "recovery_action": "user_can_retry"
+}
+```
+
+## 6. Definition of done — checked
+
+- [x] All expected failure states are handled (slow, failed, retries exhausted).
+- [x] Logs are safe and useful — no email addresses, no tokens.
+- [x] User-facing errors are clear and offer a next action.
+- [x] Tests cover the happy path **and** FTEST-010 / PTEST-004.
+
+---

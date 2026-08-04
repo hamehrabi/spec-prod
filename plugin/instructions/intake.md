@@ -66,6 +66,16 @@ silently breaks it.
 written here would mean adding a blueprint changes nothing until someone remembers to edit
 this file, and the whole point is that it changes something immediately.
 
+### Every artifact is produced by the fill procedure
+
+**No generated file is written any other way.** Each one is produced by the six steps in
+`instructions/fill.md` — copy, strip the worked example, strip the prompt boxes, replace
+every placeholder, mint identifiers, append the back-link.
+
+There is no shortcut for a file that seems simple, and no authoring-from-memory for one whose
+template seems obvious. A file written by any other route is a file whose structure nobody
+can check against its blueprint, which is the guarantee contract C2 exists to make.
+
 ### A blueprint that is missing
 
 ```
