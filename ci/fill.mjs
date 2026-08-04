@@ -29,9 +29,15 @@ export function stripWorkedExample(text) {
  */
 export const backLink = (relPath) => `> Blueprint: blueprints/${relPath}`
 
-/** The inverse: which blueprint does this generated file claim to come from? */
+/**
+ * The inverse: which blueprint does this generated file claim to come from?
+ *
+ * Accepts the comment form too (`# Blueprint: …`), because a wrapper artifact cannot carry a
+ * Markdown back-link. Reading only the Markdown form made coverage under-count exactly the
+ * two files Q-024 went to the trouble of packaging.
+ */
 export function blueprintOf(text) {
-  const m = text.match(/^> Blueprint: blueprints\/(.+?)\s*$/m)
+  const m = text.match(/^(?:>|#|\/\/|--)\s*Blueprint: blueprints\/(.+?)\s*$/m)
   return m ? m[1] : null
 }
 

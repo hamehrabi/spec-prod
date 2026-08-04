@@ -115,11 +115,14 @@ test('REQ-R-004: declining a write continues the round rather than failing it', 
   assert.match(intake, /resumable/i)
 })
 
-test('REQ-F-015: the round names its three files and reports the count', () => {
-  for (const f of ['spec/01-docs/01-intent/project-brief.md', 'spec/01-docs/01-intent/intent.md', 'spec/README.md']) {
-    assert.ok(intake.includes(f), `intake must name ${f}`)
-  }
+test('REQ-F-015 / REQ-F-043: the round DERIVES its files and reports the count', () => {
+  // TASK-022 removed the hardcoded list this originally asserted. A list in the
+  // orchestration means adding a blueprint changes nothing until someone edits this file —
+  // so the absence of the list is now the thing worth asserting.
+  assert.doesNotMatch(intake, /spec\/01-docs\/01-intent\/project-brief\.md/)
+  assert.match(intake, /derived from the manifest, never from a list written here/i)
   assert.match(intake, /Round 1 — wrote 3 files/)
+  assert.match(intake, /count comes from what was actually written/i)
 })
 
 test('every file Round 1 writes has a blueprint to be filled from', () => {

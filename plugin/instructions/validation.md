@@ -52,8 +52,14 @@ Never report the second case as a success with a footnote. It is not a success.
 a supporting concern and is built simply — a check list that grows into a policy engine has
 become a second product.
 
-*(Checks 13 to 15 — blueprint coverage, stage acceptance, library integrity — join the same
-walk from their own tasks. They report in the same three states.)*
+| 13 | Every blueprint was filled, or recorded as skipped with a reason | A workspace can be internally consistent and missing a whole document |
+
+**Check 13 names every uncovered blueprint by path.** A count tells the developer something
+is missing without telling them what, and the path is the only actionable part. See
+`instructions/coverage.md`.
+
+*(Checks 14 and 15 — stage acceptance and library integrity — join the same walk from their
+own modules. They report in the same three states.)*
 
 ---
 

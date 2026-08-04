@@ -154,14 +154,16 @@ A typed answer is used **verbatim** and is never snapped to a listed option.
 
 ### 2b. Write
 
-Write these three files, each one produced by `instructions/fill.md` and each destination
-checked by `instructions/boundary.md` first:
+Write this round's files — **derived from the manifest, never from a list written here.**
+Follow `instructions/coverage.md`: the round owns a set of directories, and every blueprint
+the manifest lists under them is this round's to produce.
 
-```
-spec/01-docs/01-intent/project-brief.md
-spec/01-docs/01-intent/intent.md
-spec/README.md
-```
+A list written into this file would mean adding a blueprint changes nothing until someone
+remembers to edit orchestration, and the whole point is that it changes something
+immediately (REQ-F-043).
+
+Each file is produced by `instructions/fill.md`, and each destination is checked by
+`instructions/boundary.md` first.
 
 **Write them now, before the next round is asked** — not at the end of the run. An interrupted
 intake has to leave usable output behind, and a run that holds everything until the end leaves
@@ -178,6 +180,8 @@ One line, naming the count:
 ```
 Round 1 — wrote 3 files
 ```
+
+The count comes from what was actually written, never from what was expected.
 
 If a file was skipped, the line says so rather than reporting a number that implies more was
 written than was.
