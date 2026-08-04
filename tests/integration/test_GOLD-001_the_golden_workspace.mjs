@@ -392,3 +392,40 @@ test('GOLD-001: the per-user cache row is refused on principle, not on volume', 
   assert.match(rs, /passes every\s*\n?functional test because the tests only ever run one account/)
   assert.match(rs, /this row needs an ADR rather than an edit/)
 })
+
+// --- The input half of the pair (TASK-016) -----------------------------------------------------
+
+test('GOLD-001: the answers this workspace was produced from are recorded', () => {
+  // GOLD-001's header claims the fixture "was not authored — it was produced". Nothing could
+  // check that, because the answers existed only in the head of whoever ran the intake. A
+  // fixture that cannot be reproduced is not evidence; it is a document someone wrote.
+  //
+  // This file is the input half. TASK-016's runner re-generates the workspace from it and
+  // diffs against the committed one — and a difference means some part was authored where it
+  // should have been produced.
+  const answers = readFileSync('tests/fixtures/golden/EV-001-answers.md', 'utf8')
+
+  // Every round the change log says was accepted must have its answers recorded, or the run
+  // is not reproducible up to the point it claims to have reached.
+  for (const n of [1, 2, 3]) {
+    assert.match(answers, new RegExp(`^## Round ${n} — `, 'm'), `Round ${n} was accepted; its answers must be here`)
+  }
+  // And the part-written round is recorded as part-written, not as accepted.
+  assert.match(answers, /^## Round 4 — product shape \*\(incomplete\)\*$/m)
+  assert.match(answers, /\*\*Round 4 is not accepted\.\*\*/)
+
+  // The dropped questions are named as dropped rather than silently absent — express asks
+  // less, it never assumes more, and the record has to show which is which.
+  assert.match(answers, /\*\*not asked\*\* — express keeps two/)
+  assert.match(answers, /\*\*not asked\*\* — \*derived\* from Q1, with the derivation stated/)
+
+  // It must not become the state file ADR-004 forbids.
+  assert.match(answers, /It records what was answered, never where the run is/)
+  assert.deepEqual(forbiddenStateFiles(['tests/fixtures/golden/EV-001-answers.md']), [])
+})
+
+test('GOLD-001: the answer record lives OUTSIDE the workspace it describes', () => {
+  // Inside EV-001/ it would be walked into the workspace map, fail the back-link check, and
+  // appear to the scorers as a generated artifact. It is an input, not an output.
+  assert.ok(!Object.keys(workspace).some((p) => p.includes('answers')))
+})
