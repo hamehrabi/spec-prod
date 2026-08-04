@@ -53,7 +53,7 @@ maintain it.
 | REQ-F-020 | Entry point written last | BR-006, ADR-005 | TASK-013 | ATEST-021, TEST-009, ETEST-001 | — | Ready |
 | REQ-F-021 | Deny test per permission rule | BR-010 | TASK-009 ✅ | ATEST-022, TEST-010 | `plugin/instructions/governance.md` — deny-test rule | **Approved** — *allow-only tests named as the characteristic failure* |
 | REQ-F-022 | Fitness function per driver | BR-010 | TASK-009 ✅ | ATEST-023, TEST-011 | `plugin/instructions/governance.md` — fitness-function rule | **Approved** — *a warning is a decoration; the build must fail* |
-| REQ-F-037 | Retry once, then flag | `ai-boundary-spec` §5 | TASK-012 | ATEST-024, UTEST-018, FTEST-006 | — | Ready |
+| REQ-F-037 | Retry once, then flag | `ai-boundary-spec` §5 | TASK-012 ✅ | ATEST-024, UTEST-018, FTEST-006 | `plugin/instructions/validation.md` — retry once | **Approved** — *no third attempt; a second failure is evidence about the instruction* |
 
 ### Functional — boundaries and safety
 
@@ -83,7 +83,7 @@ maintain it.
 | Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
 |---|---|---|---|---|---|---|
 | REQ-F-028 | Resume from first incomplete stage | **ADR-004** | TASK-007 ✅ | ATEST-032, UTEST-021, **ETEST-009 ×8** | `plugin/instructions/resume.md` · `ci/resume.mjs` | **Approved** — *8/8 interrupt cases; the two-state check seen to fail 17 of 24* |
-| REQ-F-029 | Validate before reporting success | BR-009 | TASK-012 | ATEST-033, UTEST-022, TEST-015, FTEST-005 | — | Ready |
+| REQ-F-029 | Validate before reporting success | BR-009 | TASK-012 ✅ | ATEST-033, UTEST-022, TEST-015, FTEST-005 | `plugin/instructions/validation.md` · `ci/validation.mjs` | **Approved** — *three states; all twelve seen to fail on a broken workspace* |
 | REQ-F-030 | Closing report contents | `frontend-component-spec` | TASK-014 | ATEST-034, ETEST-010 | — | Ready |
 | REQ-F-031 | Hand-off instruction | API C3 | TASK-014 | ATEST-035, **ETEST-003** | — | Ready |
 | REQ-F-032 | Round progress visible *(Should)* | `frontend-component-spec` | TASK-017 (P2) | ATEST-036 | — | **Draft — P2, may be cut** |

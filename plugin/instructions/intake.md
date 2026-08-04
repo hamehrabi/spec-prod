@@ -182,6 +182,17 @@ accepted, and **silence is not acceptance** — if no answer comes, keep waiting
 On **accept**, append a dated row to `spec/01-docs/09-change-control/spec-change-log.md`.
 Never create an acceptance, progress, or approval file (ADR-006).
 
+## Step 2e — Validate, before claiming anything worked
+
+Follow `instructions/validation.md`. Run the whole walk over the finished workspace **before**
+saying it worked, before the entry point is written, and before the hand-off block is printed.
+
+Report every check as **passed**, **failed**, or **not run**, and state **the number that
+ran**. Never infer "all passed" from an empty list of failures — that is BR-009's exact
+failure, and it is how a hollow workspace ships looking complete.
+
+If any check failed or could not run: say so, name it, and **claim no success**.
+
 ## Step 3 — Stop
 
 Stop after Round 1's gate is answered. This version of the plugin ends there.
