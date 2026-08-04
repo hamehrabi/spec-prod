@@ -50,6 +50,28 @@ had not actually reached.
 
 **A file that every round writes to is created by the first round that writes to it.**
 
+### The one thing a round does outside its own directories
+
+**A round replaces any `[TODO]` its answers resolve, wherever that marker lives.**
+
+Ownership decides which files a round *produces*. It cannot decide where the answers land,
+because the questions and the markers are deliberately out of step: Round 1 marks what it
+cannot know, and the later rounds are where those things become known. Round 2 asking which
+capabilities exist in version one *is* the answer to a marker Round 1 wrote into `intent.md`.
+
+If ownership were the whole rule, that marker would still be sitting there at the end of the
+run with its answer three files away in the same workspace — and a marker its own workspace
+contradicts is worse than an open one. An open marker is an honest gap; a stale one teaches
+the reader that markers mean nothing, and after that none of them are read (BUG-014).
+
+**The permission is exactly this wide: replace a marker you have the answer to, and flip its
+`Q-###` row to *Answered*.** Not tidy the file, not revise the row beside it, not improve a
+sentence on the way past. A round that rewrites a neighbouring decision is editing an accepted
+round, which `instructions/review.md` forbids outright.
+
+Check 6 fails on a marker whose question is already answered, so this is enforced rather than
+requested.
+
 **Adding a blueprint inside an owned directory makes it required, with no change to any
 instruction.** That is the property this design exists for.
 

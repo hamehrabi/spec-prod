@@ -109,6 +109,29 @@ Structurally the first row is complete and the second is not. **The second is th
 one** when the developer never said. An invented value is indistinguishable from a real one
 once written down, and the build agent will act on it (BR-003).
 
+### Step 4's other half — closing a marker a later round answers
+
+**A `[TODO]` is open until someone answers its question, and that someone is usually a later
+round.** Round 1 asks the idea and marks what it cannot know yet; the marking *is* the design.
+Round 2 then asks which capabilities exist in version one — which is the question Round 1
+already wrote into `intent.md` and `project-brief.md` as a marker.
+
+**When a round's answers resolve an existing marker, that round replaces it, in the file where
+it sits, and changes nothing else in that file.** It also flips the paired `Q-###` row to
+*Answered* and records the decision there.
+
+Without this the workspace ends holding a marker whose answer is three files away inside the
+same workspace — which is worse than an unanswered one. An unanswered marker is an honest gap.
+A marker contradicted by its own workspace teaches the reader that the markers do not mean
+anything, and after that none of them get read (BUG-014).
+
+**This is the only reason a round writes outside the directories it owns**, and the permission
+is exactly this wide: replace a marker you have the answer to. Not tidy the file, not revise a
+neighbouring row, not improve a sentence. See `instructions/coverage.md`.
+
+**Check 6 enforces both directions.** A marker with no question fails, and a marker whose
+question is already answered fails. Leaving one behind is not a tidiness problem.
+
 *Prevents:* the defining failure of copy-then-fill — a file that presents as decided.
 
 ## Step 5 — Mint and record identifiers

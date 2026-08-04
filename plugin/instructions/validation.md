@@ -81,6 +81,16 @@ a green line.
 is for — a marker whose question has quietly become a different question has no owner and no
 deadline, while still looking recorded.
 
+**A marker whose question is already *Answered* fails too, as stale.** Later rounds answer
+questions earlier rounds marked, so this is the ordinary end of a marker's life, not an edge
+case (BUG-014). A workspace holding a gap whose answer sits three files away is worse than one
+holding an open gap — the open gap is honest, and the stale one teaches the reader that the
+markers mean nothing.
+
+**The two failures are reported apart, because their fixes are opposite:** an orphan needs a
+question added, a stale marker needs the marker removed. One message for both would send half
+its readers the wrong way.
+
 ---
 
 ## Retry once, then flag
