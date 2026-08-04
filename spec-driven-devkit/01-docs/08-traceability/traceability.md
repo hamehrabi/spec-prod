@@ -84,8 +84,8 @@ maintain it.
 |---|---|---|---|---|---|---|
 | REQ-F-028 | Resume from first incomplete stage | **ADR-004** | TASK-007 ✅ | ATEST-032, UTEST-021, **ETEST-009 ×8** | `plugin/instructions/resume.md` · `ci/resume.mjs` | **Approved** — *8/8 interrupt cases; the two-state check seen to fail 17 of 24* |
 | REQ-F-029 | Validate before reporting success | BR-009 | TASK-012 ✅ | ATEST-033, UTEST-022, TEST-015, FTEST-005 | `plugin/instructions/validation.md` · `ci/validation.mjs` | **Approved** — *three states; all twelve seen to fail on a broken workspace* |
-| REQ-F-030 | Closing report contents | `frontend-component-spec` | TASK-014 | ATEST-034, ETEST-010 | — | Ready |
-| REQ-F-031 | Hand-off instruction | API C3 | TASK-014 | ATEST-035, **ETEST-003** | — | Ready |
+| REQ-F-030 | Closing report contents | `frontend-component-spec` | TASK-014 ✅ | ATEST-034, ETEST-010 | `plugin/instructions/report.md` | **Approved** — *five sections, each with a positively-stated empty case* |
+| REQ-F-031 | Hand-off instruction | API C3 | TASK-014 ✅ | ATEST-035, **ETEST-003** | `plugin/instructions/report.md` — the hand-off block | **Approved** — *withheld unless validation fully passed; ETEST-003 needs a live run* |
 | REQ-F-032 | Round progress visible *(Should)* | `frontend-component-spec` | TASK-017 (P2) | ATEST-036 | — | **Draft — P2, may be cut** |
 
 ### Non-functional

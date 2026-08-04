@@ -30,7 +30,7 @@ a time, directed by one developer (CON-008).
 | TASK-011 | Inference and contradiction detection | REQ-F-009, REQ-F-010, REQ-F-011 | **P1** | TASK-008 | **Done** | agent | ATEST-009…011, UTEST-006…009, ETEST-005, ETEST-006, FTEST-010, FTEST-014 |
 | TASK-012 | Validation — twelve checks, retry once, not-run reporting | REQ-F-029, REQ-F-037 | **P1** | TASK-010 | **Done** | agent | ATEST-024, ATEST-033, UTEST-018, UTEST-022, TEST-015, FTEST-005, FTEST-006 |
 | TASK-013 | Entry point written last, under 100 lines, version stamped | REQ-F-020, REQ-NF-009, ADR-005 | **P1** | TASK-012 | **Done** | agent | ATEST-021, TEST-009, ETEST-001, FTEST-017 |
-| TASK-014 | Closing report and hand-off block | REQ-F-030, REQ-F-031 | **P1** | TASK-013 | Not started | agent | ATEST-034, ATEST-035, ETEST-010, **ETEST-003** |
+| TASK-014 | Closing report and hand-off block | REQ-F-030, REQ-F-031 | **P1** | TASK-013 | **Done** | agent | ATEST-034, ATEST-035, ETEST-010, **ETEST-003** |
 | TASK-015 | Express depth as a parameter on the one flow | REQ-F-033, REQ-F-034 | **P1** | TASK-011 | Not started | agent | ATEST-014, UTEST-012, UTEST-013, ETEST-007 |
 | TASK-016 | Golden fixtures and the eval harness | `ai-evals.md` | **P1** | TASK-014 | Not started | agent | EV-001…036, ETEST-011, ETEST-012 |
 | TASK-017 | Round progress indicator | REQ-F-032 | P2 | TASK-011 | Not started | — | ATEST-036 |
