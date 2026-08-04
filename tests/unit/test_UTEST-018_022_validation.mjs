@@ -160,3 +160,43 @@ test('fixed, not a rules engine — and the count is asserted, not open-ended', 
   // ceiling someone raises quietly, which is the only reason asserting it is worth anything.
   assert.equal(Object.keys(CHECKS).length, 13)
 })
+
+// --- BUG-020: check 11 read English prose as source code --------------------------------------
+
+test('BUG-020: ordinary words starting with a code keyword are not code', () => {
+  // The alternation had no word boundary, so `def` matched "definition", `class` matched
+  // "classification", and `function` matched "functionality" — on any line where the previous
+  // line wrapped before one of those words. The library hard-wraps at ~95 columns, so this was
+  // not a rare shape; the fitness-functions blueprint ends a bullet with "definition, not the
+  // function." and every workspace filling it failed check 11.
+  //
+  // Tenth line-wrap defect in this repository, and the worst-placed: the response to "your
+  // specification contains application source code" is to go and delete prose.
+  const prose = [
+    '# Doc',
+    '',
+    '- If a characteristic cannot be measured, its',
+    '  definition is too vague — go fix the definition.',
+    '- Sort them by',
+    '  classification, then by name.',
+    '- The rest is a matter of',
+    '  functionality nobody asked for.',
+    '- We chose to',
+    '  import from the shared list rather than copy it.',
+  ].join('\n')
+  assert.equal(CHECKS[11].run({ 'spec/x.md': prose }).state, 'passed')
+})
+
+test('BUG-020: real code is still caught, in every form the check claims to catch', () => {
+  const cases = {
+    'a fenced language tag': '# D\n\n```js\nlet x = 1\n```\n',
+    'a python definition': '# D\n\ndef consolidate(lines):\n',
+    'a class declaration': '# D\n\nclass ShoppingList:\n',
+    'a function declaration': '# D\n\nfunction consolidate(lines) {\n',
+    'an es module import': "# D\n\nimport { sum } from './math'\n",
+    'an arrow binding': '# D\n\nconst consolidate = (lines) => lines\n',
+  }
+  for (const [what, text] of Object.entries(cases)) {
+    assert.equal(CHECKS[11].run({ 'spec/x.md': text }).state, 'failed', `${what} must still fail`)
+  }
+})

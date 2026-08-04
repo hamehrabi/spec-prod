@@ -203,7 +203,19 @@ export const CHECKS = {
     run(ws) {
       const code = md(ws).filter(([, t]) =>
         /```(js|ts|python|java|go|rb|php|cs|rust|jsx|tsx)\b/i.test(t) ||
-        /^\s*(function|class|def|import .* from|const \w+ = \()/m.test(t.replace(/```[\s\S]*?```/g, '')))
+        // KEYWORDS NEED A SHAPE, NOT JUST A SPELLING. This used to be a bare alternation, so
+        // `def` matched the start of "definition", `class` matched "classification", and
+        // `function` matched "functionality" — on any line where the previous line happened to
+        // wrap before one of those words.
+        //
+        // The fitness-functions blueprint ends a wrapped bullet with "definition, not the
+        // function.", so EVERY workspace that filled it was reported as containing application
+        // source code (BUG-020). A false positive on BR-001, the defining boundary of this
+        // product, is the worst possible place for one: the response to "this spec contains
+        // code" is to go and delete prose.
+        //
+        // Each keyword now has to be followed by what it is followed by in real code.
+        /^\s*(function\s+\w+\s*\(|class\s+\w+[\s({:]|def\s+\w+\s*\(|import\s+[\w{*].*\sfrom\s|const\s+\w+\s*=\s*\()/m.test(t.replace(/```[\s\S]*?```/g, '')))
       return code.length === 0
         ? passed()
         : failed(code.slice(0, 5).map(([p]) => `${p} appears to contain application source code (BR-001)`))
