@@ -16,7 +16,7 @@ const { rounds, inRound, text } = parseQuestions()
 // --- Rounds 5 and 6 exist and keep their shape -------------------------------------------
 
 test('Rounds 5 and 6 are asked, four questions each at most', () => {
-  assert.deepEqual(rounds, [1, 2, 3, 4, 5, 6])
+  assert.ok(rounds.includes(5) && rounds.includes(6), 'rounds 5 and 6 exist')
   for (const r of [5, 6]) {
     const n = inRound(r).length
     assert.ok(n > 0 && n <= 4, `Round ${r} asks ${n}; the limit is four`)

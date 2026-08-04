@@ -110,7 +110,7 @@ maintain it.
 | REQ-R-002 | No write outside `spec/` unasked | BR-008 | TASK-004 ✅ | STEST-002/003, FTEST-003 | `plugin/instructions/boundary.md` | **Approved** — *see REQ-F-024* |
 | REQ-R-003 | No application source code | BR-001 | TASK-004 | TEST-012, STEST-001 | — | Ready |
 | REQ-R-004 | Declined write → resumable | reliability §3 | TASK-006 | ATEST-039, FTEST-002, STEST-011 | — | Ready |
-| REQ-R-005 | Task files name allowed + forbidden | API C3 | TASK-010 | ATEST-040, TEST-018, **ETEST-003** | — | Ready |
+| REQ-R-005 | Task files name allowed + forbidden | API C3 | TASK-010 ✅ | ATEST-040, TEST-018, **ETEST-003** | `plugin/instructions/governance.md` rule 5 | **Approved** — *both lists, always; the allowed-only shape named as the more dangerous one* |
 | BR-001…BR-014 | *(all fourteen)* | See `requirements.md` §4 | TASK-004…012 | See `test-plan.md` coverage matrix | — | Ready |
 | SEC-A-001…003 | Authentication rules | security §1 | TASK-004 | STEST-009/010, FTEST-003 | — | Ready |
 | SEC-Z-001…004 | Authorization rules | security §2 | TASK-004 | STEST-002/003/006, TEST-003 | — | Ready |
