@@ -1,14 +1,16 @@
-# [project name] — specification workspace
+# Pantry — specification workspace
 
 > **What this folder is:** the specification for this software. It is meant to be read,
 > edited, and committed alongside the code — not archived and forgotten.
 > **Who it is for:** anyone about to build, review, or change this software, including an
 > AI coding agent.
 
-**In one sentence, this software:** [what it does, and for whom]
+**In one sentence, this software:** A place for a home cook to keep every recipe, and to turn
+the meals they pick for a week into one shopping list.
 
-**The problem it exists to solve:** [the pain, the consequence, and the desired improvement —
-no implementation details]
+**The problem it exists to solve:** People who cook at home keep recipes scattered across
+screenshots, bookmarks and handwritten cards, which causes them to forget items on the weekly
+shop and make a second trip while food goes off.
 
 > **The one rule to remember:**
 > Before code, write the spec. Before accepting code, run the tests. Before release,
@@ -157,34 +159,4 @@ back to 01-docs             when reality changes the spec
 
 ---
 
-# WORKED EXAMPLE — ProjectBoard
-
-> The running example. Everything below is filled in; the blueprint above is what you copy.
-
-**Project name:** ProjectBoard
-
-**In one sentence, this software:** A shared workspace where a small consulting team creates
-tasks, assigns owners, and sees what is overdue.
-
-**The problem it exists to solve:** Small teams track work in scattered chats, notebooks and
-spreadsheets, which causes missed deadlines and unclear ownership. The system should make
-responsibilities and progress visible in one place.
-
-## Start here, as filled
-
-| If you are… | Read |
-|---|---|
-| New to this project | `01-docs/01-intent/intent.md` — five minutes, and the only file that explains *why* |
-| About to build something | `01-docs/02-requirements/requirements.md`, then `02-tasks/02-task-files/TASK-006.md` |
-| Reviewing a change | `05-review/02-checklists/code-review-checklist.md` |
-| An AI coding agent | `06-agent/01-instructions/AGENT.md` — the do-not-change list is not advisory |
-
-**What is deliberately absent:** `frontend-component-spec.md` was skipped — the first version
-is server-rendered and has no component layer to describe. Recorded as a dated row in
-`01-docs/09-change-control/spec-change-log.md` on 2026-03-14, with that reason.
-
-> **What this file caught.** Three weeks in, a new contributor added a rate-limiting note to
-> `technical-spec.md`, because that was the file they had open. The *"where does this
-> belong?"* table moved it to `runtime-and-scale.md` — where the person tuning limits would
-> actually look. A specification nobody can navigate is one nobody updates, and a
-> specification nobody updates stops being true within a month.
+> Blueprint: blueprints/README.md

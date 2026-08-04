@@ -48,12 +48,28 @@ const changeLog = workspace['spec/01-docs/09-change-control/spec-change-log.md']
 
 // --- What Round 1 produced -------------------------------------------------------------------
 
-test('GOLD-001: Round 1 wrote the three files it owns', () => {
+test('GOLD-001: Round 1 wrote all four files it owns', () => {
+  // README.md is the fourth. It was BLOCKED on the first run: the blueprint was 424 lines of
+  // the template's own documentation with zero fillable fields, so copy-then-fill had nothing
+  // to fill (BUG-009). A workspace README that describes the template rather than the project
+  // is someone else's document in the developer's repository, which is BR-002 again.
   assert.deepEqual(Object.keys(workspace).sort(), [
     'spec/01-docs/01-intent/intent.md',
     'spec/01-docs/01-intent/project-brief.md',
     'spec/01-docs/09-change-control/spec-change-log.md',
+    'spec/README.md',
   ])
+})
+
+test('GOLD-001: the workspace README is about THIS project, not about the template', () => {
+  const readme = workspace['spec/README.md']
+  assert.match(readme, /^# Pantry — specification workspace/m, 'it is named for the product')
+  assert.doesNotMatch(readme, /\[project name\]/, 'and the field was actually filled')
+  assert.doesNotMatch(readme, /Copy this folder for each new project/)
+  assert.doesNotMatch(readme, /Gem Iroko/)
+  // The honest part: a Round-1 workspace links to files later rounds write, and says so
+  // rather than pretending they are there.
+  assert.match(readme, /Not every file below exists yet/)
 })
 
 // --- BR-002: the failure that made BUG-008 worth finding --------------------------------------
