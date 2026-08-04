@@ -14,7 +14,7 @@ const doc = readFileSync('plugin/instructions/validation.md', 'utf8')
 const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
 
 // Check 13 reads this as the manifest: every entry must be filled or skipped.
-const LIBRARY = ['01-docs/01-intent/intent.md', 'README.md', 'gitignore.md']
+const LIBRARY = ['01-docs/01-intent/intent.md', 'README.md', 'gitignore.md', '01-docs/02-requirements/driving-characteristics.md']
 
 /** A minimal workspace that passes everything. */
 const clean = () => ({
@@ -27,6 +27,13 @@ const clean = () => ({
     '# Project\n\nAbout REQ-F-001.\n\n| ID | Guards | Threshold |\n|---|---|---|\n' +
     '| FF-001 | Simplicity | exactly 1 command |\n\n> Blueprint: blueprints/README.md\n',
   'spec/.gitignore': '.env\nnode_modules/\n\n# Blueprint: blueprints/gitignore.md\n',
+  // Check 9 asks THIS file whether drivers were declared, rather than pattern-matching quality
+  // words across the workspace — an example row in a kept table is not a declared driver
+  // (BUG-018). A clean workspace therefore has to declare one somewhere real.
+  'spec/01-docs/02-requirements/driving-characteristics.md':
+    '# Pick Three\n\n| # | Characteristic | Measure | Fitness function |\n|---|---|---|---|\n' +
+    '| 1 | Simplicity | Commands the plugin adds | FF-001 |\n\n' +
+    '> Blueprint: blueprints/01-docs/02-requirements/driving-characteristics.md\n',
   // The entry point is written LAST, so check 10 legitimately reports not-run until it
   // exists. A "clean workspace" for these purposes is a finished one.
   'spec/CLAUDE.md':

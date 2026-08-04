@@ -92,8 +92,14 @@ below it. Replacing the formula would delete the thing that explains the answer.
 The same holds for an identifier pattern inside backticks — `` `TASK-###.md` `` documents a
 naming convention; it is not waiting to be replaced.
 
-So: a bracket span **in body text** is a gap. The same span **inside a blockquote or inside
-backticks** is usually illustration. Read it and decide — but do not report it as unfilled
+**A fenced block is the strongest form of "inside backticks", and everything in one is
+illustration.** Several blueprints carry a template block the developer is meant to *keep* and
+copy — *copy per table*, *copy this block for every endpoint*. The placeholders in those blocks
+are the point of the block. Counting them as gaps made those blueprints unfillable by
+construction, whatever the developer did (BUG-017).
+
+So: a bracket span **in body text** is a gap. The same span **inside a blockquote, inside
+backticks, or inside a fence** is usually illustration. Read it and decide — but do not report it as unfilled
 without looking, and do not silently ignore it either. This distinction is BUG-006: the first
 version of the check called a correctly filled file unfilled, and a control that cries wolf on
 correct work is a control that gets switched off.

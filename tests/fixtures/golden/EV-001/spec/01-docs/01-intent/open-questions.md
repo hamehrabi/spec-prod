@@ -20,6 +20,13 @@
 | Q-009 | What would tell you in the first month that this is working? | Different from Q-006: this is the early signal, not the target. It decides what to instrument first. | Product owner | Release | Open | — |
 | Q-010 | How many people will use it in the first six months? | Sets the ceiling on every performance answer, and decides whether scaling work is needed at all. | Product owner | Design | Open | — |
 | Q-011 | What is your build horizon for version one? | A horizon is what forces scope to be decided rather than deferred. Without one the specification has to supply the pressure. | Product owner | Design | Open | — |
+| Q-012 | Which quality attributes matter most, and what measurable limit does each have? | Six of the seven non-functional requirements are waiting on it. A quality without a limit is an adjective, not a requirement. | Product owner | Design | Open | — |
+| Q-013 | Does version one need to edit and delete a saved recipe, or only add one? | *Save a recipe* was the answer; changing one afterwards is a separate capability with its own screens, rules, and failure cases. Assuming it in would be a requirement nobody made. | Product owner | Design | Open | — |
+| Q-014 | Which data store will this use? | Decides what the schema can promise — constraints, transactions, and whether BR-001's uniqueness rule can be enforced by the store at all. | Tech lead | Design | Open | — |
+| Q-015 | Which authentication model does this project use? | Decides whether this system stores credential material or none, which is a materially different sensitive-data table. | Tech lead | Design | Open | — |
+| Q-016 | Where will this run? | Constrains the runtime, the store's managed options, the secrets mechanism, and what a rollback means. | Tech lead | Implementation | Open | — |
+| Q-017 | Which external services will this system depend on? | Two are visible as possible — an identity provider and object storage — and naming a provider before it is chosen makes it the choice. | Tech lead | Design | Open | — |
+| Q-018 | What happens to a cook's recipes and plans when they close their account? | Deletion behaviour is decided everywhere else in the schema; this is the one path that has no answer, and it is the one with legal weight. | Product owner | Release | Open | — |
 
 **Status values:** Open · Answered · Deferred · Rejected
 

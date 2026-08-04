@@ -42,6 +42,7 @@ above starts with an identifier rather than a date, so it cannot serve.
 |---|---|---|---|
 | 2026-08-04 | Round 1 — the idea | — | Four files written: brief, intent, README, this log. |
 | 2026-08-04 | Round 2 — scope boundaries | — | Three files written: constraints and non-goals, open questions, subdomain map. Two questions asked at `express` depth; the other two are recorded as Q-002 and Q-003 rather than answered. Q-001 closed, and its marker replaced in intent and brief. |
+| 2026-08-04 | Round 3 — users, roles, and data | — | Four files written: requirements, database design, API specification, data and integration specification. Permission model and entity model asked; isolation between accounts derived from the permission model with the derivation stated. Seven new questions recorded, Q-012 to Q-018. |
 
 **A skip with no reason is a silent skip wearing a label.** The reason is what lets a later
 reader tell a decision from an omission.

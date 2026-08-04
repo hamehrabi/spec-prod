@@ -88,6 +88,19 @@ const RULES = [
  * backticks, which documents a naming pattern rather than waiting to be replaced.
  */
 function contextOf(text, index) {
+  // A FENCED BLOCK IS THE STRONGEST FORM OF "inside backticks", and it was the only one this
+  // function did not handle. fill.md says a span inside backticks is usually illustration —
+  // and several blueprints carry a template block the developer is meant to KEEP and copy
+  // per table, per endpoint. Every placeholder in those blocks was being reported as an
+  // unfilled gap (BUG-017).
+  //
+  // It surfaced at Round 3, because Round 3 is the first round whose blueprints keep a fenced
+  // block at all: the earlier ones only had prompt boxes, which step 3 deletes.
+  //
+  // Counting fence openers before the index is enough — an odd count means inside. Nesting is
+  // not a thing in Markdown fences, and an unclosed fence is a broken document either way.
+  if (((text.slice(0, index).match(/^(?:```|~~~)/gm) ?? []).length % 2) === 1) return 'code'
+
   const lineStart = text.lastIndexOf('\n', index - 1) + 1
   const lineEnd = text.indexOf('\n', index)
   const line = text.slice(lineStart, lineEnd === -1 ? text.length : lineEnd)
