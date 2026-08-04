@@ -119,6 +119,24 @@ function main(argv) {
 const countedRounds = (record, through) => record.rounds.filter((r) => r.n <= through).length
 
 /**
+ * Everything the host is told on its command line — which is flags and paths, and nothing else.
+ *
+ * Exported so a test can assert the property that broke: no argument here carries a newline,
+ * because nothing that varies with the developer's answers belongs on a command line at all.
+ */
+export function hostArgs({ model = null } = {}) {
+  return [
+    '-p',
+    // Absolute: the host runs with the sandbox as its working directory, and a relative path
+    // would resolve against that instead of against this repository.
+    '--plugin-dir', resolve(PAYLOAD_ROOT),
+    '--permission-mode', 'acceptEdits',
+    '--output-format', 'json',
+    ...(model ? ['--model', model] : []),
+  ]
+}
+
+/**
  * Run the host against a clean repository with the plugin loaded from this branch.
  *
  * `--plugin-dir` loads the payload as an installed plugin rather than as loose files, so the
@@ -130,22 +148,19 @@ function drive({ sandbox, prompt, model, timeoutMin }) {
   const git = spawnSync('git', ['init', '-q', '-b', 'main'], { cwd: sandbox, encoding: 'utf8' })
   if (git.status !== 0) return { ran: false, why: `could not create a sandbox repository: ${git.stderr || git.error?.message}` }
 
-  const argv = [
-    '-p', prompt,
-    // Absolute: the host runs with the sandbox as its working directory, and a relative path
-    // would resolve against that instead of against this repository.
-    '--plugin-dir', resolve(PAYLOAD_ROOT),
-    '--permission-mode', 'acceptEdits',
-    '--output-format', 'json',
-    ...(model ? ['--model', model] : []),
-  ]
   const started = Date.now()
-  const host = spawnSync('claude', argv, {
+  // THE PROMPT GOES OVER STDIN, NEVER IN ARGV. It is multi-line, it quotes the developer's own
+  // words, and on Windows a shell-spawned argument list is concatenated into one command
+  // string rather than escaped. The first run of this script passed the prompt as an argument
+  // and the host received nothing usable: the sandbox came back holding only .git. That is
+  // also the injection surface — the prompt is built from a file on disk, and anything that
+  // reaches a command line from a file is a command someone else can write.
+  const host = spawnSync('claude', hostArgs({ model }), {
     cwd: sandbox,
+    input: prompt,
     encoding: 'utf8',
     timeout: timeoutMin * 60_000,
     maxBuffer: 64 * 1024 * 1024,
-    shell: process.platform === 'win32',
   })
 
   if (host.error?.code === 'ENOENT') return { ran: false, why: 'the host is not installed: `claude` is not on PATH' }

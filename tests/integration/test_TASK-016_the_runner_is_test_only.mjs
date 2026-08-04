@@ -20,6 +20,7 @@ import assert from 'node:assert/strict'
 import { copyFileSync, mkdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { run, check, payloadCopy, REPO } from '../_helpers.mjs'
+import { hostArgs } from '../../ci/generate-workspace.mjs'
 
 const RUNNER = 'ci/generate-workspace.mjs'
 const MODULES = [RUNNER, 'ci/answers.mjs', 'ci/workspace.mjs']
@@ -93,6 +94,20 @@ test('TASK-016: the run is driven to the round the golden workspace actually acc
   const { stdout } = runner(['EV-001', '--dry-run'])
   assert.match(stdout, /After Round 3 is accepted and its row is written/)
   assert.match(stdout, /Do not begin Round 4\./)
+})
+
+test('TASK-016: nothing the developer said reaches the host on a command line', () => {
+  // The first real run of this script put the prompt in argv. On Windows a shell-spawned
+  // argument list is concatenated rather than escaped, the host received nothing usable, and
+  // the sandbox came back holding only .git. It is also the injection surface: the prompt is
+  // built from a file on disk, and anything that reaches a command line from a file is a
+  // command somebody else can write. The prompt goes over stdin, and this is the guard.
+  for (const arg of hostArgs({ model: 'sonnet' })) {
+    assert.doesNotMatch(arg, /[\r\n]/, `${JSON.stringify(arg)} would be mangled by a shell`)
+    assert.ok(arg.length < 300, 'no argument is long enough to be a prompt')
+  }
+  assert.ok(hostArgs().includes('-p'), 'the host still runs non-interactively')
+  assert.ok(!hostArgs().includes('--model'), 'no model is forced when none was asked for')
 })
 
 test('TASK-016: the runner states what it does not establish', () => {

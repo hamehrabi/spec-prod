@@ -6,14 +6,21 @@
 #   stage 1  shape of the plugin itself     FF-001, FF-002, FF-009   <- here
 #            library integrity              FF-017                   <- here
 #   stage 2  unit and integration tests                              <- here
-#   stage 3  generate golden workspaces                              TASK-016
+#   stage 3  generate golden workspaces     ci/generate-workspace.mjs  <- built, NOT wired
 #   stage 4  walk the golden workspaces     FF-004..FF-008, FF-010..FF-014
-#   stage 5  end-to-end, including resume x8 (FF-003)                TASK-007, TASK-016
+#   stage 5  end-to-end, including resume x8 (FF-003)                TASK-007
 #   stage 6  eval scorers                                            TASK-016
 #
+# STAGE 3 EXISTS AND IS DELIBERATELY NOT A STEP BELOW. `node ci/generate-workspace.mjs EV-001`
+# drives a real intake from an answer record and compares what it produces against the golden
+# workspace. It needs a network, a host and money, and nobody has yet measured how much its
+# result varies between runs. A gate whose pass rate is unknown does not block bad merges; it
+# blocks arbitrary ones, and gets waved through by the second week. Wiring it in now would be
+# BR-009 — a success claim on an unmeasured check — committed by the tool built to catch it.
+# It becomes a step when there is a baseline to compare against (TASK-016 step 6).
+#
 # The scheduled install test (RISK-004's only detector) is decided as WEEKLY but not built
-# here: it installs the PUBLISHED plugin and runs a full intake from an answer script, and
-# neither exists yet. It arrives with TASK-016.
+# here: it installs the PUBLISHED plugin, and nothing is published yet.
 #
 # A warning is not a gate. Every step below either passes or fails the build.
 
