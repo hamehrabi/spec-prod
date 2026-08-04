@@ -32,9 +32,9 @@ maintain it.
 | REQ-F-006 | Recommended first, marked, with a reason | `frontend-component-spec` | TASK-006 ✅ | ATEST-006, UTEST-003 | `plugin/instructions/questions.md` | **Approved** |
 | REQ-F-007 | Free text always accepted | `frontend-component-spec` | TASK-006 ✅ | ATEST-007, UTEST-004, FTEST-015 | `plugin/instructions/questions.md` | **Approved** |
 | REQ-F-008 | One non-MCQ question | `frontend-component-spec` | TASK-006 ✅ | ATEST-008, UTEST-005, FTEST-013 | `plugin/instructions/questions.md` | **Approved** |
-| REQ-F-009 | Never ask the derivable | **DD-007** | TASK-011 | ATEST-009, UTEST-006/007, ETEST-005 | — | Ready |
-| REQ-F-010 | Contradiction stops, quotes both | BR-012 | TASK-011 | ATEST-010, UTEST-008, FTEST-010 | — | Ready |
-| REQ-F-011 | Eight-round hard stop | BR-004 | TASK-011 | ATEST-011, UTEST-009, ETEST-006 | — | Ready |
+| REQ-F-009 | Never ask the derivable | **DD-007** | TASK-011 ✅ | ATEST-009, UTEST-006/007, ETEST-005 | `plugin/instructions/inference.md` — 5 derivation rules | **Approved** — *notice names conclusion **and** source; partial narrows rather than skips* |
+| REQ-F-010 | Contradiction stops, quotes both | BR-012 | TASK-011 ✅ | ATEST-010, UTEST-008, FTEST-010 | `plugin/instructions/inference.md` — contradiction rule | **Approved** — *both quoted verbatim, no default offered* |
+| REQ-F-011 | Eight-round hard stop | BR-004 | TASK-011 ✅ | ATEST-011, UTEST-009, ETEST-006 | `plugin/instructions/inference.md` — the ceiling | **Approved** — *no ninth round; unknowns become open questions* |
 | REQ-F-012 | Name the core subdomain | `subdomain-map` | TASK-008 ✅ | ATEST-012, UTEST-010 | `plugin/instructions/questions.md` Round 2 Q4 | **Approved** — *asked every time, even with one capability* |
 | REQ-F-013 | Refuse > 3 drivers, push back once | BR-011 | TASK-008 ✅ | ATEST-013, UTEST-011 | `plugin/instructions/questions.md` Round 4 Q3 | **Approved** — *one push-back, then accept; rejects recorded* |
 | REQ-F-033 | Express depth | **DD-006** | TASK-015 | ATEST-014, UTEST-012, ETEST-007 | — | Ready |
