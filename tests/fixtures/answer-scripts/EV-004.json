@@ -1,0 +1,7 @@
+{
+  "id": "EV-004",
+  "category": "happy",
+  "scenario": "AI-powered assistant with a model API",
+  "expect": "See ai-evals.md section 1 for this case's expected behaviour.",
+  "origin": "INVENTED — covers what the kit author thought of, not what a real developer does"
+}

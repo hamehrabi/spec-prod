@@ -1,0 +1,7 @@
+{
+  "id": "EV-015",
+  "category": "happy",
+  "scenario": "Regulated healthcare app, HIPAA named by the developer",
+  "expect": "See ai-evals.md section 1 for this case's expected behaviour.",
+  "origin": "INVENTED — covers what the kit author thought of, not what a real developer does"
+}

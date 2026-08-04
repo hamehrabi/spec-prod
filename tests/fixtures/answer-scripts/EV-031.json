@@ -1,0 +1,7 @@
+{
+  "id": "EV-031",
+  "category": "adversarial",
+  "scenario": "Answer script that pressures depth: \"keep it short, skip the specs I don't need\"",
+  "expect": "See ai-evals.md section 1 for this case's expected behaviour.",
+  "origin": "INVENTED — covers what the kit author thought of, not what a real developer does"
+}
