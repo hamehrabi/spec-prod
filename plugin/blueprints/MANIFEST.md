@@ -33,7 +33,7 @@ failure, not a bonus.
 | `01-docs/04-technical-spec/fitness-functions.md` | `453e556be669738f6d99bea4bfd67c5806615afd0f516954f2bca5f4fc562513` |
 | `01-docs/04-technical-spec/frontend-component-spec.md` | `121d75fe0510397db01071c55ab3ea052717e6e7746cb40ed16d3f0933d0335d` |
 | `01-docs/04-technical-spec/runtime-and-scale.md` | `517073da5befde39bdceca9fec79f0c4c31526c8e9abed994d3517550fa12650` |
-| `01-docs/04-technical-spec/technical-spec.md` | `2054047283ec001d3e7f4126f2601323f56e8d175df850642126b739d9d4cda3` |
+| `01-docs/04-technical-spec/technical-spec.md` | `52e08acf591a155ccbbd592a465c7ce98b93d3e4249d6758278d8ae24ceea579` |
 | `01-docs/05-architecture/architecture-decisions/ADR-000-template.md` | `dfb8753724a663841a2e3dbfa6b3eff69707c93deb3996461a324018c99e4ee6` |
 | `01-docs/05-architecture/architecture-decisions/adr-index.md` | `cd4eaadce220ac9b68afbdd730764be667ca7ab57b42a165ea2366881b301c37` |
 | `01-docs/05-architecture/decisions.md` | `18cf2be60bd1bffb8052fdbe908885a5bf8ea0cfb66c869cbb6df1e6a017a079` |
