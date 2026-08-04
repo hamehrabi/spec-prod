@@ -58,51 +58,6 @@ Tests required:       TEST-### (unit, integration, edge cases)
 
 ---
 
-## Worked example (Ch. 9 §9.5)
-
-**Request**
-```
-POST /api/v1/projects/{project_id}/tasks
-Content-Type: application/json
-
-{
-  "title": "Prepare launch checklist",
-  "description": "Confirm release tasks before deployment.",
-  "assignee_id": "user_102",
-  "due_date": "2026-07-15"
-}
-```
-
-**Success response**
-```
-201 Created
-
-{
-  "id": "task_501",
-  "project_id": "project_200",
-  "title": "Prepare launch checklist",
-  "status": "todo",
-  "assignee_id": "user_102",
-  "due_date": "2026-07-15",
-  "created_at": "2026-06-26T10:15:00Z"
-}
-```
-
-**Error response**
-```
-400 Bad Request
-
-{
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "The task title is required.",
-    "field": "title"
-  }
-}
-```
-
----
-
 ## Status code response principles (Appendix D)
 
 | Status | Use | Response principle |
@@ -190,4 +145,49 @@ rules, and error responses. Do not write code yet.
 Review this API change and tell me whether it is backward compatible. Identify any
 frontend, test, documentation, or integration updates that may be needed. If it is a
 breaking change, suggest a safer versioning strategy.
+```
+
+---
+
+# WORKED EXAMPLE (Ch. 9 §9.5)
+
+**Request**
+```
+POST /api/v1/projects/{project_id}/tasks
+Content-Type: application/json
+
+{
+  "title": "Prepare launch checklist",
+  "description": "Confirm release tasks before deployment.",
+  "assignee_id": "user_102",
+  "due_date": "2026-07-15"
+}
+```
+
+**Success response**
+```
+201 Created
+
+{
+  "id": "task_501",
+  "project_id": "project_200",
+  "title": "Prepare launch checklist",
+  "status": "todo",
+  "assignee_id": "user_102",
+  "due_date": "2026-07-15",
+  "created_at": "2026-06-26T10:15:00Z"
+}
+```
+
+**Error response**
+```
+400 Bad Request
+
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "The task title is required.",
+    "field": "title"
+  }
+}
 ```

@@ -62,56 +62,6 @@ Before finishing, explain:
 
 ---
 
-## Completed example (Ch. 12 §12.8)
-
-```markdown
-# Project Context Pack
-
-## 1. Project Background
-Project name:  ProjectBoard
-Purpose:       Helps small teams create projects, add tasks, assign work, track progress.
-Primary users: owner, manager, member
-Current stage: Building the first working version
-
-## 2. Current Task
-Task:            Create the API behavior for adding a new task to a project.
-Expected output: API handler logic, validation rules, and unit tests.
-Do not change:   User authentication, project schema, or dashboard UI.
-
-## 3. Relevant Requirements
-Requirement ID: REQ-TASK-001
-Requirement statement: A manager can create a task inside an existing project.
-Acceptance criteria:
-- Title is required.
-- Project ID is required.
-- Due date is optional.
-- Status defaults to "todo".
-- A member cannot create tasks unless given manager permission.
-
-## 4. Technical Decisions
-Architecture rule: Keep API handling separate from business logic.
-Data rule:         Task belongs to one project and may be assigned to one user.
-API rule:          POST /api/projects/{projectId}/tasks creates a task.
-Security rule:     Check the current user's role before creating the task.
-
-## 5. File Map
-04-src/api/tasks/createTaskHandler.js       # request handling
-04-src/services/tasks/createTask.js         # business logic
-04-src/services/tasks/validateTaskInput.js  # validation rules
-03-tests/unit/createTask.test.js            # unit tests
-
-## 6. Coding Standards
-- Keep validation separate from request handling.
-- Use clear error messages.
-- Do not expose internal database errors.
-- Add tests for valid input, missing title, missing project ID, and unauthorized user.
-
-## 7. Review Rules
-Before finishing, explain what changed and show how the work maps to REQ-TASK-001.
-```
-
----
-
 ## The context slice pattern (Ch. 12 §12.3)
 
 For a focused task, supply exactly five things:
@@ -208,4 +158,54 @@ Using the Project Context Pack above, implement only the current task. Do not ad
 unrelated features. Do not change protected files or decisions. After completing the work,
 summarize what changed, list the requirement implemented, and identify the tests that
 should pass.
+```
+
+---
+
+# WORKED EXAMPLE — a completed pack (Ch. 12 §12.8)
+
+```markdown
+# Project Context Pack
+
+## 1. Project Background
+Project name:  ProjectBoard
+Purpose:       Helps small teams create projects, add tasks, assign work, track progress.
+Primary users: owner, manager, member
+Current stage: Building the first working version
+
+## 2. Current Task
+Task:            Create the API behavior for adding a new task to a project.
+Expected output: API handler logic, validation rules, and unit tests.
+Do not change:   User authentication, project schema, or dashboard UI.
+
+## 3. Relevant Requirements
+Requirement ID: REQ-TASK-001
+Requirement statement: A manager can create a task inside an existing project.
+Acceptance criteria:
+- Title is required.
+- Project ID is required.
+- Due date is optional.
+- Status defaults to "todo".
+- A member cannot create tasks unless given manager permission.
+
+## 4. Technical Decisions
+Architecture rule: Keep API handling separate from business logic.
+Data rule:         Task belongs to one project and may be assigned to one user.
+API rule:          POST /api/projects/{projectId}/tasks creates a task.
+Security rule:     Check the current user's role before creating the task.
+
+## 5. File Map
+04-src/api/tasks/createTaskHandler.js       # request handling
+04-src/services/tasks/createTask.js         # business logic
+04-src/services/tasks/validateTaskInput.js  # validation rules
+03-tests/unit/createTask.test.js            # unit tests
+
+## 6. Coding Standards
+- Keep validation separate from request handling.
+- Use clear error messages.
+- Do not expose internal database errors.
+- Add tests for valid input, missing title, missing project ID, and unauthorized user.
+
+## 7. Review Rules
+Before finishing, explain what changed and show how the work maps to REQ-TASK-001.
 ```

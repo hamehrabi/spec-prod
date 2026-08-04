@@ -58,3 +58,47 @@ test('C2: every worked example is removable as a whole, leaving the template int
     assert.doesNotMatch(kept, /^# WORKED EXAMPLE/m, `${file}: exactly one worked-example heading`)
   }
 })
+
+// --- The gap the two tests above could not see -----------------------------------------------
+//
+// Both of them start by locating `# WORKED EXAMPLE`, so a blueprint that never uses that
+// heading was skipped by BOTH and passed by DEFAULT. 24 of 81 blueprints were in that state:
+// their example sat under `## Worked example (Ch. 9 §9.5)`, `## Filled example — "TeamTask
+// Lite"` or `## Completed example`, mid-file, with real template content after it.
+//
+// ADR-003 step 2 deletes from `# WORKED EXAMPLE` to end-of-file. With no such heading it
+// deletes NOTHING, and someone else's product ships into the developer's specification as
+// their own decision — which is BR-002 exactly, and the failure C2 exists to prevent.
+//
+// A `continue` on absence is not a skip, it is a silent pass. The contract has to be asserted
+// POSITIVELY or it only ever checks the files that were already correct.
+
+/** Blueprints with no worked example, each for a stated reason. Named rather than inferred:
+ *  an exemption nobody has to justify is how the 24 stayed invisible. */
+const NO_EXAMPLE_EXPECTED = {
+  'plugin/blueprints/gitignore.md': 'wrapper blueprint — carries a .gitignore in a fenced block; an example ignore file would be the artifact itself',
+  'plugin/blueprints/env-example.md': 'wrapper blueprint — carries a .env.example in a fenced block; every value in it is already a placeholder',
+}
+
+test('C2: every blueprint carries a worked example, or is a NAMED exemption', () => {
+  const missing = blueprints.filter((f) => !/^# WORKED EXAMPLE/m.test(readFileSync(f, 'utf8')))
+
+  assert.deepEqual(
+    missing.map(toPosix).sort(),
+    Object.keys(NO_EXAMPLE_EXPECTED).sort(),
+    'A blueprint with no `# WORKED EXAMPLE` heading is invisible to every other C2 check — ' +
+      'ADR-003 step 2 finds nothing to delete and the example ships to the developer (BR-002). ' +
+      'Give it the heading, or add it to NO_EXAMPLE_EXPECTED with a reason.'
+  )
+})
+
+test('C2: an example heading at the wrong LEVEL does not count', () => {
+  // `## WORKED EXAMPLE` reads correct to a human and is invisible to `/^# WORKED EXAMPLE/m`.
+  // Eight blueprints were in exactly this state, which is why the level is asserted and not
+  // just the words.
+  const offenders = blueprints.filter((f) => {
+    const text = readFileSync(f, 'utf8')
+    return /^#{2,} +WORKED EXAMPLE/mi.test(text) || /^#{2,} +(Filled|Completed) example/mi.test(text)
+  })
+  assert.deepEqual(offenders.map(toPosix), [], 'the worked example is an H1, so deleting to end-of-file removes it whole')
+})

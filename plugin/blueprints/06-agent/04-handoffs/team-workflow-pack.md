@@ -86,7 +86,7 @@ Alignment is not a one-time meeting. It is a rhythm.
 
 ---
 
-## Worked example — coordinating a feature with an agent (Ch. 29)
+# WORKED EXAMPLE — coordinating a feature with an agent (Ch. 29)
 
 | Artifact | Team action | AI-agent action | Review evidence |
 |---|---|---|---|

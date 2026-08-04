@@ -66,30 +66,6 @@ Status:              Not run / Pass / Fail / Needs review
 
 ---
 
-## Worked example — unit test plan (Ch. 17 §17.2)
-
-```
-UNIT TEST PLAN: Task status validation
-Requirement ID: REQ-TASK-04
-Rule: A task status must be one of todo, in_progress, or done.
-
-Normal case:  status = "todo"     -> accepted.
-Edge case:    status = "DONE"     -> rejected, or normalized only if the spec allows it.
-Failure case: status = "archived" -> rejected with a clear validation error.
-```
-
-## Worked example — login test set (Ch. 17)
-
-| Scenario | Test type | Expected result |
-|---|---|---|
-| Valid user logs in | Integration | User receives a session and is redirected to the dashboard. |
-| Wrong password submitted | Integration / security | Login rejected with a safe error message. |
-| Empty email submitted | Unit / validation | Request rejected before checking credentials. |
-| Unregistered email submitted | Security | Login rejected **without revealing whether the email exists**. |
-| Dashboard opened without login | End-to-end / security | User is redirected to the login page. |
-
----
-
 ## Reviewing AI-generated tests (Ch. 18 §18.2)
 
 Never accept generated tests just because they look professional. A test can be
@@ -170,3 +146,27 @@ Return a table with:
 
 Then provide the test code or test pseudocode.
 ```
+
+---
+
+# WORKED EXAMPLE — unit test plan (Ch. 17 §17.2)
+
+```
+UNIT TEST PLAN: Task status validation
+Requirement ID: REQ-TASK-04
+Rule: A task status must be one of todo, in_progress, or done.
+
+Normal case:  status = "todo"     -> accepted.
+Edge case:    status = "DONE"     -> rejected, or normalized only if the spec allows it.
+Failure case: status = "archived" -> rejected with a clear validation error.
+```
+
+## Login test set (Ch. 17)
+
+| Scenario | Test type | Expected result |
+|---|---|---|
+| Valid user logs in | Integration | User receives a session and is redirected to the dashboard. |
+| Wrong password submitted | Integration / security | Login rejected with a safe error message. |
+| Empty email submitted | Unit / validation | Request rejected before checking credentials. |
+| Unregistered email submitted | Security | Login rejected **without revealing whether the email exists**. |
+| Dashboard opened without login | End-to-end / security | User is redirected to the login page. |

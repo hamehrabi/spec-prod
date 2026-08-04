@@ -37,26 +37,6 @@ Prevention Note:     [what you will not repeat]
 
 ---
 
-## Worked example (Ch. 19 §19.8)
-
-```
-Requirement:       AUTH-REQ-04
-Expected:          Invalid credentials return a safe authentication error.
-Actual:            Unknown email causes a server error.
-Evidence:          user is null before password comparison.
-Root cause:        Code assumes the user lookup always returns a user object.
-Smallest safe fix: Check for missing user before password comparison.
-Regression test:   Unknown email returns 401 with a generic error message.
-```
-
-> **The deeper lesson:** the original requirement did not define how the system should
-> behave when a login email is unknown. Once you update the requirement and add the
-> regression test, the agent has less room to repeat the mistake.
->
-> A fix is complete only when the **code, tests, and specification agree.**
-
----
-
 ## Common AI coding mistake patterns (Ch. 19 §19.2)
 
 Naming the pattern makes debugging faster. The goal is not to blame the agent — it is to
@@ -81,3 +61,23 @@ find where the instruction, context, code, or test coverage was incomplete.
 | BUG-001 | | Regression test | `03-tests/…` |
 | BUG-001 | | Requirement clarified | `01-docs/requirements.md` |
 | BUG-001 | | Agent rule added | `06-agent/AGENT.md` |
+
+---
+
+# WORKED EXAMPLE (Ch. 19 §19.8)
+
+```
+Requirement:       AUTH-REQ-04
+Expected:          Invalid credentials return a safe authentication error.
+Actual:            Unknown email causes a server error.
+Evidence:          user is null before password comparison.
+Root cause:        Code assumes the user lookup always returns a user object.
+Smallest safe fix: Check for missing user before password comparison.
+Regression test:   Unknown email returns 401 with a generic error message.
+```
+
+> **The deeper lesson:** the original requirement did not define how the system should
+> behave when a login email is unknown. Once you update the requirement and add the
+> regression test, the agent has less room to repeat the mistake.
+>
+> A fix is complete only when the **code, tests, and specification agree.**

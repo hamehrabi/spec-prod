@@ -58,33 +58,6 @@ Open Questions:
 
 ---
 
-## Filled example — "TeamTask Lite" (Ch. 2 §2.8)
-
-| Field | Example |
-|---|---|
-| Project name | TeamTask Lite |
-| Problem statement | Small teams lose track of task ownership, due dates, and progress. This causes missed deadlines and repeated status meetings. The system should make responsibilities and progress visible in one simple workspace. |
-| Primary users | Team members who create, update, and complete tasks. |
-| Secondary users | Team leads who review progress and identify blocked work. |
-| Core capabilities | Create tasks, assign owners, set due dates, set status, add priority, comment, view a simple progress dashboard. |
-| Out of scope | Billing, file uploads, private chat, calendar sync, advanced analytics, app-store release. |
-| Constraints | The first version must be simple, browser-based, and understandable without formal training. |
-| Success criteria | A member can create and update a task in under one minute; a lead can see overdue and completed tasks from the dashboard. |
-
-### How the example was derived (Ch. 2 §2.8)
-
-| Step | Question | Answer |
-|---|---|---|
-| 1 | Who is affected? | Small teams with 3 to 15 members. |
-| 2 | What problem do they face? | They lose track of task ownership, due dates, and progress. |
-| 3 | What happens because of it? | Deadlines are missed; meetings are spent asking for status. |
-| 4 | What outcome should improve? | Each member knows what to do next; leads see progress quickly. |
-| 5 | What should the first version include? | Tasks, assignees, due dates, status, priority, comments, basic dashboard. |
-| 6 | What should wait? | File uploads, chat, billing, calendar sync, advanced automation. |
-| 7 | What constraints matter? | Simple enough for a small team to start using without training. |
-
----
-
 ## Users, goals, and constraints (Ch. 2 §2.4)
 
 | Element | Question to answer | Your answer |
@@ -160,3 +133,30 @@ Keep it practical and suitable for a beginner project.
 ---
 
 **Next:** [`requirements.md`](../02-requirements/requirements.md)
+
+---
+
+# WORKED EXAMPLE — "TeamTask Lite" (Ch. 2 §2.8)
+
+| Field | Example |
+|---|---|
+| Project name | TeamTask Lite |
+| Problem statement | Small teams lose track of task ownership, due dates, and progress. This causes missed deadlines and repeated status meetings. The system should make responsibilities and progress visible in one simple workspace. |
+| Primary users | Team members who create, update, and complete tasks. |
+| Secondary users | Team leads who review progress and identify blocked work. |
+| Core capabilities | Create tasks, assign owners, set due dates, set status, add priority, comment, view a simple progress dashboard. |
+| Out of scope | Billing, file uploads, private chat, calendar sync, advanced analytics, app-store release. |
+| Constraints | The first version must be simple, browser-based, and understandable without formal training. |
+| Success criteria | A member can create and update a task in under one minute; a lead can see overdue and completed tasks from the dashboard. |
+
+### How the example was derived (Ch. 2 §2.8)
+
+| Step | Question | Answer |
+|---|---|---|
+| 1 | Who is affected? | Small teams with 3 to 15 members. |
+| 2 | What problem do they face? | They lose track of task ownership, due dates, and progress. |
+| 3 | What happens because of it? | Deadlines are missed; meetings are spent asking for status. |
+| 4 | What outcome should improve? | Each member knows what to do next; leads see progress quickly. |
+| 5 | What should the first version include? | Tasks, assignees, due dates, status, priority, comments, basic dashboard. |
+| 6 | What should wait? | File uploads, chat, billing, calendar sync, advanced automation. |
+| 7 | What constraints matter? | Simple enough for a small team to start using without training. |

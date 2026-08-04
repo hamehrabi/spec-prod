@@ -241,7 +241,7 @@ Explain:
 
 ---
 
-## WORKED EXAMPLE — ProjectBoard
+# WORKED EXAMPLE — ProjectBoard
 
 ### Flags that fired in real reviews
 
@@ -263,7 +263,7 @@ Explain:
 >
 > No test would have caught it. Only reading the diff against this list did.
 
-# WORKED EXAMPLE — ProjectBoard, TASK-006 first pass
+## TASK-006, first pass
 
 **Feature or module:** Task creation
 **Requirement IDs:** REQ-F-001, BR-003 · **Task IDs:** TASK-006 · **Reviewer:** Tech lead

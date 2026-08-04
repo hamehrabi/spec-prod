@@ -47,7 +47,11 @@ Service-level scope is usually too narrow to be useful.
 
 ---
 
-## WORKED EXAMPLE — ProjectBoard, pre-build session
+> Blueprint source: this file is new to the template — added from the architecture review.
+
+---
+
+# WORKED EXAMPLE — ProjectBoard, pre-build session
 
 Three people, 40 minutes: tech lead, developer, product owner.
 
@@ -89,7 +93,3 @@ Three people, 40 minutes: tech lead, developer, product owner.
 
 > **The step that did the work:** scoring alone first. In a discussion the developer's
 > confident *"we always filter by project"* would have closed the topic in ten seconds.
-
----
-
-> Blueprint source: this file is new to the template — added from the architecture review.

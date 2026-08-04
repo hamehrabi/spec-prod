@@ -97,7 +97,12 @@ Who must approve it:
 
 ---
 
-## WORKED EXAMPLE — ProjectBoard
+> Blueprint source: this file is new to the template — added to close the
+> availability / backup / recovery layer.
+
+---
+
+# WORKED EXAMPLE — ProjectBoard
 
 ### Availability
 
@@ -184,8 +189,3 @@ Who must approve:        product owner (a restore discards data written since th
 - [x] Two people can perform it
 - [ ] **Offline/immutable copy — NOT in place.** Accepted risk for v1; RISK-006, revisit at v2.
 - [x] 30 days satisfies the client contract
-
----
-
-> Blueprint source: this file is new to the template — added to close the
-> availability / backup / recovery layer.

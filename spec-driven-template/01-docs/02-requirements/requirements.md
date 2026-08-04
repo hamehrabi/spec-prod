@@ -147,20 +147,6 @@ Format: Given–When–Then. These become the acceptance tests in
 
 ---
 
-## Worked example — task management app (Ch. 5)
-
-| Requirement type | Example requirement |
-|---|---|
-| Functional | REQ-F-001: A team member must be able to create a task with a title, description, due date, and status. |
-| Functional | REQ-F-002: A project manager must be able to assign a task to one team member. |
-| Non-functional | REQ-NF-001: The task list must load within two seconds for up to 500 tasks. |
-| Role rule | REQ-R-001: A viewer must not create, edit, assign, or delete tasks. |
-| Business rule | BR-001: A completed task cannot be edited unless it is reopened. |
-| Constraint | CON-001: The first version must support web use only. |
-| Acceptance criteria | AC-001: Given a signed-in team member, when they submit a valid task form, then the task is saved and displayed in the task list. |
-
----
-
 ## Requirement quality checklist (Ch. 5)
 
 | Check | Question | ✔ |
@@ -244,3 +230,17 @@ Requirements: [paste your requirements here]
 ---
 
 **Next:** [`product-spec.md`](../03-product-spec/product-spec.md)
+
+---
+
+# WORKED EXAMPLE — task management app (Ch. 5)
+
+| Requirement type | Example requirement |
+|---|---|
+| Functional | REQ-F-001: A team member must be able to create a task with a title, description, due date, and status. |
+| Functional | REQ-F-002: A project manager must be able to assign a task to one team member. |
+| Non-functional | REQ-NF-001: The task list must load within two seconds for up to 500 tasks. |
+| Role rule | REQ-R-001: A viewer must not create, edit, assign, or delete tasks. |
+| Business rule | BR-001: A completed task cannot be edited unless it is reopened. |
+| Constraint | CON-001: The first version must support web use only. |
+| Acceptance criteria | AC-001: Given a signed-in team member, when they submit a valid task form, then the task is saved and displayed in the task list. |

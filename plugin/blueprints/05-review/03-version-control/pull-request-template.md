@@ -62,7 +62,19 @@ Reviewer checklist:
 
 ---
 
-## Worked example (Ch. 15 §15.6)
+## Workflow steps (Ch. 28 §28.10)
+
+| Step | Purpose | Required evidence | AI-agent rule |
+|---|---|---|---|
+| Create branch | Separate one change from the main working version. | Branch name includes task ID. | Agent works on one task only. |
+| Commit small changes | Make progress reviewable. | Commit message names requirement and task. | No large mystery commits. |
+| Open review request | Explain what changed and why. | Summary, tests, screenshots if useful. | AI output must be reviewed by a human. |
+| Run checks | Prove the change is safe. | Tests, linting, security review, smoke check. | Do not merge failing checks. |
+| Merge after approval | Move verified change into the main line. | Reviewer approval and updated traceability. | Update specs if behavior changed. |
+
+---
+
+# WORKED EXAMPLE (Ch. 15 §15.6)
 
 ```
 Pull Request Title: Implement REQ-AUTH-006 login lockout
@@ -90,15 +102,3 @@ Review Notes:
 - Confirm error message does not reveal sensitive details.
 - Confirm lockout duration matches the technical spec.
 ```
-
----
-
-## Workflow steps (Ch. 28 §28.10)
-
-| Step | Purpose | Required evidence | AI-agent rule |
-|---|---|---|---|
-| Create branch | Separate one change from the main working version. | Branch name includes task ID. | Agent works on one task only. |
-| Commit small changes | Make progress reviewable. | Commit message names requirement and task. | No large mystery commits. |
-| Open review request | Explain what changed and why. | Summary, tests, screenshots if useful. | AI output must be reviewed by a human. |
-| Run checks | Prove the change is safe. | Tests, linting, security review, smoke check. | Do not merge failing checks. |
-| Merge after approval | Move verified change into the main line. | Reviewer approval and updated traceability. | Update specs if behavior changed. |

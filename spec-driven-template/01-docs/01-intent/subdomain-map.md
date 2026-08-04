@@ -45,7 +45,11 @@ the business refuses to rewrite because of the risk. That is very often a core s
 
 ---
 
-## WORKED EXAMPLE — ProjectBoard
+> Blueprint source: this file is new to the template — added from the architecture review.
+
+---
+
+# WORKED EXAMPLE — ProjectBoard
 
 | Area | Type | Why | Build / Buy |
 |---|---|---|---|
@@ -66,7 +70,3 @@ the business refuses to rewrite because of the risk. That is very often a core s
 
 > **The mistake this prevents:** three of the first five agent tasks were spent building
 > auth. Auth is generic. That effort belonged on the core.
-
----
-
-> Blueprint source: this file is new to the template — added from the architecture review.

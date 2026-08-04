@@ -80,7 +80,29 @@ re-litigating it from scratch later.*
 
 ---
 
-## Worked example (Ch. 8 §8.9)
+## Why each field matters (Appendix K)
+
+| Field | Why it matters |
+|---|---|
+| Context | Prevents future reviewers from judging the decision without knowing the problem. |
+| Decision | States the actual choice clearly. |
+| Alternatives | Shows that the team considered other options. |
+| Consequences | Makes trade-offs visible. |
+| Related requirements | Keeps architecture tied to product value. |
+
+---
+
+## Prompt — generate an ADR draft (Prompt box 8.3)
+
+```
+Using the project requirements and technical specification below, draft an Architecture
+Decision Record for [the decision]. Include context, options considered, decision, reason,
+consequences, and implementation rules for the AI assistant.
+```
+
+---
+
+# WORKED EXAMPLE (Ch. 8 §8.9)
 
 ```
 ADR-001: Use a Modular Monolith for the SaaS Task App
@@ -107,26 +129,4 @@ Consequences:
 - Each feature area must live inside a named module.
 - Route handlers must not contain complex business rules.
 - The AI assistant must place business logic in domain modules, not inside UI components.
-```
-
----
-
-## Why each field matters (Appendix K)
-
-| Field | Why it matters |
-|---|---|
-| Context | Prevents future reviewers from judging the decision without knowing the problem. |
-| Decision | States the actual choice clearly. |
-| Alternatives | Shows that the team considered other options. |
-| Consequences | Makes trade-offs visible. |
-| Related requirements | Keeps architecture tied to product value. |
-
----
-
-## Prompt — generate an ADR draft (Prompt box 8.3)
-
-```
-Using the project requirements and technical specification below, draft an Architecture
-Decision Record for [the decision]. Include context, options considered, decision, reason,
-consequences, and implementation rules for the AI assistant.
 ```

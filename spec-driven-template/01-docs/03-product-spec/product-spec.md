@@ -208,20 +208,6 @@ Notes:
 
 ---
 
-## Worked example — SaaS task app PRD (Ch. 6 §6.10)
-
-| PRD section | Example content |
-|---|---|
-| Product summary | A web-based task management tool that helps small consulting teams create, assign, track, and complete work in one shared workspace. |
-| Problem statement | Small teams track work in scattered chats, notebooks, and spreadsheets. This causes missed deadlines and unclear ownership. |
-| Product goal | Help consulting teams capture work, assign ownership, and track progress without complex project-management setup. |
-| Success metrics | A new user creates a task within five minutes; a manager can see overdue tasks; task list loads within two seconds for 500 tasks. |
-| Primary users | Owner, project manager, team member, viewer. |
-| Must-have scope | Create task, view task list, assign task, update task status, enforce basic permissions. |
-| Out of scope | Mobile app, real-time chat, advanced reporting, multi-assignee tasks. |
-
----
-
 ## PRD quality checklist (Ch. 6)
 
 | Check | Question | ✔ |
@@ -292,3 +278,17 @@ PRD: [paste your PRD here]
 ---
 
 **Next:** [`technical-spec.md`](../04-technical-spec/technical-spec.md)
+
+---
+
+# WORKED EXAMPLE — SaaS task app PRD (Ch. 6 §6.10)
+
+| PRD section | Example content |
+|---|---|
+| Product summary | A web-based task management tool that helps small consulting teams create, assign, track, and complete work in one shared workspace. |
+| Problem statement | Small teams track work in scattered chats, notebooks, and spreadsheets. This causes missed deadlines and unclear ownership. |
+| Product goal | Help consulting teams capture work, assign ownership, and track progress without complex project-management setup. |
+| Success metrics | A new user creates a task within five minutes; a manager can see overdue tasks; task list loads within two seconds for 500 tasks. |
+| Primary users | Owner, project manager, team member, viewer. |
+| Must-have scope | Create task, view task list, assign task, update task status, enforce basic permissions. |
+| Out of scope | Mobile app, real-time chat, advanced reporting, multi-assignee tasks. |

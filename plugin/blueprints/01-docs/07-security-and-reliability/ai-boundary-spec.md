@@ -105,7 +105,11 @@ its eval set.** → [`../../03-tests/03-non-functional/ai-evals.md`](../../03-te
 
 ---
 
-## WORKED EXAMPLE — ProjectBoard "summarise my week"
+> Blueprint source: this file is new to the template — added from the architecture review.
+
+---
+
+# WORKED EXAMPLE — ProjectBoard "summarise my week"
 
 ### The one budget
 
@@ -162,7 +166,3 @@ its eval set.** → [`../../03-tests/03-non-functional/ai-evals.md`](../../03-te
 > from the summary screen. Section 6 forced the question *"what happens when the model is
 > wrong?"* — the answer was "it silently changes someone's work", which is a *compensate*,
 > not a *write off*. The capability was cut from v1.
-
----
-
-> Blueprint source: this file is new to the template — added from the architecture review.

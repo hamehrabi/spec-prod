@@ -43,7 +43,11 @@ still has the shape you decided on**. They are different jobs; you need both.
 
 ---
 
-## WORKED EXAMPLE — ProjectBoard
+> Blueprint source: this file is new to the template — added from the architecture review.
+
+---
+
+# WORKED EXAMPLE — ProjectBoard
 
 Three drivers → four fitness functions.
 
@@ -95,7 +99,3 @@ python scripts/perf_check.py --p95 2000 --fixture 500-tasks   # FF-004
 
 > **The honest lesson from that last row:** a fitness function guards exactly what it
 > asserts and nothing more. Passing is not proof of safety — it is proof of *one* property.
-
----
-
-> Blueprint source: this file is new to the template — added from the architecture review.
