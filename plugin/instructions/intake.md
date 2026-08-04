@@ -149,9 +149,21 @@ Round 1 — wrote 3 files
 If a file was skipped, the line says so rather than reporting a number that implies more was
 written than was.
 
+### 2d. Present the gate, and wait
+
+Follow `instructions/review.md`. Show what the round **decided**, what it **inferred instead
+of asking**, and every **`[TODO]`** it created — then wait for **accept**, **revise**, or
+**stop**.
+
+**This blocks the next round.** No question from round *N+1* is asked until round *N* is
+accepted, and **silence is not acceptance** — if no answer comes, keep waiting.
+
+On **accept**, append a dated row to `spec/01-docs/09-change-control/spec-change-log.md`.
+Never create an acceptance, progress, or approval file (ADR-006).
+
 ## Step 3 — Stop
 
-Stop after Round 1's summary. This version of the plugin ends there.
+Stop after Round 1's gate is answered. This version of the plugin ends there.
 
 Rounds 2 to 8 are not yet built. Ending here is the correct outcome, not an incomplete one,
 and it must not be reported as an error. The end-of-run integrity re-check
