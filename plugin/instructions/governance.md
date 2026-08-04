@@ -106,6 +106,84 @@ unlimited invoice.
 
 ---
 
+---
+
+## 4. Every rule reaches `AGENT.md`, verbatim
+
+`adr-index.md` carries the rules the decisions impose. **`AGENT.md` copies them — word for
+word — and never restates or softens them.**
+
+The build agent reads `AGENT.md`. It does not read the architecture folder. **A rule that
+lives only in the index governs nothing**, and a rule that got paraphrased on the way across
+is a different rule that nobody decided.
+
+`AGENT.md` is a **contract**, not a summary of the project.
+
+---
+
+## 5. Every task file names what it must NOT change
+
+**This is the clause the whole governance story rests on.**
+
+Every generated task file carries two lists:
+
+| List | Without it |
+|---|---|
+| **Files it may change** | The agent decides for itself what is in scope |
+| **Files it must not change** | The agent causes silent damage while sincerely believing it was in scope |
+
+A task file with only the first list is the more dangerous shape, because it looks complete.
+Nothing in it is wrong; what is missing is the sentence that would have stopped the damage.
+
+Every task also states **what to do when it needs a file that is not listed: stop and say so,
+before editing.** Not after.
+
+---
+
+## 6. Blank traceability cells stay blank
+
+A requirement with no task, or no test, leaves that cell **empty and visible**.
+
+**Never fill a cell to make the matrix look complete.** The blanks are the only signal the
+matrix exists to give — a full matrix that was filled in by guessing is worse than no matrix,
+because it reports coverage that does not exist.
+
+Raise the blank instead. *"REQ-F-012 has no test — that is a gap, not an oversight in this
+document."*
+
+---
+
+## 7. Test shape follows subdomain class
+
+Reuse `instructions/depth.md`. **One test shape applied everywhere is the same failure as one
+depth applied everywhere:**
+
+| Class | Shape |
+|---|---|
+| **Core** | A pyramid — many unit, fewer integration, few end-to-end |
+| **Supporting** | **Reversed** — acceptance-level, and little else |
+| **Generic** | Contract conformance and failure behaviour only |
+
+---
+
+## 8. Write every file — never summarise a folder
+
+When a round produces fifty files, the temptation is to write the interesting ones and
+summarise the rest.
+
+**That temptation is the specific failure this rule exists to prevent.** A workspace missing
+its review checklists looks complete, passes every structural check, and is missing exactly
+the parts nobody notices until they are needed.
+
+The change log records **at least one rejected change**, because six months from now the
+question is not *why does it do this?* — that is visible in the output — but **why doesn't it
+do X?**
+
+`appendix-index.md` is **never created**. It maps a source book's appendices to blueprints; it
+is scaffolding for the library, not an artifact of anyone's project.
+
+---
+
 ## Skipping a specification
 
 Some do not apply — an AI boundary specification for a product with no model, a frontend

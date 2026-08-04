@@ -18,7 +18,10 @@ const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
 const fixed = questions.filter((q) => !q.derived)
 
 test('UTEST-002 / ATEST-005: EVERY round asks at most four questions', () => {
-  assert.deepEqual(rounds, [1, 2, 3, 4, 5, 6], 'rounds 1 to 6 are built')
+  // The property, not the list: rounds are numbered from 1 with no gaps, and every one of
+  // them respects the limit. Pinning the exact set here means editing this assertion every
+  // time a round lands — and an assertion you routinely edit stops being a check.
+  assert.deepEqual(rounds, rounds.map((_, i) => i + 1), 'rounds are contiguous from 1')
   for (const r of rounds) {
     const n = inRound(r).length
     assert.ok(n > 0, `Round ${r} must ask something`)

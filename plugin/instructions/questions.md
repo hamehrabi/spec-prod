@@ -238,3 +238,59 @@ become the fitness functions.
 - **No** — *(Recommended if unsure)* files bring their own transactional problem: the row and the file can disagree, and almost none of the database rules apply to them.
 - **Yes, and they are private to one user or organisation** — access control now has a second surface that database permissions do not cover.
 - **Yes, and some are shared or public** — the case where a signed URL and a public bucket look identical right up until they do not.
+
+---
+
+# Round 7 — tasks and tests
+
+## Q1. How should the work be sequenced?
+
+- **Thin vertical slices — one feature end to end at a time** — *(Recommended)* every slice is reviewable by using it, which is the only review that catches "built the wrong thing".
+- **Layer by layer — all data, then all API, then all interface** — feels orderly, and nothing works until the last layer lands.
+- **Riskiest part first** — right when one unknown dominates everything else; it front-loads the pain deliberately.
+
+## Q2. How thorough should the test plan be?
+
+- **Standard — acceptance, unit, integration, failure, key security** — *(Recommended)* covers the failures that actually happen without turning the suite into a second product.
+- **Minimal — acceptance and critical failure paths only** — honest for a prototype; say so rather than pretending.
+- **Thorough — all six levels, including performance and full negative RBAC** — earned when a driver demands it, expensive when it does not.
+
+## Q3. Who or what will write the code?
+
+- **An AI coding agent, one task at a time** — *(Recommended)* this whole system exists for that case, and it is why task files carry a do-not-change list.
+- **A human developer using AI assistance** — the specification is a reference rather than a contract; keep it, lighten the enforcement.
+- **A team of developers** — the workspace becomes a shared agreement, and the handoff files start earning their place.
+
+---
+
+# Round 8 — operations
+
+## Q1. Where will this run?
+
+- **Not decided yet** — *(Recommended if unsure)* perfectly fine; plan for a container and the decision stays open at no cost.
+- **A managed platform** — least operational work, most constraints you do not control.
+- **A container on a cloud virtual machine** — the most portable answer, and you own the operating system.
+- **Serverless functions** — different constraints rather than fewer; cold starts become a design input.
+
+## Q2. Which environments will exist?
+
+- **Local and production, with a test environment between them** — *(Recommended)* somewhere to run the gate that is not someone's laptop and not the live system.
+- **Local and production only** — honest for a small project, as long as nobody pretends production is a test environment.
+- **Local only, for now** — fine while nothing is deployed; the decision arrives the day something is.
+
+## Q3. What is your monitoring appetite?
+
+- **Structured logs plus error alerts** — *(Recommended starting point)* it answers "did it break?" without building an observability practice first.
+- **Logs only** — you will find out from a user; sometimes that is an acceptable trade at small scale.
+- **Full metrics, tracing and dashboards** — real value at real scale, and a project of its own before then.
+
+## Q4. If the data were lost right now, how much could you afford to lose, and how long could you be down?
+
+- **Up to a day of data, up to four hours down** — *(Recommended default)* what a nightly backup actually buys, stated honestly.
+- **Up to an hour of each** — needs more than a nightly job, and the backup frequency has to match the number.
+- **Almost nothing, minutes of downtime** — expensive and rarely true. **Confirm they mean it**, then design for it.
+- **Not decided yet** — record it as an open question with an owner rather than defaulting quietly.
+
+> **These two answers become numbers, not adjectives.** A recovery objective stated as
+> "quickly" cannot be tested, and the backup schedule must match the number it claims — a
+> stated one-hour objective with a nightly backup is a one-day objective with a nicer name.
