@@ -21,10 +21,29 @@ This is not hypothetical: it is BUG-004, and it happened on the first real run.
 Use the host's own tools:
 
 1. **Read** `blueprints/MANIFEST.md`.
-2. Ask the host to compute the digests — its shell can hash a file on every platform
-   (`sha256sum`, `shasum -a 256`, `Get-FileHash`). A one-off command that computes and prints
-   is fine. **A command that creates a file is not.**
-3. Compare against the manifest. List the blueprints on disk to find unlisted ones.
+2. **Hash the whole library in ONE command.** Not one command per blueprint — one command for
+   all of them, printing every digest at once:
+
+   ```
+   sha256sum      find . -name '*.md' ! -name MANIFEST.md -exec sha256sum {} +
+   macOS          find . -name '*.md' ! -name MANIFEST.md -exec shasum -a 256 {} +
+   PowerShell     Get-ChildItem -Recurse -Filter *.md | Where-Object Name -ne MANIFEST.md |
+                  Get-FileHash -Algorithm SHA256
+   ```
+
+   A command that computes and prints is fine. **A command that creates a file is not.**
+3. Compare the printed digests against the manifest, and compare the file list both ways to
+   find anything missing or unlisted.
+
+> **Why "one command" is a rule and not a nicety.** Hashing all 79 blueprints costs **0.19
+> seconds** as a single command. Done one file at a time it is 79 round-trips, and a run
+> measured at over **thirty minutes** produced no output at all and never reached the
+> preamble — the developer sees a silent, apparently hung tool before they have been asked
+> anything. That is BUG-005, and it made the product unusable while every individual step
+> behaved exactly as written.
+>
+> The same rule applies to every future check that walks the library: **the library is
+> examined in one pass, never per file.**
 
 **If the host cannot compute a digest at all**, stop and say so:
 
