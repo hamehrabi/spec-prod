@@ -112,20 +112,32 @@ export const CHECKS = {
       // Matching on TEXT rather than on a cited ID is deliberate: it needs no ID allocated at
       // the round that writes the TODO, for a row a later round creates. It fails on drift —
       // one side reworded and not the other — which is the defect, not a false positive.
+      // A row is { id, answered }. `answered` matters because a marker is stale the moment its
+      // question is decided somewhere else in the same workspace — see below.
       const rows = new Map()
-      for (const m of all(ws).matchAll(/^\|\s*\**(Q-\d{3})\**\s*\|([^|]*)\|/gm)) {
-        rows.set(norm(m[2]), m[1])
+      for (const m of all(ws).matchAll(/^\|\s*\**(Q-\d{3})\**\s*\|([^|]*)\|(.*)$/gm)) {
+        rows.set(norm(m[2]), { id: m[1], answered: /\|\s*\**Answered\**\s*\|/i.test(`|${m[3]}`) })
       }
-      const orphans = md(ws)
+      const bad = md(ws)
         .flatMap(([p, t]) => todos(t).map((q) => [p, q]))
-        .filter(([p, q]) => {
+        .map(([p, q]) => {
           const at = ws[p].indexOf(q)
           const near = ws[p].slice(Math.max(0, at - 300), at + 300)
-          return !/\bQ-\d{3}\b/.test(near) && !rows.has(norm(q))
+          const row = rows.get(norm(q))
+          // STALE, not merely unpaired. The question was answered and the marker was left
+          // behind, so the workspace now contradicts itself — and a marker its own workspace
+          // contradicts is worse than an open one, because it teaches the reader that markers
+          // mean nothing (BUG-014). Reported separately: the fix is the opposite of the other
+          // one. An orphan needs a question added; a stale marker needs the marker removed.
+          if (row?.answered) return [p, q, `${row.id} is already Answered — the marker is stale`]
+          if (/\bQ-\d{3}\b/.test(near) || row) return null
+          return [p, q, 'has no Q-### row']
         })
-      return orphans.length === 0
-        ? passed([`${rows.size} open questions; every [TODO] resolves to one`])
-        : failed(orphans.slice(0, 5).map(([p, q]) => `${p}: [TODO: ${q.slice(0, 40)}] has no Q-### row`))
+        .filter(Boolean)
+      const open = [...rows.values()].filter((r) => !r.answered).length
+      return bad.length === 0
+        ? passed([`${open} open questions; every [TODO] resolves to one, and none is stale`])
+        : failed(bad.slice(0, 5).map(([p, q, why]) => `${p}: [TODO: ${q.slice(0, 40)}] ${why}`))
     },
   },
   7: {
