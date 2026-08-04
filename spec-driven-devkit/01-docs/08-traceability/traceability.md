@@ -28,10 +28,10 @@ maintain it.
 
 | Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
 |---|---|---|---|---|---|---|
-| REQ-F-005 | ≤ 4 questions per round | `frontend-component-spec` | TASK-006 | ATEST-005, UTEST-002 | — | Ready |
-| REQ-F-006 | Recommended first, marked, with a reason | `frontend-component-spec` | TASK-006 | ATEST-006, UTEST-003 | — | Ready |
-| REQ-F-007 | Free text always accepted | `frontend-component-spec` | TASK-006 | ATEST-007, UTEST-004, FTEST-015 | — | Ready |
-| REQ-F-008 | One non-MCQ question | `frontend-component-spec` | TASK-006 | ATEST-008, UTEST-005, FTEST-013 | — | Ready |
+| REQ-F-005 | ≤ 4 questions per round | `frontend-component-spec` | TASK-006 ✅ | ATEST-005, UTEST-002 | `plugin/instructions/questions.md` | **Approved** |
+| REQ-F-006 | Recommended first, marked, with a reason | `frontend-component-spec` | TASK-006 ✅ | ATEST-006, UTEST-003 | `plugin/instructions/questions.md` | **Approved** |
+| REQ-F-007 | Free text always accepted | `frontend-component-spec` | TASK-006 ✅ | ATEST-007, UTEST-004, FTEST-015 | `plugin/instructions/questions.md` | **Approved** |
+| REQ-F-008 | One non-MCQ question | `frontend-component-spec` | TASK-006 ✅ | ATEST-008, UTEST-005, FTEST-013 | `plugin/instructions/questions.md` | **Approved** |
 | REQ-F-009 | Never ask the derivable | **DD-007** | TASK-011 | ATEST-009, UTEST-006/007, ETEST-005 | — | Ready |
 | REQ-F-010 | Contradiction stops, quotes both | BR-012 | TASK-011 | ATEST-010, UTEST-008, FTEST-010 | — | Ready |
 | REQ-F-011 | Eight-round hard stop | BR-004 | TASK-011 | ATEST-011, UTEST-009, ETEST-006 | — | Ready |
@@ -44,8 +44,8 @@ maintain it.
 
 | Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
 |---|---|---|---|---|---|---|
-| REQ-F-014 | Fixed `spec/` at repo root | **ADR-004** | TASK-004 ✅ | ATEST-015, TEST-004, STEST-004 | `plugin/instructions/boundary.md` · `ci/boundary.mjs` | **Approved** — *rule verified; STEST-004 needs a full run (TASK-006)* |
-| REQ-F-015 | Write after each round | BR-005 | TASK-006 | ATEST-016, ETEST-008, PTEST-001 | — | Ready |
+| REQ-F-014 | Fixed `spec/` at repo root | **ADR-004** | TASK-004 ✅ | ATEST-015, TEST-004, STEST-004 | `plugin/instructions/boundary.md` · `ci/boundary.mjs` | **Approved** — *STEST-004 now run: 0 files outside `spec/`, developer's files unchanged by checksum. It failed first (BUG-004)* |
+| REQ-F-015 | Write after each round | BR-005 | TASK-006 ✅ | ATEST-016, ETEST-008, PTEST-001 | `plugin/instructions/intake.md` step 2b | **Approved** — *3 files written on a real run; PTEST-001 unmet, see BUG-005* |
 | REQ-F-016 | Blueprint structure + back-link | **ADR-003**, DD-022 | TASK-005 ✅ | ATEST-017, UTEST-014, TEST-005/006 | `plugin/instructions/fill.md` steps 1–2, 6 · `ci/fill.mjs` | **Approved** |
 | REQ-F-017 | Depth scaled by subdomain | BR-013 | TASK-008 | ATEST-018, UTEST-015 | — | Ready |
 | REQ-F-018 | Stable, consistent identifiers | BR-007 | TASK-005 ✅ | ATEST-019, UTEST-016, TEST-007, ETEST-002 | `plugin/instructions/fill.md` step 5 · `ci/fill.mjs` `mint()` | **Approved** — *a deleted ID leaves a permanent hole* |
@@ -61,7 +61,7 @@ maintain it.
 |---|---|---|---|---|---|---|
 | REQ-F-023 | Never write application code | BR-001 | TASK-004 | ATEST-025, TEST-012, STEST-001 | — | Ready |
 | REQ-F-024 | Nothing outside `spec/` unasked | BR-008, SEC-Z-001 | TASK-004 ✅ | ATEST-026, UTEST-019, STEST-002/003 | `plugin/instructions/boundary.md` (rule) · `ci/boundary.mjs` (executable check) | **Approved** — *17 path cases; the prefix check seen to fail 13 of 22* |
-| REQ-F-025 | No blanket write permission | SEC-Z-002 | TASK-004 ✅ | ATEST-027, STEST-006 | `plugin/instructions/boundary.md` — stated rule only | **Needs update** — *STEST-006 observes a real run's permission requests; unreachable until TASK-006* |
+| REQ-F-025 | No blanket write permission | SEC-Z-002 | TASK-004 ✅ | ATEST-027, STEST-006 | `plugin/instructions/boundary.md` — stated rule only | **Needs update** — *still unevidenced. Every run so far used `--permission-mode acceptEdits`, which removes the very prompt STEST-006 exists to observe. Needs an interactive run* |
 | REQ-F-026 | Existing `CLAUDE.md` untouched | **DD-011** | TASK-004 ✅, TASK-013 | ATEST-028, TEST-013, STEST-007 | `plugin/instructions/boundary.md` — protected, never proposed | **Approved** — *root-only; a `CLAUDE.md` inside `spec/` is the kit's own output* |
 | REQ-F-027 | No worked-example content | BR-002 | TASK-005 ✅ | ATEST-029, UTEST-020, TEST-014 | `plugin/instructions/fill.md` step 2 · `ci/fill.mjs` `stripWorkedExample()` | **Approved** — *C2's "always last" now enforced by test, after BUG-003* |
 | REQ-F-035 | `.gitignore` untouched | Round 6 | TASK-004 ✅ | ATEST-030, STEST-008 | `plugin/instructions/boundary.md` — protected, never proposed | **Approved** |
