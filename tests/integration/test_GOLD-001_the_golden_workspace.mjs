@@ -78,28 +78,31 @@ test('GOLD-001: the run has reached Round 3, and the artifact is what says so', 
   assert.equal(rounds, 3)
 })
 
-test('GOLD-001: every file belongs to a round that has actually run', () => {
-  // Round 1 owns 01-docs/01-intent/ (intent, brief), 01-docs/09-change-control/, and the
-  // workspace README. Round 2 owns the rest of 01-docs/01-intent/. Nothing from Round 3
-  // onwards may appear — a file written ahead of its round is coverage the run has not
-  // reached, which check 13 would then read as progress (coverage.md).
+test('GOLD-001: Round 4 is part-written, with no acceptance row — the state `stop` leaves', () => {
+  // Rounds 1 to 3 are accepted. Round 4 has written two of its six files and has NOT been
+  // accepted, because a round is accepted whole or not at all (review.md forbids accepting
+  // part of one). This is the state the intake leaves on `stop`, and the state `resume.md`
+  // has to pick up from — everything written stays written, and the change log does not
+  // claim a round that did not finish.
+  assert.equal(rounds, 3, 'three accepted rounds, and a fourth in progress')
+  assert.ok(workspace['spec/01-docs/02-requirements/driving-characteristics.md'])
+  assert.ok(workspace['spec/01-docs/04-technical-spec/fitness-functions.md'])
+  assert.doesNotMatch(changeLog, /Round 4/, 'an unfinished round records nothing (BR-009)')
   assert.deepEqual(Object.keys(workspace).sort(), [
     'spec/01-docs/01-intent/constraints-and-non-goals.md',
     'spec/01-docs/01-intent/intent.md',
     'spec/01-docs/01-intent/open-questions.md',
     'spec/01-docs/01-intent/project-brief.md',
     'spec/01-docs/01-intent/subdomain-map.md',
+    'spec/01-docs/02-requirements/driving-characteristics.md',
     'spec/01-docs/02-requirements/requirements.md',
+    'spec/01-docs/04-technical-spec/fitness-functions.md',
     'spec/01-docs/06-api-and-data-design/api-specification.md',
     'spec/01-docs/06-api-and-data-design/data-and-integration-spec.md',
     'spec/01-docs/06-api-and-data-design/database-design.md',
     'spec/01-docs/09-change-control/spec-change-log.md',
     'spec/README.md',
   ])
-
-  // driving-characteristics.md is NOT here, and that is BUG-016: it lives in Round 3's
-  // directory and only Round 4's question can fill it.
-  assert.ok(!workspace['spec/01-docs/02-requirements/driving-characteristics.md'])
 })
 
 test('GOLD-001: the workspace README is about THIS project, not about the template', () => {
@@ -295,9 +298,46 @@ test('GOLD-001: BUG-018 — an example row in a kept table is not a declared dri
   const req = workspace['spec/01-docs/02-requirements/requirements.md']
   assert.match(req, /^\| Performance \| The dashboard must load within three seconds/m)
 
+  // Now that Round 4 has written the drivers file, check 9 runs for the first time and reads
+  // THREE drivers — not the five quality words scattered through requirements.md's kept
+  // example tables.
   const check9 = validate(workspace, library).results.find((c) => c.n === 9)
-  assert.equal(check9.state, 'not-run')
-  assert.match(check9.detail[0], /no driving characteristics file exists yet/)
+  assert.equal(check9.state, 'passed', check9.detail.join(' · '))
+  assert.match(check9.detail[0], /^3 drivers declared/)
+})
+
+test('GOLD-001: BUG-020 — check 11 no longer reads the word "definition" as code', () => {
+  // The fitness-functions blueprint ends a wrapped bullet with "definition, not the
+  // function." — and check 11's keyword alternation had no word boundary, so `def` matched
+  // the start of "definition". Every workspace that filled that blueprint was reported as
+  // containing application source code.
+  //
+  // A false positive on BR-001, the defining boundary of this product, is the worst place
+  // for one: the response to "this specification contains code" is to go and delete prose.
+  const ff = workspace['spec/01-docs/04-technical-spec/fitness-functions.md']
+  assert.match(ff, /^ {2}definition, not the function\.$/m, 'the line that triggered it is still there')
+
+  const check11 = validate(workspace, library).results.find((c) => c.n === 11)
+  assert.equal(check11.state, 'passed', check11.detail.join(' · '))
+})
+
+test('GOLD-001: every driver has a fitness function, and the dropped ones say why', () => {
+  const dc = workspace['spec/01-docs/02-requirements/driving-characteristics.md']
+  // Three kept, four rejected with reasons — the rejected list is the evidence a decision was
+  // made rather than a preference expressed.
+  assert.equal((dc.match(/^\| [123] \| \*\*/gm) ?? []).length, 3)
+  assert.equal((dc.match(/^\|[^|]+\| ❌ \|/gm) ?? []).length, 4)
+
+  // Security is dropped, and the reason is the one most likely to be misread as negligence.
+  assert.match(dc, /\*\*Not because it does not matter\.\*\*/)
+  assert.match(dc, /already a hard requirement with denial tests/)
+  assert.match(dc, /The security row is the one worth reading twice/)
+
+  const ffs = workspace['spec/01-docs/04-technical-spec/fitness-functions.md']
+  for (const id of ['FF-001', 'FF-002', 'FF-003', 'FF-004']) assert.ok(ffs.includes(id))
+  // And the register admits none of them is wired, which is what makes it honest.
+  assert.match(ffs, /None of these four runs anywhere/)
+  assert.match(ffs, /a fitness function that is written down but not in a gate governs nothing/)
 })
 
 test('GOLD-001: the core rule reached the schema, not just the prose', () => {
