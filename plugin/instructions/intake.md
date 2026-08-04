@@ -193,6 +193,18 @@ failure, and it is how a hollow workspace ships looking complete.
 
 If any check failed or could not run: say so, name it, and **claim no success**.
 
+## Step 2f — Write the entry point, last
+
+Follow `instructions/entrypoint.md`. The entry point is the **last file written** — after
+every file it links to exists, so every link is verifiable the day it is written.
+
+**If validation failed or any check could not run, do not write it at all.** A map to a
+finished workspace that does not exist is worse than no map.
+
+If the developer already has a `CLAUDE.md` at their repository root, the kit's own goes
+**inside `spec/`** and the exact line to add is printed. Theirs is never modified and never
+proposed — not even if they offer.
+
 ## Step 3 — Stop
 
 Stop after Round 1's gate is answered. This version of the plugin ends there.
