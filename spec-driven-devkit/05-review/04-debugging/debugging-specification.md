@@ -70,6 +70,51 @@ Artifacts updated:
 
 | **BUG-004** | 2026-08-04 | On the **first end-to-end run**, the intake wrote `_integrity_check.sh` and `_integrity_check.ps1` into the developer's repository root — outside `spec/`, executable, and **before the preamble**. | **An instruction demanded an outcome without supplying a means, and without forbidding the obvious wrong one.** `integrity.md` said "compare MANIFEST.md against the library on disk". Comparing 79 SHA-256 digests is not something an agent can do by reading, so it built the capability it was missing out of files in someone else's repository. Improvising was the rational move given what the instruction said. | Re-run on a seeded repository: **0 files outside `spec/`** | `boundary.md` and `integrity.md`, both of which I wrote. The boundary rule covered *destinations for artifacts* and never contemplated the kit needing a **working file** of its own | **Fixed** |
 
+| **BUG-007** | 2026-08-04 | A full eight-round intake ran for **fifteen minutes and produced zero files**. The boundary held perfectly and the developer's files were untouched — but nothing was written, and a real developer would have killed it. | **The instruction set grew past the point where reading it is free.** Fourteen modules, 2,153 lines, and `intake.md` names eleven siblings without ever saying *when* to open them. Nothing forbade reading all of them, plus 82 blueprints, before acting — so a thorough agent does, and the developer watches an idle screen. Each module added since TASK-006 made it worse, invisibly. | A measured run: 15 min, 0 files. Re-measure after the lazy-read rule | **REQ-NF-001** — *"the developer must never wait more than one question round to see written output"*. The requirement was right and nothing enforced it at the instruction level | **Partly fixed** — lazy-read rule added; needs re-measuring |
+
+### BUG-007 in full
+
+```
+Bug ID:        BUG-007
+Date:          2026-08-04
+Reported by:   A deliberate end-to-end run, after TASK-016
+
+SYMPTOM
+  Eight-round express intake, all answers supplied. Fifteen minutes elapsed.
+  Zero files in spec/. Zero files anywhere else either -- the boundary held.
+
+ROOT CAUSE
+  Not slowness in any one step. The integrity check was already fixed (BUG-005)
+  and verified at 0.19s in isolation. The cause is CUMULATIVE: intake.md names
+  eleven sibling modules and never says when to open them, so the reasonable
+  reading is "read them all first". Fourteen modules and 82 blueprints later,
+  that is minutes of work before the first question.
+
+  Every task since TASK-006 added a module and made this worse. No single commit
+  was wrong, which is why nothing caught it.
+
+WHY IT WAS MISSED
+  Which test should have caught it?  PTEST-001 -- no stretch longer than one
+                                     round without output.
+  Did that test exist?               No. It was recorded as unmet after BUG-005
+                                     and never became a measurement, because
+                                     measuring it needs a full run and every
+                                     full run is expensive.
+
+  The gap was named twice in traceability and carried forward both times.
+
+THE SPECIFICATION THAT SHOULD HAVE PREVENTED IT
+  REQ-NF-001 is correct and was never enforced anywhere in the instruction set.
+  A requirement with no instruction behind it is a hope.
+
+REPEATABLE MISTAKE?
+  Yes, and structural: an instruction set that grows one module per task will
+  cross this line again. Row added to AGENT.md.
+
+Artifacts updated:
+  plugin/instructions/intake.md (lazy-read rule)
+```
+
 ### BUG-004 in full
 
 ```

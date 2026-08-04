@@ -4,8 +4,22 @@ This is the orchestration module. It decides **what happens and in what order**.
 question text and no template content; those are separate modules, and mixing them here is a
 boundary violation.
 
-At this version the intake does one thing: it states what the interview is and how long it
-takes, and then stops.
+---
+
+## Read this file only. Open the others when you reach them.
+
+This file names eleven sibling modules. **Do not read them up front.** Open each one at the
+step that uses it, and not before — `fill.md` when you are about to write a file,
+`validation.md` when the workspace is finished, `report.md` at the very end.
+
+**This is a performance rule with a user-visible consequence.** A first run that reads two
+thousand lines of instructions and eighty-two blueprints before producing anything leaves the
+developer watching an idle screen for minutes — and they close it. REQ-NF-001 says they must
+never wait longer than one round to see output, and reading ahead is the easiest way to break
+that without doing anything obviously wrong.
+
+**Get to the first question fast.** Step 0 is a single command; the preamble is four
+sentences. Everything else waits until it is needed.
 
 ---
 
