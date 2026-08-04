@@ -100,7 +100,7 @@ failure, not a bonus.
 | `07-ops/03-maintenance/spec-drift-checklist.md` | `5714bac9d2954ebe0918b9b19cd4b1fe3e874667b781650f9142ed170fad90a1` |
 | `07-ops/04-release/engineering-quality-review.md` | `0ebc664fbc745e9c6410340492f3612f02b80e53804ae01ae5c0e883c3553152` |
 | `07-ops/04-release/release-notes.md` | `c0f99b6d5375d72d19ae26f4c5b05f042d8b6edd9af2bdce282254df907c4787` |
-| `README.md` | `f0752f42b93b2ebb241cf479f5919718521d4aa46f2b648571fd7e836e29ccf9` |
+| `README.md` | `51a709c0965d7b5f77490a5ee966b82fa6dd9063962fb5fbb2b897a60500cbea` |
 | `env-example.md` | `8bbe13d1bfa763d9c412b64afe5f52ea2b096415d2e8a2da98e7c3da151d07cc` |
 | `gitignore.md` | `70526bbe405c809e53b2504381a790331850977094522cd3d0ca38d280665570` |
 

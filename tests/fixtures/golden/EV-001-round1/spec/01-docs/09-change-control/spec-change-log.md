@@ -38,8 +38,7 @@ above starts with an identifier rather than a date, so it cannot serve.
 
 | Date | Stage or type | Artifact | Note or reason |
 |---|---|---|---|
-| 2026-08-04 | Round 1 — the idea | — | Accepted by the developer. |
-| 2026-08-04 | Blocked | README.md | Blueprint carries no fillable field; recorded as a defect, not a skip. |
+| 2026-08-04 | Round 1 — the idea | — | Four files written: brief, intent, README, this log. |
 
 **A skip with no reason is a silent skip wearing a label.** The reason is what lets a later
 reader tell a decision from an omission.

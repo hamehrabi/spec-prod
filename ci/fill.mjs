@@ -50,7 +50,18 @@ export function blueprintOf(text) {
 
 const RULES = [
   // A bracket span that is not a link, not a checkbox, and not a sanctioned [TODO].
-  { kind: 'placeholder', re: /\[(?!TODO[\s:\]])(?![ xX]\])[^\][\n]{1,80}\](?!\()/g },
+  //
+  // It may WRAP. The library is hard-wrapped at ~95 columns, so a placeholder written near
+  // the end of a line arrives split across two — and a rule anchored to a single line reports
+  // it as filled. That is the worst possible failure for this check: silence on the exact
+  // gap it exists to find. (Line-wrap blindness has caused eight separate defects in this
+  // repository; this is the one place it would have shipped rather than failed a test.)
+  //
+  // A single newline is allowed inside the span, a BLANK line is not — otherwise an unclosed
+  // bracket swallows paragraphs until it finds a `]` several sections later.
+  // The 80-character cap was sized for one line; a span that wraps needs room for two, or
+  // the length limit reintroduces exactly the blindness the newline allowance removes.
+  { kind: 'placeholder', re: /\[(?!TODO[\s:\]])(?![ xX]\])(?:[^\][\n]|\n(?!\s*\n)){1,160}\](?!\()/g },
   // Identifier stubs left unminted: REQ-F-###, ADR-###, SEC-A-###.
   { kind: 'id-stub', re: /\b[A-Z]{2,6}(?:-[A-Z])?-###/g },
   { kind: 'date-stub', re: /YYYY-MM-DD/g },

@@ -250,3 +250,53 @@ test('Q-024: the ignore file is written before the file that invites copying it'
   assert.match(fill, /always written before `\.env\.example`/i)
   assert.match(fill, /the first copy made is the one that gets\s*\n?committed/i)
 })
+
+// --- BUG-011: a placeholder that wraps is still a placeholder --------------------------------
+
+test('BUG-011: a placeholder split across two lines is still found', () => {
+  // The library is hard-wrapped at ~95 columns, so a placeholder written near the end of a
+  // line arrives split. Anchored to one line, the rule reported it as FILLED — silence on
+  // exactly the gap it exists to find, which is the worst way for this check to fail.
+  const wrapped = 'Problem: [the pain, the consequence, and the desired improvement —\nno implementation details]\n'
+  const found = placeholders(wrapped).filter((p) => p.kind === 'placeholder')
+  assert.equal(found.length, 1, 'the wrapped span is one placeholder, not zero')
+  assert.match(found[0].text, /the pain[\s\S]*no implementation details/)
+})
+
+test('BUG-011: the length cap leaves room for two lines, not one', () => {
+  // Allowing the newline but keeping an 80-character cap reintroduces the same blindness:
+  // a wrapped span is by definition longer than one line's worth of text.
+  const long = `Field: [${'a'.repeat(70)}\n${'b'.repeat(60)}]\n`
+  assert.equal(placeholders(long).filter((p) => p.kind === 'placeholder').length, 1)
+})
+
+test('BUG-011: a blank line still ends the span — an unclosed bracket cannot eat sections', () => {
+  // The bound that keeps the newline allowance safe. Without it a stray `[` swallows prose
+  // until it finds a `]` several sections later, and every real gap between them disappears
+  // inside one enormous false match.
+  const unclosed = 'Text with a stray [ bracket\n\nA later section] with a close bracket\n'
+  assert.deepEqual(placeholders(unclosed).filter((p) => p.kind === 'placeholder'), [])
+})
+
+test('BUG-011: markdown links and checkboxes are still not placeholders when wrapped', () => {
+  // The exemptions that make this check believable have to survive the newline allowance —
+  // the library holds 565 checkboxes and 136 links, and flagging them is how a check gets
+  // switched off.
+  const safe = '- [ ] a checklist item\n- [x] a done one\n[link text](some/path.md)\n'
+  assert.deepEqual(placeholders(safe).filter((p) => p.kind === 'placeholder'), [])
+})
+
+// --- The workspace README is a template, not the template's own documentation -----------------
+
+test('BUG-009: the README blueprint has fields to fill', () => {
+  // It used to be 424 lines with ZERO fillable gaps: the template's own documentation, which
+  // told the developer to "Copy this folder for each new project" and mapped 81 files of
+  // which three existed. Copy-then-fill with nothing to fill is just copy — someone else's
+  // document landing in the developer's repository (BR-002).
+  const readme = stripWorkedExample(readFileSync('plugin/blueprints/README.md', 'utf8'))
+  const gaps = unfilled(readme)
+  assert.ok(gaps.length >= 3, 'a workspace README must ask for the project name and its purpose')
+  assert.match(readme, /\[project name\]/)
+  assert.doesNotMatch(readme, /Copy this folder for each new project/, 'template usage is not workspace content')
+  assert.doesNotMatch(readme, /Gem Iroko/, "the kit's provenance belongs in ATTRIBUTION.md, not the developer's repo")
+})
