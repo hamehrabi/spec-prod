@@ -61,3 +61,52 @@ because it feels important* — then the map is wrong, not the rule. Fix the cla
 
 An area classified core gets the full chain even when its file looks small. An area
 classified supporting gets one page even when the topic is interesting.
+
+---
+
+## Express depth
+
+`depth` is the **only** argument the command takes, and it takes one of two values:
+`default` or `express`.
+
+**It changes how much is asked and written. It never changes which path runs.** There is one
+flow, and both depths go through all of it — a second flow would be exercised half as often
+and would rot, which is the whole reason this is a parameter rather than a mode.
+
+### Reduce within a stage; never delete a stage
+
+**Every stage still runs, and every stage still produces its minimum artifacts.**
+
+| Stage | Default | Express |
+|---|---|---|
+| Rounds asked | Up to four questions each | **Up to two**, the ones whose answers most constrain later rounds |
+| The free-text problem statement | Always asked | **Always asked.** It is the only thing grounding the workspace in their problem |
+| Core-subdomain question | Always asked | **Always asked.** It decides where the remaining depth goes |
+| Driving characteristics | Up to three | **Up to three.** The limit is not a depth setting |
+| Core-area specifications | Full chain | Full chain — *this is what the saved effort buys* |
+| Supporting areas | One page | A few lines, with acceptance criteria |
+| Generic areas | Integration contract | The contract's failure behaviour only |
+| Acceptance gate | Every round | **Every round.** Never skippable, at any depth |
+
+The two questions express keeps per round are the ones **later rounds depend on**. A question
+whose answer only shapes prose is a good one to drop; a question whose answer changes what
+gets built is not.
+
+### A thinner workspace is not a weaker one
+
+**Every structural rule holds identically at both depths.** Identifiers resolve, back-links
+resolve, `[TODO]`s pair with `Q-###` rows, no worked-example content survives, the entry point
+is under 100 lines.
+
+Express reduces **volume**, never **validity**. A workspace that skipped a check to be faster
+is not a thinner specification — it is an unvalidated one.
+
+### Two depths, not three
+
+Two values is a parameter. Three is a configuration system, and a configuration system is a
+set of branches nobody exercises evenly.
+
+### The report says what was thinned
+
+The closing report names which stages were written thin, so the developer knows where to look
+first if the workspace later feels shallow — and knows it was a choice rather than a gap.

@@ -14,6 +14,11 @@ A developer may type their own answer to any question. **Use it verbatim.** Neve
 the nearest listed option: someone whose situation is not in the list is exactly the person
 the list would mislead.
 
+> **At `express` depth, ask at most TWO questions per round** — the ones whose answers most
+> constrain later rounds. The free-text problem statement and the core-subdomain question are
+> asked at **both** depths, always: one grounds the workspace in their problem, the other
+> decides where the remaining depth goes. See `instructions/depth.md`.
+
 > **Check `instructions/inference.md` before composing any round.** A question whose answer
 > the developer has already given is not asked — and the inference drawn instead is always
 > stated, never silent.
