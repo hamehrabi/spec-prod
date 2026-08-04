@@ -51,8 +51,8 @@ maintain it.
 | REQ-F-018 | Stable, consistent identifiers | BR-007 | TASK-005 ✅ | ATEST-019, UTEST-016, TEST-007, ETEST-002 | `plugin/instructions/fill.md` step 5 · `ci/fill.mjs` `mint()` | **Approved** — *a deleted ID leaves a permanent hole* |
 | REQ-F-019 | `[TODO]`, never invention | BR-003 | TASK-005 ✅ | ATEST-020, UTEST-017, TEST-008 | `plugin/instructions/fill.md` step 4 · `ci/fill.mjs` `placeholders()` | **Approved** — *TEST-008's matching `Q-###` needs TASK-012* |
 | REQ-F-020 | Entry point written last | BR-006, ADR-005 | TASK-013 | ATEST-021, TEST-009, ETEST-001 | — | Ready |
-| REQ-F-021 | Deny test per permission rule | BR-010 | TASK-009 | ATEST-022, TEST-010 | — | Ready |
-| REQ-F-022 | Fitness function per driver | BR-010 | TASK-009 | ATEST-023, TEST-011 | — | Ready |
+| REQ-F-021 | Deny test per permission rule | BR-010 | TASK-009 ✅ | ATEST-022, TEST-010 | `plugin/instructions/governance.md` — deny-test rule | **Approved** — *allow-only tests named as the characteristic failure* |
+| REQ-F-022 | Fitness function per driver | BR-010 | TASK-009 ✅ | ATEST-023, TEST-011 | `plugin/instructions/governance.md` — fitness-function rule | **Approved** — *a warning is a decoration; the build must fail* |
 | REQ-F-037 | Retry once, then flag | `ai-boundary-spec` §5 | TASK-012 | ATEST-024, UTEST-018, FTEST-006 | — | Ready |
 
 ### Functional — boundaries and safety

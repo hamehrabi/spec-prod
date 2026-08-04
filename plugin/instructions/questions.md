@@ -173,3 +173,68 @@ made rather than a preference expressed — and it is what makes the choice revi
 > the usual case: if it is already a constraint and a set of denial tests, spending a driver
 > slot on it buys nothing, and the slot is better spent on something that could silently
 > degrade.
+
+---
+
+# Round 5 — architecture and stack
+
+## Q1. Which architecture style?
+
+- **Modular monolith** — *(Recommended)* structure without deployment complexity, and it is the only option here you can reverse cheaply once you know more.
+- **Simple monolith** — fine while one person builds it; the boundaries live in someone's head rather than in the folder layout.
+- **Service-based or microservices** — real independence, paid for in operations, deployment and debugging across a network.
+- **Serverless functions** — no servers to run; different constraints rather than fewer, and cold starts become a design input.
+
+> **Default to a modular monolith** unless the developer names a characteristic that
+> genuinely requires distribution. *The most expensive failure is not a badly executed
+> decomposition — it is a beautifully executed one along the wrong lines.*
+
+## Q2. Which data store? *(derived)*
+
+**Derived** — offer options that fit the stack and scale already established, most likely
+first with a one-line reason each. Typically: a relational database for anything with
+relationships worth enforcing · an embedded database for local or small-scale · a document
+store where the shape genuinely varies · the managed database their platform already offers.
+
+## Q3. Which authentication model?
+
+- **Email and password with server-side sessions** — *(Recommended if no external dependency is allowed)* nothing to buy and nothing to depend on, at the cost of owning password handling.
+- **A third-party identity provider** — someone else owns the hardest part; you inherit their outage and their pricing.
+- **OAuth or social login** — no password to store, and a dependency on accounts you do not control.
+- **Magic link, passwordless** — no password at all; it moves the whole problem into email delivery.
+
+## Q4. What must be true before this is safe to run for real? *(derived)*
+
+**Derived** from their drivers and constraints, most likely first with reasons. This is the
+question that turns the three chosen qualities into something checkable, and its answers
+become the fitness functions.
+
+---
+
+# Round 6 — security, reliability, and integrations
+
+## Q1. What must never leak or be logged? *(multi-select)*
+
+- **Passwords, credentials, session tokens and API keys** — *(Recommended to select first)* these are the ones that turn a log file into an incident, and they leak through error messages more often than through databases.
+- **Personal data** — names, emails, addresses. What regulation is usually about.
+- **Payment information** — storing it at all is a decision with obligations attached.
+- **Customer business data** — the thing your users would consider theirs, whatever the law says about it.
+
+## Q2. Which external services will you depend on? *(multi-select)*
+
+- **None in version one** — *(Recommended if budget-constrained)* every dependency you do not add is an outage you cannot have and a bill you do not pay.
+- **Email delivery** — the most commonly needed, and the one most likely to fail silently.
+- **File or object storage** — cheap to add, and it brings its own access-control problem.
+- **Payments, an AI model API, or analytics** — each a real cost and a real dependency; name them individually rather than as a group.
+
+## Q3. When something is slow or fails, what should the user see?
+
+- **A clear message and a retry option** — *(Recommended)* it tells the truth and gives them something to do, which is the whole job of an error.
+- **A queued or pending status they can check later** — right for genuinely long work; wrong if it hides a failure.
+- **Silent retry, telling them only if it finally fails** — the best experience when it works, and the worst when the retry loop is the bug.
+
+## Q4. Does the system store files that users upload or generate?
+
+- **No** — *(Recommended if unsure)* files bring their own transactional problem: the row and the file can disagree, and almost none of the database rules apply to them.
+- **Yes, and they are private to one user or organisation** — access control now has a second surface that database permissions do not cover.
+- **Yes, and some are shared or public** — the case where a signed URL and a public bucket look identical right up until they do not.

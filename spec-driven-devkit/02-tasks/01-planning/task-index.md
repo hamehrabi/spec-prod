@@ -25,7 +25,7 @@ a time, directed by one developer (CON-008).
 | TASK-006 | **Round 1 end to end** — ask, write three files, summarise | REQ-F-005…008, REQ-F-015 | **P0** | TASK-004, TASK-005 | **Done** — *verified on a real repository* | agent | ATEST-005…008, ATEST-016, UTEST-002…005, ETEST-008, PTEST-001 |
 | TASK-007 | Resume — derive stage by inspection | REQ-F-028, REQ-NF-003 | **P1** | TASK-006 | **Done** | agent | ATEST-032, UTEST-021, **ETEST-009 (×8)**, FTEST-001, FTEST-011, FTEST-016 |
 | TASK-008 | Rounds 2–4 — scope, roles and data, product shape | REQ-F-012, REQ-F-013, REQ-F-017 | **P1** | TASK-006 | **Done** | agent | ATEST-012, ATEST-013, ATEST-018, UTEST-010, UTEST-011, UTEST-015 |
-| TASK-009 | Rounds 5–6 — architecture, security and reliability | REQ-F-021, REQ-F-022 | **P1** | TASK-008 | Not started | agent | ATEST-022, ATEST-023, TEST-010, TEST-011 |
+| TASK-009 | Rounds 5–6 — architecture, security and reliability | REQ-F-021, REQ-F-022 | **P1** | TASK-008 | **Done** | agent | ATEST-022, ATEST-023, TEST-010, TEST-011 |
 | TASK-010 | Rounds 7–8 — tasks, tests, operations | REQ-R-005 | **P1** | TASK-009 | Not started | agent | ATEST-040, TEST-018 |
 | TASK-011 | Inference and contradiction detection | REQ-F-009, REQ-F-010, REQ-F-011 | **P1** | TASK-008 | Not started | agent | ATEST-009…011, UTEST-006…009, ETEST-005, ETEST-006, FTEST-010, FTEST-014 |
 | TASK-012 | Validation — twelve checks, retry once, not-run reporting | REQ-F-029, REQ-F-037 | **P1** | TASK-010 | Not started | agent | ATEST-024, ATEST-033, UTEST-018, UTEST-022, TEST-015, FTEST-005, FTEST-006 |
