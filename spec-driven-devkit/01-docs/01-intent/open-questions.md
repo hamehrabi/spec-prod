@@ -16,14 +16,10 @@
 
 | ID | Question | Why it matters | Owner | Must be answered before | Status |
 |---|---|---|---|---|---|
-| **Q-002** | **Conflict.** SM-2 (intake completion rate) requires knowing how many intakes start versus finish. CON-003 and CON-007 forbid telemetry. Drop SM-2, replace it, or qualify the privacy promise? | An unmeasurable success measure is not a success measure. The kit author's own definition of first-month success is invisible to the product | Kit author | **Release** | Open |
-| **Q-007** | **Licence and attribution** for a blueprint library implementing a published method (*Spec-Driven AI Engineering*, plus four architecture texts). | **Release blocker, and now live rather than theoretical.** The repository was made public on 2026-08-03 (DD-017) with no `LICENSE` file, so the derived blueprints are publicly readable while this is unresolved. Nothing in the build will ever fail because of it, which is exactly why it will be forgotten (RISK-013) | Kit author | **Was: release. Now: as soon as possible** | Open — **escalated** |
 | Q-003 | Is the blueprint library really **supporting**, or is it core? | If core, its thin specs and acceptance-only tests are the wrong strategy, and effort is going to the wrong place | Kit author | After ten real intakes | Open |
 | Q-006 | Does the kit's own governance apply to itself — is the kit used to maintain its own specs? | Its own first user would be the strongest possible test. Either way it should be a **decision**, not a drift | Kit author | Implementation | Open |
-| Q-013 | Do **resume, contradiction detection, inference, and depth scaling** move from `Should` to `Must`? | Three of the four defend RSK-1, the primary risk, and inference is what reconciles depth with finishing. A v1 with all the Musts and none of these would be testable and would still fail | Kit author | **Design** | Open |
 | Q-014 | What **threshold** for `todo_density`? | It is the RSK-2 detector and success metric 3. Without a number, "hollow" has no definition | Kit author | After ten real runs | Open |
 | Q-015 | **Two Claude Code sessions in one repository** would both write to `spec/`. No lock, and ADR-004 forbids a state file. What happens? | Unknown and unmeasured. Found by the seven-questions worksheet, not by design review | Kit author | Before release | Open — **SC-008 / TASK-019 blocked** |
-| Q-016 | Where do users **report problems**? | Every runbook entry assumes a report arrives somehow. During an incident is the wrong time to find out | Kit author | **Release** | Open |
 | Q-017 | Is a **daily `git push`** realistic? | The stated RPO is one day. A weekly habit makes the real RPO a week — then the number is decoration | Kit author | Before release | Open |
 | Q-018 | Has a **second person scored the risk grid**, cold? | A solo assessment structurally cannot produce a single-observer finding, which is the most valuable kind | Kit author | Before release | Open |
 | Q-019 | Targets for **SM-4** (over what window do specs survive coding?) and **SM-5** (intake duration)? | Both are stated as measures with no number. SM-5 also has no baseline until the first full run | Kit author | Release | Open |
@@ -38,6 +34,10 @@
 
 | ID | Question | Answer | Closed in |
 |---|---|---|---|
+| Q-007 | Licence and attribution for blueprints implementing a published method. | **MIT on the original work, plus `ATTRIBUTION.md`** naming the method's source and stating plainly that the blueprints implement it rather than reproduce it | 2026-08-04 |
+| Q-016 | Where do users report problems? | **GitHub Issues on the public repository.** Free, already exists, no infrastructure. Every runbook entry had depended on a channel that did not | 2026-08-04 |
+| Q-002 | SM-2 is unmeasurable under CON-007. | **SM-2 dropped, replaced by the eval quality floor.** Completion rate is unobservable by design, so the privacy promise is kept and the metric changed -- not the reverse | 2026-08-04 |
+| Q-013 | Do resume, contradiction detection, inference and depth scaling move to `Must`? | **Promoted to Must.** All four are built and tested; leaving them `Should` understated the product and invited someone to remove one as optional | 2026-08-04 |
 | Q-008 | How familiar is the developer with Claude Code plugin internals? | **Moot — no spike was needed.** TASK-001 confirmed the manifest schema from the current plugin reference and installed first time. The question existed to decide whether a spike was required; the task answered it by not needing one | TASK-001 |
 | Q-009 | The intake command name. | **`spec-intake`**, invoked `/spec-driven-devkit:spec-intake` (DD-014) | TASK-001 |
 | Q-010 | CI provider, monthly ceiling, alert threshold. | **GitHub Actions on a public repository. $0/month, no minute threshold** (DD-017). Public was required, not preferred: branch protection is unavailable on a private repo at this plan, so the gate could otherwise report but never block | TASK-002 |

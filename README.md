@@ -78,7 +78,14 @@ are constructed for illustration, not measured from a live system.
 The books this was built from are **not** included in this repository. They are
 copyrighted and not redistributable. See `.gitignore`.
 
+## Reporting problems
+
+**Open an issue.** That is the only support channel, and it is deliberate: this kit collects
+no telemetry and never will, so a problem nobody reports is a problem nobody can see.
+
 ## License
 
-The blueprint and master prompt in this repository are original work.
-Add a license file before reuse by others.
+MIT -- see [`LICENSE`](LICENSE).
+
+The blueprints implement a published method; they do not reproduce it. See
+[`ATTRIBUTION.md`](ATTRIBUTION.md) for what is original here and what is credited.
