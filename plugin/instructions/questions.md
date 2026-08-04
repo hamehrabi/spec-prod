@@ -1,21 +1,26 @@
-# Questions — Round 1: the idea
+# Questions — Rounds 1 to 4
 
-This module holds **question text only**. It contains no orchestration and no template
-content: it does not decide when a round runs, what gets written, or in what order. Those
-belong to `instructions/intake.md`, and mixing them is a boundary violation (ADR-001).
+This module holds **question text only**. No orchestration, no destinations, no blueprint
+structure — those belong to `intake.md`, `fill.md` and the library (ADR-001).
 
-**Ask at most four.** Not five, and not "four plus a quick follow-up" — the limit is a
-requirement, and when a round needs more, the question set is what changes, not the limit.
+**At most four questions per round.** Not five, and not "four plus a quick follow-up". When a
+round seems to need more, the question set is what changes, not the limit.
 
-Every option below carries a **text label and a one-line reason**. The first is marked
-`(Recommended)` **in words**, never implied by position — ordering is invisible to a reader
-who is not comparing, and to anyone using a screen reader.
+Every option carries a **text label and a one-line reason**, and the first is marked
+`(Recommended)` **in words** — never implied by position, which is invisible to anyone not
+comparing and to anyone using a screen reader.
 
 A developer may type their own answer to any question. **Use it verbatim.** Never snap it to
-the nearest listed option: the options are a convenience, and someone whose situation is not
-in the list is exactly the person the list would mislead.
+the nearest listed option: someone whose situation is not in the list is exactly the person
+the list would mislead.
+
+> **Some questions have options that cannot be written down here**, because they are derived
+> from what the developer already said. Those are marked **derived**. The rule still holds:
+> present the most likely first, marked `(Recommended)`, each with a one-line reason.
 
 ---
+
+# Round 1 — the idea
 
 ## Q1. What kind of application is this?
 
@@ -46,8 +51,6 @@ in the list is exactly the person the list would mislead.
 - **One to three months** — enough room that the risk shifts from "unfinished" to "built the wrong thing".
 - **Ongoing, with no fixed date** — no deadline means no forcing function; the specification has to supply one instead.
 
----
-
 ## The free-text question
 
 This one **cannot** be multiple choice, and asking it as one would defeat the purpose. It is
@@ -60,10 +63,113 @@ option list.
 > Please do not describe features — describe the problem. Features are what we work out
 > together afterwards.
 
-**Accept whatever comes back.** Never reject it, never re-ask it in a loop, and never
-rewrite it into something tidier. If it is too vague to build requirements from, that becomes
-an **open question with a decision owner** — not a rejection, and not a second attempt to
+**Accept whatever comes back.** Never reject it, never re-ask it in a loop, and never rewrite
+it into something tidier. If it is too vague to build requirements from, that becomes an
+**open question with a decision owner** — not a rejection, and not a second attempt to
 extract a better sentence from someone who has already answered.
 
-The shape of a good answer is stated *because* asking for a problem statement without saying
-what one looks like reliably produces a feature list.
+---
+
+# Round 2 — scope boundaries
+
+## Q1. Which capabilities must exist in version one? *(multi-select · derived)*
+
+**Derived** from their Round 1 answers. Offer four, most-likely first and marked
+`(Recommended)`, each with a one-line reason — for example: create and edit the core record ·
+share or assign it to someone · search and filter · export or reporting.
+
+## Q2. Which of these are explicitly out of scope for version one? *(multi-select · derived)*
+
+**Derived** — offer the complements of Q1, most likely first with a one-line reason each:
+billing · real-time chat · a mobile app · advanced analytics · third-party integrations ·
+multi-language · offline mode.
+
+**An explicit "no" is a decision; silence is an accident.** A capability nobody ruled out
+will be assumed in by whoever reads the specification next.
+
+## Q3. What hard constraints already exist? *(multi-select)*
+
+- **No paid third-party services** — *(Recommended to consider first)* it is the constraint most often true and least often stated, and it silently rules out whole designs.
+- **Must run on a single small server** — sets the ceiling on every performance answer later.
+- **Certain data cannot be stored** — payment, health, or personal data changes the design rather than decorating it.
+- **A specific technology is mandated** — a decision already made, which the specification should record rather than re-litigate.
+
+## Q4. Of those capabilities, which ONE do you actually compete on?
+
+**Ask this every time — even when only one capability is in scope.** The answer is the **core
+subdomain**, and it decides where depth goes. Getting it wrong is how teams spend their first
+three weeks building authentication.
+
+**Derived** — offer their Q1 answers as single-select, most likely first with reasons.
+
+> If they name **two**, press once: *"depth spent in two places is depth spent thinly in
+> both — if you could only protect one, which is it?"* If they hold, **record both and flag
+> it.** Never silently pick one. Two cores is their decision to make knowingly.
+
+---
+
+# Round 3 — users, roles, and data
+
+## Q1. What is the permission model?
+
+- **Owner / Admin / Member / Viewer** — *(Recommended)* covers most business applications, and it is easier to remove a role later than to retrofit one.
+- **Single user only, no sharing** — the simplest thing that works, and honest if true.
+- **Two roles: admin and user** — enough for an internal tool where everyone is trusted.
+- **Complex or custom RBAC** — real, but expensive; it earns its cost only when the rules differ per record.
+
+## Q2. What are the core things the system must remember? *(multi-select · derived)*
+
+**Derived** from their idea. Typically: the user · the main record · a container or grouping ·
+comments or activity · files · audit events. Offer the most likely first with reasons.
+
+These become the entity model, so a thing left out here is a thing the data design will not
+have.
+
+## Q3. Does data need to be isolated between customers?
+
+- **No — a single organisation** — *(Recommended if unsure)* it matches the most common first version, and it is the honest answer for an internal tool.
+- **Yes — organisations must never see each other's data** — this is a design constraint, not a feature, and it reaches every query.
+- **Not yet, but likely later** — say so now; retrofitting isolation is materially harder than designing for it.
+
+---
+
+# Round 4 — product shape
+
+## Q1. What does success look like in the first month?
+
+- **A specific user action completes faster than today** — *(Recommended)* the only option here that is measurable without new instrumentation.
+- **Users adopt it without training** — a real goal, and one that shows up in the interface rather than the feature list.
+- **A manual process is eliminated** — easy to verify, and it names what to delete.
+- **A business number moves** — the strongest claim, and the one most likely to depend on things outside the software.
+
+## Q2. What matters most in the interface?
+
+- **Speed of the core task** — *(Recommended)* it is the thing users notice daily, and it constrains design decisions usefully.
+- **Clarity for non-technical users** — fewer options, more explanation; costs density.
+- **Density for power users** — more on screen; costs approachability.
+- **Visual polish** — worth naming as a priority only when the first three are already settled.
+
+## Q3. Pick the three qualities that matter most. *(multi-select · maximum three)*
+
+- **Simplicity / feasibility** — *(Recommended for a first version)* it is the one that keeps a version one finishable.
+- **Reliability / graceful failure** — what happens when something breaks, rather than whether it does.
+- **Auditability** — being able to answer "why is it like this?" six months later.
+- **Security and access control** · **Performance** · **Scalability** · **Accessibility** — each real, each expensive.
+
+### Enforce the limit of three — and push back exactly once
+
+If they pick more than three, say plainly:
+
+> "Every characteristic you support adds effort, and they interact — picking six means
+>  prioritising none. Which three would you keep if you could only have three?"
+
+**Push back once. Then accept whatever they say and move on.** Asking twice is nagging, and a
+developer who has considered the trade-off once has made the decision.
+
+**Record the rejected ones with their reasons.** That list is the evidence a decision was
+made rather than a preference expressed — and it is what makes the choice reviewable later.
+
+> A quality that is a hard constraint elsewhere does **not** need a driver slot. Security is
+> the usual case: if it is already a constraint and a set of denial tests, spending a driver
+> slot on it buys nothing, and the slot is better spent on something that could silently
+> degrade.

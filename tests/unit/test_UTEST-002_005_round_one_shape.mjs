@@ -10,33 +10,52 @@ import assert from 'node:assert/strict'
 import { readFileSync, existsSync } from 'node:fs'
 import { parseQuestions } from '../../ci/questions.mjs'
 
-const { questions, freeText, text } = parseQuestions()
+const { questions, rounds, inRound, freeText, text } = parseQuestions()
 const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
 
-test('UTEST-002 / ATEST-005: a round asks at most four questions', () => {
-  assert.ok(questions.length > 0, 'the round must ask something')
-  assert.ok(questions.length <= 4, `REQ-F-005: found ${questions.length}; the limit is four, and it is the requirement that holds, not the question set`)
+// Questions whose options are listed here. The rest are `derived` — composed at run time
+// from what the developer already said, so the module states the presentation rule instead.
+const fixed = questions.filter((q) => !q.derived)
+
+test('UTEST-002 / ATEST-005: EVERY round asks at most four questions', () => {
+  assert.deepEqual(rounds, [1, 2, 3, 4], 'rounds 1 to 4 are built')
+  for (const r of rounds) {
+    const n = inRound(r).length
+    assert.ok(n > 0, `Round ${r} must ask something`)
+    assert.ok(n <= 4, `REQ-F-005: Round ${r} asks ${n}; the limit is four, and it is the requirement that holds, not the question set`)
+  }
 })
 
-test('UTEST-003 / ATEST-006: every question offers a recommendation FIRST', () => {
-  for (const q of questions) {
-    assert.ok(q.options.length >= 2, `Q${q.number} must offer a choice`)
-    assert.equal(q.options[0].recommended, true, `Q${q.number}: the recommended option must come first`)
+test('UTEST-003 / ATEST-006: every listed question offers a recommendation FIRST', () => {
+  for (const q of fixed) {
+    assert.ok(q.options.length >= 2, `R${q.round}Q${q.number} must offer a choice`)
+    assert.equal(q.options[0].recommended, true, `R${q.round}Q${q.number}: the recommendation must come first`)
     const others = q.options.slice(1).filter((o) => o.recommended)
-    assert.deepEqual(others, [], `Q${q.number}: exactly one recommendation, or it recommends nothing`)
+    assert.deepEqual(others, [], `R${q.round}Q${q.number}: exactly one recommendation`)
   }
 })
 
 test('UTEST-003 / ATEST-006: the recommendation is marked IN WORDS, not by position', () => {
   // REQ-NF-006. Ordering is invisible to a reader who is not comparing, and to a screen
   // reader. The marking has to survive being read aloud.
-  for (const q of questions) {
+  for (const q of fixed) {
     assert.match(
       text,
-      new RegExp(`\\*\\*${q.options[0].label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*[^\\n]*\\(Recommended\\)`),
-      `Q${q.number}: "(Recommended)" must appear in the text of the first option`
+      new RegExp(`\\*\\*${q.options[0].label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*[^\\n]*\\(Recommended`),
+      `R${q.round}Q${q.number}: "(Recommended)" must appear in the first option's text`
     )
   }
+})
+
+test('REQ-F-006 still binds when the options cannot be listed here', () => {
+  // A derived question's options are composed at run time. The requirement does not lapse
+  // because the module could not enumerate them — it has to carry the rule instead.
+  const derived = questions.filter((q) => q.derived)
+  assert.ok(derived.length > 0, 'rounds 2 and 3 have derived questions')
+  for (const q of derived) {
+    assert.match(q.body, /most likely first|most-likely first/i, `R${q.round}Q${q.number} must say how to order them`)
+  }
+  assert.match(text, /present the most likely first, marked `\(Recommended\)`, each with a one-line reason/i)
 })
 
 test('UTEST-003 / ATEST-006: every option carries a one-line reason', () => {
@@ -69,7 +88,11 @@ test('ADR-001: the question module holds no orchestration and no blueprint conte
   // blueprint structure has absorbed the job of the module next door.
   assert.doesNotMatch(text, /blueprints\//, 'no blueprint paths in the question set')
   assert.doesNotMatch(text, /^spec\/\S+\.md/m, 'no destination paths in the question set')
-  assert.doesNotMatch(text, /Round 2|Round 3/, 'no round sequencing in the question set')
+  // Grouping questions BY round is organisation, not orchestration. What would be a
+  // violation is the module deciding when a round runs or what it writes — so that is what
+  // is asserted, rather than the presence of the word "Round".
+  assert.doesNotMatch(text, /^\*\*Then write/m, 'the question set never says what to write')
+  assert.doesNotMatch(text, /### 2[a-d]\.|Step \d+ —/, 'no run sequencing in the question set')
 })
 
 test('ETEST-008 / BR-005: the round writes BEFORE the next round could be asked', () => {
