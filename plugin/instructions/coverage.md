@@ -29,8 +29,8 @@ is one exact path, and naming a file is how a directory gets split between two r
 
 | Round | Owns |
 |---|---|
-| 1 | `01-docs/01-intent/intent.md` · `01-docs/01-intent/project-brief.md` · `01-docs/09-change-control/` · `README.md` |
-| 2 | `01-docs/01-intent/constraints-and-non-goals.md` · `01-docs/01-intent/open-questions.md` · `01-docs/01-intent/subdomain-map.md` |
+| 1 | `01-docs/01-intent/intent.md` · `01-docs/01-intent/project-brief.md` · `01-docs/01-intent/open-questions.md` · `01-docs/09-change-control/` · `README.md` |
+| 2 | `01-docs/01-intent/constraints-and-non-goals.md` · `01-docs/01-intent/subdomain-map.md` |
 | 3 | `01-docs/02-requirements/requirements.md` · `01-docs/06-api-and-data-design/` |
 | 4 | `01-docs/02-requirements/driving-characteristics.md` · `01-docs/03-product-spec/` · `01-docs/04-technical-spec/` |
 | 5 | `01-docs/05-architecture/` |
@@ -81,6 +81,26 @@ write a Round 8 file during Round 1 — which check 13 would then read as covera
 had not actually reached.
 
 **A file that every round writes to is created by the first round that writes to it.**
+
+### Open questions belong to Round 1, for the same reason
+
+`01-docs/01-intent/open-questions.md` is the other file every round writes to. It is where a
+`Q-###` row is **defined**, and a `[TODO]` marker is only half of a pair — check 6 requires the
+row, and check 1 requires every identifier a workspace references to be defined somewhere in it.
+
+Round 1 is the first round that can create a `[TODO]`, so it is the first round that writes a
+row, so it owns the file. Owning it by Round 2 was unsatisfiable in the same way the change log
+was: Round 1 mints the markers and has nowhere to define them.
+
+**This was measured, not reasoned about.** A run driven to Round 1 and stopped produced four
+files referencing `Q-001` through `Q-005`, and failed validation check 1 on all five — every
+one referenced, none defined, because the file that defines them was a round away. That is
+BUG-023.
+
+A run that stops at Round 1 is a normal ending (`instructions/intake.md` 2e), and the workspace
+it leaves has to be coherent on its own. Dangling identifiers are not a cosmetic flaw: a marker
+pointing at a row that does not exist teaches the reader that markers point at nothing, which is
+the same damage BUG-014 described from the other direction.
 
 ### The one thing a round does outside its own directories
 
