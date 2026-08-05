@@ -17,10 +17,10 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { copyFileSync, mkdirSync, readFileSync } from 'node:fs'
+import { copyFileSync, mkdirSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { run, check, payloadCopy, REPO } from '../_helpers.mjs'
-import { hostArgs } from '../../ci/generate-workspace.mjs'
+import { hostArgs, intakeCommand } from '../../ci/generate-workspace.mjs'
 
 const RUNNER = 'ci/generate-workspace.mjs'
 const MODULES = [RUNNER, 'ci/answers.mjs', 'ci/workspace.mjs']
@@ -70,13 +70,38 @@ test('TASK-016: an unknown case is NOT RUN and says which file was missing', () 
   assert.doesNotMatch(result.stdout, /RESULT: pass/)
 })
 
-test('TASK-016: --dry-run composes the prompt, spawns nothing, and claims nothing', () => {
+test('TASK-016: --dry-run composes the run, spawns nothing, and claims nothing', () => {
   const result = runner(['EV-001', '--dry-run'])
   assert.equal(result.code, 2, 'a dry run verified nothing, so it is NOT RUN')
-  assert.match(result.stdout, /Run the specification intake in this repository\./)
-  assert.match(result.stdout, /At each round gate the developer's response is: accept\./)
+  assert.match(result.stdout, /At each round gate their response is: accept\./)
   assert.match(result.stdout, /RESULT: NOT RUN/)
   assert.doesNotMatch(result.stdout, /RESULT: pass/)
+})
+
+test('TASK-016: the run starts from the command a developer types', () => {
+  // THE DEFECT THIS LOCKS DOWN. The briefing used to open with "follow the plugin's own
+  // instructions/intake.md exactly", and a real run spent its first minutes globbing the
+  // filesystem for that file — including outside the sandbox — because a plugin loaded as a
+  // plugin does not leave its instructions where a search finds them. Nothing was written in
+  // twelve minutes. A harness that tells the model to go and read the kit is not running the
+  // kit; it is running a different program that happens to read the same files.
+  const command = intakeCommand('express')
+  assert.match(command, /^\/[a-z0-9-]+:[a-z0-9-]+ express$/, `not a slash command: ${command}`)
+
+  const { stdout } = runner(['EV-001', '--dry-run'])
+  assert.ok(stdout.includes(command), 'the dry run must show what the developer types')
+  const brief = stdout.slice(stdout.indexOf('# what they already answered'))
+  assert.doesNotMatch(brief, /intake\.md/, 'the briefing must not send the model looking for files')
+  assert.doesNotMatch(brief, /instructions\//, 'the command names the entry point; the briefing does not')
+})
+
+test('TASK-016: the command name is derived from the payload, never written down', () => {
+  // Rename the command file or the plugin and this follows, instead of invoking something that
+  // no longer exists. Same rule the kit applies to its own file set (REQ-F-043).
+  const manifest = JSON.parse(readFileSync(join(REPO, 'plugin/.claude-plugin/plugin.json'), 'utf8'))
+  const commands = readdirSync(join(REPO, 'plugin/commands')).filter((f) => f.endsWith('.md'))
+  assert.equal(commands.length, 1, 'FF-001 requires exactly one command')
+  assert.equal(intakeCommand('default'), `/${manifest.name}:${commands[0].replace(/\.md$/, '')} default`)
 })
 
 test('TASK-016: the prompt a dry run prints carries no harness vocabulary', () => {

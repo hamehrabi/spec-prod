@@ -10,7 +10,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { parseAnswers, drivePrompt, problemStatement } from '../../ci/answers.mjs'
+import { parseAnswers, briefing, problemStatement } from '../../ci/answers.mjs'
 
 const REAL = readFileSync('tests/fixtures/golden/EV-001-answers.md', 'utf8')
 const record = parseAnswers(REAL)
@@ -69,7 +69,7 @@ test('UTEST-032: no answer record produces no rounds, rather than empty ones', (
 
 // --- What the prompt must not contain ----------------------------------------------------------
 
-const prompt = drivePrompt(record, 3)
+const prompt = briefing(record, 3)
 
 test('UTEST-032: the prompt names no part of this harness', () => {
   for (const leak of [
@@ -110,7 +110,7 @@ test('UTEST-032: the prompt stops the run where the fixture stops', () => {
 })
 
 test('UTEST-032: rounds beyond the target are excluded, not truncated mid-round', () => {
-  const one = drivePrompt(record, 1)
+  const one = briefing(record, 1)
   assert.match(one, /^Round 1$/m)
   // Round 2 is named once, in the instruction not to begin it. What must be absent is its
   // CONTENT — a heading of its own, and any answer belonging to it.

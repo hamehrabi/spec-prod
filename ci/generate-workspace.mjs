@@ -30,11 +30,11 @@
 //   2  nothing ran. No claim is made either way.
 
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, rmSync, existsSync, readFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { join, resolve, dirname } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { parseAnswers, drivePrompt } from './answers.mjs'
+import { parseAnswers, briefing as composeBriefing } from './answers.mjs'
 import { loadWorkspace, compare, CHANGE_LOG } from './workspace.mjs'
 import { score } from './eval-runner.mjs'
 import { acceptedStages } from './acceptance.mjs'
@@ -78,10 +78,11 @@ function main(argv) {
   const through = args.rounds ?? accepted.length
   if (!through) return notRun(`${goldenRoot}/ records no accepted round, so there is nothing to compare a run against`)
 
-  const prompt = drivePrompt(record, through)
+  const command = intakeCommand(record.depth)
+  const briefing = composeBriefing(record, through)
   if (args.dryRun) {
-    console.log(prompt)
-    return notRun('--dry-run: the prompt was composed and nothing was executed')
+    console.log(`# what the developer types\n\n${command}\n\n# what they already answered\n\n${briefing}`)
+    return notRun('--dry-run: the run was composed and nothing was executed')
   }
 
   // A golden workspace can hold a round that was written but never accepted — a run
@@ -97,7 +98,7 @@ function main(argv) {
 
   const sandbox = mkdtempSync(join(tmpdir(), `spec-prod-${args.caseId}-`))
   try {
-    const host = drive({ sandbox, prompt, model: args.model, timeoutMin: args.timeout })
+    const host = drive({ sandbox, command, briefing, model: args.model, timeoutMin: args.timeout })
     if (!host.ran) return notRun(host.why, args.keep ? sandbox : null)
 
     const all = loadWorkspace(sandbox)
@@ -119,12 +120,31 @@ function main(argv) {
 const countedRounds = (record, through) => record.rounds.filter((r) => r.n <= through).length
 
 /**
- * Everything the host is told on its command line — which is flags and paths, and nothing else.
+ * The command a developer types, derived rather than written down.
  *
- * Exported so a test can assert the property that broke: no argument here carries a newline,
- * because nothing that varies with the developer's answers belongs on a command line at all.
+ * `/<plugin name>:<command file>` — both read from the payload, so renaming either one moves
+ * this runner with it instead of leaving it invoking something that no longer exists. It is
+ * the same rule the kit applies to itself: never hardcode what can be derived (REQ-F-043).
+ *
+ * FF-001 already asserts the payload ships exactly one command. If that ever stops being true
+ * this throws rather than picking one, because a runner that guesses which entry point to
+ * drive is testing something nobody chose.
  */
-export function hostArgs({ model = null } = {}) {
+export function intakeCommand(depth) {
+  const name = JSON.parse(readFileSync(`${PAYLOAD_ROOT}/.claude-plugin/plugin.json`, 'utf8')).name
+  const commands = readdirSync(`${PAYLOAD_ROOT}/commands`).filter((f) => f.endsWith('.md'))
+  if (commands.length !== 1) throw new Error(`the payload ships ${commands.length} commands; FF-001 requires exactly one`)
+  return `/${name}:${commands[0].replace(/\.md$/, '')} ${depth}`
+}
+
+/**
+ * Everything the host is told on its command line — flags and paths, and nothing else.
+ *
+ * Exported so a test can assert the property that broke on the first real run: no argument here
+ * carries a newline. The developer's words go in a file, and the command they typed goes over
+ * stdin; neither belongs on a command line.
+ */
+export function hostArgs({ model = null, briefingFile = null } = {}) {
   return [
     '-p',
     // Absolute: the host runs with the sandbox as its working directory, and a relative path
@@ -132,6 +152,7 @@ export function hostArgs({ model = null } = {}) {
     '--plugin-dir', resolve(PAYLOAD_ROOT),
     '--permission-mode', 'acceptEdits',
     '--output-format', 'json',
+    ...(briefingFile ? ['--append-system-prompt-file', briefingFile] : []),
     ...(model ? ['--model', model] : []),
   ]
 }
@@ -144,24 +165,29 @@ export function hostArgs({ model = null } = {}) {
  * files would pass while the published plugin was broken, which is the failure the weekly
  * install test exists to catch and this must not quietly duplicate.
  */
-function drive({ sandbox, prompt, model, timeoutMin }) {
+function drive({ sandbox, command, briefing, model, timeoutMin }) {
   const git = spawnSync('git', ['init', '-q', '-b', 'main'], { cwd: sandbox, encoding: 'utf8' })
   if (git.status !== 0) return { ran: false, why: `could not create a sandbox repository: ${git.stderr || git.error?.message}` }
 
+  // OUTSIDE THE SANDBOX, deliberately. The briefing is harness input, not project content, and
+  // a file sitting in the repository the kit is about to specify would be read as something the
+  // developer wrote — a workspace could come back specifying its own answer sheet.
+  const briefingFile = join(mkdtempSync(join(tmpdir(), 'spec-prod-briefing-')), 'briefing.md')
+  writeFileSync(briefingFile, briefing, 'utf8')
+
   const started = Date.now()
-  // THE PROMPT GOES OVER STDIN, NEVER IN ARGV. It is multi-line, it quotes the developer's own
-  // words, and on Windows a shell-spawned argument list is concatenated into one command
-  // string rather than escaped. The first run of this script passed the prompt as an argument
-  // and the host received nothing usable: the sandbox came back holding only .git. That is
-  // also the injection surface — the prompt is built from a file on disk, and anything that
-  // reaches a command line from a file is a command someone else can write.
-  const host = spawnSync('claude', hostArgs({ model }), {
+  // NOTHING THAT VARIES GOES IN ARGV. The command a developer types goes over stdin; their
+  // answers go in a file. The first real run passed a multi-line prompt as an argument with
+  // shell:true, where Windows concatenates rather than escapes, and the host received nothing
+  // usable — the sandbox came back holding only .git.
+  const host = spawnSync('claude', hostArgs({ model, briefingFile }), {
     cwd: sandbox,
-    input: prompt,
+    input: command,
     encoding: 'utf8',
     timeout: timeoutMin * 60_000,
     maxBuffer: 64 * 1024 * 1024,
   })
+  rmSync(dirname(briefingFile), { recursive: true, force: true })
 
   if (host.error?.code === 'ENOENT') return { ran: false, why: 'the host is not installed: `claude` is not on PATH' }
   if (host.signal) return { ran: false, why: `the host was killed after ${timeoutMin} minutes (signal ${host.signal})` }

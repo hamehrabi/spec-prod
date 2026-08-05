@@ -100,42 +100,45 @@ export function parseAnswers(text) {
 }
 
 /**
- * The prompt that drives one run.
+ * What the developer would have typed, supplied ahead of being asked.
  *
- * COMPOSED HERE, NOT WRITTEN IN THE DRIVER, so the one place that decides what a run is told
- * is the one place that knows what the developer said. Everything it contains came out of the
- * answer record; nothing in it names this harness, the fixture, or the task that built either.
+ * IT SAYS NOTHING ABOUT HOW TO RUN THE INTAKE. That is the command's job, and the command is
+ * what a developer invokes. An earlier version of this briefing opened with "follow the
+ * plugin's own instructions/intake.md exactly" — and the run spent its first minutes globbing
+ * the filesystem for that file, including outside the repository, because a plugin loaded as a
+ * plugin does not put its instructions where a search will find them. A harness that tells the
+ * model to go and read the kit is not running the kit; it is running a different program that
+ * happens to read the same files, and a green result from it would mean nothing.
+ *
+ * COMPOSED HERE, NOT IN THE DRIVER, so the one place that decides what a run is told is the one
+ * place that knows what the developer said. Everything below came out of the answer record, and
+ * nothing in it names this harness, the fixture, or the task that built either.
  *
  * @param record   from `parseAnswers`
  * @param through  the last round to run. The developer accepts each gate up to it and then
  *                 closes the terminal — which intake.md 2e supports as a normal ending, and
  *                 which is the only honest way to reproduce a fixture that stops part-way.
  */
-export function drivePrompt(record, through = Math.max(0, ...record.rounds.map((r) => r.n))) {
+export function briefing(record, through = Math.max(0, ...record.rounds.map((r) => r.n))) {
   const rounds = record.rounds.filter((r) => r.n <= through)
   const lines = [
-    'Run the specification intake in this repository.',
-    '',
-    `Follow the plugin's own instructions/intake.md exactly, at ${record.depth} depth. Write no file`,
-    'by any route other than its fill procedure, and open its sibling modules only when you reach',
-    'the step that uses them — that ordering is part of what this run establishes, not an',
-    'optimisation to be improved on.',
-    '',
-    'There is no person at this terminal. The answers below are the developer\'s, given in',
-    'advance. Use each one where its round asks for it.',
+    'The developer running this interview answered its questions in advance and is not at the',
+    'terminal to be asked again. Their answers are below. Use each one where the interview asks',
+    'for it, and use it verbatim.',
     '',
     'Where an answer is recorded as NOT ASKED, that question was dropped at this depth. Leave it',
     'unanswered and record it the way the kit requires. Do not answer it from the other answers,',
     'and do not answer it from what would be reasonable.',
     '',
-    `At each round gate the developer's response is: accept.`,
-    `After Round ${through} is accepted and its row is written, the developer closes the terminal.`,
+    `At each round gate their response is: accept.`,
+    `After Round ${through} is accepted and its row is written, they close the terminal.`,
     `End there. Do not begin Round ${through + 1}.`,
     '',
-    '--- The developer\'s answers ---',
+    '--- Their answers ---',
     '',
   ]
   if (record.problem) lines.push('Their problem, in their own words:', '', record.problem, '')
+  if (!rounds.length) lines.push('(none — this record answers no round in range)', '')
   for (const r of rounds) {
     // The round NUMBER only. A round's title belongs to questions.md, and this record's copy of
     // it is a label someone wrote for people to read — EV-001's Round 4 is titled "product shape
