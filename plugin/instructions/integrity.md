@@ -18,45 +18,67 @@ it *before the preamble* — before the developer has seen a single word.
 
 This is not hypothetical: it is BUG-004, and it happened on the first real run.
 
-Use the host's own tools:
+**The check is two commands and one string comparison.** Run them from inside `blueprints/`.
 
-1. **Read** `blueprints/MANIFEST.md`.
-2. **Hash the whole library in ONE command.** Not one command per blueprint — one command for
-   all of them, printing every digest at once.
-
-   **Try these in order and stop at the first that runs.** They are ordered by how much of a
-   command a cautious host will allow, not by elegance: the first uses nothing but filename
-   expansion, and the ones below it use a pipe, a redirection, or `-exec`, each of which some
-   hosts refuse on sight.
+1. **Read** `blueprints/MANIFEST.md` and take the value on its **Library digest** line.
+2. **Compute the same value in one command:**
 
    ```
-   1  glob only    sha256sum *.md */*.md */*/*.md */*/*/*.md
-   2  PowerShell   Get-FileHash -Algorithm SHA256 -Path *.md,*\*.md,*\*\*.md,*\*\*\*.md
-   3  macOS        shasum -a 256 *.md */*.md */*/*.md */*/*/*.md
-   4  find         find . -name '*.md' ! -name MANIFEST.md -exec sha256sum {} +
+   POSIX shell    sha256sum *.md */*.md */*/*.md */*/*/*.md | grep -v MANIFEST | cut -c1-64 | sort | sha256sum
+   macOS          shasum -a 256 *.md */*.md */*/*.md */*/*/*.md | grep -v MANIFEST | cut -c1-64 | sort | shasum -a 256
    ```
 
-   Run it from inside `blueprints/`. Forms 1 to 3 also hash `MANIFEST.md` itself, which the
-   manifest does not list — **ignore that one line.** It is not an unlisted blueprint.
+3. **Compare the two strings.** Equal means the library is intact — every file, its contents,
+   and the fact that nothing was added. The check is finished; **do not also compare the
+   per-file table.**
 
-   The glob covers four levels because that is how deep the library goes. A blueprint deeper
-   than that is not silently skipped: the manifest lists it, the digests do not, and it is
-   reported as **missing**. Wrong, but loudly wrong, which is the failure mode to prefer.
+### Use these commands as written
 
-   A command that computes and prints is fine. **A command that creates a file is not.**
-3. Compare the printed digests against the manifest, and compare the file list both ways to
-   find anything missing or unlisted.
+**Do not compose your own, and do not fold the comparison into the command.** The comparison
+happens when you read two strings, not in a shell.
+
+This is not fussiness — it is the whole of BUG-022. A traced run reached all 81 digests in
+five and a half minutes and then spent **another four and a half** trying to make a shell
+perform the comparison: `Compare-Object`, then subexpressions, then `.Count`, then
+parenthesised sub-pipelines, each refused by a different guard. Nine minutes on Step 0, no
+question asked, nothing written. The commands above are chosen because they survive those
+guards. A cleverer one probably will not, and finding out costs the developer the same nine
+minutes every time.
+
+If the pipeline is refused, `sha256sum *.md */*.md */*/*.md */*/*/*.md` alone still prints
+every digest — but that leaves you comparing 81 strings by eye, which is the state this
+section exists to avoid. Prefer the stop message.
+
+### What the per-file table is for
+
+**Only for naming which blueprint moved, after the digest line has already said one did.**
+It is never the first comparison, and it is never a substitute for the digest.
+
+Read it when — and only when — the two strings differ:
+
+| Problem | Means |
+|---|---|
+| **Altered** | The file is present; its digest differs from the manifest's row |
+| **Missing** | The manifest lists it; the digest output does not |
+| **Unlisted** | The digest output has it; the manifest does not |
+
+The glob covers four levels because that is how deep the library goes, and it drops the
+manifest's own line with `grep -v MANIFEST` because a filename glob cannot exclude one file.
+FF-017 fails the merge if any blueprint path ever contains that word, so the command cannot
+quietly start skipping a file.
+
+A command that computes and prints is fine. **A command that creates a file is not.**
 
 ### If a command is refused, that is not the host being unable
 
-**A refused command is not permission to hash one file at a time.** Work down the list. If
-every form is refused, use the stop message below — the check did not run, and that is a
-complete outcome.
+**A refused command is not permission to hash one file at a time.** Try the other form. If
+both are refused, use the stop message below — the check did not run, and that is a complete
+outcome.
 
 This is the exact route by which BUG-005 comes back. A run traced in a guarded session had
-all four forms refused, and began hashing blueprints individually with literal paths: each
-step was correct, each was permitted, and the developer was four minutes into a silent screen
-having been asked nothing. The instruction below said to stop only when the host "cannot
+every command it tried refused, and began hashing blueprints individually with literal paths:
+each step was correct, each was permitted, and the developer was four minutes into a silent
+screen having been asked nothing. The instruction said to stop only when the host "cannot
 compute a digest at all" — and it plainly could, one file at a time. So the run kept going.
 
 **Per-file hashing is forbidden even when it is the only thing that works.** Eighty-one

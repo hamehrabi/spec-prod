@@ -1,19 +1,19 @@
-// UTEST-034 — the integrity check can actually be performed, on a host that refuses things.
-// Requirement: FF-017 · REQ-NF-001 · BUG-005 · BR-009.
+// UTEST-034 — the integrity check is performable, on a host that refuses things.
+// Requirement: FF-017 · REQ-NF-001 · BUG-005 · BUG-021 · BUG-022 · BR-009.
 //
-// BUG-005 was fixed by requiring the library to be hashed in ONE command, and the fix named
-// three. A traced run in a guarded session had every one of them refused — a pipe into a
-// hasher, a script block, `-exec` — and the run then began hashing blueprints one at a time
-// with literal paths. Each step was correct. Each was permitted. The developer was four
-// minutes into a silent screen, having been asked nothing. BUG-005, exactly, arrived through
-// the one door the fix left open.
+// Three traced runs, three lessons, all of them in this file:
 //
-// The door was a sentence: stop only if the host "cannot compute a digest at all". It plainly
-// could — one file at a time — so the rule did not fire. A rule that only covers total
-// inability does not cover refusal, and refusal is the common case.
+//   BUG-005  hashing one file at a time meant thirty minutes and no preamble. Fixed by
+//            requiring ONE command.
+//   BUG-021  every command the fix named was refused in a guarded session, and the run went
+//            back to per-file hashing — because the escape hatch only covered a host that
+//            "cannot compute a digest at all", and it plainly could, one file at a time.
+//   BUG-022  the run reached all 81 digests in 5m27s and then spent 4m25s trying to make a
+//            shell COMPARE them: Compare-Object, subexpressions, .Count, parenthesised
+//            sub-pipelines, each refused by a different guard. Nine minutes on Step 0.
 //
-// These tests hold the two things that keep the check performable: a ladder of forms ordered
-// by how little of a shell they need, and an explicit ban on the per-file fallback.
+// The shape that survives all three: one command to compute one value, one string compared by
+// reading, and an explicit ban on composing anything else. These tests hold that shape.
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -21,6 +21,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 const DOC = readFileSync('plugin/instructions/integrity.md', 'utf8')
+const MANIFEST = readFileSync('plugin/blueprints/MANIFEST.md', 'utf8')
 
 const blueprints = (dir = 'plugin/blueprints', acc = []) => {
   for (const entry of readdirSync(dir)) {
@@ -32,58 +33,68 @@ const blueprints = (dir = 'plugin/blueprints', acc = []) => {
 }
 const LIBRARY = blueprints()
 
-test('UTEST-034: more than one command form is offered', () => {
-  // One form is not a ladder. A host that refuses it leaves the run with nothing to try and
-  // nothing to do but improvise, which is how the per-file fallback got invented.
-  const forms = DOC.match(/^\s*\d\s{2,}\S+\s+\S.*$/gm) ?? []
-  assert.ok(forms.length >= 3, `only ${forms.length} command forms offered`)
+/** The commands the doc actually tells a run to execute. */
+const COMMANDS = [...DOC.matchAll(/^\s{3}\S[^\n]*?\s{2,}(sha256sum .+|shasum .+)$/gm)].map((m) => m[1])
+
+test('UTEST-034: the doc gives at least one runnable command', () => {
+  assert.ok(COMMANDS.length >= 1, 'no command found in the doc')
 })
 
-test('UTEST-034: the first form needs nothing but filename expansion', () => {
-  // Ordered by what a cautious host allows, not by elegance. A pipe, a redirection, a script
-  // block and `-exec` are each refused somewhere; a glob is refused nowhere.
-  const first = (DOC.match(/^\s*1\s+\S+\s+(.*)$/m) ?? [])[1]
-  assert.ok(first, 'no first form found')
-  for (const construct of ['|', '$(', '`', '-exec', '>', ';'])
-    assert.ok(!first.includes(construct), `the first form uses ${construct}, which some hosts refuse`)
-  assert.match(first, /sha256sum/, 'the first form must actually hash')
+test('UTEST-034: the comparison is one string, not eighty-one', () => {
+  // BUG-022. The manifest carries a single library digest precisely so that a run never has to
+  // cross-check the per-file table, and the doc has to send it there first.
+  assert.match(DOC, /\*\*Library digest\*\* line/)
+  assert.match(MANIFEST, /^\*\*Library digest:\*\*\s*`[0-9a-f]{64}`/m)
+  assert.match(DOC, /do not also compare the\s*\n?\s*per-file table/i)
 })
 
-test('UTEST-034: the glob reaches every blueprint in the library', () => {
+test('UTEST-034: the per-file table is named as a second step, not the first', () => {
+  const purpose = DOC.slice(DOC.indexOf('What the per-file table is for'))
+  assert.match(purpose, /only when.*the two strings differ/is)
+  assert.match(purpose, /never the first comparison/i)
+})
+
+test('UTEST-034: composing your own command is forbidden', () => {
+  // The run did not disobey a rule; there was no rule. It improvised because improvising was
+  // open to it, and every improvisation cost a guard rejection.
+  assert.match(DOC, /Do not compose your own/i)
+  assert.match(DOC, /do not fold the comparison into the command/i)
+})
+
+test('UTEST-034: the command reaches every blueprint in the library', () => {
   // THE FIXED DEPTH IS THE RISK. A glob written for three levels silently misses the fourth,
   // and a check that misses files is the failure this repository has hit six times.
-  const first = (DOC.match(/^\s*1\s+\S+\s+(.*)$/m) ?? [])[1]
-  const depths = [...first.matchAll(/(?:\*\/)*\*\.md/g)].map((m) => m[0].split('/').length)
   const deepest = Math.max(...LIBRARY.map((p) => p.split('/').length))
-  assert.ok(
-    Math.max(...depths) >= deepest,
-    `the glob reaches ${Math.max(...depths)} levels; the library is ${deepest} deep`
-  )
+  for (const command of COMMANDS) {
+    const depths = [...command.matchAll(/(?:\*\/)+\*\.md|(?<![*/])\*\.md/g)].map((m) => m[0].split('/').length)
+    assert.ok(
+      Math.max(...depths) >= deepest,
+      `"${command.slice(0, 40)}…" reaches ${Math.max(...depths)} levels; the library is ${deepest} deep`
+    )
+  }
+})
+
+test('UTEST-034: the manifest is excluded, and nothing else is', () => {
+  // Forms cannot exclude one file by glob, so the manifest line is dropped by name. FF-017
+  // fails the merge if a blueprint path ever contains that word — assert the premise here too,
+  // because this doc is what would be silently wrong.
+  for (const command of COMMANDS) assert.match(command, /grep -v MANIFEST/)
+  assert.deepEqual(LIBRARY.filter((p) => /MANIFEST/i.test(p)), [])
 })
 
 test('UTEST-034: a refused command is not permission to hash one file at a time', () => {
-  // The sentence that closes the door BUG-005 came back through.
   assert.match(DOC, /refused command is not permission to hash one file at a time/i)
   assert.match(DOC, /Per-file hashing is forbidden even when it is the only thing that works/i)
 })
 
 test('UTEST-034: the stop message distinguishes no hasher from refusal', () => {
-  // Different causes, different fixes: one is a missing tool, the other is a permission rule
-  // the developer can change. One message for both helps with neither — the same argument the
+  // Different causes, different fixes: one is a missing tool, the other a permission rule the
+  // developer can change. One message for both helps with neither — the same argument the
   // altered/missing/unlisted split already makes.
   assert.match(DOC, /no hasher, or refused/i)
 })
 
 test('UTEST-034: the doc counts the library correctly', () => {
-  // The cost argument is the reason the one-command rule survives review. It is made with a
-  // number, and a stale number makes it arguable.
   const claimed = [...DOC.matchAll(/Hashing all (\d+) blueprints/g)].map((m) => Number(m[1]))
   assert.deepEqual(claimed, [LIBRARY.length], `the doc says ${claimed}; the library has ${LIBRARY.length}`)
-})
-
-test('UTEST-034: MANIFEST.md hashing itself is called out, not left to be discovered', () => {
-  // Forms 1 to 3 cannot exclude it, so its digest appears in the output and the manifest does
-  // not list it. Unwarned, that reads as an unlisted blueprint and stops a healthy run.
-  assert.match(DOC, /ignore that one line/i)
-  assert.match(DOC, /It is not an unlisted blueprint/i)
 })
