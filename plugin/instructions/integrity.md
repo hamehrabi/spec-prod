@@ -22,21 +22,49 @@ Use the host's own tools:
 
 1. **Read** `blueprints/MANIFEST.md`.
 2. **Hash the whole library in ONE command.** Not one command per blueprint — one command for
-   all of them, printing every digest at once:
+   all of them, printing every digest at once.
+
+   **Try these in order and stop at the first that runs.** They are ordered by how much of a
+   command a cautious host will allow, not by elegance: the first uses nothing but filename
+   expansion, and the ones below it use a pipe, a redirection, or `-exec`, each of which some
+   hosts refuse on sight.
 
    ```
-   sha256sum      find . -name '*.md' ! -name MANIFEST.md -exec sha256sum {} +
-   macOS          find . -name '*.md' ! -name MANIFEST.md -exec shasum -a 256 {} +
-   PowerShell     Get-ChildItem -Recurse -Filter *.md | Where-Object Name -ne MANIFEST.md |
-                  Get-FileHash -Algorithm SHA256
+   1  glob only    sha256sum *.md */*.md */*/*.md */*/*/*.md
+   2  PowerShell   Get-FileHash -Algorithm SHA256 -Path *.md,*\*.md,*\*\*.md,*\*\*\*.md
+   3  macOS        shasum -a 256 *.md */*.md */*/*.md */*/*/*.md
+   4  find         find . -name '*.md' ! -name MANIFEST.md -exec sha256sum {} +
    ```
+
+   Run it from inside `blueprints/`. Forms 1 to 3 also hash `MANIFEST.md` itself, which the
+   manifest does not list — **ignore that one line.** It is not an unlisted blueprint.
+
+   The glob covers four levels because that is how deep the library goes. A blueprint deeper
+   than that is not silently skipped: the manifest lists it, the digests do not, and it is
+   reported as **missing**. Wrong, but loudly wrong, which is the failure mode to prefer.
 
    A command that computes and prints is fine. **A command that creates a file is not.**
 3. Compare the printed digests against the manifest, and compare the file list both ways to
    find anything missing or unlisted.
 
-> **Why "one command" is a rule and not a nicety.** Hashing all 79 blueprints costs **0.19
-> seconds** as a single command. Done one file at a time it is 79 round-trips, and a run
+### If a command is refused, that is not the host being unable
+
+**A refused command is not permission to hash one file at a time.** Work down the list. If
+every form is refused, use the stop message below — the check did not run, and that is a
+complete outcome.
+
+This is the exact route by which BUG-005 comes back. A run traced in a guarded session had
+all four forms refused, and began hashing blueprints individually with literal paths: each
+step was correct, each was permitted, and the developer was four minutes into a silent screen
+having been asked nothing. The instruction below said to stop only when the host "cannot
+compute a digest at all" — and it plainly could, one file at a time. So the run kept going.
+
+**Per-file hashing is forbidden even when it is the only thing that works.** Eighty-one
+round-trips is not a slower verification, it is a different product: one that appears hung
+before it has said a word.
+
+> **Why "one command" is a rule and not a nicety.** Hashing all 81 blueprints costs **0.19
+> seconds** as a single command. Done one file at a time it is 81 round-trips, and a run
 > measured at over **thirty minutes** produced no output at all and never reached the
 > preamble — the developer sees a silent, apparently hung tool before they have been asked
 > anything. That is BUG-005, and it made the product unusable while every individual step
@@ -45,13 +73,18 @@ Use the host's own tools:
 > The same rule applies to every future check that walks the library: **the library is
 > examined in one pass, never per file.**
 
-**If the host cannot compute a digest at all**, stop and say so:
+**If no whole-library command will run** — the host has no hasher, or refused every form
+above — stop and say so:
 
 ```
 "I could not verify the blueprint library, because this session has no way to compute
- file checksums. Nothing was written. Verification is required before any file is
- created, so I am stopping rather than proceeding on an unverified library."
+ file checksums for the whole library at once. Nothing was written. Verification is
+ required before any file is created, so I am stopping rather than proceeding on an
+ unverified library."
 ```
+
+Say which it was: no hasher, or refused. They send the developer to different places — one is
+a missing tool, the other is a permission rule they can change.
 
 Stopping is correct here. Proceeding would be reporting success on a check that did not run,
 which is the one thing this product must never do (BR-009) — and improvising a way to run it
