@@ -159,6 +159,36 @@ sample before each release. They gate different things and neither substitutes f
 > they are expensive and cannot be run per commit. Conflating the two would either make every
 > commit wait on a human, or ship on structure alone.
 
+### The human sample — how it is actually done
+
+Two rows above say "≥ 4 cases sampled" and, until now, nothing said what that means in
+practice. A ritual with no procedure is not performed; it is remembered differently by whoever
+last thought about it, and then skipped by whoever did not.
+
+**Before each release, one person reads four whole generated workspaces, start to finish.**
+
+| | |
+|---|---|
+| **How many** | Four. Not four files — four **workspaces**. |
+| **Which four** | One `happy`, one `edge`, one `adversarial`, and the case whose `todo_density` is **highest** in that release. The last one is chosen by number precisely so it cannot be chosen by comfort. |
+| **What is asked** | Only the two questions in §2's human scorers. Would a competent developer build the right thing from this? Is it substantively deep, or structurally complete and hollow? |
+| **What is recorded** | A line per workspace in §5 naming the case, the reader, and either "no escalation" or the escalation. |
+| **Who** | Anyone except the person who wrote the change under review. Reading your own output answers a different question. |
+
+**An escalation blocks the release.** Not the merge — the work is already merged and structurally
+sound, which is exactly the situation these two scorers exist for. Eleven deterministic scorers
+can all be at their floor while the workspace says nothing, and no count will ever notice.
+
+**If the four cannot be read, the release does not go out.** Saying "we did not get to it" is a
+complete and acceptable outcome; saying "structure passed, ship it" is BR-009 wearing a
+different hat. The ritual has no quorum below four, because a sample small enough to be
+convenient stops being a sample.
+
+**Nothing here is automatable, and that is the point.** A model grading a model-driven system
+drifts on both sides at once, and the drift is invisible because both sides move together
+(§2). This is the only place a person is required, so it is the only place the requirement has
+to be written down.
+
 ## 4. Regression triggers
 
 Re-run the full set on **any** of these:
