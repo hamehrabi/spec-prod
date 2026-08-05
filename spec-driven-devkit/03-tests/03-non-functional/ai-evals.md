@@ -176,7 +176,35 @@ Re-run the full set on **any** of these:
 
 | Run | Date | Quality | Wall clock | Cost | Verdict |
 |---|---|---|---|---|---|
-| *(empty — nothing has been built yet)* | | | | | |
+| EV-001, Round 1, express | 2026-08-05 | 9 of 11 scorers at floor; 2 breaches | 648 s · 23 turns | **$2.78** | Recorded, not accepted |
+
+**The first measurement of anything.** One round of one case, driven by
+`ci/generate-workspace.mjs` against a clean repository with the plugin installed as a plugin.
+Both breaches are understood: `ids_resolve` was BUG-023 (Round 1 minted `Q-001`…`Q-005` with
+nowhere to define them — since fixed), and `structural_checks` counted the same defect plus
+check 13, which reports 83 blueprints unfilled because the run stopped at Round 1 by design.
+
+**What it implies, and why that is a number rather than a feeling.** Round 1 writes 4 files of
+the 87 a full run produces. Eight rounds is therefore of the order of **$20 and 90 minutes per
+workspace**, and the 36-case golden set of `§1` is of the order of **$800 and 50 hours**. That
+figure has never existed before, and it is the reason `§1`'s case count is now a question
+rather than a plan: 36 was chosen before anything could run, and nothing in this file justifies
+it against a defect curve where two runs found five defects.
+
+**Latency, measured before and after a fix, because the fix was worth its own row:**
+
+| What | Before | After |
+|---|---|---|
+| Step 0 — verify 81 blueprints | 9 min 33 s, ten refused commands | **32 s, one command** |
+| First file written | never reached in 12 min | 8 min 22 s |
+
+The first column is BUG-021 and BUG-022 together: every whole-library hash command the
+instructions named was refused by a guarded host, and the run fell back to comparing 81 SHA-256
+strings by eye. The second is one string compared against the manifest's library digest.
+
+**8 min 22 s to a first file is still far outside REQ-NF-001**, and the remaining cost has moved
+somewhere new — a five-minute turn between reading the Round 1 blueprints and writing anything.
+Unexplained, and recorded here as unexplained rather than left out.
 
 > A change that lifts quality 2% and triples cost is a **business decision**, not an
 > engineering one. Record all three so someone can actually make it.
