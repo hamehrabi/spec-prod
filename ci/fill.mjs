@@ -191,3 +191,43 @@ export function wrapperArtifact(text, blueprintRelPath) {
 /** Headings, in order — what "the structure matches the blueprint" is checked against. */
 export const headings = (text) =>
   [...text.matchAll(/^(#{1,6})\s+(.+?)\s*$/gm)].map((m) => `${m[1]} ${m[2]}`)
+
+// --- What a generated file's outline should look like -----------------------------------------
+//
+// Used by FF-007 to compare a produced file against its blueprint. It is not `headings()` on the
+// raw blueprint, because two of the six fill steps remove headings on purpose and one rewrites
+// them:
+//
+//   step 2  the worked example goes, from `# WORKED EXAMPLE` to end of file (C2)
+//   step 3  the prompt sections go — `## Prompts`, `## Prompt — clarify a raw idea (…)`
+//   step 4  a heading CONTAINING a placeholder is filled: `# [project name] — specification
+//           workspace` legitimately becomes `# Pantry — specification workspace`
+//
+// Comparing raw headings reports all three as violations. The first version of FF-007 did, and
+// called ten things wrong in a workspace that had one thing wrong — which is how a check gets
+// switched off, and then the one real finding goes with it.
+
+/** A heading the fill procedure removes with its section (step 3). */
+export const isPromptHeading = (h) => /^#{1,6}\s+Prompts?\b|^#{1,6}\s+Prompt\s*[—–-]/.test(h)
+
+/** The outline a generated file should have, given its blueprint. */
+export const expectedHeadings = (blueprint) =>
+  headings(stripWorkedExample(blueprint)).filter((h) => !isPromptHeading(h))
+
+/**
+ * Does a produced heading match the blueprint heading it came from?
+ *
+ * A blueprint heading with no placeholder must match exactly. One WITH a placeholder matches
+ * anything in that position — the placeholder is the part the developer's answer replaces, and
+ * requiring it to survive would require the file to be unfilled.
+ */
+export function headingMatches(expected, actual) {
+  if (expected === undefined || actual === undefined) return false
+  if (expected === actual) return true
+  if (!/\[[^\]]+\]/.test(expected)) return false
+  const pattern = expected
+    .split(/\[[^\]]+\]/)
+    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('.+')
+  return new RegExp(`^${pattern}$`).test(actual)
+}
