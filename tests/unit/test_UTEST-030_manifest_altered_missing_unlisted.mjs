@@ -88,7 +88,12 @@ test('UTEST-030: the three failures are reported separately, not as one', () => 
     assert.match(stdout, /ALTERED/)
     assert.match(stdout, /MISSING/)
     assert.match(stdout, /UNLISTED/)
-    assert.match(stdout, /found:\s+3/)
+    // Four, not three: the library digest covers all three of these at once, so a library with
+    // any of them also has a stale one-line digest. Counting it separately is the point — that
+    // line is what a RUN compares, and it has to be able to say the library moved without first
+    // cross-checking 81 files to find out how.
+    assert.match(stdout, /the library digest is stale/)
+    assert.match(stdout, /found:\s+4/)
   } finally {
     lib.cleanup()
   }
