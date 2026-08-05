@@ -78,22 +78,47 @@ export function goldenWorkspaces(root = GOLDEN_ROOT) {
  * every check this repository has had to fix: it matches nothing and reports success. The
  * caller gets `notRun`, and BR-009 decides what that means — never "passed".
  */
-export function walkGolden({ id, guards, threshold, measure, scope = [], root = process.argv[2] ?? GOLDEN_ROOT }) {
+export function walkGolden({
+  id,
+  guards,
+  threshold,
+  measure,
+  scope = [],
+  // Some checks only have something to say about a FINISHED workspace. The entry point is the
+  // last file a run writes (intake.md step 4), so a workspace stopped at Round 3 has none —
+  // and "no entry point, therefore no broken links in it" is a pass earned by having nothing
+  // to check. `applies` lets a case be reported as not measured instead.
+  applies = () => true,
+  root = process.argv[2] ?? GOLDEN_ROOT,
+}) {
   const cases = goldenWorkspaces(root)
-  if (!cases.length) {
+  const why = (reason) => {
     console.log(`${id} — guards ${guards}`)
     console.log(`  threshold: ${threshold}`)
-    console.log(`  RESULT: NOT RUN — no golden workspace exists under ${root}/, so nothing was walked`)
+    console.log(`  RESULT: NOT RUN — ${reason}`)
     console.log('  no claim is made about the kit either way.')
     return 2
   }
-  const violations = cases.flatMap((c) => measure(c.workspace, c).map((v) => `${c.id}: ${v}`))
+  if (!cases.length) return why(`no golden workspace exists under ${root}/, so nothing was walked`)
+
+  const measurable = cases.filter((c) => applies(c.workspace, c))
+  const skipped = cases.filter((c) => !measurable.includes(c))
+  if (!measurable.length)
+    return why(`none of ${cases.length} golden workspace(s) is far enough along to measure: ${cases.map((c) => c.id).join(', ')}`)
+
+  const violations = measurable.flatMap((c) => measure(c.workspace, c).map((v) => `${c.id}: ${v}`))
   return report({
     id,
     guards,
     threshold,
     found: violations.length,
-    detail: [`golden workspaces walked: ${cases.map((c) => c.id).join(', ')}`, ...violations],
+    detail: [
+      `golden workspaces walked: ${measurable.map((c) => c.id).join(', ')}`,
+      // Named, never silent. A check that quietly skips half the set reports a pass over the
+      // half it liked, and the number it prints is indistinguishable from full coverage.
+      ...skipped.map((c) => `not measured: ${c.id} is not far enough along for this check`),
+      ...violations,
+    ],
     scope,
   })
 }

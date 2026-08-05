@@ -1,4 +1,4 @@
-// UTEST-037 — the fitness functions that walk a generated workspace (FF-004…FF-008).
+// UTEST-037 — the fitness functions that walk a generated workspace (FF-004…FF-008, FF-010…FF-014).
 // Requirement: TASK-016 · cicd-pipeline.md stage 4 · BR-002 · BR-009 · ADR-003 · C2.
 //
 // Each is demonstrated BOTH ways: clean input passes, broken input fails and names what broke.
@@ -13,7 +13,7 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { run, check } from '../_helpers.mjs'
@@ -37,6 +37,11 @@ const FF = {
   '006': 'ff-006-no-worked-example.mjs',
   '007': 'ff-007-structure-matches-blueprint.mjs',
   '008': 'ff-008-identifier-integrity.mjs',
+  '010': 'ff-010-nothing-outside-spec.mjs',
+  '011': 'ff-011-version-stamp.mjs',
+  '012': 'ff-012-todo-pairing.mjs',
+  '013': 'ff-013-entry-point.mjs',
+  '014': 'ff-014-drivers-and-denials.mjs',
 }
 
 /** Every workspace check reads its golden root from argv, so a test can point it elsewhere. */
@@ -163,4 +168,100 @@ test('UTEST-008: a referenced identifier with no definition fails', () => {
   assert.equal(bad.code, 1)
   assert.match(bad.stdout, /Q-001 is referenced but never defined/)
   assert.equal(onSet('008', CLEAN).code, 0)
+})
+
+// --- FF-010: the boundary, both halves --------------------------------------------------------
+
+test('UTEST-010: a file outside spec/ fails, and so does a state file inside it', () => {
+  const outside = onSet('010', { ...CLEAN, 'notes.md': '# Stray\n' })
+  assert.equal(outside.code, 1)
+  assert.match(outside.stdout, /notes\.md was created outside spec\//)
+
+  // The half a run can fail while looking tidy: everything inside spec/, but a second source of
+  // truth sitting in it. Acceptance is a dated row, never a file (ADR-006).
+  const stateful = onSet('010', { ...CLEAN, 'spec/.accepted.json': '{}\n' })
+  assert.equal(stateful.code, 1)
+  assert.match(stateful.stdout, /is a state file/)
+
+  assert.equal(onSet('010', CLEAN).code, 0)
+})
+
+// --- FF-012: a [TODO] is half a pair -----------------------------------------------------------
+
+test('UTEST-012: a [TODO] with no Q-### row fails', () => {
+  const orphan = onSet('012', { 'spec/a.md': '# A\n\nOwner: [TODO: who owns this]\n' })
+  assert.equal(orphan.code, 1)
+  assert.equal(onSet('012', CLEAN).code, 0)
+})
+
+// --- FF-011 and FF-013: the entry point is written LAST ------------------------------------------
+
+test('UTEST-011/013: no entry point is NOT RUN, not a pass', () => {
+  // "No entry point, therefore no broken links in it" is a pass earned by having nothing to
+  // check. A workspace stopped before the end has none, and that is a normal position.
+  for (const id of ['011', '013']) {
+    const { code, stdout } = onSet(id, CLEAN)
+    assert.equal(code, 2, `FF-${id} judged a workspace that has no entry point`)
+    assert.match(stdout, /RESULT: NOT RUN/)
+    assert.doesNotMatch(stdout, /RESULT: pass/)
+  }
+})
+
+test('UTEST-011: a version that does not match the manifest fails; a matching one passes', () => {
+  const version = JSON.parse(readFileSync('plugin/.claude-plugin/plugin.json', 'utf8')).version
+  const wrong = onSet('011', { 'spec/CLAUDE.md': '# Map\n\nProduced by plugin 9.9.9.\n' })
+  assert.equal(wrong.code, 1)
+  assert.match(wrong.stdout, /the manifest says/)
+  assert.equal(onSet('011', { 'spec/CLAUDE.md': `# Map\n\nProduced by plugin ${version}.\n` }).code, 0)
+})
+
+test('UTEST-011: a version the run could not read is a declared gap, not a violation', () => {
+  // entrypoint.md says to write [TODO: plugin version could not be determined] and never invent
+  // one. An honest gap must not be punished harder than a wrong answer (BR-003).
+  const declared = onSet('011', {
+    'spec/CLAUDE.md': '# Map\n\n[TODO: plugin version could not be determined]\n',
+  })
+  assert.equal(declared.code, 0)
+})
+
+test('UTEST-013: an entry point over 100 lines fails', () => {
+  const long = `# Map\n${'\nline\n'.repeat(60)}`
+  const bad = onSet('013', { 'spec/CLAUDE.md': long })
+  assert.equal(bad.code, 1)
+  assert.match(bad.stdout, /the limit is 100/)
+})
+
+test('UTEST-013: a link to a file the workspace does not have fails', () => {
+  const bad = onSet('013', { 'spec/CLAUDE.md': '# Map\n\nSee [intent](01-docs/01-intent/intent.md).\n' })
+  assert.equal(bad.code, 1)
+  assert.match(bad.stdout, /which does not exist/)
+})
+
+// --- FF-014: an intent with nothing to notice its absence -----------------------------------------
+
+test('UTEST-014: a workspace declaring no rule and no driver is NOT RUN', () => {
+  // Both underlying checks report not-run when nothing has been declared yet. Reading that as
+  // "100% of zero rules have deny tests" is the vacuous pass this repository keeps finding.
+  const { code, stdout } = onSet('014', CLEAN)
+  assert.equal(code, 2)
+  assert.match(stdout, /RESULT: NOT RUN/)
+})
+
+// --- Coverage is never silent ----------------------------------------------------------------------
+
+test('UTEST-037: a case that could not be measured is named, not dropped', () => {
+  // A check that quietly skips half the set reports a pass over the half it liked, and the
+  // number it prints is indistinguishable from full coverage.
+  const set = goldenSet(CLEAN)
+  try {
+    const version = JSON.parse(readFileSync('plugin/.claude-plugin/plugin.json', 'utf8')).version
+    mkdirSync(join(set.root, 'EV-DONE', 'spec'), { recursive: true })
+    writeFileSync(join(set.root, 'EV-DONE', 'spec', 'CLAUDE.md'), `# Map\n\nplugin ${version}\n`)
+    const { code, stdout } = run(check(FF['011']), [set.root])
+    assert.equal(code, 0)
+    assert.match(stdout, /not measured: EV-TEST/)
+    assert.match(stdout, /walked: EV-DONE/)
+  } finally {
+    set.cleanup()
+  }
 })
