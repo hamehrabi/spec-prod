@@ -18,6 +18,19 @@ written.
 (listed here, absent on disk), *unlisted* (on disk, absent here). An unlisted blueprint is a
 failure, not a bonus.
 
+## Library digest
+
+**Library digest:** `c2a40489fb79c9a541ed6570f91c77d514af0e839fc24e2dbadfe68347a78d81`
+
+One value for the whole library: SHA-256 over the 81 digests below —
+lowercased, sorted, one per line, each ending in a newline. **Compare this first.** It matches
+or it does not, and that is a comparison anyone can make correctly; cross-checking
+81 SHA-256 strings by eye is not. The per-file table exists to name *which*
+blueprint moved once this line says something did.
+
+It hashes digests rather than paths or tool output, so it does not change with a path
+separator, a leading `./`, or whether the hasher printed upper or lower case.
+
 ## Blueprints (81)
 
 | Blueprint | SHA-256 |
