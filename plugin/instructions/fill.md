@@ -208,9 +208,41 @@ declares a target and nothing here changes.
 
 ## When the file is finished
 
+### First, the outline check — did step 1 actually happen?
+
+**Compare the finished file's headings against the blueprint's, in order.** They must be the
+same list, with exactly three differences allowed, all of them made by the steps above:
+
+- the worked example's headings are gone (step 2)
+- the prompt sections' headings are gone — `## Prompts`, `## Prompt — …` (step 3)
+- a heading that contained a placeholder now contains the answer (step 4): `# [project name] —
+  specification workspace` becomes `# Pantry — specification workspace`
+
+**Any other difference means step 1 did not happen.** A heading the blueprint has and the file
+does not was dropped; a heading the file has and the blueprint does not was invented. Neither
+is possible when a file is copied, so either one proves it was composed instead — which is the
+failure step 1 already forbids in words.
+
+**This check exists because the words were not enough.** Step 1 has said *"never author it from
+memory"* since it was written, and a measured run did it anyway three times in one workspace:
+`requirements.md` lost `## Writing workflow (Ch. 5)` and gained a `[core]` placeholder that
+appears nowhere in its blueprint, and `spec-change-log.md` gained an instructional italic that
+appears in no blueprint at all. A rule with nothing that decides whether it was followed is not
+a control — it is a preference (BUG-024).
+
+The comparison is decidable in the same way the rest of this section is: two lists of strings,
+read side by side. It is not a judgement about whether the file looks right.
+
+### Then, the content check
+
 Re-read it against the inventory in step 4. The question is not *"does this look complete?"*
 — it will. The question is *"is there a placeholder, an empty row, or an instructional italic
 still in this file?"* That one is decidable, and it is the only one worth asking.
+
+**An instructional italic you wrote yourself is still an instructional italic.** The inventory
+does not care where it came from: a line like *"No change entries yet. This table fills as the
+specification evolves"* reads to a developer as template scaffolding nobody stripped, whether
+it came from the blueprint or from you. An empty table is allowed to be empty.
 
 A file that fails a structural check is **re-filled once**. If it fails again, the gap becomes
 a `[TODO]` with a matching open question and is named in the closing report — never retried
