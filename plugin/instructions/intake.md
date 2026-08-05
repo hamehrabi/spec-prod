@@ -169,6 +169,24 @@ One round is always **ask → write → summarise → gate**, in that order, wit
 
 ### 2a. Ask
 
+**Open the round by saying where it sits.** One line, before the questions, every round:
+
+```
+Round 3 of 8 — users, roles, and data
+```
+
+**Both numbers, every time, in words the terminal can render plainly.** Not a bar, not a
+percentage, not a symbol — the line has to survive being read aloud and being read in a log.
+
+The second number is the point. *"Round 3"* on its own tells a developer they are somewhere in
+an interview of unknown length, and an interview with no visible end is one they abandon rather
+than pause — which loses every answer instead of one (REQ-F-032). The preamble states the
+count once; by Round 5 nobody remembers a sentence they read twenty minutes ago.
+
+**It is eight at both depths.** `express` asks less inside a round and never removes a round, so
+the denominator never changes and must never be computed from anything. A progress indicator
+that disagreed with the preamble would make both untrustworthy.
+
 **First consult `instructions/inference.md`.** Any question the developer's earlier answers
 already settle is not asked, and the inference drawn instead is stated with the answer it
 came from. Any two answers that cannot both hold **stop the round** and are quoted verbatim.
