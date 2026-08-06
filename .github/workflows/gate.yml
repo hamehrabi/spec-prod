@@ -30,6 +30,18 @@ on:
   pull_request:
   push:
     branches: [main]
+  # MANUALLY RUNNABLE, deliberately. On 2026-08-06 GitHub Actions had a major outage and
+  # stopped creating runs at all: the workflow was active, the PR was open, the commit was on
+  # GitHub, and zero runs existed. `gate` is a required status check, so nothing could merge
+  # for hours - not because anything failed, but because nothing could be asked to run.
+  #
+  # A gate with no way to trigger it by hand is one outage away from blocking every merge, and
+  # the only way out is to weaken branch protection under time pressure, which is when weakening
+  # it is least wise. This costs nothing and removes that.
+  #
+  # It does NOT weaken the gate: a manual run executes exactly the same steps and reports the
+  # same check. It changes who can ask, never what is asked.
+  workflow_dispatch:
 
 permissions:
   contents: read
