@@ -47,6 +47,14 @@ const GOLDEN = 'tests/fixtures/golden'
 // outside spec/" becomes true by exemption.
 const HOST_ARTIFACTS = /^(\.git|\.claude)(\/|$)/
 
+// How many times the host is asked for the same run before the runner gives up.
+//
+// Three, and the wall clock still binds — see `drive`. Each attempt spends real money (the two
+// runs that motivated this cost about $6.15 apiece), so the count is small, and it is a count
+// of ATTEMPTS rather than of retries so that the number a person reads here is the number of
+// times they can be billed.
+const ATTEMPTS = 3
+
 const USAGE = `Usage: node ci/generate-workspace.mjs <case-id> [options]
 
   <case-id>          e.g. EV-001. Reads ${GOLDEN}/<case-id>-answers.md
@@ -56,8 +64,11 @@ const USAGE = `Usage: node ci/generate-workspace.mjs <case-id> [options]
                      rounds the golden workspace records as ACCEPTED, because that is the
                      only point at which the two are comparable.
   --model <alias>    passed to the host unchanged. Default: the host's own.
-  --timeout <min>    wall-clock ceiling for the run. Default: 45.
-  --keep             leave the sandbox on disk and print its path.
+  --timeout <min>    wall-clock ceiling for the run. Default: 45. Shared across attempts, not
+                     renewed by them: a dropped connection is retried in the same workspace,
+                     up to ${ATTEMPTS} attempts, within this one ceiling.
+  --keep             leave the sandbox on disk and print its path. A run that stopped part-way
+                     keeps its sandbox anyway — what it wrote cost money and is resumable.
   --dry-run          compose the prompt and print it. Spawns nothing, spends nothing.
 `
 
@@ -97,9 +108,22 @@ function main(argv) {
   )
 
   const sandbox = mkdtempSync(join(tmpdir(), `spec-prod-${args.caseId}-`))
+  let keep = args.keep
   try {
     const host = drive({ sandbox, command, briefing, model: args.model, timeoutMin: args.timeout })
-    if (!host.ran) return notRun(host.why, args.keep ? sandbox : null)
+    if (!host.ran) {
+      // WHAT A STOPPED RUN WROTE OUTLIVES IT. A connection that drops 25 minutes in leaves a
+      // real, resumable part-workspace on disk, and deleting it charges for those minutes a
+      // second time. Kept without being asked for, because nobody passes --keep in advance of a
+      // failure they did not expect — and it is kept rather than compared: an unfinished
+      // workspace is still NOT RUN, and the line below claims nothing about it.
+      if (!keep && existsSync(join(sandbox, 'spec'))) {
+        keep = true
+        console.log('  part of a workspace was written before the run stopped. Keeping it rather than')
+        console.log('  deleting work that cost money — the kit resumes from what is on disk (resume.md).')
+      }
+      return notRun(host.why, keep ? sandbox : null)
+    }
 
     const all = loadWorkspace(sandbox)
     const produced = {}
@@ -110,9 +134,9 @@ function main(argv) {
       else outside.push(path)
     }
 
-    return verdict({ produced, golden, outside, through, host, caseId: args.caseId, sandbox: args.keep ? sandbox : null })
+    return verdict({ produced, golden, outside, through, host, caseId: args.caseId, sandbox: keep ? sandbox : null })
   } finally {
-    if (!args.keep) rmSync(sandbox, { recursive: true, force: true })
+    if (!keep) rmSync(sandbox, { recursive: true, force: true })
   }
 }
 
@@ -158,6 +182,89 @@ export function hostArgs({ model = null, briefingFile = null } = {}) {
 }
 
 /**
+ * The failures that are the connection dying rather than the run failing.
+ *
+ * TWO VERIFICATION RUNS DIED HERE, 25 minutes and about $6.15 each, with no verdict:
+ * `API Error: The socket connection was closed unexpectedly`. The host exited non-zero, so this
+ * runner said NOT RUN and claimed nothing — which was correct and cost a day. Nothing was
+ * learned about the kit, and the part-written workspace was deleted on the way out.
+ *
+ * DELIBERATELY SHORT, AND EVERY ENTRY NAMES THE CONNECTION RATHER THAN THE REQUEST. Six of the
+ * last twelve defects in this repository were checks that matched too much or matched nothing,
+ * and a list that grew to cover "errors that felt retryable" would eventually retry a genuine
+ * failure — three times the bill for the same answer. Absent on purpose: authentication, a
+ * rejected request and a refusal by the model are all real outcomes of a real run, and asking
+ * again changes nothing but the cost. Rate limits and `Overloaded` are absent too — they want a
+ * waiting strategy, and an immediate retry is the one response that makes them worse.
+ *
+ * A false positive here costs one extra attempt. It CANNOT manufacture a pass: `classifyHost`
+ * returns `ran: true` for status 0 and for nothing else, and the verdict is computed from the
+ * files on disk long after this list has had its say.
+ */
+const TRANSPORT = [
+  /the socket connection was closed/i, // both dead runs, verbatim
+  /socket hang up/i, // the same event as Node reports it rather than as the host does
+  /\bECONNRESET\b/,
+  /\bETIMEDOUT\b/,
+  /\bEAI_AGAIN\b/, // DNS gave up; the request never left the machine
+]
+
+/**
+ * One line, single-spaced, for a signature to be matched against.
+ *
+ * The host wraps its error text to the terminal it thinks it has, so `The socket connection was
+ * closed unexpectedly` arrives split across a line break as often as not. Ten defects here have
+ * been a regex that failed to match across a hard wrap, and a signature applied to raw output
+ * would have missed the very run that motivated it.
+ */
+const flatten = (text) => text.replace(/\s+/g, ' ').trim()
+
+/** The end of what the host said — the part that names the failure. */
+const tail = (text) => text.trim().slice(-2000)
+
+/**
+ * What the host's exit means, and whether another attempt is honest.
+ *
+ * Exported and pure — no spawning, no clock, no network — because the decision it makes is the
+ * one nobody can afford to establish by experiment: each real observation costs 25 minutes and
+ * about $6.15, which is exactly why two of them produced no verdict.
+ *
+ * THE RULE A RETRY MUST NOT BEND. A transport failure is `ran: false`, like every other
+ * failure. Retrying changes how many times the runner asks; it never changes what an answer
+ * means, and there is no path through here from a non-zero exit to `ran: true`. When the
+ * attempts run out the outcome is still NOT RUN — three states, never two (BR-009).
+ *
+ * @param host      a `spawnSync` result: `{ status, signal, error, stdout, stderr }`
+ * @param attempt   which attempt this was, counting from 1
+ * @param attempts  how many attempts are allowed in total
+ * @param msLeft    milliseconds left in the run's wall-clock ceiling, measured AFTER this
+ *                  attempt returned. A retry that cannot fit inside it is not offered.
+ * @returns { ran, retry, why } — `retry` is only ever true when `ran` is false.
+ */
+export function classifyHost(host, { timeoutMin = null, attempt = 1, attempts = ATTEMPTS, msLeft = Infinity } = {}) {
+  const stop = (why) => ({ ran: false, retry: false, why })
+
+  if (host.error?.code === 'ENOENT') return stop('the host is not installed: `claude` is not on PATH')
+  // Not retried: the ceiling is shared across attempts, so the budget this one exhausted is the
+  // same budget the next one would draw on, and it would die at the same place having spent
+  // twice as much to get there.
+  if (host.signal) return stop(`the host was killed at the ${timeoutMin}-minute ceiling for the run (signal ${host.signal})`)
+  if (host.error) return stop(`the host could not be started: ${host.error.message}`)
+  if (host.status === 0) return { ran: true, retry: false, why: null }
+
+  // Matched against the same text the failure is reported with, so what decides a retry and
+  // what a person reads afterwards cannot drift apart.
+  const said = (host.stderr || host.stdout || '').trim()
+  if (!TRANSPORT.some((signature) => signature.test(flatten(said))))
+    return stop(`the host exited ${host.status}: ${tail(said)}`)
+
+  const dropped = `the host's connection dropped on attempt ${attempt} of ${attempts}: ${tail(said)}`
+  if (attempt >= attempts) return stop(`${dropped} — every attempt dropped its connection, so nothing ran to completion`)
+  if (msLeft <= 0) return stop(`${dropped} — the ${timeoutMin}-minute ceiling leaves no time for another attempt`)
+  return { ran: false, retry: true, why: dropped }
+}
+
+/**
  * Run the host against a clean repository with the plugin loaded from this branch.
  *
  * `--plugin-dir` loads the payload as an installed plugin rather than as loose files, so the
@@ -176,37 +283,68 @@ function drive({ sandbox, command, briefing, model, timeoutMin }) {
   writeFileSync(briefingFile, briefing, 'utf8')
 
   const started = Date.now()
-  // NOTHING THAT VARIES GOES IN ARGV. The command a developer types goes over stdin; their
-  // answers go in a file. The first real run passed a multi-line prompt as an argument with
-  // shell:true, where Windows concatenates rather than escapes, and the host received nothing
-  // usable — the sandbox came back holding only .git.
-  const host = spawnSync('claude', hostArgs({ model, briefingFile }), {
-    cwd: sandbox,
-    input: command,
-    encoding: 'utf8',
-    timeout: timeoutMin * 60_000,
-    maxBuffer: 64 * 1024 * 1024,
-  })
-  rmSync(dirname(briefingFile), { recursive: true, force: true })
+  // ONE CEILING FOR THE WHOLE RUN, NOT ONE PER ATTEMPT. `--timeout` is documented as the
+  // wall-clock ceiling for the run, and a retry that renewed it would quietly turn 45 minutes
+  // into 135 for someone who went to lunch on the strength of the first number. Each attempt is
+  // given what is left of it, so the retry can only ever spend time the run already had.
+  const deadline = started + timeoutMin * 60_000
 
-  if (host.error?.code === 'ENOENT') return { ran: false, why: 'the host is not installed: `claude` is not on PATH' }
-  if (host.signal) return { ran: false, why: `the host was killed after ${timeoutMin} minutes (signal ${host.signal})` }
-  if (host.error) return { ran: false, why: `the host could not be started: ${host.error.message}` }
-  if (host.status !== 0) return { ran: false, why: `the host exited ${host.status}: ${(host.stderr || host.stdout || '').trim().slice(-2000)}` }
-
-  let result = {}
   try {
-    result = JSON.parse(host.stdout)
-  } catch {
-    return { ran: false, why: 'the host produced output this runner could not read as JSON' }
-  }
-  return {
-    ran: true,
-    // Recorded because TASK-016 step 6 asks for it and nothing else in this repository can see
-    // it: the developer-side model cost of one intake.
-    costUsd: result.total_cost_usd ?? null,
-    turns: result.num_turns ?? null,
-    seconds: Math.round((Date.now() - started) / 1000),
+    for (let attempt = 1; ; attempt++) {
+      const msLeft = deadline - Date.now()
+      if (msLeft <= 0)
+        return { ran: false, why: `the ${timeoutMin}-minute ceiling ran out before attempt ${attempt} could start` }
+
+      // NOTHING THAT VARIES GOES IN ARGV. The command a developer types goes over stdin; their
+      // answers go in a file. The first real run passed a multi-line prompt as an argument with
+      // shell:true, where Windows concatenates rather than escapes, and the host received nothing
+      // usable — the sandbox came back holding only .git.
+      const host = spawnSync('claude', hostArgs({ model, briefingFile }), {
+        cwd: sandbox,
+        input: command,
+        encoding: 'utf8',
+        timeout: msLeft,
+        maxBuffer: 64 * 1024 * 1024,
+      })
+
+      const outcome = classifyHost(host, { timeoutMin, attempt, attempts: ATTEMPTS, msLeft: deadline - Date.now() })
+      if (!outcome.ran) {
+        if (!outcome.retry) return { ran: false, why: outcome.why }
+        // THE SAME SANDBOX AND THE SAME COMMAND. The kit keeps no state file and works out where
+        // it is by reading the workspace every time (resume.md, ADR-004), so a second invocation
+        // continues from the first incomplete stage instead of starting again. That property is
+        // the only reason retrying is affordable: the minutes the dropped attempt already paid
+        // for are still on disk, and it is the kit's own resume path that collects them.
+        console.log(`  ${outcome.why}`)
+        console.log('  retrying in the same workspace — the kit resumes from what is on disk.\n')
+        continue
+      }
+
+      let result = {}
+      try {
+        result = JSON.parse(host.stdout)
+      } catch {
+        // NOT RETRIED, on the same evidence rule as everything else here: a dropped socket has
+        // never been seen to end with a zero exit and unreadable output, and a runner that
+        // retried this would triple the bill on a host that was simply printing something else.
+        // The sandbox is kept, so the next person starts from what this one wrote.
+        return { ran: false, why: 'the host produced output this runner could not read as JSON' }
+      }
+      return {
+        ran: true,
+        // Recorded because TASK-016 step 6 asks for it and nothing else in this repository can see
+        // it: the developer-side model cost of one intake. THIS ATTEMPT'S cost — an attempt that
+        // dropped its connection reports nothing before it dies, so a retried run cost more than
+        // this number says, and `verdict` prints the attempt count next to it rather than
+        // presenting one attempt's bill as the run's.
+        costUsd: result.total_cost_usd ?? null,
+        turns: result.num_turns ?? null,
+        seconds: Math.round((Date.now() - started) / 1000),
+        attempts: attempt,
+      }
+    }
+  } finally {
+    rmSync(dirname(briefingFile), { recursive: true, force: true })
   }
 }
 
@@ -225,7 +363,12 @@ function verdict({ produced, golden, outside, through, host, caseId, sandbox }) 
   console.log(`  files produced:   ${Object.keys(produced).length}`)
   console.log(`  rounds accepted:  ${rounds}`)
   console.log(`  wall clock:       ${host.seconds}s over ${host.turns ?? '?'} turns`)
-  console.log(`  model cost:       ${host.costUsd === null ? 'not reported by the host' : `$${host.costUsd.toFixed(4)}`}`)
+  console.log(
+    `  model cost:       ${host.costUsd === null ? 'not reported by the host' : `$${host.costUsd.toFixed(4)}`}` +
+      (host.attempts > 1 ? ' — the last attempt only; the dropped ones reported nothing' : '')
+  )
+  if (host.attempts > 1)
+    console.log(`  host attempts:    ${host.attempts} — earlier ones dropped their connection part-way through`)
 
   console.log('\n  scorers')
   for (const r of scored.results) {
@@ -245,6 +388,11 @@ function verdict({ produced, golden, outside, through, host, caseId, sandbox }) 
   console.log('    that the kit asks per file — edits were granted in advance (SEC-Z-002)')
   console.log('    that generated prose is stable — it is not, by design (ADR-002)')
   console.log('    anything about .git/ or .claude/ — the host writes those, not the kit')
+  // A workspace finished across two sessions was produced by the kit AND by its resume path.
+  // That is a different claim from the one a single-session run makes, and a reader who is not
+  // told cannot tell the two apart from the output.
+  if (host.attempts > 1)
+    console.log(`    that one session produces this — it took ${host.attempts}, resumed from disk (resume.md)`)
 
   const failed = diff.gated.length + scored.breaches.length
   console.log(failed ? `\n  RESULT: FAIL — ${failed} gated difference${failed === 1 ? '' : 's'}` : '\n  RESULT: pass')
