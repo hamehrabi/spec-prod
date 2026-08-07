@@ -113,7 +113,7 @@ included anyway, because it is the main *reader* of what this product makes.
 |---|---|---|
 | Plugin installation | The kit installs through Claude Code's own plugin mechanism. No script, no account, no key, no download at run time. | Anything else is a barrier before the product has shown value — and CON-004 rules out an install script outright. |
 | Guided intake interview | Up to eight rounds of at most four grouped questions, recommended option first, free text accepted anywhere, a hard stop at eight. | It **is** the product and the single core subdomain. |
-| Depth parameter (default / express) | One flow, one command; depth is an argument that reduces rounds and target depth. | The kit author asked for express mode; Simplicity requires it be a parameter rather than a second path. |
+| Depth parameter (default / express) | One flow, one command; depth is an argument that reduces the questions asked per round and the target depth, never the eight-round count. | The kit author asked for express mode; Simplicity requires it be a parameter rather than a second path. |
 | Workspace generation into `spec/` | Files written after each round into a fixed folder at the repository root, each matching its blueprint's structure and linking back to it. | Writing as you go is what makes an interrupted intake still worth something. |
 | Depth scaling by subdomain | Core areas get the full chain; supporting areas get one page; generic areas get an integration contract. | Uniform depth is the specific failure that makes the method feel like paperwork (RSK-1). |
 | **Stage acceptance gate** | After each round's files are written, the developer is shown the decisions recorded, the inferences drawn, and the `[TODO]`s created — and must **accept, revise, or stop** before the next round. | RSK-2 previously had no detector *inside a run*. A developer could answer eight rounds and receive ninety files they had never looked at. |
@@ -234,7 +234,7 @@ connection, forget fields, or lack permission.
 
 **Flow 7 — Express depth**
 - **Start:** Developer runs intake asking for express depth.
-- **Action:** Answers a reduced set of rounds.
+- **Action:** Answers the same eight rounds, with at most two questions in each.
 - **Input:** Fewer questions, same question flow.
 - **System response:** Produces a thinner workspace, with the same structural guarantees.
 - **Success path:** Identifiers resolve, blueprint links resolve, `[TODO]`s are paired with open questions — the workspace is smaller, not weaker.

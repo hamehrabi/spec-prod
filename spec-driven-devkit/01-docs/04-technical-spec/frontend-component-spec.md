@@ -33,7 +33,7 @@ file. A conversational interface fails in exactly the same five ways a screen do
 
 | Component | Purpose | Data needed | States | Rules |
 |---|---|---|---|---|
-| `Preamble` | Tell the developer what is about to happen and roughly how many rounds, before question one. | Depth setting; total round count | ready, error | Never asks a question. Two sentences (REQ-F-004). Must state the round count, because a visible end is what makes an interview finishable. |
+| `Preamble` | Tell the developer what is about to happen and how many rounds, before question one. | Depth setting; the round count (eight, at both depths) | ready, error | Never asks a question. Two sentences (REQ-F-004). Must state the round count, because a visible end is what makes an interview finishable. |
 | `QuestionRound` | Ask up to four grouped questions. | Round number; question set; prior answers | ready, awaiting-answer, blocked | At most four questions (REQ-F-005). Recommended option first with a one-line reason (REQ-F-006). Free text always available (REQ-F-007). Never asks what a prior answer settled (REQ-F-009). |
 | `FreeTextPrompt` | Ask the one question that cannot be multiple choice — the problem statement. | Round 1 answers | awaiting-answer, error | Must state the shape of a good answer and explicitly ask **not** for features. Rejects nothing; a poor answer becomes an open question, not a re-ask loop. |
 | `InferenceNotice` | State a question that was *not* asked and the inference drawn instead. | The skipped question; the answer it was derived from | ready | Always names both the inference and its source, so the developer can challenge it. Silence here turns an inference into a hidden assumption. |
