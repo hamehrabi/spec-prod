@@ -67,8 +67,11 @@ repaired.
 | Q3 | How many people in the first six months? | **not asked** — express keeps two |
 | Q4 | Build horizon for version one? | **not asked** — express keeps two |
 
-Dropped questions became `Q-010` and `Q-011`, recorded with decision owners rather than
-answered on the developer's behalf.
+Both dropped questions were filed in `open-questions.md` with a decision owner, rather than
+answered on the developer's behalf. **Which Q-### they became is not recorded here** — the
+numbering is something the run produces, and a number written down on the input side is a
+number the next run has to reproduce to look correct. (An earlier draft of this file did name
+them, and named them wrongly.)
 
 ## Round 2 — scope boundaries
 

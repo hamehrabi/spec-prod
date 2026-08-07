@@ -132,8 +132,8 @@ test('TASK-016: the run is driven to the round the golden workspace actually acc
   // Not to a number written here. The golden records its own position in a dated row, and
   // reading it is the same discipline the kit itself follows — no state file, anywhere (ADR-004).
   const { stdout } = runner(['EV-001', '--dry-run'])
-  assert.match(stdout, /After Round 3 is accepted and its row is written/)
-  assert.match(stdout, /Do not begin Round 4\./)
+  assert.match(stdout, /After Round 8 is accepted and its row is written/)
+  assert.match(stdout, /End there\. Do not begin Round 9\./)
 })
 
 test('TASK-016: nothing the developer said reaches the host on a command line', () => {

@@ -140,7 +140,7 @@ test('UTEST-033: firstDifference finds the shorter list running out', () => {
 
 test('UTEST-033: the fingerprint reads how far the run got from the change log', () => {
   const print = fingerprint(GOLDEN)
-  assert.equal(print.accepted.length, 3)
+  assert.equal(print.accepted.length, 8)
   assert.ok(print.files.includes('spec/README.md'))
   // No state file, anywhere, ever (ADR-004). The count came from a dated row in an artifact
   // the workspace already had to write.
