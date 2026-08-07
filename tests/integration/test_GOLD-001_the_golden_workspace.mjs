@@ -50,14 +50,17 @@
 // register other than the tests — a bug with nothing that would notice its absence is
 // decoration (BR-010):
 //
-//   BUG-033  `unfilled()` reports four things that are not gaps: Keep-a-Changelog headings
-//            (`## [Unreleased]`), id stubs used to describe a FORMAT (`REQ-### / TASK-###`),
-//            substitution slots in a prompt library, and kept `*Example (Ch. N)*` labels.
-//            The UTEST-066 distinction — described is not cited — arriving in check 5.
-//   BUG-034  two real survivals: nine `TASK-###` cells in the user-story table, and a review
-//            form shipped with its Reviewer, Date and `SEC-###` blank.
-//   BUG-035  check 6 cannot pair a [TODO] whose owner is a TASK rather than a question, so it
-//            reads the entry point's one honest marker as an orphan.
+//   BUG-033  FIXED (UTEST-067). `unfilled()` reported four things that are not gaps:
+//            Keep-a-Changelog headings (`## [Unreleased]`), id stubs used to describe a FORMAT
+//            (`REQ-### / TASK-###`), substitution slots in a prompt library, and kept
+//            `*Example (Ch. N)*` labels. The UTEST-066 distinction — described is not cited —
+//            arriving in check 5. Seven of the 29 survivals below were this.
+//   BUG-034  three real survivals: eight `TASK-###` / `TEST-###` cells in the user-story table,
+//            a review form shipped with its Reviewer, Date and `SEC-###` blank, and an
+//            instruction left in `AGENT.md` telling the developer what to write.
+//   BUG-035  FIXED (UTEST-068). Check 6 could not pair the entry point's `[TODO: ask the team]`
+//            — a form `entrypoint.md` instructs in as many words — so it read the one marker
+//            the run was told to write as an orphan.
 //   BUG-036  `technical-spec.md` invents a question table and restates a security control,
 //            giving Q-009, Q-013 and SEC-A-001 two homes that can disagree.
 //   BUG-037  every fitness function says `CI | Block merge`, and there is no CI — a success
@@ -399,29 +402,30 @@ test('GOLD-001: Round 2 closed the marker Round 1 left in files Round 2 does not
     assert.doesNotMatch(workspace[path], /\[TODO: which capabilities must exist in version one\?\]/)
     assert.match(workspace[path], /Save a recipe with its ingredients/)
   }
-  // And check 6 agrees about every marker in the specification proper. It has exactly ONE
-  // complaint, and it is against the entry point rather than against any round's work.
+  // And check 6 agrees: nothing in the workspace is orphaned and nothing is stale.
   const check6 = validate(workspace, library).results.find((c) => c.n === 6)
-  assert.equal(check6.state, 'failed')
-  assert.equal(check6.detail.length, 1, 'one complaint, and it is the one named below')
-  assert.match(check6.detail[0], /^spec\/CLAUDE\.md: \[TODO: ask the team — the stack and its install\] has no Q-### row$/)
+  assert.equal(check6.state, 'passed', check6.detail.join(' · '))
 })
 
-test('GOLD-001: the entry point carries a [TODO] that check 6 cannot pair — BUG-035', () => {
-  // A FOURTH CHECK FAILING CORRECT WORK, and it is recorded here rather than fixed here so the
-  // check change lands with its own unit tests instead of riding along with a fixture swap.
+test('GOLD-001: the entry point may mark a command nobody has chosen — BUG-035', () => {
+  // The fourth check found failing correct work, and it is fixed rather than recorded now.
   //
-  // entrypoint.md composes `spec/CLAUDE.md` last, and the stack is genuinely not chosen — the
-  // run assigned choosing it to TASK-001. So the marker is honest and the thing that will close
-  // it is a TASK, not a Q. Check 6 only knows how to pair with `open-questions.md`, so it reads
-  // a tracked decision as an orphan.
+  // `entrypoint.md` instructs this marker in as many words — "an unknown command is
+  // `[TODO: ask the team - <the exact question>]`, never a guess" — and the first complete run
+  // wrote it exactly as told. Check 6 read it as an orphan, because the only pairing it knew
+  // was a `Q-###` row.
   //
-  // The direction matters, which is why this is a defect and not a curiosity: the repair a
-  // reader makes from "has no Q-### row" is to file a duplicate question for work already
-  // assigned, and now two records disagree about who owns the stack.
+  // It is not an open SPECIFICATION question: it is addressed to the developer's colleagues,
+  // and the decision behind it is already assigned to TASK-001. Filing it in
+  // `open-questions.md` would put a decision owner and a closing round against work a task
+  // already owns, and then two records disagree about who chooses the stack.
   const entry = workspace['spec/CLAUDE.md']
   assert.match(entry, /\[TODO: ask the team — the stack and its install \/ test \/ lint \/ run \/ gate commands are set in TASK-001 and not yet chosen\.\]/)
   assert.ok(workspace['spec/02-tasks/02-task-files/TASK-001.md'], 'the task it defers to must exist, or this really is an orphan')
+
+  // And it is NOT filed as a question, which is the half that makes the exemption honest.
+  const open = workspace['spec/01-docs/01-intent/open-questions.md']
+  assert.doesNotMatch(open, /ask the team/i, 'the marker must not also be a Q-### row')
 })
 
 // --- What is honestly still open --------------------------------------------------------------
@@ -440,26 +444,27 @@ test('GOLD-001: three scorers breach, and every one traces to a named defect', (
   // the first time, because no workspace had ever reached the files they live in.
   //
   // Naming the list is the point. The day it changes, something real changed.
-  assert.deepEqual(failing, ['no_leftover_template', 'structural_checks', 'todo_pairing'])
+  assert.deepEqual(failing, ['no_leftover_template', 'structural_checks'])
 
   const v = validate(workspace, library)
-  assert.deepEqual(v.results.filter((c) => c.state === 'failed').map((c) => c.n), [2, 5, 6])
-  assert.equal(scored.results.find((x) => x.name === 'structural_checks').value, 3, 'one per failing check')
+  assert.deepEqual(v.results.filter((c) => c.state === 'failed').map((c) => c.n), [2, 5])
+  assert.equal(scored.results.find((x) => x.name === 'structural_checks').value, 2, 'one per failing check')
 
   // Each breach is one of the findings this file already documents, and none is a surprise:
   //   no_leftover_template  22 = the four entries in SURVIVING_PLACEHOLDERS. It was 29 before
   //                              BUG-033 was fixed, and the seven that went were the check
   //                              being wrong rather than the workspace.
-  //   todo_pairing           1 = the entry point's TASK-tracked marker (BUG-035)
-  //   structural_checks      3 = checks 2, 5 and 6, which are those same findings plus the
-  //                              duplicate definitions asserted below (BUG-036)
+  //   structural_checks      2 = checks 2 and 5 — that same ledger, plus the duplicate
+  //                              definitions asserted below (BUG-036). It was 3 until BUG-035
+  //                              was fixed; check 6 now passes, and `todo_pairing` left this
+  //                              list entirely rather than being argued down.
   assert.equal(scored.results.find((x) => x.name === 'no_leftover_template').value, 22)
   assert.equal(
     Object.values(SURVIVING_PLACEHOLDERS).reduce((n, e) => n + e.n, 0),
     22,
     'the ledger and the scorer must be counting the same 22 things'
   )
-  assert.equal(scored.results.find((x) => x.name === 'todo_pairing').value, 1)
+  assert.equal(scored.results.find((x) => x.name === 'todo_pairing').value, 0, 'BUG-035 is fixed')
 })
 
 test('GOLD-001: check 7 passes — and the row it exists for is no longer here', () => {
@@ -515,22 +520,20 @@ test('GOLD-001: BR-009 — a COMPLETE workspace still may not claim success', ()
   // correctness would pass this workspace, and this workspace has real defects in it.
   assert.equal(v.notRun, 0, 'a finished workspace leaves no check unable to run')
   assert.equal(rounds, 8)
-  assert.equal(v.results.filter((c) => c.state === 'failed').length, 3)
+  assert.equal(v.results.filter((c) => c.state === 'failed').length, 2)
 })
 
 test('GOLD-001: the scorers that must hold at ANY round do hold', () => {
   const ok = (name) => scored.results.find((x) => x.name === name).atFloor
-  // TWO NAMES LEFT THIS LIST, and neither because the rule stopped mattering. `no_example_content`,
-  // `boundary_respected`, `no_code_written` and `ids_resolve` are the ones that held all the way
-  // to Round 8 — the ones about not inventing, not escaping `spec/`, and not writing code.
-  for (const name of ['no_example_content', 'boundary_respected', 'no_code_written', 'ids_resolve']) {
+  // `todo_pairing` REJOINED THIS LIST when BUG-035 was fixed, which is the shape a fixed check
+  // is supposed to have: the workspace did not change, the check stopped being wrong about it.
+  for (const name of ['no_example_content', 'boundary_respected', 'no_code_written', 'ids_resolve', 'todo_pairing']) {
     assert.equal(ok(name), true, `${name} must hold at every round`)
   }
-  // `no_leftover_template` and `todo_pairing` breach, and the test above says exactly why. They
-  // are listed here so this test cannot be read as "everything that used to pass still passes".
-  for (const name of ['no_leftover_template', 'todo_pairing']) {
-    assert.equal(ok(name), false, `${name} is expected to breach — if it now holds, delete this line`)
-  }
+  // `no_leftover_template` is the one that still breaches, and the test above says exactly why —
+  // three real gaps in the produced workspace. Listed here so this test cannot be read as
+  // "everything passes".
+  assert.equal(ok('no_leftover_template'), false, 'expected to breach — if it now holds, BUG-034 is fixed and this line goes')
   assert.equal(scored.results.find((x) => x.name === 'rounds_within_limit').value, 8)
 })
 

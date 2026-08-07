@@ -322,6 +322,25 @@ export const CHECKS = {
         // Located by scanning forward, so two markers asking the same question are two markers.
         let from = 0
         for (const q of todos(t)) {
+          // THE ENTRY POINT'S TWO SANCTIONED MARKERS HAVE NO QUESTION ROW BY DESIGN (BUG-035).
+          //
+          // `entrypoint.md` instructs both of them in as many words: an unknown command is
+          // "`[TODO: ask the team - <the exact question>]`, never a guess", and an unreadable
+          // version is "`[TODO: plugin version could not be determined]`". Neither is an open
+          // SPECIFICATION question — one is addressed to the developer's colleagues and the
+          // other to a file on disk — so neither belongs in `open-questions.md`, which carries
+          // a decision owner and a round that will close it.
+          //
+          // The first complete run wrote the first form exactly as told, and this check called
+          // it an orphan. The direction is what makes it a defect rather than a curiosity: the
+          // repair a reader makes from "has no Q-### row" is to file a question for a decision
+          // already assigned to TASK-001, and then two records disagree about who owns the stack.
+          //
+          // NARROW ON PURPOSE — the form AND the file. `entrypoint.md` is the only instruction
+          // that writes either one, and it writes them only into the entry point. "Any marker
+          // beginning 'ask the team'" would hand every round a phrase that switches this check
+          // off, which is how BUG-013 worked.
+          if (p === 'spec/CLAUDE.md' && (/^ask the team\b/i.test(q) || /^plugin version could not be determined\b/i.test(q))) continue
           const at = t.indexOf(q, from)
           from = at + q.length
           const lineEnd = t.indexOf('\n', at)

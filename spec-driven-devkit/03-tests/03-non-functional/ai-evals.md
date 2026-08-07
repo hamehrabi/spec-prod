@@ -253,7 +253,7 @@ Re-run it on **any** of these:
 | Run | Date | Quality | Wall clock | Cost | Verdict |
 |---|---|---|---|---|---|
 | EV-001, Round 1, express | 2026-08-05 | 7 of 11 scorers at floor; 2 breaches; **2 not run** | 648 s · 23 turns | **$2.78** | Recorded, not accepted |
-| EV-001, all 8 rounds, express | 2026-08-07 | 6 of 11 scorers at floor; 3 breaches; **2 not run** | 4 500 s · 237 turns | **$49.85** | Recorded, not accepted |
+| EV-001, all 8 rounds, express | 2026-08-07 | 7 of 11 scorers at floor; 2 breaches; **2 not run** | 4 500 s · 237 turns | **$49.85** | Recorded, not accepted |
 
 > **This row was corrected downwards after it was published, and the correction is the point.**
 > It read *"9 of 11 scorers at floor; 2 breaches"*. Two of those nine — `inference_stated` and
@@ -296,9 +296,11 @@ could have reached. `no_leftover_template` was **29 and is now 22**: BUG-033 was
 and it was this check reading correct work as defective — Keep-a-Changelog headings, id stubs
 describing a format, prompt substitution slots, kept example labels. Sized against all 82
 blueprints before it was fixed, and held to eleven library-wide exemptions by UTEST-067. What
-remains is three real gaps (BUG-034). `todo_pairing` (1) is a marker tracked by a task rather
-than a question (BUG-035), and `structural_checks` (3) is checks 2, 5 and 6 — those same
-findings plus duplicate definitions in `technical-spec.md` (BUG-036). Three more the scorers do **not** catch
+remains is three real gaps (BUG-034). `todo_pairing` breached at 1 and is **now 0**: BUG-035
+was check 6 unable to pair `[TODO: ask the team]`, a form `entrypoint.md` instructs in as many
+words, so the one marker the run was told to write was read as an orphan. `structural_checks`
+fell from 3 to **2** as those two fixes landed, and what is left is checks 2 and 5 — the three
+real gaps plus duplicate definitions in `technical-spec.md` (BUG-036). Three more the scorers do **not** catch
 are recorded in GOLD-001: a register claiming a CI gate that does not exist (BUG-037), the core
 subdomain's invariant never reaching the schema (BUG-038), and refusals written with no reason
 (BUG-039). Every one is pinned by a test that fails the day it is fixed.
