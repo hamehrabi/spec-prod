@@ -82,13 +82,14 @@ not exist. The kit has its own knobs, and the same question applies to each:
 |---|---|---|
 | Temperature, top-p, max tokens | **n/a** — do not exist | The kit issues no model call and has nothing to parameterise. |
 | **Intake depth** (default / express) | **Configured** — the one argument | Only the developer knows whether this is a throwaway prototype or a system that will outlive them. Nothing in the repository reveals that. |
-| Number of rounds | **Derived** from depth | Never a separate setting. A depth argument that did not determine the round count would be two knobs pretending to be one. |
+| Number of rounds | **Fixed** at eight (REQ-F-011) | Not a knob at all, and not a depth setting. A visible, unchanging end is what makes an interview finishable; depth changes how much each round asks, never how many rounds there are. |
 | Which questions to ask | **Derived** from prior answers (REQ-F-009) | The whole of DD-007 rests on this. A configured question list would let a derivable question be asked, which spends the budget depth is supposed to come from. |
 | Spec depth per area | **Derived** from the subdomain map (BR-013) | The developer already answered it by naming their core subdomain. Asking again per file would be asking the same question ninety times. |
 | Workspace location | **Fixed**, not configured (ADR-004) | Considered and rejected: a setting is a branch, and FF-001 counts branches. |
 
-> Four derived, one configured, one fixed. That ratio is the point — every knob that
-> survives is one the developer genuinely knows better than the kit does.
+> Two derived, two fixed, one configured, and one that does not exist. That ratio is the
+> point — the single knob that survives is the one the developer genuinely knows better than
+> the kit does.
 
 ## 4. Guardrails
 
