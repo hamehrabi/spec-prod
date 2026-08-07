@@ -137,6 +137,15 @@ export function briefing(record, through = Math.max(0, ...record.rounds.map((r) 
     '--- Their answers ---',
     '',
   ]
+  // THE NAME IS AN INPUT, NOT A LABEL. `blueprints/README.md` opens with the placeholder
+  // `# [project name] — specification workspace`, and fill.md step 4 requires it to be filled.
+  // No question asks for it, so the only place a run can learn it is here — and for eleven
+  // commits it was parsed and then dropped, so every real run invented one. That is not a
+  // cosmetic difference: `compare()` reports README.md's heading 1 as a GATED difference, so
+  // the run failed its structural comparison for something the harness withheld.
+  //
+  // It goes above the problem statement because that is the order the developer would say it in.
+  if (record.project) lines.push('Their project:', '', record.project, '')
   if (record.problem) lines.push('Their problem, in their own words:', '', record.problem, '')
   if (!rounds.length) lines.push('(none — this record answers no round in range)', '')
   for (const r of rounds) {
