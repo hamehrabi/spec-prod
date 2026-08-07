@@ -17,6 +17,17 @@ import { PAYLOAD_ROOT } from './payload.mjs'
 const VERSION = JSON.parse(readFileSync(`${PAYLOAD_ROOT}/.claude-plugin/plugin.json`, 'utf8')).version
 const entryPoint = (ws) => Object.entries(ws).find(([p]) => /(^|\/)CLAUDE\.md$/.test(p))
 
+// THE ONE SANCTIONED MARKER, MATCHED EXACTLY. entrypoint.md names a single string for this and
+// nothing else: `[TODO: plugin version could not be determined]`.
+//
+// The rule used to be `/\[TODO:[^\]]*version[^\]]*\]/i` tested against the WHOLE FILE, and
+// returned before the stamp was looked at — so any todo anywhere mentioning a version disabled
+// the check for the entire entry point. entrypoint.md makes todos routine in the Commands and
+// Where-things-stand sections, so `[TODO: which API version do we target?]` two sections away
+// excused a stamp that was flatly wrong — and entrypoint.md's own words are that a wrong stamp
+// is worse than a missing one, because it will be trusted.
+const HONEST_GAP = /\[TODO: plugin version could not be determined\]/
+
 process.exit(
   walkGolden({
     id: 'FF-011',
@@ -25,9 +36,13 @@ process.exit(
     applies: (ws) => Boolean(entryPoint(ws)),
     measure: (ws) => {
       const [path, text] = entryPoint(ws)
-      if (/\[TODO:[^\]]*version[^\]]*\]/i.test(text)) return []
       const stamped = [...text.matchAll(/\b\d+\.\d+\.\d+\b/g)].map((m) => m[0])
-      if (!stamped.length) return [`VIOLATION: ${path} carries no plugin version (ADR-005)`]
+      // The exemption excuses an ABSENT stamp and only that. A version that could not be read
+      // is an honest gap; a version that was read wrong is the failure this check is for, and
+      // no marker anywhere in the file makes it honest.
+      if (!stamped.length) {
+        return HONEST_GAP.test(text) ? [] : [`VIOLATION: ${path} carries no plugin version (ADR-005)`]
+      }
       return stamped.includes(VERSION)
         ? []
         : [`VIOLATION: ${path} stamps ${stamped.join(', ')}; the manifest says ${VERSION}`]

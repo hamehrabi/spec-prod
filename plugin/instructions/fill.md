@@ -58,7 +58,7 @@ a matching `Q-###` row. Never a plausible-looking value.
 | Identifier stub | `REQ-F-###`, `ADR-###` | Mint it in step 5 |
 | Date stub | `YYYY-MM-DD` | |
 | Empty table row | `\| \| \|` | A decision nobody made. Fill it, or mark it *not needed, because…* |
-| Instructional italic | a whole line in `*single asterisks*` | The blueprint telling you what belongs there |
+| Instructional italic | a whole line — **or a wrapped pair of lines** — in `*single asterisks*` | The blueprint telling you what belongs there. The library hard-wraps, so most of the long ones arrive split |
 | Blank fill | `______` | |
 | Angle stub | `<label>` | |
 | Prompt box | `> **Prompt …` | Overlaps step 3 |
@@ -205,6 +205,12 @@ committed.
 **A blueprint is a wrapper or it is not, decided by whether it declares a target.** This is one
 rule for a category, not a special case per filename — if a third artifact ever needs it, it
 declares a target and nothing here changes.
+
+**A wrapper artifact is not Markdown, so the outline check below does not apply to it.** There
+is no outline to compare: a `.gitignore` uses `#` for comments and a `.env.example` uses it for
+section labels, so reading them as headings invents a structure neither file has and no edit to
+either blueprint could remove. What IS checked is the back-link, which is why step 5 above is
+not optional.
 
 ## When the file is finished
 
