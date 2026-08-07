@@ -19,6 +19,7 @@ import { join, dirname } from 'node:path'
 import { run, check } from '../_helpers.mjs'
 import { isPromptHeading, expectedHeadings, headingMatches } from '../../ci/fill.mjs'
 import { goldenWorkspaces } from '../../ci/golden.mjs'
+import { EXAMPLE_MARKERS } from '../../ci/scorers.mjs'
 
 /** A golden root holding one case, with whatever files a test needs. */
 function goldenSet(files) {
@@ -112,7 +113,14 @@ test('UTEST-005: a surviving prompt box fails', () => {
 
 test('UTEST-006: every example product name is detected, not just one', () => {
   // A leak detector that knows one name reports zero leaks for every other name (BUG-008).
-  for (const leak of ['ProjectBoard', 'TeamTask Lite', 'SaaS task app', '# WORKED EXAMPLE']) {
+  //
+  // DERIVED FROM THE SOURCE, NOT RETYPED. This list used to be a hand-copied duplicate of
+  // EXAMPLE_MARKERS' alternatives, which made it a tautology in the direction that matters: a
+  // marker ADDED to the regex got no coverage here, so the next example product name would ship
+  // with every check green. Reading the alternatives out means the case set grows with the rule.
+  const markers = EXAMPLE_MARKERS.source.split('|')
+  assert.ok(markers.length >= 4, 'EXAMPLE_MARKERS lost alternatives; this test would now prove less')
+  for (const leak of markers) {
     const bad = onSet('006', { 'spec/a.md': `# A\n\nBuilt like ${leak}.\n` })
     assert.equal(bad.code, 1, `${leak} leaked undetected`)
   }

@@ -406,7 +406,7 @@ function verdict({ produced, golden, outside, through, host, caseId, sandbox }) 
   if (outside.length) for (const p of outside) console.log(`    OUTSIDE  ${p} — written outside spec/`)
   if (sandbox) console.log(`\n  sandbox kept: ${sandbox}`)
 
-  console.log('\n  this run does NOT establish:')
+  console.log('\n  this run does NOT establish (BR-009 — an unrun check is never a passed one):')
   console.log('    that the kit asks per file — edits were granted in advance (SEC-Z-002)')
   console.log('    that generated prose is stable — it is not, by design (ADR-002)')
   console.log('    anything about .git/ or .claude/ — the host writes those, not the kit')

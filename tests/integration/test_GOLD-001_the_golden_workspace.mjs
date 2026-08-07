@@ -40,6 +40,7 @@ import { score } from '../../ci/eval-runner.mjs'
 import { acceptedStages, forbiddenStateFiles } from '../../ci/acceptance.mjs'
 import { validate } from '../../ci/validation.mjs'
 import { unfilled, todos, blueprintOf } from '../../ci/fill.mjs'
+import { library as libraryPaths } from '../../ci/golden.mjs'
 import { table } from '../_helpers.mjs'
 
 const ROOT = 'tests/fixtures/golden/EV-001'
@@ -56,10 +57,11 @@ const workspace = Object.fromEntries(
   walk(ROOT).map((p) => [p.slice(ROOT.length + 1).split('\\').join('/'), readFileSync(p, 'utf8')])
 )
 
-const library = readFileSync('plugin/blueprints/MANIFEST.md', 'utf8')
-  .split('\n')
-  .map((l) => (l.match(/^\| `([^`]+)` \|/) || [])[1])
-  .filter(Boolean)
+// DERIVED, NOT RETYPED. This was a third copy of the manifest-parsing regex, and it was the
+// broken one: `/^\| `([^`]+)` \|/` matches the "Deliberately not packaged" table too, so it
+// returned 88 entries for an 81-blueprint library. The other two copies were fixed together
+// (register entry 2); a third that nobody imported would have gone on disagreeing silently.
+const library = libraryPaths()
 
 const changeLog = workspace['spec/01-docs/09-change-control/spec-change-log.md']
 
