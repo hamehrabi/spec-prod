@@ -20,7 +20,7 @@ failure, not a bonus.
 
 ## Library digest
 
-**Library digest:** `0e7832c6e0d29da6aa7741bcdfef89de112984ebe2bbdad6b2509fbc43a65ff3`
+**Library digest:** `a00e72bfc367992af0b2e5f0daf96f69f60ac7184e188efbd4e831bc1da1462f`
 
 One value for the whole library: SHA-256 over the 81 digests below —
 lowercased, sorted, one per line, each ending in a newline. **Compare this first.** It matches
@@ -52,7 +52,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `01-docs/05-architecture/decisions.md` | `25c945748e2543120ed3bfb85e36b3751e6dd03e2c35e1f0c3214ae9add79cda` |
 | `01-docs/06-api-and-data-design/api-specification.md` | `58ff58b15d701812bd52d9fb1639fb7e79f677a5ed0c3558e8b5c4888926efa2` |
 | `01-docs/06-api-and-data-design/data-and-integration-spec.md` | `90deb5933be6148f26df2572a066f9d7f8a0ce064a80972458e519d6aed541bf` |
-| `01-docs/06-api-and-data-design/database-design.md` | `2987a8fdd216665901ba033c4bc8b831ba572e46c100eca774d5cbc9b6c75696` |
+| `01-docs/06-api-and-data-design/database-design.md` | `70adc4cb01acfa79e52cf49fd66f61eaff67c087341802ff8a2cae77a88e0d11` |
 | `01-docs/07-security-and-reliability/ai-boundary-spec.md` | `f3591db3b0c8b47c82c03ec909496153d573bb7320b08ec545a9ad6cb89c056b` |
 | `01-docs/07-security-and-reliability/reliability-specification.md` | `e57c09390b3e01016544857435170631dfa5190d9e7994a38314d595b061085b` |
 | `01-docs/07-security-and-reliability/security-specification.md` | `c6429d2a8e7c9270f47dcbade14b19eb371c60d01117d78aa4fe485b8b27e5e9` |

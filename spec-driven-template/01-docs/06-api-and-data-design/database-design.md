@@ -95,9 +95,12 @@ tasks
 >
 > **Go through §1's "Rule that must always be true" column and, for each rule, write the
 > constraint that enforces it above — naming the rule in a trailing comment.** A uniqueness
-> constraint, a foreign key, a check constraint, a `not null`. For example, if the core is
-> *turning a week of meals into ONE shopping list*, then the same ingredient must not appear on
-> a list twice, and that is `unique (shopping_list_id, ingredient_name, unit)` — not a sentence.
+> constraint, a foreign key, a check constraint, a `not null`.
+>
+> The question to ask each rule is **"what would the store refuse?"** *A customer may hold only
+> one active subscription* is a uniqueness constraint over the customer and that status. *A
+> booking cannot end before it starts* is a check constraint. If the honest answer is "nothing
+> would be refused", then the rule is not enforced, whatever the prose says.
 >
 > **If a rule cannot be expressed as a constraint, say where it IS enforced** — a service-layer
 > check, a background job — and name the test that would fail if it stopped working. What is
