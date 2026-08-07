@@ -151,6 +151,35 @@ Sequential, zero-padded, unique across the workspace: `REQ-F-001`, `REQ-F-002`, 
 something else. Nothing about the workspace looks wrong afterwards, which is what makes it
 dangerous.
 
+### An identifier is DEFINED in exactly one file, and cited everywhere else
+
+**Defining means stating what the thing IS** — a row giving `SEC-A-001` its requirement text,
+`REQ-F-002` its description, `Q-013` its question. Each identifier gets one such row, in the
+file that owns that kind:
+
+| Kind | Defined in |
+|---|---|
+| `Q-###` | `01-docs/01-intent/open-questions.md` |
+| `CON-###` | `01-docs/01-intent/constraints-and-non-goals.md` |
+| `REQ-*` | `01-docs/02-requirements/requirements.md` |
+| `SEC-*` | `01-docs/07-security-and-reliability/security-specification.md` |
+| `ADR-###` | its own file in `01-docs/05-architecture/architecture-decisions/` |
+| `TASK-###` | its own file in `02-tasks/02-task-files/` |
+| `FF-###` | `01-docs/04-technical-spec/fitness-functions.md` |
+
+**Everywhere else, CITE it.** Write the identifier and, where it helps, a link — never a second
+row restating what it is. Two rows for one identifier is two things that can be edited
+separately, and the workspace then contradicts itself with nothing to say which half is right.
+
+**This applies to a table you were about to add as much as to one already there.** If a file
+you are filling has no question table and the round produced open questions, they belong in
+`open-questions.md` — adding a local table is not summarising, it is redefining. A run did
+exactly that in `technical-spec.md` and gave `Q-009` and `Q-013` a second home.
+
+*Prevents:* the failure check 2 reports. It is worth reading its output rather than working
+around it — the check has been right every time it has fired here, including when the
+duplication was shipped in the blueprints themselves (BUG-036).
+
 ## Step 6 — Append the back-link
 
 ```
