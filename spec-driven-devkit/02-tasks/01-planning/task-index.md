@@ -32,9 +32,9 @@ a time, directed by one developer (CON-008).
 | TASK-013 | Entry point written last, under 100 lines, version stamped | REQ-F-020, REQ-NF-009, ADR-005 | **P1** | TASK-012 | **Done** | agent | ATEST-021, TEST-009, ETEST-001, FTEST-017 |
 | TASK-014 | Closing report and hand-off block | REQ-F-030, REQ-F-031 | **P1** | TASK-013 | **Done** | agent | ATEST-034, ATEST-035, ETEST-010, **ETEST-003** |
 | TASK-015 | Express depth as a parameter on the one flow | REQ-F-033, REQ-F-034 | **P1** | TASK-011 | **Done** | agent | ATEST-014, UTEST-012, UTEST-013, ETEST-007 |
-| TASK-016 | Golden fixtures and the eval harness | `ai-evals.md` | **P1** | TASK-014 | **Partly done** — *harness built; golden workspaces need real runs* | agent | EV-001…036, ETEST-011, ETEST-012 |
+| TASK-016 | Golden fixtures and the eval harness | `ai-evals.md` | **P1** | TASK-014 | **Partly done** — *harness built; EV-001 produced by a real eight-round run; 35 cases enumerated and deliberately not built* | agent | **EV-001**, ETEST-011, ETEST-012 |
 | TASK-017 | Round progress indicator | REQ-F-032 | P2 | TASK-011 | **Done** | agent | ATEST-036 |
-| TASK-018 | Cross-platform verification on all three OSes | REQ-NF-008 | P2 | TASK-016 | **Partly done** — *Step 0 checked on all three in CI; ETEST-012 and FTEST-009 not written* | agent | ETEST-012 (×3), FTEST-009 |
+| TASK-018 | Cross-platform verification on all three OSes | REQ-NF-008 | P2 | TASK-016 | **Partly done** — *Step 0 runs on all three in CI; FTEST-009 written; ETEST-012 blocked on hardware, not on work* | agent | ETEST-012 (×3), **FTEST-009** |
 | **TASK-020** | **The stage acceptance gate** — present, then accept / revise / stop | REQ-F-038, REQ-F-039, REQ-F-041, ADR-006 | **P0** | TASK-006 | **Done** — *resume half waits for TASK-007* | agent | ATEST-041…043, ATEST-045, UTEST-026…029, **ETEST-013**, **ETEST-014 (×8)**, FTEST-019, FTEST-022, STEST-016 |
 | **TASK-021** | **Blueprint integrity manifest and verification** | REQ-F-042 | **P0** | TASK-003 | **Done** | agent | ATEST-046, UTEST-030, FTEST-020, STEST-015, ETEST-015 |
 | **TASK-022** | **Blueprint coverage — every template used or recorded as skipped** | REQ-F-040, REQ-F-043 | **P1** | TASK-012, TASK-021 | **Done** | agent | ATEST-044, ATEST-047, UTEST-031, TEST-019, FTEST-021, ETEST-015 |
