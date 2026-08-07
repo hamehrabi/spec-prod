@@ -292,10 +292,13 @@ it against a defect curve where two runs found five defects.
 
 **The eight-round row is the more useful measurement, and it cost seven defects to get.** The
 three breaches are not the run being sloppy; each traces to something no partial workspace
-could have reached. `no_leftover_template` (29) and `todo_pairing` (1) are BUG-033 to BUG-035
-— two checks reading correct work as defective, and one marker tracked by a task rather than a
-question. `structural_checks` (3) is checks 2, 5 and 6, which is those same findings plus
-duplicate definitions in `technical-spec.md` (BUG-036). Three more the scorers do **not** catch
+could have reached. `no_leftover_template` was **29 and is now 22**: BUG-033 was seven of them,
+and it was this check reading correct work as defective — Keep-a-Changelog headings, id stubs
+describing a format, prompt substitution slots, kept example labels. Sized against all 82
+blueprints before it was fixed, and held to eleven library-wide exemptions by UTEST-067. What
+remains is three real gaps (BUG-034). `todo_pairing` (1) is a marker tracked by a task rather
+than a question (BUG-035), and `structural_checks` (3) is checks 2, 5 and 6 — those same
+findings plus duplicate definitions in `technical-spec.md` (BUG-036). Three more the scorers do **not** catch
 are recorded in GOLD-001: a register claiming a CI gate that does not exist (BUG-037), the core
 subdomain's invariant never reaching the schema (BUG-038), and refusals written with no reason
 (BUG-039). Every one is pinned by a test that fails the day it is fixed.

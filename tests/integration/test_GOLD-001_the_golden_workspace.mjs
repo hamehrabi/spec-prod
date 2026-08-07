@@ -198,29 +198,24 @@ test('GOLD-001: every filled blueprint carries a back-link that resolves to a re
 // `assert.deepEqual(unfilled(text), [])` — what this used to be — cannot say "these six are
 // understood and nothing else is allowed".
 //
-// Two kinds, and they are not the same kind of problem:
-//   FALSE POSITIVE  `unfilled()` is wrong about it. The text is correct and must not be edited.
-//   REAL GAP        the run left something unfilled that should have been [TODO] or a value.
+// BUG-033 IS FIXED, and this ledger is how that was measured. It used to hold six entries and
+// 29 placeholders; four of those entries were the check being wrong, and `describesFormat()` in
+// fill.mjs now reports them as `context: 'format'` — seen and judged content, rather than
+// counted as a gap or quietly dropped. Two entries went to zero and disappeared from this list.
+//
+// What remains is one template and three REAL GAPS, which is a far more useful thing to have.
 const SURVIVING_PLACEHOLDERS = {
   'spec/01-docs/05-architecture/architecture-decisions/ADR-000-template.md': {
     n: 12,
     why: 'TEMPLATE — it says "Copy this file to ADR-001-short-title.md and fill it in", and its placeholders are what make it usable. Filling them destroys the file. Check 5 exempts it through isTemplate() (UTEST-065); this test applies the same rule rather than a second opinion.',
   },
-  'spec/07-ops/04-release/release-notes.md': {
-    n: 2,
-    why: 'FALSE POSITIVE (BUG-033) — `## [Unreleased]` and `## [1.0.0]` are Keep-a-Changelog headings. The brackets are the format, not a gap, and there is nothing to fill.',
+  'spec/01-docs/03-product-spec/product-spec.md': {
+    n: 8,
+    why: 'REAL GAP (BUG-034) — eight `TASK-###` / `TEST-###` cells across the four user-story rows. The run reached Round 7 and wrote TASK-001, so each cell should hold a real id or a [TODO]; a bare stub is neither, and it reads as a task that exists. BR-003 sanctions the marker, not the stub.',
   },
   'spec/06-agent/01-instructions/AGENT.md': {
-    n: 3,
-    why: 'FALSE POSITIVE (BUG-033) — "**Requirement covered** (REQ-### / TASK-###)" describes the SHAPE of the id a handoff report must carry. It is the distinction UTEST-066 drew for check 1: an identifier being described is not an identifier being used.',
-  },
-  'spec/06-agent/03-prompts/prompt-library.md': {
     n: 1,
-    why: 'FALSE POSITIVE (BUG-033) — "Implement only TASK-[ID]" is a prompt the developer substitutes into at the moment they use it. A filled-in TASK-001 here would be a library of one prompt.',
-  },
-  'spec/01-docs/03-product-spec/product-spec.md': {
-    n: 10,
-    why: 'MIXED — `*Example (Ch. 6 §6.3)*` is a kept section LABEL and a false positive (BUG-033); deleting it would make the example table below read as real content. The nine `TASK-###` / `TEST-###` cells in the user-story table are a REAL GAP (BUG-034): the run reached Round 7 and wrote TASK-001, so those cells should hold either a real id or a [TODO], and a bare stub is neither. BR-003 sanctions the marker, not the stub.',
+    why: 'REAL GAP (BUG-034) — "*Add a line here whenever a bug reveals a repeatable AI mistake…*" is the blueprint telling the developer what to write, left in the delivered file. The two id-stubs beside it WERE this check being wrong and are now exempt; this one is not, and separating them is what the BUG-033 survey was for.',
   },
   'spec/05-review/02-checklists/security-review.md': {
     n: 1,
@@ -228,7 +223,7 @@ const SURVIVING_PLACEHOLDERS = {
   },
 }
 
-test('GOLD-001: every surviving placeholder is one of the six that are understood', () => {
+test('GOLD-001: every surviving placeholder is one of the four that are understood', () => {
   const found = Object.fromEntries(
     Object.entries(workspace)
       .map(([p, t]) => [p, unfilled(t).length])
@@ -249,8 +244,15 @@ test('GOLD-001: two of the six are real gaps, and they are named as gaps', () =>
   assert.deepEqual(real.map(([p]) => p).sort(), [
     'spec/01-docs/03-product-spec/product-spec.md',
     'spec/05-review/02-checklists/security-review.md',
+    'spec/06-agent/01-instructions/AGENT.md',
   ])
   for (const [p, e] of real) assert.match(e.why, /BUG-034/, `${p} names no defect to fix`)
+
+  // And nothing in the ledger is a false positive any more — BUG-033 is fixed, so an entry
+  // saying "the check is wrong" would mean a rule was missed rather than a workspace repaired.
+  for (const [p, e] of Object.entries(SURVIVING_PLACEHOLDERS)) {
+    assert.doesNotMatch(e.why, /FALSE POSITIVE/, `${p} — fix the check, do not record it here`)
+  }
 })
 
 // --- ADR-006 / ADR-004: acceptance is a row, never a file -------------------------------------
@@ -445,15 +447,17 @@ test('GOLD-001: three scorers breach, and every one traces to a named defect', (
   assert.equal(scored.results.find((x) => x.name === 'structural_checks').value, 3, 'one per failing check')
 
   // Each breach is one of the findings this file already documents, and none is a surprise:
-  //   no_leftover_template  29 = the six entries in SURVIVING_PLACEHOLDERS (BUG-033, BUG-034)
+  //   no_leftover_template  22 = the four entries in SURVIVING_PLACEHOLDERS. It was 29 before
+  //                              BUG-033 was fixed, and the seven that went were the check
+  //                              being wrong rather than the workspace.
   //   todo_pairing           1 = the entry point's TASK-tracked marker (BUG-035)
-  //   structural_checks      3 = checks 2, 5 and 6, which are those same two findings plus
-  //                              the duplicate definitions asserted below (BUG-036)
-  assert.equal(scored.results.find((x) => x.name === 'no_leftover_template').value, 29)
+  //   structural_checks      3 = checks 2, 5 and 6, which are those same findings plus the
+  //                              duplicate definitions asserted below (BUG-036)
+  assert.equal(scored.results.find((x) => x.name === 'no_leftover_template').value, 22)
   assert.equal(
     Object.values(SURVIVING_PLACEHOLDERS).reduce((n, e) => n + e.n, 0),
-    29,
-    'the ledger and the scorer must be counting the same 29 things'
+    22,
+    'the ledger and the scorer must be counting the same 22 things'
   )
   assert.equal(scored.results.find((x) => x.name === 'todo_pairing').value, 1)
 })

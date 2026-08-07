@@ -120,13 +120,60 @@ function contextOf(text, index) {
   return 'body'
 }
 
+/**
+ * A match that is DESCRIBING a shape rather than waiting to be given a value (BUG-033).
+ *
+ * The same distinction UTEST-066 drew for check 1, arriving here: an identifier being described
+ * is not an identifier being used. `contextOf` decides this by POSITION — inside a fence, inside
+ * backticks, inside a quote. These four cannot be decided by position, because they sit in
+ * ordinary body text and are still not gaps.
+ *
+ * Each was sized against the whole library before it was written, not against the file that
+ * surfaced it. Eleven matches across 82 blueprints, and the counts are asserted in UTEST-067 so
+ * a rule that quietly widens fails rather than silently exempting more:
+ *
+ *   version-heading   4   `## [Unreleased]`, `## [1.0.0] — YYYY-MM-DD`. Keep-a-Changelog names
+ *                         its sections this way; the brackets ARE the format. The `YYYY-MM-DD`
+ *                         beside it is still reported, so the row's real gap is untouched.
+ *   id-alternatives   4   `REQ-### / TASK-###` — two stubs offered as a choice. One stub alone
+ *                         is a value nobody minted; a slash between two is a sentence saying
+ *                         "either kind of id goes here".
+ *   example-label     2   `*Example (Ch. 6 §6.3)*` — a heading for a table the blueprint KEEPS.
+ *                         Deleting it is worse than leaving it: the example below then reads as
+ *                         the developer's own content.
+ *   id-slot           1   `TASK-[ID]` in the prompt library. The bracket is a slot in a NAME,
+ *                         inside a prompt the developer substitutes into at the moment they
+ *                         use it. Filling it in leaves a library of one prompt.
+ *
+ * NOT DISCARDED — reported with `context: 'format'`, for the reason the doc comment on
+ * `unfilled` gives: "we saw it and judged it content" is a different claim from "we never
+ * looked", and only the first one is honest.
+ */
+function describesFormat(kind, matchText, line) {
+  if (kind === 'placeholder' && /^#{1,6}\s*\[/.test(line) && /^\[(?:Unreleased|v?\d+\.\d+(?:\.\d+)?)\]$/.test(matchText)) return true
+  if (kind === 'id-stub' && /###\s*\/\s*[A-Z]{2,6}(?:-[A-Z])?-###/.test(line)) return true
+  if (kind === 'instructional-italic' && /^\*Examples?\b[^*]{0,40}\*$/.test(matchText)) return true
+  if (kind === 'placeholder' && /\b[A-Z]{2,6}(?:-[A-Z])?-\[/.test(line)) return true
+  return false
+}
+
 /** Every candidate, each tagged with the context that decides how to read it. */
 export function placeholders(text) {
   const found = []
+  const lines = text.split(/\r?\n/)
   for (const { kind, re } of RULES) {
     for (const m of text.matchAll(re)) {
       const line = text.slice(0, m.index).split('\n').length
-      found.push({ kind, text: m[0].trim(), line, context: contextOf(text, m.index) })
+      const matchText = m[0].trim()
+      const context = contextOf(text, m.index)
+      // Position wins. A span inside a fence is already content, and re-labelling it 'format'
+      // would lose which reason excused it.
+      found.push({
+        kind,
+        text: matchText,
+        line,
+        context: context === 'body' && describesFormat(kind, matchText, lines[line - 1] ?? '') ? 'format' : context,
+      })
     }
   }
   return found.sort((a, b) => a.line - b.line)
