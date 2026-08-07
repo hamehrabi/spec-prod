@@ -28,6 +28,27 @@ const notRun = (reason, because = null) => ({ state: 'not-run', detail: [reason]
 export const AWAITING_ENTRY_POINT = 'awaiting-entry-point'
 
 const md = (ws) => Object.entries(ws).filter(([p]) => p.endsWith('.md'))
+
+/**
+ * Does this file tell the developer to copy it?
+ *
+ * A workspace ships a few files that are templates for the developer's own later use —
+ * `ADR-000-template.md` is one — and those keep their placeholders on purpose. Check 5 flagged
+ * twelve violations in that one file on the first eight-round run, for containing exactly the
+ * `[Decision Title]` and `[Option A]` markers that make it usable.
+ *
+ * READ FROM THE FILE, NOT FROM A LIST OF NAMES. The instruction to copy is a sentence the
+ * blueprint already carries, so a template added to the library tomorrow is covered the day it
+ * arrives — and a file that merely has "template" in its name is not excused for having it.
+ *
+ * Anchored to the top of the file: this must be the document telling you to copy IT, not a
+ * sentence somewhere in the middle telling you to copy something else.
+ *
+ * NO `m` FLAG, deliberately. With it, `^` matches at every line start, so the twelve-line limit
+ * could begin anywhere and the anchor meant nothing — the first version had it, and a file with
+ * forty lines of filler before the sentence still passed.
+ */
+export const isTemplate = (text) => /^(?:.*\n){0,12}?[ \t]*>?[ \t]*Copy this file to /.test(text)
 const all = (ws) => Object.values(ws).join('\n')
 
 /** Compare question text the way a reader would: same words, same order, punctuation and
@@ -183,14 +204,24 @@ export const CHECKS = {
     },
   },
   3: {
-    name: 'every generated file ends with a back-link that resolves',
+    name: 'every file copied from a blueprint ends with a back-link that resolves',
     run(ws, library = null) {
-      const missing = md(ws).filter(([, text]) => !blueprintOf(text))
+      // THE ENTRY POINT IS NOT A FILLED BLUEPRINT. `spec/CLAUDE.md` is composed by
+      // `instructions/entrypoint.md` from what the workspace already contains — there is no
+      // blueprint it is a copy of, so there is nothing for a back-link to point at. Requiring
+      // one failed the first eight-round run ever produced, for writing the entry point exactly
+      // as specified.
+      //
+      // Excluded BY NAME, not by a pattern. A rule like "files at the workspace root are
+      // exempt" would also excuse `spec/README.md`, which IS a filled blueprint and whose
+      // back-link is the only thing tying it to one.
+      const files = md(ws).filter(([p]) => p !== 'spec/CLAUDE.md')
+      const missing = files.filter(([, text]) => !blueprintOf(text))
       if (missing.length) return failed(missing.slice(0, 5).map(([p]) => `${p} has no blueprint back-link`))
       if (!library) return notRun('the blueprint library was not supplied, so targets could not be resolved')
-      const broken = md(ws).filter(([, text]) => !library.includes(blueprintOf(text)))
+      const broken = files.filter(([, text]) => !library.includes(blueprintOf(text)))
       return broken.length === 0
-        ? passed([`${md(ws).length} back-links resolve`])
+        ? passed([`${files.length} back-links resolve`])
         : failed(broken.slice(0, 5).map(([p, t]) => `${p} points at ${blueprintOf(t)}, which is not in the library`))
     },
   },
@@ -208,7 +239,22 @@ export const CHECKS = {
   5: {
     name: 'no surviving placeholder or instructional italic',
     run(ws) {
-      const hits = md(ws).map(([p, t]) => [p, unfilled(t)]).filter(([, u]) => u.length > 0)
+      // A FILE THE WORKSPACE SHIPS FOR THE DEVELOPER TO COPY KEEPS ITS PLACEHOLDERS. That is
+      // what it is for. `ADR-000-template.md` says so in its own second line — "Copy this file
+      // to ADR-001-short-title.md and fill it in" — and the first eight-round run reported
+      // twelve violations against it for containing exactly the `[Decision Title]` and
+      // `[Option A]` markers that make it usable.
+      //
+      // Acting on that report would have meant filling the template in, which destroys the
+      // file. A check whose fix breaks the thing it checked is worse than no check.
+      //
+      // DECIDED BY THE FILE'S OWN TEXT, not by a filename list. `isTemplate` asks whether the
+      // file tells the developer to copy it — so a new template added to the library is covered
+      // the day it arrives, and a file that merely has "template" in its name is not excused.
+      const hits = md(ws)
+        .filter(([, t]) => !isTemplate(t))
+        .map(([p, t]) => [p, unfilled(t)])
+        .filter(([, u]) => u.length > 0)
       return hits.length === 0
         ? passed()
         : failed(hits.slice(0, 5).map(([p, u]) => `${p} line ${u[0].line}: ${u[0].text.slice(0, 40)}`))
@@ -259,7 +305,20 @@ export const CHECKS = {
           from = at + q.length
           const lineEnd = t.indexOf('\n', at)
           const line = t.slice(t.lastIndexOf('\n', at) + 1, lineEnd === -1 ? t.length : lineEnd)
-          const cited = [...new Set(line.match(/\bQ-\d{3}\b/g) ?? [])]
+          // THE MARKER FIRST, THEN ITS LINE. `line` is one line, and a [TODO] long enough to
+          // need a citation is long enough to wrap — so the citation lands on the marker's
+          // SECOND line and a one-line slice cannot see it:
+          //
+          //   > [TODO: what is the monitoring appetite — structured logs + error alerts, or
+          //   > full metrics and tracing? — Q-018]. Version one plans structured logs...
+          //
+          // A real eight-round run produced four of those and this check called all four
+          // unpaired, on a workspace that had done exactly the right thing. That is the
+          // twelfth defect in this repository to be a pattern dying across a hard wrap, and
+          // this one arrived in the commit that fixed the opposite failure — the rule used to
+          // accept any Q-### within 300 characters, and tightening it to "the marker or its
+          // row" replaced matching too much with matching too little.
+          const cited = [...new Set(`${q} ${line}`.match(/\bQ-\d{3}\b/g) ?? [])]
           const row = rows.get(norm(q)) ?? cited.map((c) => byId.get(c)).find(Boolean)
           // STALE, not merely unpaired. The question was answered and the marker was left
           // behind, so the workspace now contradicts itself — and a marker its own workspace
