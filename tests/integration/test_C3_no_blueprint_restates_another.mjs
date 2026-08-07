@@ -35,10 +35,21 @@ const sections = (text) =>
     .map((m) => m[1].replace(/^\d+(\.\d+)?\.?\s*/, '').replace(/\s*\([^)]*\)\s*$/, '').trim().toLowerCase())
     .filter((t) => t && !['contents', 'prompts'].includes(t))
 
+// A HARDCODED LIST OF THREE IS WHY THE FOURTH SURVIVED. §3 restated frontend-component-spec.md
+// whole — the component table with its blank row, the per-component template, the six-row
+// example set, "The five states rule" and the Ch. 27 §27.7 quote — and the two copies had
+// already drifted ("Never render empty as a zero value" against "Never render an empty result
+// as a zero value"). Both are Round 4, in the same directory, so the developer filled the same
+// empty component table twice in one round from two templates that disagreed.
+//
+// The list is still explicit rather than derived: a blanket pairwise comparison of all 81
+// blueprints reports "contents", "prompts" and "scope" as clashes and gets switched off. Add
+// to it whenever a blueprint is given a pointer section.
 const OWNED_ELSEWHERE = [
   '01-docs/06-api-and-data-design/database-design.md',
   '01-docs/06-api-and-data-design/api-specification.md',
   '01-docs/06-api-and-data-design/data-and-integration-spec.md',
+  '01-docs/04-technical-spec/frontend-component-spec.md',
 ]
 
 test('C3: the technical spec does not restate a section another blueprint owns', () => {
