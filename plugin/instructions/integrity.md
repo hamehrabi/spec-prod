@@ -46,10 +46,16 @@ so for that developer Step 0 could never run and the kit stopped before question
 is not a degraded experience — it is the whole product refusing to start.
 
 The PowerShell line above was **verified by execution against this library**: it produces
-`8c414fa508c617d6ec75b1c7b1d0cc523c71db7c9eeeb1bb6540c82c6f6eaee1`, byte-identical to what
-the POSIX form produces and to the manifest's declared digest. It uses only built-ins that
-ship with Windows, and it **creates no file** — the accumulation happens in a variable and
-the final hash is computed in memory, which is what keeps it inside the BUG-004 rule.
+the value on the manifest's **Library digest** line, byte-identical to what the POSIX forms
+produce. It uses only built-ins that ship with Windows, and it **creates no file** — the
+accumulation happens in a variable and the final hash is computed in memory, which is what
+keeps it inside the BUG-004 rule.
+
+**No digest is written here on purpose.** The manifest is the one place that value lives. A
+copy in this file would have to be updated by every change that touches a blueprint — which
+would mean a blueprint change and an instruction change in the same commit, and REQ-NF-005
+forbids exactly that. A second copy of a fact is a second thing that can be wrong, and this
+one would go wrong on a schedule.
 
 Do not "simplify" it. The obvious simplification is to write the digest list to a temp file
 and hash that, and **that is forbidden** — it is BUG-004 exactly. The second most obvious is
