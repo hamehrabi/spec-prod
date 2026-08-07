@@ -31,7 +31,7 @@ Protects three different things. Say which one you are protecting — they need 
 | Login | [TODO: which authentication model does this project use?] | [TODO: which authentication model does this project use?] | per IP + per account | 429 + `Retry-After` | **Yes** |
 | Write endpoints | Not set | — | per user | — | ☐ Not needed — *why:* one account writes its own recipes; there is no shared resource to exhaust and no other user to affect. *Revisit when:* anything is shared between accounts. |
 | Expensive / AI endpoints | — | — | — | — | ☐ Not needed — *why:* no endpoint calls a paid API. Shopping-list generation reads rows this account already owns (FF-003 forbids an external call on that path). *Revisit when:* Q-017 names any external service. |
-| Everything else | — | — | — | — | ☐ Not needed — *why:* no public unauthenticated endpoint exists. Every route requires a signed-in cook (REQ-R-003). |
+| Everything else | — | — | — | — | ☐ Not needed — *why:* no public unauthenticated endpoint exists. Every route requires a signed-in cook (REQ-R-003). *Revisit when:* any route becomes reachable without signing in. |
 
 **Login is the exception, and it stays "yes" even though nothing else does.** It is the one
 endpoint reachable before authentication, so it is the one an attacker can reach at all. The
@@ -53,8 +53,8 @@ provider sets it and this row records which; if it is built, this row has to car
 | What | Where | TTL | Invalidated by | Stale is acceptable? | Needed? |
 |---|---|---|---|---|---|
 | Static assets | CDN | — | content hash in filename | yes | ☐ Not needed — *why:* single region, one small asset bundle. *Revisit when:* Q-010 puts users in more than one region. |
-| Reference data | — | — | — | — | ☐ Not needed — *why:* there is no reference data. Every row belongs to one account. |
-| Expensive query | — | — | — | — | ☐ Not needed — *why:* the largest query is one week of meals. Tens of rows. |
+| Reference data | — | — | — | — | ☐ Not needed — *why:* there is no reference data. Every row belongs to one account. *Revisit when:* any data is shared between accounts. |
+| Expensive query | — | — | — | — | ☐ Not needed — *why:* the largest query is one week of meals. Tens of rows. *Revisit when:* a query spans more than one week, or [`Q-010`](../01-intent/open-questions.md) is answered above a few thousand. |
 | Per-user data | — | — | — | **no** | ☐ Not needed — *why:* see below. This is the one that stays "no" on principle rather than on volume. |
 
 **The last row is a decision, not a measurement.** Caching per-user data in a shared cache

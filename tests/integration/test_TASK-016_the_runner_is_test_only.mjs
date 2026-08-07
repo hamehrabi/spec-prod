@@ -17,7 +17,7 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { copyFileSync, mkdirSync, readFileSync, readdirSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { run, check, payloadCopy, REPO } from '../_helpers.mjs'
 import { hostArgs, intakeCommand } from '../../ci/generate-workspace.mjs'
@@ -28,7 +28,15 @@ const MODULES = [RUNNER, 'ci/answers.mjs', 'ci/workspace.mjs']
 // --- It cannot ship --------------------------------------------------------------------------
 
 test('TASK-016: the runner lives outside the payload', () => {
-  for (const module of MODULES) assert.ok(!module.startsWith('plugin/'), `${module} is inside the payload root`)
+  // THIS USED TO ASSERT ITS OWN LITERALS. `MODULES` is three strings written five lines above,
+  // and nothing read the disk — so the loop only ever confirmed that three hardcoded strings
+  // do not begin with "plugin/". Deleting or relocating any of the three files could not fail
+  // it. Ask the filesystem where they actually are.
+  for (const module of MODULES) {
+    assert.ok(existsSync(join(REPO, module)), `${module} does not exist — this test names a file that is not there`)
+    assert.ok(!existsSync(join(REPO, 'plugin', module.replace(/^ci\//, ''))), `${module} has a twin inside the payload`)
+    assert.ok(!module.startsWith('plugin/'), `${module} is inside the payload root`)
+  }
 })
 
 test('TASK-016: FF-009 blocks the merge if the runner is copied into the payload', () => {
@@ -90,7 +98,14 @@ test('TASK-016: the run starts from the command a developer types', () => {
 
   const { stdout } = runner(['EV-001', '--dry-run'])
   assert.ok(stdout.includes(command), 'the dry run must show what the developer types')
-  const brief = stdout.slice(stdout.indexOf('# what they already answered'))
+  // `slice(indexOf(x))` IS A SILENT PASS WHEN x IS ABSENT: `indexOf` returns -1 and
+  // `slice(-1)` is the LAST CHARACTER of the string. Renaming that heading in the runner would
+  // have run both assertions below against a one-character string, so the briefing could then
+  // have said "follow `instructions/intake.md` exactly" — the twelve-minute dead run this test
+  // is named for — and it would still have passed.
+  const at = stdout.indexOf('# what they already answered')
+  assert.notEqual(at, -1, 'the briefing heading must exist, or there is nothing here to assert about')
+  const brief = stdout.slice(at)
   assert.doesNotMatch(brief, /intake\.md/, 'the briefing must not send the model looking for files')
   assert.doesNotMatch(brief, /instructions\//, 'the command names the entry point; the briefing does not')
 })
@@ -138,8 +153,18 @@ test('TASK-016: nothing the developer said reaches the host on a command line', 
 test('TASK-016: the runner states what it does not establish', () => {
   // A harness that lists only what it checked reads as though it checked everything. These
   // three gaps are real and none of them is closeable by this tool.
+  // THE TWO ASSERTIONS WERE INDEPENDENT, so "it says so where a person will see it" proved
+  // only that the heading exists. Scope the identifiers to the block that is actually printed.
   const source = readFileSync(join(REPO, RUNNER), 'utf8')
-  for (const gap of ['SEC-Z-002', 'ADR-002', 'BR-009']) assert.match(source, new RegExp(gap))
-  // And it says so where a person reading a result will see it, not only in a comment.
-  assert.match(source, /this run does NOT establish/)
+  const from = source.indexOf('this run does NOT establish')
+  assert.notEqual(from, -1, 'the runner must print a does-NOT-establish block')
+  const block = source.slice(from, source.indexOf('RESULT:', from))
+
+  for (const gap of ['SEC-Z-002', 'ADR-002']) {
+    assert.ok(block.includes(gap), `${gap} is named in a comment but not in what the runner prints`)
+  }
+  // BR-009 IS NOT IN THE PRINTED BLOCK TODAY — it appears only in this file's own comments.
+  // That is a finding about ci/generate-workspace.mjs rather than about this test, and it is
+  // recorded here so it is visible rather than hidden behind a whole-file match that passed.
+  assert.match(source, /BR-009/, 'the runner must at least reason about BR-009')
 })

@@ -12,6 +12,7 @@ import {
   stripWorkedExample, backLink, blueprintOf, placeholders, todos, mint, headings,
   unfilled, wrapperTarget, wrapperComment, wrapperArtifact,
 } from '../../ci/fill.mjs'
+import { walk, toPosix } from '../../ci/payload.mjs'
 
 // --- Step 6: the back-link (UTEST-014, TEST-006) ---------------------------------------
 
@@ -21,6 +22,13 @@ const DEPTHS = [
   ['01-docs/01-intent/intent.md', 'depth 3'],
   ['03-tests/05-executable/unit/notes.md', 'depth 4'],
 ]
+
+/** Every blueprint that actually ships, as a payload-relative POSIX path. Walked rather than
+ *  listed: a list here would go stale silently, and the point of TEST-006 is the real set. */
+const REAL_BLUEPRINTS = walk('plugin/blueprints')
+  .map(toPosix)
+  .map((p) => p.split('/').slice(2).join('/'))
+  .filter((p) => p.endsWith('.md') && p !== 'MANIFEST.md')
 
 for (const [path, why] of DEPTHS) {
   test(`UTEST-014: back-link names the blueprint at ${why}`, () => {
@@ -33,13 +41,24 @@ for (const [path, why] of DEPTHS) {
 }
 
 test('TEST-006: every back-link resolves to a blueprint that actually exists', () => {
-  for (const [path] of DEPTHS.slice(1)) {
-    const target = `plugin/blueprints/${blueprintOf(backLink(path))}`
-    // Only the paths that correspond to real library files are asserted; the point is that
-    // resolution is mechanical, not that these four fixtures all ship.
-    if (path === '01-docs/01-intent/intent.md') {
-      assert.ok(existsSync(target), `${target} must exist for the back-link to mean anything`)
-    }
+  // THE "EVERY" WAS A `.slice(1)` AND AN `if`. Four fixture paths went in, one was dropped by
+  // the slice, two more were skipped by the condition, and the single remaining case was the
+  // only one asserted — while three of the four resolved to nothing on disk. A test named
+  // "every back-link resolves" was green over a set in which three did not.
+  //
+  // The fix is to stop asserting existence over invented paths and assert it over the REAL
+  // library, at every depth it actually has. Round-tripping the invented paths above is a
+  // separate claim, and it is made separately.
+  const real = REAL_BLUEPRINTS
+  assert.ok(real.length > 70, 'the library walk found almost nothing — this test would be vacuous')
+
+  const depths = new Set(real.map((p) => p.split('/').length))
+  assert.ok(depths.size >= 3, `the library must exercise several depths; found ${[...depths].sort().join(', ')}`)
+
+  for (const path of real) {
+    const resolved = blueprintOf(backLink(path))
+    assert.equal(resolved, path, `the back-link for ${path} does not round-trip`)
+    assert.ok(existsSync(`plugin/blueprints/${resolved}`), `plugin/blueprints/${resolved} does not exist`)
   }
 })
 

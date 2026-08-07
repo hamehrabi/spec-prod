@@ -40,6 +40,7 @@ import { score } from '../../ci/eval-runner.mjs'
 import { acceptedStages, forbiddenStateFiles } from '../../ci/acceptance.mjs'
 import { validate } from '../../ci/validation.mjs'
 import { unfilled, todos, blueprintOf } from '../../ci/fill.mjs'
+import { table } from '../_helpers.mjs'
 
 const ROOT = 'tests/fixtures/golden/EV-001'
 
@@ -153,7 +154,16 @@ test('GOLD-001: no placeholder survived as body text', () => {
 test('GOLD-001: each round recorded its own acceptance as a dated row', () => {
   // BUG-010. Only possible because 01-docs/09-change-control/ moved to Round 1 — a file every
   // round writes to is created by the first round that writes to it.
-  assert.equal(acceptedStages(changeLog).length, rounds)
+  //
+  // THIS WAS `assert.equal(acceptedStages(changeLog).length, rounds)` — and `rounds` is that
+  // same expression, computed forty lines above. It was `x === x`: deleting every acceptance
+  // row from the change log made both sides 0 and the test passed on a workspace recording no
+  // acceptance at all, which is the opposite of its name.
+  const accepted = acceptedStages(changeLog)
+  assert.equal(accepted.length, 3, 'three rounds are accepted; Round 4 is written but not accepted')
+  // Each row carries a DATE, which is what ADR-006 makes acceptance out of.
+  const dated = changeLog.split('\n').filter((l) => /^\| \d{4}-\d{2}-\d{2} \|/.test(l))
+  assert.equal(dated.length, accepted.length, 'every accepted stage is a dated row and nothing else is')
 })
 
 test('GOLD-001: no state, progress or acceptance file exists anywhere', () => {
@@ -163,12 +173,27 @@ test('GOLD-001: no state, progress or acceptance file exists anywhere', () => {
 // --- Round 2: what express asked, and what it refused to invent -------------------------------
 
 test('GOLD-001: Round 2 asked its two express questions and recorded the other two', () => {
-  const open = workspace['spec/01-docs/01-intent/open-questions.md']
+  const open = table(workspace['spec/01-docs/01-intent/open-questions.md'], 'ID')
+
+  // `.*` USED TO CROSS FOUR COLUMNS HERE — Why it matters, Decision owner, Must be answered
+  // before, and Status. So `| Q-002 | … .*| Open |` proved only that the word "Open" appeared
+  // somewhere to the right of the question, not that it was the STATUS. A row reading
+  // `… | Open | Answered | We ruled out sharing.` — express inventing an answer to a question
+  // it never asked, the exact defect this test is named for — satisfied it.
+  const status = (id) => open.cell(id, 'Status')
+
   // Asked: capabilities (Q1) and the core subdomain (Q4). Q-001 closes as a result.
-  assert.match(open, /\| Q-001 \| Which capabilities must exist in version one\? .*\| Answered \|/)
+  assert.equal(status('Q-001'), 'Answered')
+  assert.match(open.cell('Q-001', 'Question'), /^Which capabilities must exist in version one\?$/)
+  assert.ok(open.cell('Q-001', 'Answer / decision').length > 0, 'answered means an answer is recorded')
+
   // Not asked: out-of-scope (Q2) and constraints (Q3). Recorded, never answered for them.
-  assert.match(open, /\| Q-002 \| Which capabilities are explicitly ruled out of version one\? .*\| Open \|/)
-  assert.match(open, /\| Q-003 \| What hard constraints already exist.*\| Open \|/)
+  for (const id of ['Q-002', 'Q-003']) {
+    assert.equal(status(id), 'Open', `${id} was dropped at express and must stay open`)
+    assert.equal(open.cell(id, 'Answer / decision').replace(/[—-]/g, '').trim(), '', `${id} must carry NO answer`)
+  }
+  assert.match(open.cell('Q-002', 'Question'), /^Which capabilities are explicitly ruled out of version one\?$/)
+  assert.match(open.cell('Q-003', 'Question'), /^What hard constraints already exist/)
 })
 
 test('GOLD-001: the constraint table is MARKED, never filled with what usually applies', () => {
@@ -176,10 +201,15 @@ test('GOLD-001: the constraint table is MARKED, never filled with what usually a
   // one small server, no card data — would read exactly like a stated constraint, and a
   // constraint changes the architecture rather than decorating it (BUG-012).
   const con = workspace['spec/01-docs/01-intent/constraints-and-non-goals.md']
-  const rows = con.match(/^\| CON-00\d \| [^|]+\| ([^|]+)\|/gm) ?? []
-  assert.equal(rows.length, 8, 'all eight constraint types are present')
+  // `CON-00\d` CANNOT MATCH A NINTH ROW, and the loop only ever inspected rows that pattern
+  // had already selected — so appending `| CON-010 | Legal | The system must not store card
+  // details. |` left the count at 8, every selected row still `[TODO:`, and both assertions
+  // green while the table stated a constraint nobody was asked for. Count every CON row.
+  const rows = table(con, 'ID').rows
+  assert.equal(rows.length, 8, 'all eight constraint types are present, and no ninth was invented')
+  assert.deepEqual(rows.map((r) => r[0]), Array.from({ length: 8 }, (_, i) => `CON-00${i + 1}`))
   for (const row of rows) {
-    assert.match(row, /\[TODO:/, `a constraint nobody stated must not be written as one: ${row}`)
+    assert.match(row[2], /\[TODO:/, `a constraint nobody stated must not be written as one: ${row.join(' | ')}`)
   }
   assert.match(con, /This table is marked, not filled, and that is deliberate/)
 })
@@ -199,8 +229,13 @@ test('GOLD-001: the subdomain map names one core, and leaves the blocked row blo
   // Generic says buy — unless a constraint forbids it, and then the row names the constraint
   // and stays undecided rather than defaulting to build (depth.md). CON-006 is unanswered
   // here, so this row is the visible price of the dropped question.
-  assert.match(map, /Accounts and sign-in \| \*\*Generic\*\*/)
-  assert.match(map, /Undecided — blocked on \[`CON-006`\]/)
+  // The second match used to be unanchored across the whole document, and the prose section
+  // below the table already says "the row stays undecided — blocked on CON-006". So the CELL
+  // could have been changed to `Buy` — defaulting to buy, which is exactly what this test's
+  // comment says the row must not do — and both assertions still passed.
+  const areas = table(map, 'Area of the system')
+  assert.equal(areas.cell('Accounts and sign-in', 'Type'), '**Generic**')
+  assert.match(areas.cell('Accounts and sign-in', 'Build / Buy'), /Undecided — blocked on \[`CON-006`\]/)
 })
 
 // --- BUG-014: a marker whose question was answered ---------------------------------------------
@@ -327,8 +362,18 @@ test('GOLD-001: every driver has a fitness function, and the dropped ones say wh
   const dc = workspace['spec/01-docs/02-requirements/driving-characteristics.md']
   // Three kept, four rejected with reasons — the rejected list is the evidence a decision was
   // made rather than a preference expressed.
-  assert.equal((dc.match(/^\| [123] \| \*\*/gm) ?? []).length, 3)
-  assert.equal((dc.match(/^\|[^|]+\| ❌ \|/gm) ?? []).length, 4)
+  // `^\| [123] \|` COULD NOT SEE A FOURTH DRIVER. A `| 4 | **Observability** | … | — |` row
+  // added to the table left this count at 3, so a declared driver with an empty fitness-function
+  // cell shipped ungoverned — REQ-F-022's exact failure, in the test written to hold REQ-F-022.
+  // Read the table and check the cell, per row.
+  const drivers = table(dc, '#')
+  assert.equal(drivers.rows.length, 3, 'three drivers, and BR-011 caps it at three')
+  for (const row of drivers.rows) {
+    assert.match(drivers.cell(row[0], 'Fitness function'), /FF-\d{3}/, `driver ${row[0]} (${row[1]}) has no fitness function`)
+  }
+  const rejected = table(dc, 'Candidate').rows.filter((r) => r[1] === '❌')
+  assert.equal(rejected.length, 4, 'four rejected candidates')
+  for (const r of rejected) assert.ok(r[2].length > 20, `${r[0]} was rejected with no reason given`)
 
   // Security is dropped, and the reason is the one most likely to be misread as negligence.
   assert.match(dc, /\*\*Not because it does not matter\.\*\*/)
@@ -374,10 +419,33 @@ test('GOLD-001: "not needed" is written as a decision with a revisit trigger, ne
   // scalability were both considered as drivers and both rejected — so this file is where that
   // rejection becomes written decisions rather than four empty tables that read as an oversight.
   const rs = workspace['spec/01-docs/04-technical-spec/runtime-and-scale.md']
-  const notNeeded = rs.match(/☐ Not needed — \*why:\*/g) ?? []
-  assert.ok(notNeeded.length >= 6, `expected several explicit refusals, found ${notNeeded.length}`)
+
+  // ONE GLOBAL MATCH CANNOT SAY "EVERY". `assert.match(rs, /\*Revisit when:\*/)` was satisfied
+  // by a single occurrence anywhere in the file — including the prose at the bottom — and it
+  // was already false of the document it passed on: three of the seven refusal rows carried
+  // no trigger at all. Check each refusal where it lives.
+  const refusals = rs
+    .split(/\r?\n/)
+    .filter((l) => l.includes('☐ Not needed — *why:*'))
+    .map((l) => ({ what: l.split('|')[1].trim(), line: l }))
+  assert.ok(refusals.length >= 6, `expected several explicit refusals, found ${refusals.length}`)
+
+  // The ONE row with no trigger, named with its reason — because it is refused on principle
+  // rather than on volume, so there is no number that could change and make it needed. The
+  // next test in this file is about exactly that row. An exemption nobody has to justify is
+  // how three missing triggers stayed invisible.
+  const NO_TRIGGER_EXPECTED = {
+    'Per-user data': 'refused on principle, not on volume — a shared cache without the account in the key breaks REQ-NF-002 at any size, so no threshold could reverse it',
+  }
+  for (const { what, line } of refusals) {
+    if (what in NO_TRIGGER_EXPECTED) {
+      assert.doesNotMatch(line, /\*Revisit when:\*/, `"${what}" is exempt because it cannot be reversed by a number; a trigger here would be misleading`)
+      continue
+    }
+    assert.match(line, /\*Revisit when:\*/, `"${what}" is refused with no revisit trigger — depth.md calls that a refusal that expires silently`)
+  }
+
   assert.match(rs, /☑ \*\*Single instance is fine\*\* — \*why:\*/)
-  assert.match(rs, /\*Revisit when:\*/, 'a refusal without a revisit trigger expires silently')
 
   // The one row that stays "yes" is the one an attacker can reach before authenticating.
   assert.match(rs, /Login is the exception, and it stays "yes" even though nothing else does/)

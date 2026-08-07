@@ -10,9 +10,11 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { parseQuestions } from '../../ci/questions.mjs'
+import { table } from '../_helpers.mjs'
 
 const { inRound, text } = parseQuestions()
 const depth = readFileSync('plugin/instructions/depth.md', 'utf8')
+const classes = table(depth, 'Class')
 
 // --- REQ-F-012: the core subdomain --------------------------------------------------------
 
@@ -73,15 +75,40 @@ test('a quality that is already a hard constraint does not need a driver slot', 
 
 // --- REQ-F-017 / BR-013: depth by class ---------------------------------------------------
 
-test('UTEST-015: core, supporting and generic get three different depths', () => {
-  assert.match(depth, /\*\*Core\*\*.*full chain/is)
-  assert.match(depth, /\*\*Supporting\*\*.*One page/is)
-  assert.match(depth, /\*\*Generic\*\*.*integration contract only/is)
+// THESE TWO USED TO SPAN THE WHOLE DOCUMENT. `/\*\*Core\*\*.*full chain/is` asserts only that
+// the string "**Core**" appears somewhere above the string "full chain" — so Core and
+// Supporting could swap depths outright and it still passed. The entire content of REQ-F-017
+// is WHICH class gets WHICH depth, and that is a claim about one table row.
+
+test('UTEST-015: core, supporting and generic get three different depths — each in its own row', () => {
+  assert.deepEqual(classes.labels, ['**Core**', '**Supporting**', '**Generic**'], 'three classes, no more')
+
+  const spec = (cls) => classes.cell(cls, 'Specification depth')
+  assert.match(spec('**Core**'), /full chain/i)
+  assert.match(spec('**Supporting**'), /One page/i)
+  assert.match(spec('**Generic**'), /integration contract only/i)
+
+  // And each depth belongs to exactly ONE class. Without this, a document that gave every
+  // class the same depth — the failure BR-013 exists to name — would satisfy the three
+  // assertions above as long as the words appeared once each.
+  const depths = classes.labels.map(spec)
+  assert.equal(new Set(depths).size, 3, 'three classes with the same depth is uniform depth wearing a table')
+  assert.doesNotMatch(spec('**Core**'), /One page|integration contract only/i)
+  assert.doesNotMatch(spec('**Supporting**'), /full chain|integration contract only/i)
+  assert.doesNotMatch(spec('**Generic**'), /full chain|One page/i)
 })
 
 test('ATEST-018: a supporting area gets one page and acceptance-level tests', () => {
-  assert.match(depth, /Acceptance-level only/i)
-  assert.match(depth, /Full pyramid/i, 'and the core area gets the full pyramid, or the distinction is empty')
+  const testDepth = (cls) => classes.cell(cls, 'Test depth')
+  assert.match(testDepth('**Supporting**'), /Acceptance-level only/i)
+  // The distinction is empty unless the core row says something else — asserting that both
+  // phrases exist somewhere in the file would pass with the two rows exchanged.
+  assert.match(testDepth('**Core**'), /Full pyramid/i)
+  assert.doesNotMatch(testDepth('**Supporting**'), /Full pyramid/i)
+
+  // Build-or-buy travels with the class too: core is built, generic is bought.
+  assert.match(classes.cell('**Core**', 'Build or buy'), /Build in-house/i)
+  assert.match(classes.cell('**Generic**', 'Build or buy'), /Buy or adopt/i)
 })
 
 test('BR-013: uniform depth is named as the failure this exists to avoid', () => {

@@ -9,6 +9,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { CHECKS, validate, report } from '../../ci/validation.mjs'
+import { inOrder } from '../_helpers.mjs'
 
 const doc = readFileSync('plugin/instructions/validation.md', 'utf8')
 const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
@@ -149,7 +150,7 @@ test('the empty state is an assertion, never silence', () => {
 
 test('validation runs before any success claim in the intake', () => {
   assert.match(intake, /Validate, before claiming anything worked/i)
-  assert.ok(intake.search(/### 2b\. Write/) < intake.search(/## Step \d+ — Validate/))
+  inOrder(intake, /### 2b\. Write/, /## Step \d+ — Validate/)
   assert.match(intake, /claim no success/i)
 })
 

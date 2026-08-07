@@ -20,6 +20,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 
 const COVERAGE = readFileSync('plugin/instructions/coverage.md', 'utf8')
+const INTAKE = readFileSync('plugin/instructions/intake.md', 'utf8')
 
 /** The round map, as `round -> the paths that round owns`. */
 const MAP = new Map(
@@ -47,27 +48,51 @@ test('UTEST-036: Round 1 owns the file every round appends its acceptance to', (
 })
 
 test('UTEST-036: every file the whole run writes to is owned by Round 1', () => {
-  // The general statement of BUG-010 and BUG-023 together. If a third such file is ever added,
-  // this fails rather than waiting for a run to discover it.
-  for (const shared of ['01-docs/01-intent/open-questions.md', '01-docs/09-change-control/spec-change-log.md'])
-    assert.equal(ownerOf(shared), 1, `${shared} is written by every round, so Round 1 must create it`)
+  // The general statement of BUG-010 and BUG-023 together.
+  //
+  // THE LIST IS DERIVED, NOT TYPED. It used to be two literals — the same two the two tests
+  // above already assert individually — under a comment promising "if a third such file is
+  // ever added, this fails". It could not: nothing here read the instructions. The files every
+  // round writes to are the ones intake.md and review.md name for the per-round gate, so ask
+  // those.
+  const shared = [...new Set([...INTAKE.matchAll(/spec\/(01-docs\/[\w-]+\/[\w-]+\.md)/g)].map((m) => m[1]))]
+  assert.ok(shared.length > 0, 'intake.md must name where the per-round row goes, or this test asserts nothing')
+  for (const path of shared) {
+    assert.equal(ownerOf(path), 1, `${path} is written during every round's gate, so Round 1 must create it`)
+  }
 })
 
 test('UTEST-036: no file is owned by two rounds', () => {
   // Two owners means a file written twice; the second write silently discards the first.
-  const seen = new Map()
-  for (const [round, paths] of MAP)
-    for (const p of paths) {
-      assert.ok(!seen.has(p), `${p} is owned by rounds ${seen.get(p)} and ${round}`)
-      seen.set(p, round)
-    }
+  //
+  // THIS COMPARED ENTRY STRINGS, AND `ownerOf` MATCHES BY PREFIX. So `01-docs/01-intent/`
+  // given to Round 2 and `01-docs/01-intent/intent.md` given to Round 1 are different strings,
+  // collided on nothing, and Round 2 silently took three of Round 1's files — the exact harm
+  // the comment names. Compare by what the entries actually cover.
+  const owns = (entry, path) => (/[/-]$/.test(entry) ? path.startsWith(entry) : path === entry)
+  const entries = [...MAP].flatMap(([round, paths]) => paths.map((p) => ({ round, p })))
+  for (const a of entries) {
+    const overlapping = entries.filter((b) => b.round !== a.round && (owns(a.p, b.p) || owns(b.p, a.p)))
+    assert.deepEqual(
+      overlapping.map((b) => `round ${b.round}: ${b.p}`),
+      [],
+      `round ${a.round} owns ${a.p}, which overlaps another round's entry`
+    )
+  }
 })
 
 test('UTEST-036: the reason is recorded, not just the placement', () => {
   // A map entry with no argument behind it gets moved back by whoever next reads the directory
   // number and thinks it looks misfiled. That is exactly how BUG-010 happened.
-  const section = COVERAGE.slice(COVERAGE.indexOf('Open questions belong to Round 1'))
+  // BOUNDED TO THE SECTION. This used to slice to end of file — a hundred lines covering five
+  // other headings — so `BUG-023`, `check 1` and the length floor were all measured against
+  // the rest of the document. Deleting the whole justification and leaving the heading behind
+  // would have passed.
+  const from = COVERAGE.indexOf('### Open questions belong to Round 1')
+  assert.notEqual(from, -1, 'the section must exist before anything can be said about it')
+  const to = COVERAGE.indexOf('\n### ', from + 1)
+  const section = COVERAGE.slice(from, to === -1 ? undefined : to)
   assert.match(section, /BUG-023/)
   assert.match(section, /check 1/)
-  assert.ok(section.length > 400, 'the placement is stated but not argued')
+  assert.ok(section.length > 400, `the placement is stated but not argued: the section is ${section.length} characters`)
 })
