@@ -33,6 +33,16 @@ structure.
 
 ---
 
+## Rules for code in this folder
+
+- Every module traces back to a requirement → [`../docs/traceability.md`](../01-docs/08-traceability/traceability.md)
+- Validation runs **before** business logic.
+- Secrets come from the environment, never from source.
+- Error messages are safe for users; details go to logs.
+- Behavior changes ship with tests in [`../tests/`](../03-tests/).
+
+---
+
 # WORKED EXAMPLE — refactoring an AI-built API module (Ch. 20 §20.8)
 
 **Before — AI-built draft.** Compiles, looks clean, and fails review: no title validation,
@@ -81,13 +91,3 @@ def create_task(project_id, request):
     except PermissionError as error:
         return {'error': str(error)}, 403
 ```
-
----
-
-## Rules for code in this folder
-
-- Every module traces back to a requirement → [`../docs/traceability.md`](../01-docs/08-traceability/traceability.md)
-- Validation runs **before** business logic.
-- Secrets come from the environment, never from source.
-- Error messages are safe for users; details go to logs.
-- Behavior changes ship with tests in [`../tests/`](../03-tests/).

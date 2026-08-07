@@ -14,8 +14,12 @@
 | [`rollback-plan.md`](rollback-plan.md) | Stable version, triggers, owner, comms. |
 | [`production-readiness-checklist.md`](production-readiness-checklist.md) | Full Appendix N pass + sign-off. |
 | [`environment-config.md`](environment-config.md) | Every config key and its security note. |
-| [`Dockerfile.example`](Dockerfile.example) | Container starting point. |
 | [`runbook.md`](../02-monitoring/runbook.md) | What to do when something breaks. |
+
+> **No container file ships with this workspace.** Packaging is a decision about your stack,
+> not a template — write the image definition next to the code and record what it assumes
+> here, under *Deployment readiness*. A `Dockerfile` copied from a specification kit is the
+> one you never read.
 
 > **Practical rule (Ch. 23):** do not ask an AI agent to "make this production ready" after
 > the code is already messy. Give the agent deployment requirements **before**

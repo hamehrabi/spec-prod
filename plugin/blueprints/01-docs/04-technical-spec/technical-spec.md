@@ -131,84 +131,31 @@ Record every significant choice as an ADR → [`decisions.md`](../05-architectur
 
 ## 3. Frontend Requirements
 
-| Area | Specification |
+**The interface specification is not written here.** It is written once, in
+[`frontend-component-spec.md`](frontend-component-spec.md) — the component table, the
+per-component template, the five states every data-bound component must handle, and the
+frontend requirement areas (screens, form fields, UI states, user actions, accessibility).
+
+The same rule as §5, §6 and §10 below. One empty component table filled twice, in the same
+round, from two templates that have already drifted apart, leaves the build agent two of them
+to choose between and nothing saying which one the screen was built from.
+
+| What you need | Where it is |
 |---|---|
-| Screens / pages | Dashboard, login, settings, list view, detail view, form page. |
-| Components | Navigation, table, card, modal, form, search bar, filter, status badge. |
-| Form fields | Required, optional, input type, placeholder, validation rule. |
-| UI states | Loading, empty, error, success, disabled, permission-denied. |
-| User actions | Create, edit, delete, save, cancel, search, filter, export, retry. |
-| Accessibility basics | Readable labels, keyboard-friendly navigation, clear error messages. |
+| Every component, its purpose, the data it needs, its states and its rules | `frontend-component-spec.md` — component table |
+| The full specification of one component | `frontend-component-spec.md` — per-component template |
+| Loading, success, empty, error, permission-denied | `frontend-component-spec.md` — the five states |
+| Screens, form fields, UI states, user actions, accessibility basics | `frontend-component-spec.md` — frontend requirement areas |
 
-**Screen example (Ch. 7 §7.4)**
-```
-Screen: Create Task
-Purpose: Allow a signed-in team member to create a new task.
-Fields:
-  - Title: required, text, maximum 120 characters
-  - Description: optional, text area
-  - Due date: optional, date input
-  - Assignee: required, selected from workspace members
-States:
-  - Loading: show saving indicator
-  - Success: return to task list and show the new task
-  - Error: explain what failed and keep the user input on screen
-```
+**What belongs here instead:** the interface decisions that are architectural rather than
+visual — what renders on the server and what renders in the browser, where client state lives
+and who owns it, what the interface is allowed to assume about the API.
 
-### Component specification (Ch. 27 §27.6)
-
-| Component | Purpose | Data needed | States | Rules |
-|---|---|---|---|---|
-| | | | loading, success, empty, error, unauthorized | |
-
-**Per-component template**
-```
-Component name:
-Purpose:
-Supports requirement: REQ-###
-
-Props / inputs:
-  - name: type — required/optional — meaning
-
-Internal state:
-
-States to handle:
-  - Loading:            [what the user sees]
-  - Success:            [what the user sees]
-  - Empty:              [why it is empty and how data appears]
-  - Error:              [safe message + recovery action]
-  - Disabled:           [when and why]
-  - Permission denied:  [what is hidden vs. what is explained]
-
-User actions:
-Validation shown inline:
-Accessibility notes:
-Out of scope for this component:
-```
-
-**Example component set (Ch. 27 §27.6)**
-
-| Component | Purpose | States | Rules |
-|---|---|---|---|
-| `DashboardShell` | Page frame: navigation, title, tenant selector. | loading, ready, unauthorized | Do not show content until tenant access is confirmed. |
-| `FilterBar` | Date, feature, plan, role filters. | ready, validating | Changing filters refreshes all dependent views. |
-| `KpiCardGrid` | Shows summary metrics. | loading, success, empty, error | Cards must explain what each metric means. |
-| `TrendChart` | Time-series metrics. | loading, success, empty, error | Empty charts must not appear as zero performance. |
-| `ReportTable` | Lists saved reports. | loading, success, empty, error | Only show reports visible to the current role. |
-| `ExportPanel` | Queues and tracks exports. | idle, queued, ready, failed | Export button only appears for permitted roles. |
-
-### The five states rule
-
-Every data-bound component must handle all five. Missing states are where shallow
-AI-generated UIs fail.
-
-| State | Requirement |
+| Cross-cutting interface decision | Consequence elsewhere in this document |
 |---|---|
-| Loading | Show progress; never a blank frame. |
-| Success | Render the data. |
-| **Empty** | Explain *why* it is empty and how data appears. Never render empty as a zero value. |
-| **Error** | Safe message + retry option. Never a stack trace. |
-| **Permission denied** | Hide or disable; do not reveal protected resource details. |
+| | |
+
+Leave this table empty if there are none.
 
 > **Security rule (Ch. 27 §27.7):** hiding a button in the frontend is helpful for the user
 > interface, but it is **not security by itself**. Enforce permissions on the server.
@@ -250,10 +197,10 @@ AI-generated UIs fail.
 a round earlier — entity model, schema, ownership and isolation rules, sensitive fields,
 retention, migration, and file storage.
 
-This section used to carry all eight of those subsections, with the same titles in the same
-order as that document. Two copies of a schema is the drift this whole kit exists to prevent:
+Do not restate any of it below, and do not summarise it here either — a summary of a schema is
+still a second copy. Two copies of a schema is the drift this whole kit exists to prevent:
 they disagree within a week, both look authoritative, and nothing tells the reader which one
-the code was built from (BUG-019).
+the code was built from.
 
 | What you need | Where it is |
 |---|---|
@@ -285,9 +232,8 @@ copied schema is a second source of truth.
 a round earlier — endpoint index, per-endpoint contracts, status code principles, contract
 rules, validation rules, and versioning.
 
-Same reason as §5. This section used to repeat the endpoint index and the endpoint template
-verbatim, so a developer filled the same table twice, three rounds apart, and the build agent
-had two of them to choose between.
+Same reason as §5. Repeating the endpoint index or the endpoint template here means filling
+the same table twice, rounds apart, and leaving the build agent two of them to choose between.
 
 | What you need | Where it is |
 |---|---|
@@ -349,17 +295,12 @@ promises about consistency.
 > A role table gives the agent a precise boundary. It does not need to guess whether a
 > Member can invite users — the table already says no.
 
-**Defensive authorization pattern (Ch. 21 §21.3)**
-```python
-ALLOWED_TO_CREATE_TASK = {"owner", "admin", "member"}
-
-def can_create_task(user, project):
-    if user is None:
-        return False
-    if user.project_id != project.id:
-        return False
-    return user.role in ALLOWED_TO_CREATE_TASK
-```
+**Defensive authorization pattern (Ch. 21 §21.3)** — specify the *order* of the checks, not
+the code that runs them. State, per protected action: deny when there is no signed-in user;
+deny when the resource belongs to a tenant the user is not in; allow only when the user's role
+is on an explicit allow-list. Written that way the rule is testable before any code exists —
+one test per denial, one for the allow. The worked example at the end of this file shows the
+same three checks as a filled specification.
 
 ### 7.3 Input validation
 
@@ -421,20 +362,7 @@ Acceptance criteria:
 2.
 ```
 
-**Worked example (Ch. 21 §21.9)**
-```
-Feature: Invite team member to project
-Requirement ID: SEC-INVITE-001
-Only authenticated project Owners and Admins can invite a new team member.
-
-Acceptance criteria:
-1. A signed-out user cannot send an invitation.
-2. A Viewer cannot send an invitation.
-3. A Member cannot send an invitation.
-4. An Owner or Admin can invite a user with a valid email address.
-5. The system does not expose invitation tokens in logs or error messages.
-6. Unauthorized requests return a safe access-denied response.
-```
+A filled version of this block is in the worked example at the end of this file.
 
 ### 7.8 Security review checklist (Ch. 21 §21.8)
 
@@ -449,7 +377,7 @@ Acceptance criteria:
 - [ ] Security requirements are linked to tests.
 - [ ] The AI agent has clear instructions not to add unapproved access paths.
 
-Full review pass → [`../review/review-log.md`](../../05-review/01-logs/review-log.md#security-review-checklist-appendix-m)
+Full review pass → [`../review/security-review.md`](../../05-review/02-checklists/security-review.md)
 
 ---
 
@@ -611,9 +539,8 @@ payment data.
 §5 and §6 — provider, data in and out, timeout, retry rule, idempotency, failure behaviour,
 secrets, rate limits, and the breaking-change policy.
 
-The third instance of the same duplication as §5 and §6 (BUG-019). The integration table here
-carried the identical eleven rows, so an outbound call could have one timeout in this document
-and a different one three files away.
+The same rule as §5 and §6. An integration table restated here would let one outbound call
+carry one timeout in this document and a different one three files away.
 
 | What you need | Where it is |
 |---|---|
@@ -667,7 +594,7 @@ provider whose rate limit becomes a design constraint rather than a configuratio
 
 *Unresolved choices that must **not** be guessed by the AI agent.*
 
-→ [`intent.md` §5](../01-intent/intent.md#5-open-questions)
+→ [`open-questions.md`](../01-intent/open-questions.md)
 
 | ID | Decision needed | Owner | Must be resolved before |
 |---|---|---|---|
@@ -813,7 +740,9 @@ Do not invent new metrics, roles, or endpoints.
 
 ---
 
-# WORKED EXAMPLE — API request and response (Ch. 9 §9.5)
+# WORKED EXAMPLE
+
+## API request and response (Ch. 9 §9.5)
 
 **Request**
 ```
@@ -854,4 +783,46 @@ Content-Type: application/json
     "field": "title"
   }
 }
+```
+
+## Defensive authorization, as specified then implemented (Ch. 21 §21.3)
+
+The §7.2 rule, filled in for one action: **create task**.
+
+| Order | Check | Denied when | Test |
+|---|---|---|---|
+| 1 | Signed in | No session | A signed-out request returns 401 |
+| 2 | Same tenant | The project belongs to another workspace | A member of workspace B gets the 404 safe response |
+| 3 | Role on the allow-list | Role is not owner, admin or member | A Viewer returns 403 and no row is written |
+
+What the three checks look like once built — shown so the reviewer can see the specification
+survived the translation, not so it is copied:
+
+```python
+ALLOWED_TO_CREATE_TASK = {"owner", "admin", "member"}
+
+def can_create_task(user, project):
+    if user is None:
+        return False
+    if user.project_id != project.id:
+        return False
+    return user.role in ALLOWED_TO_CREATE_TASK
+```
+
+## Per-feature security specification (Ch. 21 §21.9)
+
+The §7.7 block, filled in.
+
+```
+Feature: Invite team member to project
+Requirement ID: SEC-INVITE-001
+Only authenticated project Owners and Admins can invite a new team member.
+
+Acceptance criteria:
+1. A signed-out user cannot send an invitation.
+2. A Viewer cannot send an invitation.
+3. A Member cannot send an invitation.
+4. An Owner or Admin can invite a user with a valid email address.
+5. The system does not expose invitation tokens in logs or error messages.
+6. Unauthorized requests return a safe access-denied response.
 ```
