@@ -28,9 +28,33 @@ This is not hypothetical: it is BUG-004, and it happened on the first real run.
    macOS          shasum -a 256 *.md */*.md */*/*.md */*/*/*.md | grep -v MANIFEST | cut -c1-64 | sort | shasum -a 256
    ```
 
+   **On Windows, where neither of those exists, use PowerShell** — one line, no file created:
+
+   ```
+   $h = Get-ChildItem -Recurse -Filter *.md | Where-Object { $_.Name -ne 'MANIFEST.md' } | Get-FileHash -Algorithm SHA256 | ForEach-Object { $_.Hash.ToLower() } | Sort-Object; $b = [Text.Encoding]::UTF8.GetBytes(($h -join "`n") + "`n"); ([BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($b)) -replace '-','').ToLower()
+   ```
+
 3. **Compare the two strings.** Equal means the library is intact — every file, its contents,
    and the fact that nothing was added. The check is finished; **do not also compare the
    per-file table.**
+
+### The Windows form is not optional, and not interchangeable
+
+CON-004 requires the kit to behave identically on Windows, macOS and Linux. `sha256sum` and
+`shasum` are both POSIX tools; on a Windows host without Git Bash or WSL **neither exists**,
+so for that developer Step 0 could never run and the kit stopped before question one. That
+is not a degraded experience — it is the whole product refusing to start.
+
+The PowerShell line above was **verified by execution against this library**: it produces
+`c2a40489fb79c9a541ed6570f91c77d514af0e839fc24e2dbadfe68347a78d81`, byte-identical to what
+the POSIX form produces and to the manifest's declared digest. It uses only built-ins that
+ship with Windows, and it **creates no file** — the accumulation happens in a variable and
+the final hash is computed in memory, which is what keeps it inside the BUG-004 rule.
+
+Do not "simplify" it. The obvious simplification is to write the digest list to a temp file
+and hash that, and **that is forbidden** — it is BUG-004 exactly. The second most obvious is
+`Compare-Object`, which is BUG-022 exactly. This form was chosen because it avoids both and
+was observed to survive a guarded session.
 
 ### Use these commands as written
 
