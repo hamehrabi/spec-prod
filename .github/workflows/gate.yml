@@ -106,3 +106,71 @@ jobs:
             echo "::error::stage 2 ran ZERO tests. The glob tests/**/*.mjs matched nothing. A test stage that is green because it found no tests is not a pass."
             exit 1
           fi
+
+  # CON-004 says the kit behaves identically on Windows, macOS and Linux, and until now nothing
+  # checked it. That was not theoretical: BUG-027 shipped a Step 0 that named only `sha256sum`
+  # and `shasum`, both POSIX, so on a Windows host without Git Bash the mandatory integrity
+  # check could not run and the kit stopped before question one. Every trace that missed it ran
+  # on a Windows machine that happened to have Git Bash.
+  #
+  # This runs each platform's OWN documented command, on that platform, against the real
+  # library, and requires all three to produce the digest the manifest declares. One expected
+  # value, three ways of reaching it — so a command that stops working, or drifts from the
+  # others, fails here rather than in front of a developer.
+  #
+  # NOT part of `gate`. It is a separate job so that three runners are not on the critical path
+  # of every merge, and it is not a required status check until someone decides it should be.
+  platforms:
+    name: Step 0 runs on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The digest the manifest declares
+        id: want
+        shell: bash
+        run: |
+          set -euo pipefail
+          want=$(sed -n 's/^\*\*Library digest:\*\* `\([0-9a-f]\{64\}\)`.*/\1/p' plugin/blueprints/MANIFEST.md | head -1)
+          if [ -z "$want" ]; then
+            echo "::error::no Library digest line in MANIFEST.md — nothing to compare against, so nothing is claimed"
+            exit 1
+          fi
+          echo "want=$want" >> "$GITHUB_OUTPUT"
+          echo "manifest declares $want"
+
+      - name: POSIX form (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        working-directory: plugin/blueprints
+        run: |
+          set -euo pipefail
+          got=$(sha256sum *.md */*.md */*/*.md */*/*/*.md | grep -v MANIFEST | cut -c1-64 | sort | sha256sum | cut -c1-64)
+          echo "sha256sum form -> $got"
+          [ "$got" = "${{ steps.want.outputs.want }}" ] || { echo "::error::Linux Step 0 disagrees with the manifest"; exit 1; }
+
+      - name: macOS form
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        working-directory: plugin/blueprints
+        run: |
+          set -euo pipefail
+          got=$(shasum -a 256 *.md */*.md */*/*.md */*/*/*.md | grep -v MANIFEST | cut -c1-64 | sort | shasum -a 256 | cut -c1-64)
+          echo "shasum form -> $got"
+          [ "$got" = "${{ steps.want.outputs.want }}" ] || { echo "::error::macOS Step 0 disagrees with the manifest"; exit 1; }
+
+      # PowerShell, not bash — the whole point is that this host may have no POSIX shell at all.
+      - name: Windows form
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        working-directory: plugin/blueprints
+        run: |
+          $h = Get-ChildItem -Recurse -Filter *.md | Where-Object { $_.Name -ne 'MANIFEST.md' } | Get-FileHash -Algorithm SHA256 | ForEach-Object { $_.Hash.ToLower() } | Sort-Object
+          $b = [Text.Encoding]::UTF8.GetBytes(($h -join "`n") + "`n")
+          $got = ([BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($b)) -replace '-','').ToLower()
+          Write-Host "PowerShell form -> $got"
+          if ($got -ne '${{ steps.want.outputs.want }}') { Write-Host "::error::Windows Step 0 disagrees with the manifest"; exit 1 }
