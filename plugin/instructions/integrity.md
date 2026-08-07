@@ -28,7 +28,8 @@ This is not hypothetical: it is BUG-004, and it happened on the first real run.
    macOS          shasum -a 256 *.md */*.md */*/*.md */*/*/*.md | grep -v MANIFEST | cut -c1-64 | sort | shasum -a 256
    ```
 
-   **On Windows, where neither of those exists, use PowerShell** — one line, no file created:
+   **If both are refused or absent — a Windows host with no Git Bash or WSL — use PowerShell**
+   as the third try, not the first. One line, no file created:
 
    ```
    $h = Get-ChildItem -Recurse -Filter *.md | Where-Object { $_.Name -ne 'MANIFEST.md' } | Get-FileHash -Algorithm SHA256 | ForEach-Object { $_.Hash.ToLower() } | Sort-Object; $b = [Text.Encoding]::UTF8.GetBytes(($h -join "`n") + "`n"); ([BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($b)) -replace '-','').ToLower()
@@ -59,8 +60,25 @@ one would go wrong on a schedule.
 
 Do not "simplify" it. The obvious simplification is to write the digest list to a temp file
 and hash that, and **that is forbidden** — it is BUG-004 exactly. The second most obvious is
-`Compare-Object`, which is BUG-022 exactly. This form was chosen because it avoids both and
-was observed to survive a guarded session.
+`Compare-Object`, which is BUG-022 exactly. This form avoids both.
+
+**It is not guaranteed to be permitted.** A traced run on 2026-08-07 had it refused by a
+sandbox guard for containing script blocks — not for anything the run added. If that happens,
+**fall through to the POSIX forms above** and only use the stop message if those are refused
+too. A Windows host with Git Bash or WSL has `sha256sum`, and most do; the PowerShell line
+exists for the host that has neither, which is the one that could not run Step 0 at all.
+
+### Try the POSIX forms first, on every platform including Windows
+
+Not because they are better — because **a refusal costs a round-trip and the guard that
+refuses is not knowable in advance**. The same traced run read "on Windows, use PowerShell",
+went straight to it, lost 28 seconds to the refusal, and then ran `sha256sum` successfully on
+the first attempt. Ordering it the other way would have finished Step 0 in a third of the time
+on a host that had both.
+
+So: **`sha256sum`, then `shasum`, then the PowerShell line, then the stop message.** Take the
+first that runs. Being on Windows is a reason to *have* the third form, not a reason to start
+with it.
 
 ### Use these commands as written
 
