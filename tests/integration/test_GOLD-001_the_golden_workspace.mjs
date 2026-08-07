@@ -24,7 +24,25 @@
 //            workspace that had not yet reached the file where drivers are declared.
 //
 // A synthetic workspace built inside a test would have had none of them, because the author
-// of the test also authors the input. This fixture was not authored — it was produced.
+// of the test also authors the input.
+//
+// THIS FIXTURE IS PRODUCED, AND FOR THE FIRST TIME THAT IS TRUE. The line above used to say so
+// as a claim, and on 2026-08-07 the claim turned out to be false: `EV-001-answers.md` gave the
+// runner the input half of the pair, and re-generating the workspace found FOUR files that
+// deviated from their own blueprints — `intent.md` had dropped `### Starter (Appendix A)`,
+// `database-design.md` had dropped `## Rules`, and `subdomain-map.md` and
+// `fitness-functions.md` had each INVENTED a section where the blueprint's worked example used
+// to be. Somebody had deleted a worked example and written a replacement from memory, which is
+// BUG-024, and the fixture predated its fix. FF-007 reached the same conclusion independently,
+// and two runs on different days sided with the blueprint.
+//
+// So it was replaced rather than repaired, by one eight-round run: 80 files, 8 rounds accepted,
+// 75 minutes, $49.85. Repairing four hand-edits by hand would have been the same mistake a
+// fourth time, and a file-by-file read would only have found the ones a reader noticed.
+//
+// The run that produced it also exposed five checks that were failing correct work — see
+// UTEST-065 and UTEST-066. Every one had been green for months against the fourteen-file
+// fixture this replaces, because no workspace had ever reached the files they were wrong about.
 //
 // ONE FIXTURE, GROWN ROUND BY ROUND. Not a snapshot per round: Round 1's four files would
 // then exist in eight places and drift apart at the first correction, which is the
@@ -72,42 +90,39 @@ const failing = scored.breaches.map((b) => b.name).sort()
 
 // --- What has been produced -------------------------------------------------------------------
 
-test('GOLD-001: the run has reached Round 3, and the artifact is what says so', () => {
+test('GOLD-001: the run reached Round 8, and the artifact is what says so', () => {
+  // Eight accepted rounds, read from the change log rather than from a filename or a state
+  // file (ADR-004, ADR-006). The titles are asserted in full because the round a row NAMES is
+  // what resume matches on — `Stage 1 — the idea` where the instructions say `Round 1 — …` is
+  // a violation rather than an invisible absence.
   assert.deepEqual(acceptedStages(changeLog), [
     'Round 1 — the idea',
     'Round 2 — scope boundaries',
     'Round 3 — users, roles, and data',
+    'Round 4 — product shape',
+    'Round 5 — architecture and stack',
+    'Round 6 — security, reliability, integrations',
+    'Round 7 — tasks and tests',
+    'Round 8 — operations',
   ])
-  assert.equal(rounds, 3)
+  assert.equal(rounds, 8)
 })
 
-test('GOLD-001: Round 4 is part-written, with no acceptance row — the state `stop` leaves', () => {
-  // Rounds 1 to 3 are accepted. Round 4 has written two of its six files and has NOT been
-  // accepted, because a round is accepted whole or not at all (review.md forbids accepting
-  // part of one). This is the state the intake leaves on `stop`, and the state `resume.md`
-  // has to pick up from — everything written stays written, and the change log does not
-  // claim a round that did not finish.
-  assert.equal(rounds, 3, 'three accepted rounds, and a fourth in progress')
-  assert.ok(workspace['spec/01-docs/02-requirements/driving-characteristics.md'])
-  assert.ok(workspace['spec/01-docs/04-technical-spec/fitness-functions.md'])
-  assert.ok(workspace['spec/01-docs/04-technical-spec/runtime-and-scale.md'])
-  assert.doesNotMatch(changeLog, /Round 4/, 'an unfinished round records nothing (BR-009)')
-  assert.deepEqual(Object.keys(workspace).sort(), [
-    'spec/01-docs/01-intent/constraints-and-non-goals.md',
-    'spec/01-docs/01-intent/intent.md',
-    'spec/01-docs/01-intent/open-questions.md',
-    'spec/01-docs/01-intent/project-brief.md',
-    'spec/01-docs/01-intent/subdomain-map.md',
-    'spec/01-docs/02-requirements/driving-characteristics.md',
-    'spec/01-docs/02-requirements/requirements.md',
-    'spec/01-docs/04-technical-spec/fitness-functions.md',
-    'spec/01-docs/04-technical-spec/runtime-and-scale.md',
-    'spec/01-docs/06-api-and-data-design/api-specification.md',
-    'spec/01-docs/06-api-and-data-design/data-and-integration-spec.md',
-    'spec/01-docs/06-api-and-data-design/database-design.md',
-    'spec/01-docs/09-change-control/spec-change-log.md',
-    'spec/README.md',
-  ])
+test('GOLD-001: the workspace is complete — every round accepted, nothing part-written', () => {
+  // THIS FIXTURE USED TO STOP AT ROUND 3 with Round 4 half-written, and that state was the
+  // point of it: it was what `stop` leaves and what resume.md has to pick up from. Replacing
+  // it with a complete run REMOVED that coverage, and nothing else has it.
+  //
+  // Recorded rather than quietly dropped. EV-001 is the happy-path case (ai-evals.md §1) and a
+  // happy path finishes; a run that stops part-way is a different case, and the golden set was
+  // scoped to this one on 2026-08-07. So the `stop` state is UNCOVERED, deliberately, and this
+  // comment is the only thing that says so.
+  assert.equal(rounds, 8, 'every round accepted')
+  assert.equal(acceptedStages(changeLog).length, 8)
+  assert.ok(Object.keys(workspace).length > 70, 'a complete run writes the whole library')
+  // The entry point is written last and only on a complete run (entrypoint.md), so its presence
+  // is the one-file test of "this run finished".
+  assert.ok(workspace['spec/CLAUDE.md'], 'a complete run writes the entry point')
 })
 
 test('GOLD-001: the workspace README is about THIS project, not about the template', () => {

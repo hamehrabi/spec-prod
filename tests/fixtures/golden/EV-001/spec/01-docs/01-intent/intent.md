@@ -26,19 +26,35 @@ agent this instead of a vague idea.
 | Field | Value |
 |---|---|
 | **Project name** | Pantry |
-| **Problem statement** | People who cook at home keep recipes scattered across screenshots, bookmarks and handwritten cards, which causes them to forget items on the weekly shop and make a second trip while food goes off. The system should hold every recipe in one place and turn the meals chosen for a week into a single shopping list. |
-| **Primary users** | Individual consumers who cook at home, planning their own meals. |
-| **Secondary users** | [TODO: is there anyone who reviews, manages or supports this, or is the cook the only user?] |
-| **Business goal** | [TODO: what does success mean for you as the owner of this project?] |
-| **User goal** | Keep every recipe in one place, and get one shopping list from the meals chosen for the week. |
-| **Current pain points** | Recipes live in screenshots, bookmarks and handwritten cards. Planning a week means opening six places. Items are forgotten at the shop, causing a second trip and food waste. |
-| **Core capabilities** | Save a recipe with its ingredients · plan which meals to cook in a week · generate one shopping list from that week · search saved recipes. |
-| **Desired outcome** | A home cook finds any saved recipe without hunting, and shops for the week in one trip. |
+| **Problem statement** | Home cooks keep recipes scattered across screenshots, bookmarks and handwritten cards. Planning a week of meals means opening six places and still forgetting something at the shop, which costs a second trip and food that goes off. One cook should be able to keep their recipes in one place and turn a week of chosen meals into a single shopping list. |
+| **Primary users** | Individual home cooks (B2C), using it for themselves. [TODO: how many people will use it in the first six months? — Q-001] |
+| **Secondary users** | None identified in version one — a single cook uses it for themselves (from: primary user is an individual consumer). |
+| **Business goal** | For the cook, planning a week and shopping for it becomes one quick task instead of six scattered ones. Success is a correct single shopping list produced from a week's chosen meals. |
+| **User goal** | Keep all their recipes in one place and turn a week of chosen meals into one shopping list, without forgetting an ingredient. |
+| **Current pain points** | Recipes scattered across screenshots, bookmarks and handwritten cards; planning means opening six places; ingredients forgotten at the shop; a second trip; food going off. |
+| **Core capabilities** | Save a recipe with its ingredients; plan which meals to cook in a week; generate one shopping list from that week; search saved recipes. |
+| **Desired outcome** | A cook plans a week, walks into the shop with one complete list, and forgets nothing. |
 | **Out of scope** | → [`constraints-and-non-goals.md`](constraints-and-non-goals.md) |
-| **Success measures** | [TODO: what three to five measurable signs would tell you this is working?] |
+| **Success measures** | A week of chosen meals produces one shopping list covering every ingredient of every planned meal; a saved recipe can be found again by searching; the plan-the-week-to-list path is the fast path the product competes on. |
 | **Constraints** | → [`constraints-and-non-goals.md`](constraints-and-non-goals.md) |
-| **Risks** | [TODO: what could make this project fail?] |
+| **Risks** | The single-shopping-list generation is the one thing the product competes on; if it is wrong or misses items, the product has no reason to exist. Scope creeping beyond one cook's recipes and week. |
 | **Open questions** | → [`open-questions.md`](open-questions.md) |
+
+### Starter (Appendix A)
+
+```
+Project Name: Pantry
+Problem Statement: Home cooks keep recipes scattered and forget items when shopping for a week of meals.
+Primary Users: Individual home cooks (B2C).
+Business Goal: Planning and shopping for a week becomes one task, not six.
+User Goal: Recipes in one place; a week of meals becomes one shopping list.
+Pain Points: Scattered recipes; forgotten items; a second trip; wasted food.
+Desired Outcome: One complete shopping list from a week's chosen meals.
+Out of Scope: See constraints-and-non-goals.md.
+Success Measures: One list covers every planned ingredient; a saved recipe is findable by search.
+Constraints: See constraints-and-non-goals.md.
+Open Questions: See open-questions.md.
+```
 
 ---
 
@@ -46,11 +62,11 @@ agent this instead of a vague idea.
 
 | Element | Question to answer | Your answer |
 |---|---|---|
-| Primary user | Who uses the system most often? | The home cook who saves the recipes and does the shopping. |
-| Secondary user | Who reviews, manages, or supports the system? | [TODO: is there anyone who reviews, manages or supports this, or is the cook the only user?] |
-| Goal | What should improve after the system exists? | Recipes are findable in one place; a week's shopping is one list and one trip. |
-| Constraint | What must limit the design? | [TODO: what hard constraints already exist — budget, platform, data, mandated technology?] |
-| Risk | What could make the project fail? | [TODO: what could make this project fail?] |
+| Primary user | Who uses the system most often? | An individual home cook, for themselves (B2C). |
+| Secondary user | Who reviews, manages, or supports the system? | None identified — single-user (from: individual consumer). |
+| Goal | What should improve after the system exists? | A week of meals becomes one shopping list, with nothing forgotten. |
+| Constraint | What must limit the design? | Recorded in [`constraints-and-non-goals.md`](constraints-and-non-goals.md) (decided in Round 2). |
+| Risk | What could make the project fail? | Getting the single-shopping-list generation wrong — it is the one thing the product competes on. |
 
 > **Important distinction:** a goal is not a feature. "Create task comments" is a feature.
 > "Make task discussions easier to follow" is a goal.
@@ -59,20 +75,20 @@ agent this instead of a vague idea.
 
 ## Intent quality checklist (Appendix A)
 
-- [x] The problem is stated without assuming a specific technical solution.
-- [x] The intended users are named clearly.
+- [ ] The problem is stated without assuming a specific technical solution.
+- [ ] The intended users are named clearly.
 - [ ] The desired outcome can be measured or observed.
 - [ ] Out-of-scope items are written before implementation begins.
-- [x] Open questions are captured instead of being hidden.
+- [ ] Open questions are captured instead of being hidden.
 
 ## Chapter checklist (Ch. 2)
 
 | Before you move to requirements, confirm that you have: | Done |
 |---|---|
-| A clear problem statement. | [x] |
+| A clear problem statement. | [ ] |
 | Defined primary and secondary users. | [ ] |
-| Separated vision from implementation details. | [x] |
-| Listed first-version capabilities. | [x] |
+| Separated vision from implementation details. | [ ] |
+| Listed first-version capabilities. | [ ] |
 | Listed what is out of scope. | [ ] |
 | Identified constraints and risks. | [ ] |
 | Defined simple success criteria. | [ ] |
