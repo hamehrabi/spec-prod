@@ -8,6 +8,25 @@
 > An explicit *"no CDN: single region, 50 users, static assets are 40 KB"* is a decision.
 > Silence is an accident waiting for traffic. Fill it in fifteen minutes and move on.
 
+> ### What every "Needed?" cell must contain
+>
+> **`☐ Not needed` on its own is not an answer.** It is the same blank as an empty cell, spelled
+> differently, and it reads as a row somebody skipped rather than a row somebody decided.
+>
+> Every refusal takes both halves:
+>
+> - ***why:*** — the fact that makes it unnecessary *today*. "Single user, 40 KB of assets",
+>   not "not required".
+> - ***revisit when:*** — the change that would make it necessary. A number, an event, a
+>   question id. **Without one, a refusal expires silently**: the project grows past the reason
+>   and nothing says so, because the reason was never written as a threshold.
+>
+> **One exception, and it must be stated in the row:** a refusal on *principle* has no revisit
+> trigger, because no number could reverse it — *"refused on principle: the health check has to
+> answer during an incident, and no traffic level makes throttling it correct."* Write
+> ***why:*** and then say which kind of refusal it is. That is a stronger answer than a
+> threshold, and it is only honest when the row says so rather than leaving the trigger off.
+
 ---
 
 ## 1. Rate limiting
@@ -25,7 +44,7 @@ Protects three different things. Say which one you are protecting — they need 
 | Login | | | per IP + per account | 429 + `Retry-After` | |
 | Write endpoints | | | per user | | |
 | Expensive / AI endpoints | | | per user per day | | |
-| Everything else | | | | | ☐ Not needed — *why:* |
+| Everything else | | | | | ☐ Not needed — *why:* …  *revisit when:* … |
 
 **Rules**
 - Return **429** with `Retry-After`. Never fail silently or drop the request.
@@ -44,7 +63,7 @@ Protects three different things. Say which one you are protecting — they need 
 | Static assets | CDN | | content hash in filename | yes | |
 | Reference data | app memory | | | | |
 | Expensive query | shared cache | | write to underlying entity | | |
-| Per-user data | | | | **usually no** | ☐ Not needed |
+| Per-user data | | | | **usually no** | ☐ Not needed — *why:* …  *revisit when:* … |
 
 **Rules**
 - Never cache **per-user data in a shared cache** without the user ID in the key. This is

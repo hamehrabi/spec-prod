@@ -254,6 +254,7 @@ Re-run it on **any** of these:
 |---|---|---|---|---|---|
 | EV-001, Round 1, express | 2026-08-05 | 7 of 11 scorers at floor; 2 breaches; **2 not run** | 648 s · 23 turns | **$2.78** | Recorded, not accepted |
 | EV-001, all 8 rounds, express | 2026-08-07 | 7 of 11 scorers at floor; 2 breaches; **2 not run** | 4 500 s · 237 turns | **$49.85** | Recorded, not accepted |
+| EV-001, re-run after the BUG-034…041 fixes | 2026-08-07 | **NOT RUN — four attempts, no workspace produced** | ~3 h across 4 attempts | not itemised | **No claim made** |
 
 > **This row was corrected downwards after it was published, and the correction is the point.**
 > It read *"9 of 11 scorers at floor; 2 breaches"*. Two of those nine — `inference_stated` and
@@ -289,6 +290,27 @@ it against a defect curve where two runs found five defects.
 > as context, so round eight is dearer than round one for the same number of files. A 36-case
 > set is therefore of the order of **$1 800 and 45 hours**, and `§1`'s decision to build one
 > case was taken against the $800 figure — it survives the corrected one comfortably.
+
+> **The NOT RUN row is the one this file exists to make possible, and it is worth reading as a
+> result rather than as an absence.** Eight payload defects were fixed on 2026-08-07 — BUG-034,
+> BUG-036 to BUG-041 — and §4's trigger list obliges a full re-run on any blueprint edit. Four
+> attempts produced no workspace:
+>
+> | Attempt | What happened |
+> |---|---|
+> | 1 | Killed deliberately. A blueprint edit had put EV-001's own core subdomain and its exact uniqueness constraint into the guidance the run reads, so the run would have been graded against its own answer key. Found by reading the diff, not by a check. |
+> | 2 | Killed at the 45-minute ceiling. `--timeout=110` was silently discarded by the runner's option parser (BUG-041) and the default applied. |
+> | 3 | Host stalled four minutes in, immediately after a tool result, and never produced another turn. Killed at 110 minutes with 2 of 8 rounds accepted. |
+> | 4 | Bounded to 3 rounds to verify the highest-value fix cheaply. Zero files written before the 30-minute ceiling. |
+>
+> **Attempts 3 and 4 are the host hanging, not the kit failing** — the transcript ends mid-turn
+> with no error and no further output. The spend was stopped there rather than continued blind.
+>
+> **So the eight fixes are shipped and unverified, and the two states must not be confused.**
+> `GOLD-001` still pins every one of those defects as PRESENT, because the committed fixture
+> predates the fixes and the pins describe it correctly. A green suite therefore means "the old
+> workspace still has the defects it had" — not "the fixes work". Nothing was adjusted to look
+> otherwise, which is the only reason this row can be trusted.
 
 **The eight-round row is the more useful measurement, and it cost seven defects to get.** The
 three breaches are not the run being sloppy; each traces to something no partial workspace

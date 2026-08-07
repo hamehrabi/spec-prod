@@ -74,7 +74,15 @@ const USAGE = `Usage: node ci/generate-workspace.mjs <case-id> [options]
 `
 
 function main(argv) {
-  const args = parse(argv)
+  // A bad argument is NOT RUN, which is the state it actually is — nothing was executed and no
+  // claim is made either way (BR-009). A stack trace would exit 1, and 1 is documented as "the
+  // run happened and differed", which is the one thing that did not occur.
+  let args
+  try {
+    args = parse(argv)
+  } catch (e) {
+    return notRun(e.message)
+  }
   if (!args.caseId) return notRun(USAGE.trim())
 
   const answerFile = `${GOLDEN}/${args.caseId}-answers.md`
@@ -464,21 +472,49 @@ function notRun(why, sandbox = null) {
   return 2
 }
 
+/**
+ * AN UNRECOGNISED FLAG IS AN ERROR, NOT A NO-OP (BUG-041).
+ *
+ * This loop used to end at `else if (!a.startsWith('--')) args.caseId = a`, so anything else
+ * beginning with `--` fell through every branch and was discarded in silence. `--timeout=110`
+ * is the shape that costs money: it is how the flag is written in most CLIs, it parses as an
+ * unknown flag here, and the run proceeds on the 45-minute default.
+ *
+ * That is what happened. An eight-round regeneration was started believing it had a
+ * 110-minute ceiling, and the host was killed at 45 minutes in the middle of Round 3 — about
+ * $20 and forty minutes, spent to produce nothing, because a typo was treated as a preference.
+ *
+ * Both spellings are accepted now, and anything still unrecognised stops the run before it
+ * spends anything. Erroring rather than warning is the point: a warning on stderr scrolls past,
+ * and the failure it precedes arrives 45 minutes later looking like a host problem.
+ */
 function parse(argv) {
   const args = { caseId: null, rounds: null, model: null, timeout: 45, keep: false, dryRun: false }
+  const NUMERIC = { '--rounds': 'rounds', '--timeout': 'timeout' }
+  const STRING = { '--model': 'model' }
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]
-    if (a === '--keep') args.keep = true
-    else if (a === '--dry-run') args.dryRun = true
-    else if (a === '--rounds') args.rounds = Number(argv[++i])
-    else if (a === '--model') args.model = argv[++i]
-    else if (a === '--timeout') args.timeout = Number(argv[++i])
-    else if (!a.startsWith('--')) args.caseId = a
+    // `--name=value` and `--name value` are the same flag. Split on the FIRST `=` only, so a
+    // value containing one survives.
+    const eq = a.indexOf('=')
+    const [name, inline] = a.startsWith('--') && eq !== -1 ? [a.slice(0, eq), a.slice(eq + 1)] : [a, null]
+    const take = () => (inline === null ? argv[++i] : inline)
+
+    if (name === '--keep') args.keep = true
+    else if (name === '--dry-run') args.dryRun = true
+    else if (name in NUMERIC) {
+      const raw = take()
+      const n = Number(raw)
+      if (!Number.isFinite(n) || n <= 0) throw new Error(`${name} needs a positive number, got ${JSON.stringify(raw)}`)
+      args[NUMERIC[name]] = n
+    } else if (name in STRING) args[STRING[name]] = take()
+    else if (!name.startsWith('--')) args.caseId = name
+    else throw new Error(`unknown option ${name}. A misspelled flag is not a default — see --help`)
   }
   return args
 }
 
-export { main }
+export { main, parse }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   process.exit(main(process.argv.slice(2)))

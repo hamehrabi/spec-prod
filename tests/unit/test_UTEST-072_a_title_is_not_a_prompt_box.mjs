@@ -77,9 +77,16 @@ test('UTEST-072: the six that were invisible are visible, and they are in the sh
     const wrapped = placeholders(t).filter((p) => p.kind === 'instructional-italic' && p.text.includes('\n'))
     if (wrapped.length) counts[rel] = wrapped.length
   }
+  // AGENT.md LEFT THIS LIST, and not because the rule stopped seeing it. Its wrapped italic
+  // said "Add a line here whenever a bug reveals a repeatable AI mistake" — standing guidance
+  // for maintaining the file forever, not a gap to fill once. Written as an italic it was
+  // indistinguishable from an instruction the fill was supposed to consume, so it survived into
+  // every delivered workspace and check 5 was right to report it (BUG-034). It is now a
+  // blockquote note, which is how the rest of the library writes durable guidance.
+  //
+  // The other four are genuine "write something here" instructions and must stay visible.
   assert.deepEqual(counts, {
     '01-docs/05-architecture/architecture-decisions/ADR-000-template.md': 3,
-    '06-agent/01-instructions/AGENT.md': 1,
     '06-agent/01-instructions/agent-rules-and-coding-standards.md': 1,
     '07-ops/01-deployment/environment-config.md': 1,
   })

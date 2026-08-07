@@ -14,11 +14,25 @@ duplicated, expired, unavailable, unauthorized, or invalid*.
 
 | Case ID | Requirement | Case type | Input / condition | Expected result | Risk covered | Status |
 |---|---|---|---|---|---|---|
-| FTEST-001 | REQ-### | Edge | Empty value | | | Planned |
-| FTEST-002 | | Edge | Value too long | | | |
-| FTEST-003 | | Failure | Dependency unavailable | | | |
-| FTEST-004 | | Failure | Unauthorized actor | | | |
-| FTEST-005 | | Edge | Duplicate submission | | | |
+| | REQ-### | Edge | Empty value | | | Planned |
+| | | Edge | Value too long | | | |
+| | | Failure | Dependency unavailable | | | |
+| | | Failure | Unauthorized actor | | | |
+| | | Edge | Duplicate submission | | | |
+
+> **"Case ID" CITES the test that covers the case — it does not mint a new identifier.**
+> A case found here becomes a test somewhere: a failure case is an `FTEST-###` in
+> [`failure-tests.md`](failure-tests.md), a boundary case is a `UTEST-###` in
+> [`unit-tests.md`](../02-functional/unit-tests.md). Write that id here once it exists, and
+> `[TODO: which test covers this?]` until it does.
+>
+> This table used to arrive numbered `FTEST-001`…`FTEST-005` — **the same identifiers
+> `failure-tests.md` mints, for different conditions.** `FTEST-002` was "Invalid format" there
+> and "Value too long" here, so every workspace carried both and neither knew about the other.
+>
+> The worked example below already did it the right way: its discovery table cites `FTEST-001`
+> and `UTEST-005` side by side, because a discovery table's job is to point at coverage, not to
+> create a second numbering of it.
 
 **Case types:** Normal · Edge · Failure · Security · Boundary
 

@@ -123,8 +123,9 @@ Every completion must include:
 
 ## Lessons from past mistakes
 
-*Add a line here whenever a bug reveals a repeatable AI mistake
-(see `05-review/debugging-specification.md`).*
+> **Keep this section current.** Add a line here whenever a bug reveals a repeatable AI
+> mistake (see `05-review/debugging-specification.md`). It is a standing habit, not a gap to
+> fill once — so it stays in the delivered file rather than being replaced by an answer.
 
 | Date | Mistake | Rule added |
 |---|---|---|

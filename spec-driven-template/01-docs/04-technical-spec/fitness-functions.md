@@ -18,10 +18,20 @@ still has the shape you decided on**. They are different jobs; you need both.
 
 | ID | Guards | Type | Check | Threshold | Runs | On failure |
 |---|---|---|---|---|---|---|
-| FF-001 | *(characteristic)* | Structural | | | CI | Block merge |
-| FF-002 | | Operational | | | CI / nightly | |
-| FF-003 | | Security | | | CI | Block merge |
-| FF-004 | | Process | | | per deploy | |
+| FF-001 | *(characteristic)* | Structural | | | | |
+| FF-002 | | Operational | | | | |
+| FF-003 | | Security | | | | |
+| FF-004 | | Process | | | | |
+
+> **`Runs` and `On failure` are claims about a gate that has to EXIST.** Writing `CI` here says
+> a pipeline runs this check and a merge is blocked when it fails. If there is no pipeline yet —
+> and on a new project there usually is not — then write **`Not wired yet`** in `Runs` and name
+> the task that will wire it.
+>
+> These two columns arrived pre-filled with `CI` and `Block merge`. Every workspace inherited
+> them, so every register asserted enforcement that nobody had built, and the file that exists
+> to stop decisions decaying silently was itself the decoration it warns about. **A fitness
+> function written down but not in a gate governs nothing** — say which it is.
 
 **Types**
 | Type | Measures | Examples |
@@ -36,6 +46,10 @@ still has the shape you decided on**. They are different jobs; you need both.
 - **One per driving characteristic, minimum.** No driver without a fitness function is
   governed — it is only documented.
 - It must **fail the build**, not print a warning. A warning is a decoration.
+- **Say honestly whether it runs.** The line above describes what a wired fitness function
+  does, not what an entry in this table proves. A register whose `Runs` column claims a gate
+  the project has not built is a success claim nobody earned — the exact failure this file
+  exists to prevent, committed by the file itself.
 - Every ADR's **Compliance** field names the fitness function that enforces it.
 - Measure **tail percentiles**, never averages.
 - If a characteristic cannot be measured, its definition is too vague — go fix the
