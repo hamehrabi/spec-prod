@@ -63,7 +63,7 @@ test('a clean workspace passes every check, and may claim success', () => {
 const BREAKAGES = {
   1: (ws) => { ws['spec/README.md'] = ws['spec/README.md'].replace('REQ-F-001', 'REQ-F-999') },
   // A second DEFINITION — a row that states what the identifier is, not one that cites it.
-  // (Check 2 now reads a cross-reference row as a citation; see UTEST-045.)
+  // (Check 2 now reads a cross-reference row as a citation; see UTEST-053.)
   2: (ws) => { ws['spec/README.md'] = '# P\n\n| ID | Rule |\n|---|---|\n| REQ-F-001 | The system must do a different thing entirely. |\n\n> Blueprint: blueprints/README.md\n' },
   3: (ws) => { ws['spec/README.md'] = ws['spec/README.md'].replace(/> Blueprint:.*\n/, '') },
   4: (ws) => { ws['spec/README.md'] += '\nProjectBoard is a kanban tool.\n' },
@@ -91,7 +91,7 @@ test('check 8 (deny tests) — seen to FAIL when rules exist without denials', (
   //
   // The fixture is a DECLARED rule, not a sentence about one. It used to read "The admin role
   // can delete records", which check 8 counted as a rule by pattern-matching prose — and the
-  // same looseness on the other side is what made the check unable to fail at all (UTEST-045).
+  // same looseness on the other side is what made the check unable to fail at all (UTEST-053).
   const ws = {
     'spec/x.md':
       '# Roles\n\n| Role | Can do | Cannot do |\n|---|---|---|\n' +

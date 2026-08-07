@@ -71,7 +71,7 @@ test('UTEST-031: a [TODO] citing its Q-### inline still pairs, with no row text 
   // "Beside itself" means IN THE MARKER OR IN THE ROW THAT CARRIES IT, and the cited question
   // has to exist. This fixture used to put `See Q-004 below.` two lines above a marker with no
   // Q-004 row anywhere, and it passed — on 300 characters of proximity rather than on any
-  // citation at all (UTEST-045). Byte distance is not a reference a reader can follow.
+  // citation at all (UTEST-053). Byte distance is not a reference a reader can follow.
   const ws = {
     'spec/01-docs/01-intent/open-questions.md': openQuestions(
       'Q-004 | Retention period for a generated list | Storage cost | Owner | Design | Open'
