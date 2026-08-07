@@ -19,7 +19,21 @@ export const PROTECTED = ['CLAUDE.md', '.gitignore']
 
 export const WORKSPACE = 'spec'
 
-const isAbsolute = (p) => p.startsWith('/') || /^[A-Za-z]:/.test(p) || p.startsWith('\\\\')
+/**
+ * Absolute on ANY platform, by the separator as well as by the shape.
+ *
+ * `\spec\a.md` used to reach `inside`. A single leading backslash is drive-rooted on Windows —
+ * it resolves to `C:\spec\a.md`, the drive root, outside the repository entirely — and the
+ * check only knew `/`, `C:` and the two-backslash UNC form. `normalise()` then replaced the
+ * backslashes, dropped the empty leading segment, and reported `spec/a.md` as ALLOWED.
+ *
+ * The softer half of the same gap: `\etc\hosts` returned `outside` ("may I write it?") while
+ * its POSIX twin `/etc/hosts` returned `absolute` ("nothing was written"). Two absolute paths,
+ * three verdicts, decided by the separator — in a function whose comment below claims CON-004
+ * parity. The one-backslash test subsumes the UNC one, which is kept only because
+ * naming it costs nothing and removing it invites its return.
+ */
+const isAbsolute = (p) => p.startsWith('/') || /^[A-Za-z]:/.test(p) || p.startsWith('\\')
 
 /**
  * Resolve a path to repo-root-relative segments, or null if it escapes above the root.
