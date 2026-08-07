@@ -22,10 +22,10 @@
 >   and nothing says so, because the reason was never written as a threshold.
 >
 > **One exception, and it must be stated in the row:** a refusal on *principle* has no revisit
-> trigger, because no number could reverse it. Write ***why:*** and then say so — *"refused on
-> principle: a shared cache without the account in the key leaks between users at any size."*
-> That is a stronger answer than a threshold, and it is only honest when the row says which
-> kind it is.
+> trigger, because no number could reverse it — *"refused on principle: the health check has to
+> answer during an incident, and no traffic level makes throttling it correct."* Write
+> ***why:*** and then say which kind of refusal it is. That is a stronger answer than a
+> threshold, and it is only honest when the row says so rather than leaving the trigger off.
 
 ---
 

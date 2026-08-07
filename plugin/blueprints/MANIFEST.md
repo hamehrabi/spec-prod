@@ -20,7 +20,7 @@ failure, not a bonus.
 
 ## Library digest
 
-**Library digest:** `a00e72bfc367992af0b2e5f0daf96f69f60ac7184e188efbd4e831bc1da1462f`
+**Library digest:** `033cf586d0e0c6fe4b0c92380b0c3c9df58ceb7b9560ec826b02a5bc1382f5f2`
 
 One value for the whole library: SHA-256 over the 81 digests below —
 lowercased, sorted, one per line, each ending in a newline. **Compare this first.** It matches
@@ -45,7 +45,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `01-docs/03-product-spec/product-spec.md` | `d2f0c44f87560f3a73c93ff0b28cc4aaffa8a147bb549bf2c343ba8465f9c5e5` |
 | `01-docs/04-technical-spec/fitness-functions.md` | `9e35989328e76b63d7ed019ee86e0f582d2187e2c8fe9399a64f0ea483f5e68c` |
 | `01-docs/04-technical-spec/frontend-component-spec.md` | `121d75fe0510397db01071c55ab3ea052717e6e7746cb40ed16d3f0933d0335d` |
-| `01-docs/04-technical-spec/runtime-and-scale.md` | `22bfade2adde09d1b942b2b6aa494fd12b0eb61a8ea50776676344bf2537f50a` |
+| `01-docs/04-technical-spec/runtime-and-scale.md` | `9c9fcdd46e49827b8d1f54d2d1583fac329925b3e0ecba3ece515efd39d72fe6` |
 | `01-docs/04-technical-spec/technical-spec.md` | `650939d412fafd52df431274e48ccba49be3a20967ccc5972649dbfdd04b9ddd` |
 | `01-docs/05-architecture/architecture-decisions/ADR-000-template.md` | `dfb8753724a663841a2e3dbfa6b3eff69707c93deb3996461a324018c99e4ee6` |
 | `01-docs/05-architecture/architecture-decisions/adr-index.md` | `cd4eaadce220ac9b68afbdd730764be667ca7ab57b42a165ea2366881b301c37` |
