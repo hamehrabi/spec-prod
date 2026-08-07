@@ -74,13 +74,24 @@ test('UTEST-061: the rationale names both traps, so neither is re-entered', () =
   assert.match(RATIONALE, /BUG-022/)
 })
 
-test('UTEST-061: the digest the doc claims is the digest the manifest declares', () => {
-  // The doc quotes a verified value as evidence the Windows form agrees with the POSIX one. If
-  // the library changes and the manifest is regenerated, that quoted value goes stale and the
-  // evidence silently becomes a lie. This is what notices.
-  const quoted = RATIONALE.match(/`([0-9a-f]{64})`/)?.[1]
-  const declared = MANIFEST.match(/^\*\*Library digest:\*\*\s*`([0-9a-f]{64})`/m)?.[1]
-  assert.ok(quoted, 'the rationale quotes no digest')
-  assert.ok(declared, 'the manifest declares no library digest')
-  assert.equal(quoted, declared, 'integrity.md quotes a digest the manifest no longer declares')
+test('UTEST-061: the doc hardcodes no digest — the manifest is the only copy', () => {
+  // This assertion started life inverted: it required the doc to quote the digest and match the
+  // manifest, so the "verified by execution" claim could not go stale. It caught a real
+  // staleness on its first opportunity — and in doing so showed the design was wrong.
+  //
+  // A copy here has to be updated by every change that touches a blueprint. That puts a
+  // blueprint change and an instruction change in one commit, which is precisely what
+  // REQ-NF-005 and FF-002 forbid. The test was manufacturing the violation it would then have
+  // to police. So the doc now names WHERE the value lives instead of repeating it, and this
+  // asserts the absence.
+  assert.doesNotMatch(DOC, /[0-9a-f]{64}/, 'integrity.md hardcodes a digest; the manifest is the only place it belongs')
+  assert.match(RATIONALE, /No digest is written here on purpose/)
+  assert.match(RATIONALE, /REQ-NF-005 forbids exactly that/)
+})
+
+test('UTEST-061: the manifest still declares one, so the doc points somewhere real', () => {
+  // The premise the redirection depends on. "Take the value on the manifest's Library digest
+  // line" is only an instruction if that line exists.
+  assert.match(MANIFEST, /^\*\*Library digest:\*\*\s*`[0-9a-f]{64}`/m)
+  assert.match(DOC, /the manifest's \*\*Library digest\*\* line/)
 })
