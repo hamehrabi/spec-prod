@@ -36,14 +36,48 @@ the most load-bearing test file in the workspace, for two reasons:
 
 | Field | Value |
 |---|---|
-| **Size** | **36 cases** — 16 happy, 10 edge, 6 adversarial, 4 must-refuse. Coverage beats volume; the aim is one case per *shape of project* and one per *way the interview can be pushed off the rails*. |
+| **Size** | **1 case built, 35 enumerated and not built.** The design below is 36 — 16 happy, 10 edge, 6 adversarial, 4 must-refuse — and the kit author scoped it to **EV-001 alone on 2026-08-07**. See *Scope: one case* immediately below. The table is kept in full because it is the record of what is **not** covered. |
 | **Unit of a case** | One **answer script**: a complete, fixed set of answers to every question, replayed identically on every run. The "input" is the script; the "output" is the whole generated workspace. |
 | **Sourced from** | Invented at first, honestly labelled as such. **Every real intake the kit author runs should contribute its answer script back** — invented cases cover what you thought of, real ones cover what you did not. |
 | **Owner** | Kit author |
 | **Reviewed** | Before every release. `[TODO: no cadence set beyond that. A stale golden set silently passes a degraded system.]` |
 | **Shared with** | [`end-to-end-tests.md`](../02-functional/end-to-end-tests.md) — the same scripts drive ETEST-004…012. One fixture set, two purposes: E2E asserts structure, evals score quality. |
 
+### Scope: one case
+
+**Decided 2026-08-07 by the kit author. EV-001 is the golden set.** The other thirty-five stay
+enumerated below and stay unbuilt.
+
+The reason is measured, not preferential. One complete eight-round case takes **90–120 minutes**
+of wall clock and produces 81 files. Thirty-six is on the order of **60–70 hours**, and §4 fires
+a full re-run on *any* edit to a question, an instruction, or a blueprint — so a one-line
+correction would have cost days before it could ship. **A policy nobody can afford is not
+followed selectively; it is skipped entirely**, and a skipped eval reports nothing while looking
+like coverage.
+
+**State plainly what one case does not buy.** EV-001 is a happy path: a solo developer building a
+web application, answering every round, accepting every gate. It exercises the interview, the
+fill procedure, coverage, validation and the entry point end to end. It does not exercise:
+
+| Not covered | What goes unwatched |
+|---|---|
+| **The other project shapes** | API-only never skips `frontend-component-spec.md`; no run produces `ai-boundary-spec.md`; a CLI tool's *not needed* rows are never checked for reasons |
+| **Every edge case** | One-word answers, a 5,000-word problem statement, all-defaults — the inputs that make a workspace hollow rather than wrong |
+| **Every adversarial case** | The ways an interview can be pushed off the rails |
+| **All four must-refuse cases** | The kit inventing a compliance obligation the developer never stated. This is BR-003's failure and RSK-2's, and it is now guarded only by deterministic checks and by a person reading |
+
+The must-refuse cases are the sharpest loss and the cheapest to recover: a correct refusal ends a
+run in seconds, so all four together cost minutes rather than hours. **If any of the thirty-five
+is ever built, build those four first.**
+
+None of this is an argument against the decision — one honest case beats thirty-six that never
+run. It is the record of what the decision costs, so that "the evals pass" is never read as more
+than it is.
+
 ### Cases
+
+> **One of the thirty-six runs.** EV-001 is built; every other row is a designed case that has
+> never been executed. Read the Category column as *intent*, not as evidence.
 
 | Case ID | Input (answer script) | Expected / rubric | Category |
 |---|---|---|---|
@@ -198,7 +232,12 @@ to be written down.
 
 ## 4. Regression triggers
 
-Re-run the full set on **any** of these:
+**The full set is EV-001** (see *Scope: one case*), so "re-run the full set" now costs 90–120
+minutes rather than 60–70 hours. That is what makes the list below followable. It was written
+against 36 cases, before anyone had measured what a case costs, and at that size it demanded
+several days of running for a one-line correction — which is why nothing would have honoured it.
+
+Re-run it on **any** of these:
 
 - [x] **Any edit to a question** — wording, options, order, or its one-line reason
 - [x] **Any edit to the intake instruction set** — however small
