@@ -38,6 +38,7 @@ import { parseAnswers, briefing as composeBriefing } from './answers.mjs'
 import { loadWorkspace, compare, CHANGE_LOG } from './workspace.mjs'
 import { score } from './eval-runner.mjs'
 import { acceptedStages } from './acceptance.mjs'
+import { library } from './golden.mjs'
 import { PAYLOAD_ROOT } from './payload.mjs'
 
 const GOLDEN = 'tests/fixtures/golden'
@@ -348,15 +349,39 @@ function drive({ sandbox, command, briefing, model, timeoutMin }) {
   }
 }
 
+/**
+ * One scorer's line in the report.
+ *
+ * NOT RUN IS ITS OWN ROW AND IT DOES NOT LOOK LIKE A GOOD ONE. Two scorers used to print
+ * `at floor` over inputs nobody supplied — byte-identical to what `no_example_content` prints
+ * after genuinely reading every file in the workspace — and that is how a baseline comes to be
+ * recorded as better than the evidence for it (ai-evals.md §5). The value column shows `—`
+ * rather than 0 for the same reason: a zero in a column of numbers reads as a measurement, and
+ * zero is the best score every one of these scorers has.
+ *
+ * Exported and pure, so the distinction can be asserted rather than eyeballed — the same reason
+ * `classifyHost` and `hostArgs` are exported.
+ */
+export function scorerRow(r) {
+  const state = r.notRun
+    ? `NOT RUN — ${r.why}`
+    : r.floor === null
+      ? 'ungated'
+      : r.atFloor
+        ? 'at floor'
+        : r.hardFail
+          ? 'BREACH'
+          : 'below floor'
+  return `${r.name.padEnd(20)} ${String(r.notRun ? '—' : r.value).padStart(6)}  ${state}`
+}
+
 /** What the run produced, judged and printed. */
 function verdict({ produced, golden, outside, through, host, caseId, sandbox }) {
-  const library = readFileSync(`${PAYLOAD_ROOT}/blueprints/MANIFEST.md`, 'utf8')
-    .split('\n')
-    .map((l) => (l.match(/^\| `([^`]+)` \|/) || [])[1])
-    .filter(Boolean)
-
+  // ONE READING OF THE MANIFEST, IN ci/golden.mjs. This used to be a second copy of the same
+  // three lines, and the copy carried the same defect: it swept in the manifest's "Deliberately
+  // not packaged" table and handed check 13 an 88-member library for an 81-file one.
   const rounds = acceptedStages(produced[CHANGE_LOG] ?? '').length
-  const scored = score({ workspace: produced, library, rounds, outside })
+  const scored = score({ workspace: produced, library: library(), rounds, outside })
   const diff = compare(produced, golden)
 
   console.log(`${caseId} — driven to Round ${through}`)
@@ -371,10 +396,7 @@ function verdict({ produced, golden, outside, through, host, caseId, sandbox }) 
     console.log(`  host attempts:    ${host.attempts} — earlier ones dropped their connection part-way through`)
 
   console.log('\n  scorers')
-  for (const r of scored.results) {
-    const state = r.floor === null ? 'ungated' : r.atFloor ? 'at floor' : r.hardFail ? 'BREACH' : 'below floor'
-    console.log(`    ${r.name.padEnd(20)} ${String(r.value).padStart(6)}  ${state}`)
-  }
+  for (const r of scored.results) console.log(`    ${scorerRow(r)}`)
 
   console.log(`\n  structure vs ${GOLDEN}/${caseId}/`)
   if (!diff.gated.length) console.log('    no gated difference — the run reproduced the golden structure')
@@ -388,6 +410,9 @@ function verdict({ produced, golden, outside, through, host, caseId, sandbox }) 
   console.log('    that the kit asks per file — edits were granted in advance (SEC-Z-002)')
   console.log('    that generated prose is stable — it is not, by design (ADR-002)')
   console.log('    anything about .git/ or .claude/ — the host writes those, not the kit')
+  // Named here as well as in the table, because the table is where a reader looks for a number
+  // and this block is where they look for what the number leaves out.
+  for (const r of scored.notRun) console.log(`    anything about ${r.name} — ${r.why}`)
   // A workspace finished across two sessions was produced by the kit AND by its resume path.
   // That is a different claim from the one a single-session run makes, and a reader who is not
   // told cannot tell the two apart from the output.
@@ -395,7 +420,14 @@ function verdict({ produced, golden, outside, through, host, caseId, sandbox }) 
     console.log(`    that one session produces this — it took ${host.attempts}, resumed from disk (resume.md)`)
 
   const failed = diff.gated.length + scored.breaches.length
-  console.log(failed ? `\n  RESULT: FAIL — ${failed} gated difference${failed === 1 ? '' : 's'}` : '\n  RESULT: pass')
+  if (failed) console.log(`\n  RESULT: FAIL — ${failed} gated difference${failed === 1 ? '' : 's'}`)
+  // A pass here is a claim about STRUCTURE, and it stays a pass — the comparison did run. What
+  // it must not do is carry unmeasured scorers along inside it silently.
+  else if (scored.mayClaimSuccess) console.log('\n  RESULT: pass')
+  else
+    console.log(
+      `\n  RESULT: pass — the structure reproduced. ${scored.notRun.length} scorer(s) did not run; they are not part of that claim.`
+    )
   return failed ? 1 : 0
 }
 
