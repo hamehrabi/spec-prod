@@ -28,7 +28,14 @@ const FORBIDDEN = /(accept|progress|approval|session|\.state|state\.json|cache|a
 
 // A state file in a state directory is still a state file. Without this, `.cache/stages.json`
 // passes: the basename is innocent and the incriminating part is a path segment.
-const FORBIDDEN_DIR = /^\.?(cache|state|progress|sessions?|tmp)$/i
+//
+// `kit`, `intake`, `accepted` and `approval` were in the FILENAME branch above and missing from
+// this one — so `spec/.kit` was caught and `spec/.kit/rounds.json` was not, and neither was
+// `spec/.accepted/round-1.json`. The guard refused the marker as a file and waved it through
+// the moment it became a directory, which is precisely the evasion this branch exists to close.
+// `spec/.kit` is the path ADR-004 and boundary.md name by name as what the product refuses to
+// create.
+const FORBIDDEN_DIR = /^\.?(cache|state|progress|sessions?|tmp|kit|intake|accepted|approval)$/i
 
 export const forbiddenStateFiles = (paths) =>
   paths.filter((p) => {

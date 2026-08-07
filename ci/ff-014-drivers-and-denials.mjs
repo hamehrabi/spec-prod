@@ -19,10 +19,18 @@ process.exit(
     guards: 'BR-010 — an intent with nothing to notice its absence is decoration',
     threshold: '100% of permission rules denied, 100% of drivers measured',
     // Both underlying checks report NOT RUN when the workspace has not yet declared any rule or
-    // any driver. That is honest and must not be read as satisfied — so a case only counts as
-    // measured once at least one of them actually ran.
+    // any driver. That is honest and must not be read as satisfied — so a case counts as
+    // measured only once BOTH of them actually ran.
+    //
+    // `.every`, not `.some`. With `.some`, one of the two running marked the whole case
+    // measured, and `measure` below filters on `failed` — so the sibling's not-run contributed
+    // nothing and vanished, and the case came out green having judged half of what this check
+    // claims. `walkGolden` prints "not measured" only for cases `applies` rejects outright, so
+    // there was no line anywhere saying the driver half had not run. The threshold says 100% of
+    // BOTH; a case that can only answer for one of them cannot meet it, and saying so is the
+    // rule this very file states three lines above.
     applies: (ws) =>
-      validate(ws, lib).results.some((c) => [8, 9].includes(c.n) && c.state !== 'not-run'),
+      validate(ws, lib).results.filter((c) => [8, 9].includes(c.n)).every((c) => c.state !== 'not-run'),
     measure: (ws) =>
       validate(ws, lib)
         .results.filter((c) => CHECKS[c.n] && c.state === 'failed')
