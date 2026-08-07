@@ -26,7 +26,7 @@ Written in Given–When–Then, derived directly from the acceptance criteria in
 | ATEST-011 | REQ-F-011 | AC-008 | Reach round eight with unknowns remaining | No ninth round; every unknown appears in the generated open-questions file | Planned |
 | ATEST-012 | REQ-F-012 | — | Complete Round 2 | The developer was asked to name the one capability they compete on | Planned |
 | ATEST-013 | REQ-F-013 | AC-009 | Select four driving characteristics | Push-back **once** with the reason; at most three accepted; rejected ones recorded | Planned |
-| ATEST-014 | REQ-F-033 | AC-031 | Run at express depth | Workspace is thinner, fewer rounds, **every structural rule still holds** | Planned |
+| ATEST-014 | REQ-F-033 | AC-031 | Run at express depth | Workspace is thinner over the same eight rounds, **every structural rule still holds** | Planned |
 | ATEST-015 | REQ-F-014 | AC-010 | Complete an intake in any repository | Workspace is at `spec/` at the repository root | Planned |
 | ATEST-016 | REQ-F-015 | AC-011 | Interrupt immediately after Round 3 | Rounds 1–3 files exist on disk and are readable | Planned |
 | ATEST-017 | REQ-F-016 | AC-012 | Open any generated file | Headings match its blueprint in order; final line is a back-link that resolves | Planned |

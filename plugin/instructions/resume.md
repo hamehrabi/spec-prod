@@ -31,7 +31,7 @@ Read which artifacts exist, then compare against what that round produces:
 | State | What it means | What to do |
 |---|---|---|
 | **absent** | None of the stage's files exist | Ask this round |
-| **partial** | Some files, not all | **Redo the stage from its start.** Replace files whole — never append to a half-written one |
+| **partial** | Some files, not all | **Redo the stage from its start.** Replace the round's files whole — never append to a half-written one. The two ledgers below are appended to, never replaced |
 | **written, not accepted** | Every file exists, no acceptance row | **Re-present that stage's gate.** Do not re-ask the round; do not advance |
 | **complete** | Every file exists, and a dated acceptance row records it | Move on |
 
@@ -85,6 +85,32 @@ to a half-written file, and never try to repair one in place — a file that is 
 half new matches no blueprint and belongs to no round.
 
 Whole-file replacement is what makes a redone stage idempotent by construction.
+
+### Two files are exempt, because they are ledgers and not round artifacts
+
+**`01-docs/09-change-control/spec-change-log.md`** and **`01-docs/01-intent/open-questions.md`**
+are owned by Round 1 but **written to by all eight** (`instructions/coverage.md`). A redo
+appends to these two. It never replaces them.
+
+The reason is ADR-004. There is no state file, so **these rows *are* the state** — the change
+log is the only record of which stages were accepted and which blueprints were skipped, and
+open-questions is the only place a `Q-###` is defined.
+
+Replacing them whole is not an idempotent rewrite of one round's work; it is the deletion of
+seven other rounds'. A partial Round 1 is ordinary — a declined file leaves one
+(`instructions/intake.md`) — so this is reached by a normal workspace, not an unlucky one:
+
+> Round 1 partial, Rounds 2–5 accepted. Resume redoes Round 1, rewrites the change log from
+> its blueprint, and five acceptance rows and every skip reason are gone. Four gates are
+> re-presented to a developer who already answered them, and check 13 now fails for coverage
+> that was recorded. `open-questions.md` goes the same way, orphaning every `[TODO]` Rounds
+> 2–5 wrote.
+
+**Appending to a ledger is not repairing a half-written file.** The distinction the rule above
+draws is between a file that belongs to one round and a file that belongs to the workspace.
+A ledger's older rows were never this round's to write, so they were never this round's to
+replace — and a half-written ledger is still a correct ledger, because a row is complete or
+it is absent.
 
 ---
 

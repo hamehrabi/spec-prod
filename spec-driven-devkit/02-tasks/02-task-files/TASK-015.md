@@ -16,8 +16,8 @@ express mode without undercutting Simplicity is to make it an argument.**
 
 ## Goal
 
-`depth=express` produces a thinner workspace in fewer rounds, through **the same single flow**,
-with every structural guarantee intact.
+`depth=express` produces a thinner workspace over **the same eight rounds**, through **the same
+single flow**, with every structural guarantee intact.
 
 ## Inputs
 
@@ -37,7 +37,7 @@ instructions/intake.md        <- gains the depth argument (the ONLY argument)
 
 - One command, one argument (`depth`), **one end-to-end path**. Depth changes *how much* is
   asked and written — never *which code runs*.
-- Express: fewer rounds, thinner files.
+- Express: two questions a round instead of four, thinner files, the same eight rounds.
 - **No stage is skipped.** Depth within a stage is reduced; a stage is never deleted.
 - Every structural rule still holds: identifiers resolve, back-links resolve, `[TODO]`s pair
   with `Q-###` rows, no worked-example content.
@@ -69,7 +69,7 @@ instructions/intake.md        <- gains the depth argument (the ONLY argument)
 
 - [ ] Exactly one command and one end-to-end path exist (FF-001 passes).
 - [ ] `depth` is the only argument.
-- [ ] Express produces fewer rounds and thinner files.
+- [ ] Express produces thinner files and asks at most two questions a round, over eight rounds.
 - [ ] **Every stage still produces at least its minimum artifacts.**
 - [ ] All structural checks pass on an express workspace.
 - [ ] The report names which stages were written thin.
@@ -78,8 +78,8 @@ instructions/intake.md        <- gains the depth argument (the ONLY argument)
 
 | Test ID | Scenario | Expected result |
 |---|---|---|
-| ATEST-014 | Run at express depth | Thinner, fewer rounds, all structural rules hold |
-| UTEST-012 | Express vs. default | Fewer rounds; **no stage missing** |
+| ATEST-014 | Run at express depth | Thinner over the same eight rounds, all structural rules hold |
+| UTEST-012 | Express vs. default | Two questions a round, not four; eight rounds either way; **no stage missing** |
 | UTEST-013 | Count paths | One command, one path — depth is an argument |
 | ETEST-007 | Express end to end | Complete, valid, thinner |
 | EV-009 | EV-001's script at express depth | Passes every deterministic scorer |
@@ -104,8 +104,8 @@ instructions/intake.md        <- gains the depth argument (the ONLY argument)
 **Stop and ask if:**
 - Express seems to need its own branch through the intake. **That is DD-006 being violated**,
   and the task is wrong rather than the decision — stop before writing the branch.
-- Express would have to skip a stage entirely to be meaningfully faster. Skipping a stage is
-  forbidden by the master process (*reduce depth within a stage, do not delete the stage*);
-  if express is not fast enough without it, that is a finding worth raising, not a rule to bend.
+- Express cannot be made meaningfully faster without skipping a stage entirely. The master
+  process forbids that (*reduce depth within a stage, do not delete the stage*); if express is
+  not fast enough without it, that is a finding worth raising, not a rule to bend.
 
 > Blueprint: ../../../spec-driven-template/02-tasks/02-task-files/TASK-001.md
