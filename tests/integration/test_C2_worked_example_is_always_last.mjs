@@ -17,9 +17,18 @@ import { walk, toPosix } from '../../ci/payload.mjs'
 
 const LIB = 'plugin/blueprints'
 
+// MANIFEST.md is the integrity control, not a blueprint: it has no source counterpart and
+// produces no generated file (TEST-003 draws the same line).
+//
+// `blueprints/README.md` used to be excluded here too, with no reason written down — the one
+// exclusion in this file that nobody had to justify, in a file whose own principle at the
+// NO_EXAMPLE_EXPECTED comment is that an unjustified exemption is how twenty-four blueprints
+// stayed invisible. It is a packaged blueprint (MANIFEST.md), it is written in Round 1, it
+// carries `# WORKED EXAMPLE — ProjectBoard`, and it is the first file anyone opens in the
+// workspace. It is now asserted like every other blueprint.
 const blueprints = walk(LIB)
   .map(toPosix)
-  .filter((f) => f.endsWith('.md') && !f.endsWith('MANIFEST.md') && !f.endsWith('blueprints/README.md'))
+  .filter((f) => f.endsWith('.md') && !f.endsWith('MANIFEST.md'))
 
 /** H1 headings after `# WORKED EXAMPLE` that are NOT inside a fenced code block.
  *  Headings inside fences (`# BEFORE`, `# WRONG`) are the example's own content and are

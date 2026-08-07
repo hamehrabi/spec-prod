@@ -15,7 +15,17 @@ import { placeholders, unfilled, todos, blueprintOf } from './fill.mjs'
 
 const passed = (detail = []) => ({ state: 'passed', detail })
 const failed = (detail) => ({ state: 'failed', detail })
-const notRun = (reason) => ({ state: 'not-run', detail: [reason] })
+
+/**
+ * A check that did not run, and why.
+ *
+ * `because` is a reason CODE, for the one caller that has to tell two not-runs apart. Everything
+ * else treats every not-run identically, which is the whole of BR-009.
+ */
+const notRun = (reason, because = null) => ({ state: 'not-run', detail: [reason], because })
+
+/** Check 10 has nothing to read until the entry point exists. See `validate()`. */
+export const AWAITING_ENTRY_POINT = 'awaiting-entry-point'
 
 const md = (ws) => Object.entries(ws).filter(([p]) => p.endsWith('.md'))
 const all = (ws) => Object.values(ws).join('\n')
@@ -33,6 +43,80 @@ const norm = (s) => s.toLowerCase().replace(/[*`_]/g, '').replace(/\s+/g, ' ').t
 // everything also catches prose, and a check with false positives gets switched off.
 const ID = /\b(REQ-[A-Z]+|BR|CON|AC|US|ADR|DD|FF|TASK|Q|RISK|SEC-[AZ]|EV|[UAEFSP]?TEST)-\d{3}\b/g
 
+// --- Reading a table the way a reader reads one ------------------------------------------
+//
+// Four of these checks are about TABLE CELLS — which cell is blank, which column names the
+// fitness function, whether a row defines an identifier or merely cites it. Each of them used
+// to ask a line-anchored regex instead, and each was wrong in the same direction: a pattern
+// over the raw line cannot tell column three from column six, so it either matched nothing
+// (check 7 required EVERY cell blank) or matched everything (check 2 read a traceability row
+// as a second definition). Parse once, ask questions of cells.
+
+const cellsOf = (line) => line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim())
+
+/**
+ * The `|---|:--:|` line. It separates a header from its rows and is not a row.
+ *
+ * THE DASH IS REQUIRED. Without it `| | |` — a row with every cell empty, the exact thing
+ * check 7 is looking for — reads as a delimiter and is skipped, and the check goes quiet on
+ * its own subject.
+ */
+const isDelimiter = (line) => /^\s*\|[\s:|-]+\|\s*$/.test(line) && line.includes('-')
+
+/**
+ * Every data row of every table, tagged with the header row it sits under.
+ *
+ * A table is a header line, a delimiter line, then rows — the three parts a reader sees, and
+ * the delimiter is what makes it a table rather than a line with pipes in it.
+ *
+ * FENCED BLOCKS ARE SKIPPED. Several blueprints keep a template block the developer is meant
+ * to COPY, pipes and all (BUG-017). Reading those as decisions somebody failed to make is
+ * that same defect arriving from the other side.
+ */
+function tableRows(text) {
+  const lines = text.split('\n')
+  const rows = []
+  let fenced = false
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*(```|~~~)/.test(lines[i])) fenced = !fenced
+    if (fenced) continue
+    if (!/^\s*\|/.test(lines[i]) || !isDelimiter(lines[i + 1] ?? '')) continue
+    const header = cellsOf(lines[i])
+    let j = i + 2
+    for (; j < lines.length && /^\s*\|/.test(lines[j]) && !/^\s*(```|~~~)/.test(lines[j]); j++) {
+      if (!isDelimiter(lines[j])) rows.push({ header, cells: cellsOf(lines[j]), line: j + 1, raw: lines[j].trim() })
+    }
+    i = j - 1
+  }
+  return rows
+}
+
+/** The identifier a row's first cell IS, or null. `**Q-001**` counts; `see Q-001` does not. */
+const firstCellId = (row) => row.cells[0]?.replace(/\*/g, '').match(/^(\w[\w-]*-\d{3})$/)?.[1] ?? null
+
+/** Which column is this, by header. -1 when the table has no such column. */
+const columnNamed = (header, re) => header.findIndex((h) => re.test(h))
+
+/** Words, meaning words — not `✔ / ✘`, which splits into three tokens and says nothing. */
+const wordCount = (cell) => (cell.match(/[A-Za-z]{2,}/g) ?? []).length
+
+// --- The manifest ------------------------------------------------------------------------
+
+/** Never generated and never skipped — template scaffolding, not an artifact (coverage.md). */
+const PERMANENT_EXCLUSION = '01-docs/10-reference/appendix-index.md'
+
+/**
+ * The blueprints a manifest lists, read from the manifest's own text.
+ *
+ * MANIFEST.md holds two tables of backticked paths: the blueprints, each with a SHA-256, and
+ * "Deliberately not packaged", each with a reason. Only the first kind can be filled or
+ * skipped. Requiring the checksum column is what separates them — a pattern that reads any
+ * backticked first cell returns 88 entries for an 81-blueprint library, six of which are not
+ * paths at all, and check 13 then fails every possible complete run.
+ */
+export const manifestBlueprints = (text) =>
+  [...text.matchAll(/^\|\s*`([^`]+)`\s*\|\s*`[0-9a-f]{64}`\s*\|/gm)].map((m) => m[1])
+
 export const CHECKS = {
   1: {
     name: 'every referenced identifier resolves',
@@ -49,17 +133,52 @@ export const CHECKS = {
   2: {
     name: 'no identifier is defined twice',
     run(ws) {
+      // A ROW THAT CITES AN IDENTIFIER IS NOT A SECOND DEFINITION OF IT. This used to count
+      // every row whose first cell held an identifier, anywhere — and the traceability matrix
+      // is a table whose first column IS the requirement ID, by design. So the moment Round 8
+      // filled `01-docs/08-traceability/traceability.md`, every requirement in the workspace
+      // was reported as defined twice: one failure line per requirement, on correct work.
+      //
+      // That is the failure mode check 9 records for itself forty lines below — a control that
+      // cries wolf is a control that gets switched off — and it is worse here, because the
+      // suggested repair is to go and delete the traceability chain.
+      //
+      // The whole library was surveyed to draw this line, not guessed. Three shapes mark a row
+      // as a citation rather than a definition, and every cross-reference table in the library
+      // is caught by at least one of them:
+      //
+      //   the table declares two or more ID columns   `| Req ID | … | Task ID | Test ID |`
+      //   the row cites two or more other identifiers `| REQ-F-001 | … | TEST-006, FTEST-001 |`
+      //   no cell after the first holds prose         `| REQ-001 | ✔ | ✔ | ✔ | ✔ | |`
+      //
+      // It errs toward MISSING a duplicate rather than inventing one, deliberately: the cost of
+      // a missed reuse is one identifier nobody caught, and the cost of a false positive is the
+      // whole check being switched off. The count of rows read as citations is reported, so the
+      // blind spot is stated rather than hidden (BR-009 applies to a check's own scope too).
       const seen = new Map()
+      let citations = 0
       for (const [path, text] of md(ws)) {
-        for (const m of text.matchAll(/^\|\s*\**(\w[\w-]*-\d{3})\**\s*\|/gm)) {
-          const at = seen.get(m[1]) ?? []
+        for (const row of tableRows(text)) {
+          const id = firstCellId(row)
+          if (!id) continue
+          const rest = row.cells.slice(1)
+          const others = new Set((rest.join(' ').match(ID) ?? []).filter((x) => x !== id)).size
+          if (
+            row.header.filter((h) => /\bIDs?\b/i.test(h)).length >= 2 ||
+            others >= 2 ||
+            !rest.some((c) => wordCount(c) >= 3)
+          ) {
+            citations++
+            continue
+          }
+          const at = seen.get(id) ?? []
           if (!at.includes(path)) at.push(path)
-          seen.set(m[1], at)
+          seen.set(id, at)
         }
       }
       const dupes = [...seen].filter(([, at]) => at.length > 1)
       return dupes.length === 0
-        ? passed()
+        ? passed([`${seen.size} identifiers defined once; ${citations} row(s) read as citations, not definitions`])
         : failed(dupes.slice(0, 5).map(([id, at]) => `${id} is defined in ${at.join(' and ')}`))
     },
   },
@@ -112,28 +231,47 @@ export const CHECKS = {
       // Matching on TEXT rather than on a cited ID is deliberate: it needs no ID allocated at
       // the round that writes the TODO, for a row a later round creates. It fails on drift —
       // one side reworded and not the other — which is the defect, not a false positive.
+      // A CITATION IS A CITATION, NOT A DISTANCE. The first branch used to accept any `Q-###`
+      // within 300 characters of the marker — so an orphan one line below an unrelated
+      // question row paired with it, and padding the gap to ~520 characters flipped the same
+      // workspace to failed without a word of either changing. The verdict was byte distance;
+      // the rule this check is named after asks for a reference a reader can follow.
+      //
+      // A citation now has to be inside the marker's own brackets or in the row that carries
+      // it — and it has to name a `Q-###` that EXISTS. Citing a question nobody wrote down is
+      // the orphan case wearing an identifier.
+      //
       // A row is { id, answered }. `answered` matters because a marker is stale the moment its
       // question is decided somewhere else in the same workspace — see below.
       const rows = new Map()
+      const byId = new Map()
       for (const m of all(ws).matchAll(/^\|\s*\**(Q-\d{3})\**\s*\|([^|]*)\|(.*)$/gm)) {
-        rows.set(norm(m[2]), { id: m[1], answered: /\|\s*\**Answered\**\s*\|/i.test(`|${m[3]}`) })
+        const row = { id: m[1], answered: /\|\s*\**Answered\**\s*\|/i.test(`|${m[3]}`) }
+        rows.set(norm(m[2]), row)
+        byId.set(m[1], row)
       }
-      const bad = md(ws)
-        .flatMap(([p, t]) => todos(t).map((q) => [p, q]))
-        .map(([p, q]) => {
-          const at = ws[p].indexOf(q)
-          const near = ws[p].slice(Math.max(0, at - 300), at + 300)
-          const row = rows.get(norm(q))
+      const bad = []
+      for (const [p, t] of md(ws)) {
+        // Located by scanning forward, so two markers asking the same question are two markers.
+        let from = 0
+        for (const q of todos(t)) {
+          const at = t.indexOf(q, from)
+          from = at + q.length
+          const lineEnd = t.indexOf('\n', at)
+          const line = t.slice(t.lastIndexOf('\n', at) + 1, lineEnd === -1 ? t.length : lineEnd)
+          const cited = [...new Set(line.match(/\bQ-\d{3}\b/g) ?? [])]
+          const row = rows.get(norm(q)) ?? cited.map((c) => byId.get(c)).find(Boolean)
           // STALE, not merely unpaired. The question was answered and the marker was left
           // behind, so the workspace now contradicts itself — and a marker its own workspace
           // contradicts is worse than an open one, because it teaches the reader that markers
           // mean nothing (BUG-014). Reported separately: the fix is the opposite of the other
           // one. An orphan needs a question added; a stale marker needs the marker removed.
-          if (row?.answered) return [p, q, `${row.id} is already Answered — the marker is stale`]
-          if (/\bQ-\d{3}\b/.test(near) || row) return null
-          return [p, q, 'has no Q-### row']
-        })
-        .filter(Boolean)
+          if (row?.answered) bad.push([p, q, `${row.id} is already Answered — the marker is stale`])
+          else if (row) continue
+          else if (cited.length) bad.push([p, q, `cites ${cited.join(', ')}, which has no Q-### row`])
+          else bad.push([p, q, 'has no Q-### row'])
+        }
+      }
       const open = [...rows.values()].filter((r) => !r.answered).length
       return bad.length === 0
         ? passed([`${open} open questions; every [TODO] resolves to one, and none is stale`])
@@ -143,22 +281,111 @@ export const CHECKS = {
   7: {
     name: 'no table row requiring a decision is left blank',
     run(ws) {
+      // THE ROWS THIS RULE IS WRITTEN ABOUT ARE NOT BLANK ROWS. The old pattern was
+      // `/^\|(?:\s*\|){2,}\s*$/` — every cell empty, first one included — which is a row nobody
+      // has touched, and `unfilled()` already reports that one as an `empty-row` placeholder.
+      // So check 7 duplicated a check 5 finding and caught nothing else.
+      //
+      // What it exists for is the row that has been touched and not decided:
+      //
+      //   | Login | | | per IP + per account | 429 + `Retry-After` | |
+      //
+      // — a real rate-limiting row from `runtime-and-scale.md`, which named the endpoint and
+      // left the limit and the window empty. Both checks passed it. *We decided* was not
+      // distinguishable from *nobody looked*, which is the one thing this check is named for.
+      //
+      // TWO OR MORE ADJACENT EMPTY CELLS, wherever they fall in the row. A single gap is how a
+      // legitimately sparse table reads — a traceability row with no code link yet, a matrix
+      // cell that does not apply — and flagging those would fail correct work in every
+      // workspace that reaches Round 8. A RUN of them is a decision nobody made.
+      const undecided = (row) => {
+        let run = 0
+        for (const cell of row.cells) if ((run = cell === '' ? run + 1 : 0) >= 2) return true
+        return false
+      }
       const blanks = md(ws)
-        .map(([p, t]) => [p, (t.match(/^\|(?:\s*\|){2,}\s*$/gm) ?? []).length])
-        .filter(([, n]) => n > 0)
+        .map(([p, t]) => [p, tableRows(t).filter(undecided)])
+        .filter(([, rows]) => rows.length > 0)
       return blanks.length === 0
         ? passed()
-        : failed(blanks.slice(0, 5).map(([p, n]) => `${p} has ${n} empty table row(s)`))
+        : failed(
+            blanks
+              .slice(0, 5)
+              .map(([p, rows]) => `${p} line ${rows[0].line}: ${rows[0].raw.slice(0, 60)} (${rows.length} undecided row(s))`)
+          )
     },
   },
   8: {
     name: 'every permission rule has at least one deny test',
     run(ws) {
-      const text = all(ws)
-      const denies = (text.match(/deny test|denial test|must not|cannot/gi) ?? []).length
-      const rules = (text.match(/\bpermission rule|\brole\b.*\bcan\b/gi) ?? []).length
-      if (rules === 0) return notRun('this workspace declares no permission rules')
-      return denies > 0 ? passed([`${rules} rules, ${denies} denial statements`]) : failed(['permission rules exist with no denial test'])
+      // THIS CHECK COULD NOT FAIL. It counted the words "must not" and "cannot" across the
+      // whole workspace and passed on one — and those are ordinary English: 46 of 81 blueprint
+      // bodies ship one, and on the golden workspace the matches included the literal column
+      // header `| Role | Can do | Cannot do |`. A three-rule roles table with no denial test
+      // anywhere passed, reporting "27 denial statements". The check named after the one thing
+      // that distinguishes an enforced permission model from a decorated one was satisfied by
+      // prose about anything at all.
+      //
+      // The same words are still what marks a denial — but only INSIDE a permission rule's own
+      // row, never loose in the document. And the pairing is per rule, because that is the
+      // claim the check's name makes.
+      //
+      // Two things count as a permission rule, and both are how this library writes one:
+      //   a `REQ-R-###` row      — requirements.md §3 declares the format
+      //   a row of a roles table — a table whose first column is Role or Actor
+      //
+      // Rules are collected BY IDENTIFIER, not by row: `REQ-R-001` cited again in a second
+      // table is the same rule, and counting it twice would report a rule set larger than the
+      // one the developer wrote.
+      const rules = new Map()
+      const roles = []
+      for (const [path, text] of md(ws)) {
+        for (const row of tableRows(text)) {
+          const id = firstCellId(row)
+          if (id && /^REQ-R-\d{3}$/.test(id)) {
+            const seen = rules.get(id) ?? { id, path, text: '' }
+            rules.set(id, { ...seen, text: `${seen.text} ${norm(row.cells.slice(1).join(' '))}`.trim() })
+            continue
+          }
+          if (!/^(roles?|actors?)$/i.test(row.header[0] ?? '')) continue
+          const cannot = columnNamed(row.header, /cannot|can ?not|may not|denied|denies|forbidden|prohibited|never/i)
+          if (row.cells[0]) roles.push({ name: row.cells[0].replace(/\*/g, ''), path, cannot, cell: cannot >= 0 ? (row.cells[cannot] ?? '') : null })
+        }
+      }
+      if (rules.size + roles.length === 0) return notRun('this workspace declares no permission rules')
+
+      // A prohibition, judged on the rule's own words. Same vocabulary as before; the
+      // difference is entirely in what it is allowed to read.
+      const prohibits = (t) => /\b(must not|may not|cannot|can not|shall not|is not able to|is refused|is denied|never)\b/i.test(t)
+      const denials = [...rules.values()].filter((r) => prohibits(r.text))
+
+      // A deny test is an acceptance criterion or a test that CITES one of those denial rules.
+      // Requiring the citation rather than sniffing the test's prose is what makes this
+      // decidable: AC-005 is a deny test because it is the test OF a denial, and it says so.
+      const denyTests = new Map(denials.map((r) => [r.id, []]))
+      for (const [path, text] of md(ws)) {
+        for (const row of tableRows(text)) {
+          const id = firstCellId(row)
+          if (!id || !/^(AC|[A-Z]*TEST)-\d{3}$/.test(id)) continue
+          for (const cited of new Set(row.cells.slice(1).join(' ').match(/\bREQ-R-\d{3}\b/g) ?? []))
+            denyTests.get(cited)?.push(`${id} in ${path}`)
+        }
+      }
+
+      const roleWithNothingRefused = roles.filter((r) => r.cannot >= 0 && r.cell === '')
+      const untested = denials.filter((r) => denyTests.get(r.id).length === 0)
+      const problems = [
+        // The whole point, stated as a failure rather than assumed: allow-only rules pass
+        // identically on a system with no enforcement at all.
+        ...(denials.length === 0 && !roles.some((r) => r.cell)
+          ? [`${rules.size + roles.length} permission rule(s) and not one denial — an allow-only rule set passes on a system with no enforcement`]
+          : []),
+        ...untested.map((r) => `${r.id} is a denial with no acceptance criterion or test citing it`),
+        ...roleWithNothingRefused.map((r) => `the ${r.name} role is declared with nothing it cannot do`),
+      ]
+      return problems.length === 0
+        ? passed([`${rules.size} rule(s) and ${roles.length} role(s); ${denials.length} denial(s), each with a test that cites it`])
+        : failed(problems.slice(0, 5))
     },
   },
   9: {
@@ -175,25 +402,67 @@ export const CHECKS = {
       const declaring = Object.entries(ws).find(([p]) => p.endsWith('driving-characteristics.md'))
       if (!declaring) return notRun('no driving characteristics file exists yet — it is written in Round 4')
 
+      // AND ASK IT PER DRIVER. The second half of the same lesson: having found the file that
+      // declares them, the check then tested `/FF-\d{3}/` against the WHOLE WORKSPACE — so one
+      // identifier in one file, anywhere, proved that every driver was governed. Three drivers
+      // with the fitness-function cell filled for the first one only passed, reporting
+      // "3 drivers declared". The evidence is per row and sits in the row; nothing read it.
+      //
+      // This is BUG-013's shape exactly — the defect check 6 records forty lines above, where
+      // the existence of one `Q-###` anywhere exempted every `[TODO]` in the workspace.
       const [, text] = declaring
-      const drivers = (text.match(/^\|\s*[123]\s*\|\s*\S/gm) ?? []).length
-      if (drivers === 0) return notRun('the driving characteristics file exists but declares no driver')
-      return /\bFF-\d{3}\b/.test(all(ws))
-        ? passed([`${drivers} drivers declared`])
-        : failed(['drivers are declared with no fitness function'])
+      const drivers = tableRows(text).filter((r) => /^[123]$/.test(r.cells[0] ?? '') && (r.cells[1] ?? '') !== '')
+      if (drivers.length === 0) return notRun('the driving characteristics file exists but declares no driver')
+
+      // The column if the table names one, the whole row if it does not — a driver that names
+      // its fitness function somewhere in its row is governed either way, and a table shaped
+      // differently from the blueprint must not read as a violation.
+      const column = columnNamed(drivers[0].header, /fitness function/i)
+      const ungoverned = drivers.filter(
+        (d) => !/\bFF-\d{3}\b/.test(column >= 0 ? (d.cells[column] ?? '') : d.cells.join(' '))
+      )
+      return ungoverned.length === 0
+        ? passed([`${drivers.length} drivers declared, each naming its own fitness function`])
+        : failed(
+            ungoverned.map(
+              (d) => `driver ${d.cells[0]} (${d.cells[1].replace(/\*/g, '').slice(0, 40)}) names no fitness function`
+            )
+          )
     },
   },
   10: {
     name: 'the entry point is under 100 lines and its paths resolve',
     run(ws) {
       const entry = Object.keys(ws).find((p) => /(^|\/)CLAUDE\.md$/.test(p))
-      if (!entry) return notRun('no entry-point file exists yet — it is written last')
-      const lines = ws[entry].split('\n').length
-      const paths = [...ws[entry].matchAll(/\]\(([^)]+\.md)\)/g)].map((m) => m[1].replace(/^\.\//, ''))
-      const broken = paths.filter((p) => !Object.keys(ws).some((k) => k.endsWith(p)))
+      // THE ONE NOT-RUN THAT DOES NOT BLOCK WRITING. The entry point is the last file a run
+      // writes, and this walk runs before it — so this state is the ordinary first-pass
+      // outcome, not a fault. Reported with a reason code so `mayWriteEntryPoint` can tell it
+      // apart from every other not-run, which does block. See the note above `validate()`.
+      if (!entry) return notRun('no entry-point file exists yet — it is written last', AWAITING_ENTRY_POINT)
+      const text = ws[entry]
+      const lines = text.split('\n').length
+      // BOTH FORMS A MAP USES. Reading only `](x.md)` meant an entry point whose Start-here
+      // table lists backticked bare paths — the house style of the library's own README —
+      // reported "0 paths resolve" as a pass. A check that resolved nothing said so and was
+      // counted green.
+      //
+      // A back-link names a BLUEPRINT, not a file in this workspace (fill.mjs), so
+      // `blueprints/…` is not a path this check can resolve and is not one it should try to.
+      const paths = [
+        ...[...text.matchAll(/\]\(([^)]+\.md)\)/g)].map((m) => m[1]),
+        ...[...text.matchAll(/`([^`\s]+\.md)`/g)].map((m) => m[1]),
+      ]
+        .map((p) => p.replace(/^\.\//, ''))
+        .filter((p) => !p.startsWith('blueprints/'))
+      const broken = [...new Set(paths.filter((p) => !Object.keys(ws).some((k) => k.endsWith(p))))]
       const problems = [
         ...(lines >= 100 ? [`${entry} is ${lines} lines; the limit is 100`] : []),
         ...broken.slice(0, 4).map((p) => `${entry} links to ${p}, which does not exist`),
+        // A navigation surface that navigates nowhere. Scoped to the section that promises
+        // one, so an entry point still being assembled is not accused of it.
+        ...(/^#{1,6}\s*Start here|\bStart here\b/im.test(text) && paths.length === 0
+          ? [`${entry} has a Start here section and resolves no path — the map names no destination`]
+          : []),
       ]
       return problems.length === 0 ? passed([`${lines} lines, ${paths.length} paths resolve`]) : failed(problems)
     },
@@ -236,23 +505,55 @@ export const CHECKS = {
     name: 'every blueprint was filled, or recorded as skipped with a reason',
     // Added by TASK-022, for the gap nothing else caught: a blueprint the intake never
     // reached produces no file, no mismatch, and no complaint.
+    //
+    // `library` is either the manifest's blueprint paths or the manifest TEXT. Given the text,
+    // `manifestBlueprints()` reads the one table that carries checksums — which is the only
+    // way to tell a blueprint from an entry in the manifest's "Deliberately not packaged"
+    // table, and a caller that scrapes both hands this check six paths no run can ever fill.
     run(ws, library = null) {
       if (!library) return notRun('the blueprint manifest was not supplied, so coverage could not be derived')
+      const blueprints = typeof library === 'string' ? manifestBlueprints(library) : library
+      if (blueprints.length === 0)
+        return notRun('the blueprint manifest lists no blueprint, so coverage could not be derived')
       const produced = new Set(Object.values(ws).map((t) => blueprintOf(t)).filter(Boolean))
+
       // A skip counts ONLY when it carries a reason. A skip with no reason is a silent skip
       // wearing a label, and it must not satisfy this check.
-      const skipped = new Set(
-        [...all(ws).matchAll(/^\|[^|]*\|\s*Skipped\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|/gm)]
-          .filter((m) => m[2].trim().length > 3)
-          .map((m) => m[1].trim())
-      )
-      const uncovered = library.filter((b) => !produced.has(b) && !skipped.has(b) && !b.endsWith('appendix-index.md'))
-      return uncovered.length === 0
-        ? passed([`${produced.size} filled, ${skipped.size} skipped with a reason`])
+      //
+      // AND IT IS RESOLVED AGAINST THE MANIFEST, NOT COMPARED TO IT. The recorded name was
+      // matched against the manifest path with `===`, while the instruction that teaches the
+      // skip row shows a bare filename — `| 2026-08-04 | Skipped | frontend-component-spec.md |
+      // API-only product |` — so a skip recorded exactly as documented matched nothing and the
+      // blueprint stayed uncovered. Every API-only product failed check 13 for doing what it
+      // was shown. Both forms now resolve; a basename that names two blueprints is reported as
+      // ambiguous rather than resolved to whichever came first.
+      const recorded = [...all(ws).matchAll(/^\|[^|]*\|\s*Skipped\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|/gm)]
+        .filter((m) => m[2].trim().length > 3)
+        .map((m) => m[1].trim().replace(/^`|`$/g, ''))
+      const skipped = new Set()
+      const unresolved = []
+      for (const name of recorded) {
+        const matches = blueprints.filter((b) => b === name || b.endsWith(`/${name}`))
+        if (matches.length === 1) skipped.add(matches[0])
+        else if (matches.length > 1)
+          unresolved.push(`the skip named "${name}" matches ${matches.length} blueprints — record the full manifest path`)
+        else unresolved.push(`the skip named "${name}" matches no blueprint in the manifest`)
+      }
+
+      // The manifest's own permanent exclusion, named rather than silent. `appendix-index.md`
+      // is template scaffolding: never generated, never skipped, not a per-run decision at all
+      // (coverage.md). It is stated in the report so the exclusion is visible to whoever reads
+      // the coverage claim — a check with a quiet exemption is a check nobody can audit.
+      const excluded = blueprints.filter((b) => b === PERMANENT_EXCLUSION)
+      const uncovered = blueprints.filter((b) => !produced.has(b) && !skipped.has(b) && b !== PERMANENT_EXCLUSION)
+      const note = excluded.map((b) => `${b} is a permanent manifest exclusion — never generated, never skipped`)
+      return uncovered.length === 0 && unresolved.length === 0
+        ? passed([`${produced.size} filled, ${skipped.size} skipped with a reason`, ...note])
         : failed([
-            `${uncovered.length} blueprint(s) neither filled nor skipped:`,
+            ...(uncovered.length ? [`${uncovered.length} blueprint(s) neither filled nor skipped:`] : []),
             // Named by path: a count says something is missing without saying what.
             ...uncovered.slice(0, 8).map((b) => `  ${b}`),
+            ...unresolved,
           ])
     },
   },
@@ -261,6 +562,18 @@ export const CHECKS = {
 /**
  * Run the walk. Returns every result plus the counts — and the counts are the point:
  * "all passed" asserted from an empty failure list is the exact shape of BR-009's failure.
+ *
+ * THE WALK RUNS TWICE, AND `mayWriteEntryPoint` IS WHY. Check 10 reads the entry point; the
+ * entry point is the last file a run writes; and a not-run check forbids writing anything
+ * further. Those three rules are a deadlock — the entry point can never be written, so every
+ * clean eight-round interview ended with no map and "This workspace is NOT fully validated".
+ *
+ * It is broken by ordering, not by leniency. The first walk answers *may the entry point be
+ * written?* — every check passed except check 10, which has nothing to read yet. The entry
+ * point is then written, and the walk runs again; the second answers *may success be claimed?*
+ * and check 10 has something to read. Neither question is ever answered by calling a check
+ * that did not run passed. (`instructions/integrity.md` runs its check twice for the same kind
+ * of reason, and says so.)
  */
 export function validate(workspace, library = null) {
   const results = Object.entries(CHECKS).map(([n, c]) => ({ n: Number(n), name: c.name, ...c.run(workspace, library) }))
@@ -274,6 +587,13 @@ export function validate(workspace, library = null) {
     notRun: results.filter((r) => r.state === 'not-run').length,
     /** The only condition under which success may be claimed at all. */
     mayClaimSuccess: ran.length === results.length && results.every((r) => r.state === 'passed'),
+    /**
+     * The first walk's question. Every check passed, except that check 10 is still waiting for
+     * the file this permission is about. ONE not-run state qualifies, and it is the one whose
+     * cause is the ordering itself — a missing manifest or an unreadable library still blocks,
+     * because a map to a workspace nobody could verify is the thing this rule exists to stop.
+     */
+    mayWriteEntryPoint: results.every((r) => r.state === 'passed' || r.because === AWAITING_ENTRY_POINT),
   }
 }
 
@@ -283,5 +603,11 @@ export function report(v) {
   const parts = [`${v.ran} of ${v.total} checks ran`]
   if (v.failed) parts.push(`${v.failed} failed`)
   if (v.notRun) parts.push(`${v.notRun} could not run`)
-  return `${parts.join('; ')}. This workspace is NOT fully validated.`
+  // Said plainly, because it is the one incomplete state with a next step rather than a fault.
+  // Without this sentence the honest report of a healthy first walk is indistinguishable from
+  // the report of a broken run, and the reader's only visible option is to stop.
+  const next = v.mayWriteEntryPoint
+    ? ' Check 10 is waiting for the entry point: write it, then run the walk again.'
+    : ''
+  return `${parts.join('; ')}. This workspace is NOT fully validated.${next}`
 }

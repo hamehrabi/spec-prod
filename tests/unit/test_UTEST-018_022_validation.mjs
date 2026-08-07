@@ -22,7 +22,16 @@ const clean = () => ({
   'spec/01-docs/01-intent/intent.md':
     '# Intent\n\n| ID | Rule |\n|---|---|\n| REQ-F-001 | The system must do the thing. |\n\n' +
     '| Driver | Measure |\n|---|---|\n| Simplicity | FF-001 counts commands |\n\n' +
-    'A role **cannot** write outside spec/ — its permission rule has a deny test.\n\n' +
+    // Check 8 asks for a permission rule and the deny test that proves it is enforced — a rule
+    // as this library writes one (a roles table, a REQ-R-### row) and an acceptance criterion
+    // citing it. It used to be satisfied by the sentence "a role **cannot** write outside
+    // spec/", which is prose, and prose is what made the check unfalsifiable.
+    '| Role | Can do | Cannot do |\n|---|---|---|\n' +
+    '| Author | Write inside spec/ | Write anywhere outside spec/ |\n\n' +
+    '| ID | Role requirement |\n|---|---|\n' +
+    '| REQ-R-001 | An author must not write to any path outside spec/. |\n\n' +
+    '| ID | Requirement | Criterion |\n|---|---|---|\n' +
+    '| AC-001 | REQ-R-001 | **Given** a proposed write above spec/, **When** it is checked, **Then** it is refused. |\n\n' +
     '> Blueprint: blueprints/01-docs/01-intent/intent.md\n',
   'spec/README.md':
     '# Project\n\nAbout REQ-F-001.\n\n| ID | Guards | Threshold |\n|---|---|---|\n' +
@@ -54,7 +63,9 @@ test('a clean workspace passes every check, and may claim success', () => {
 
 const BREAKAGES = {
   1: (ws) => { ws['spec/README.md'] = ws['spec/README.md'].replace('REQ-F-001', 'REQ-F-999') },
-  2: (ws) => { ws['spec/README.md'] = '# P\n\n| ID | Rule |\n|---|---|\n| REQ-F-001 | Again. |\n\n> Blueprint: blueprints/README.md\n' },
+  // A second DEFINITION — a row that states what the identifier is, not one that cites it.
+  // (Check 2 now reads a cross-reference row as a citation; see UTEST-053.)
+  2: (ws) => { ws['spec/README.md'] = '# P\n\n| ID | Rule |\n|---|---|\n| REQ-F-001 | The system must do a different thing entirely. |\n\n> Blueprint: blueprints/README.md\n' },
   3: (ws) => { ws['spec/README.md'] = ws['spec/README.md'].replace(/> Blueprint:.*\n/, '') },
   4: (ws) => { ws['spec/README.md'] += '\nProjectBoard is a kanban tool.\n' },
   5: (ws) => { ws['spec/README.md'] += '\n| Owner | [who owns this] |\n' },
@@ -77,8 +88,16 @@ for (const [n, breakIt] of Object.entries(BREAKAGES)) {
 }
 
 test('check 8 (deny tests) — seen to FAIL when rules exist without denials', () => {
-  // Built separately: the breakage must remove the denial words without removing the rule.
-  const ws = { 'spec/x.md': '# Roles\n\nThe admin role can delete records.\n\n> Blueprint: blueprints/README.md\n' }
+  // Built separately: the breakage must remove the denial without removing the rule.
+  //
+  // The fixture is a DECLARED rule, not a sentence about one. It used to read "The admin role
+  // can delete records", which check 8 counted as a rule by pattern-matching prose — and the
+  // same looseness on the other side is what made the check unable to fail at all (UTEST-053).
+  const ws = {
+    'spec/x.md':
+      '# Roles\n\n| Role | Can do | Cannot do |\n|---|---|---|\n' +
+      '| Admin | Delete any record | |\n\n> Blueprint: blueprints/README.md\n',
+  }
   assert.equal(CHECKS[8].run(ws, LIBRARY).state, 'failed')
 })
 

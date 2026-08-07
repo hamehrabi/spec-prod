@@ -67,7 +67,17 @@ test('UTEST-031: matching survives line-wrapping, case, and trailing punctuation
 
 test('UTEST-031: a [TODO] citing its Q-### inline still pairs, with no row text to match', () => {
   // The other legitimate pairing, kept: an explicit reference beside the marker.
-  const ws = { 'spec/x.md': '# X\n\nSee Q-004 below.\n\n| Retention | [TODO: how long is data kept?] |\n' }
+  //
+  // "Beside itself" means IN THE MARKER OR IN THE ROW THAT CARRIES IT, and the cited question
+  // has to exist. This fixture used to put `See Q-004 below.` two lines above a marker with no
+  // Q-004 row anywhere, and it passed — on 300 characters of proximity rather than on any
+  // citation at all (UTEST-053). Byte distance is not a reference a reader can follow.
+  const ws = {
+    'spec/01-docs/01-intent/open-questions.md': openQuestions(
+      'Q-004 | Retention period for a generated list | Storage cost | Owner | Design | Open'
+    ),
+    'spec/x.md': '# X\n\n| Retention | [TODO: how long is data kept? — Q-004] |\n',
+  }
   assert.equal(check6(ws).state, 'passed')
 })
 

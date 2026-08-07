@@ -17,8 +17,22 @@
 // off, taking its one real finding with it. `expectedHeadings` and `headingMatches` live in
 // fill.mjs, beside the procedure that causes the difference.
 
+// WRAPPER ARTIFACTS ARE EXEMPT, AND ONLY THOSE. `spec/.gitignore` and `spec/.env.example` are
+// the two files the kit deliberately writes that are not a filled blueprint: their blueprint
+// CARRIES them in a fenced block rather than being them (Q-024, fill.md). They have no outline
+// to compare, and `headings()` reads their `#` comment lines as Markdown headings — so a
+// byte-perfect `.gitignore` diverges at heading 1 (`# Secrets — never commit real values`
+// against `# \`.gitignore\` — blueprint`) and `.env.example` produces eleven phantom headings
+// including `# DATABASE_URL=…`. A .gitignore cannot stop using `#` for comments, so no
+// blueprint edit can fix it and the check would have blocked the merge on correct work the day
+// a workspace reached Round 6 — taking FF-007's three genuine golden findings with it.
+//
+// The exemption is not a path pattern. A file is exempt only when the blueprint it links to
+// DECLARES it as its `> Writes:` target — so nothing but a wrapper's own artifact can claim it,
+// a stray `spec/notes.txt` is still reported, and a third wrapper needs no edit here.
+
 import { walkGolden, generated, blueprintText } from './golden.mjs'
-import { headings, blueprintOf, expectedHeadings, headingMatches } from './fill.mjs'
+import { headings, blueprintOf, expectedHeadings, headingMatches, wrapperTarget } from './fill.mjs'
 
 process.exit(
   walkGolden({
@@ -31,6 +45,8 @@ process.exit(
         if (!rel) return [`VIOLATION: ${p} carries no blueprint back-link, so nothing can be checked against it`]
         const source = blueprintText(rel)
         if (source === null) return [`VIOLATION: ${p} links to blueprints/${rel}, which is not in the library`]
+        const target = wrapperTarget(source)
+        if (target && (p === `spec/${target}` || p.endsWith(`/${target}`))) return []
         const want = expectedHeadings(source)
         const got = headings(text)
         const i = want.findIndex((h, n) => !headingMatches(h, got[n]))
@@ -41,6 +57,9 @@ process.exit(
           `VIOLATION: ${p} diverges from blueprints/${rel} at heading ${at + 1}: expected ${JSON.stringify(want[at] ?? null)}, found ${JSON.stringify(got[at] ?? null)}`,
         ]
       }),
-    scope: ['the CONTENT under a heading — only that the structure is the blueprint\'s'],
+    scope: [
+      'the CONTENT under a heading — only that the structure is the blueprint\'s',
+      'a wrapper artifact at all — .gitignore and .env.example have no outline to compare',
+    ],
   })
 )

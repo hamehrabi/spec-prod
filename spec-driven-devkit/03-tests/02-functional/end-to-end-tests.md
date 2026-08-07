@@ -37,7 +37,7 @@ flows that decide whether the product is usable.
 | ETEST-004 | REQ-F-001, REQ-F-002, REQ-F-014 | **A complete intake, clean repository** | The product works | `spec/` exists, all stages complete, validation passes, hand-off printed | Planned |
 | ETEST-005 | REQ-F-007, REQ-F-009 | Free text and inference over a whole interview | The interview adapts to what it was told | Typed answers used verbatim; derivable questions suppressed with stated inferences | Planned |
 | ETEST-006 | REQ-F-011, BR-004 | The eight-round ceiling | The interview ends | No ninth round; remaining unknowns are open questions | Planned |
-| ETEST-007 | REQ-F-033, REQ-F-017 | **Express depth, end to end** | A thinner workspace, not a weaker one | Fewer rounds, thinner files, **every structural rule still holds, no stage skipped** | Planned |
+| ETEST-007 | REQ-F-033, REQ-F-017 | **Express depth, end to end** | A thinner workspace, not a weaker one | Two questions a round instead of four, thinner files, the same eight rounds, **every structural rule still holds, no stage skipped** | Planned |
 | ETEST-008 | REQ-F-015, BR-005 | Write-after-each-round | Stopping early still leaves value | After each round *N*, that round's files are on disk before round *N+1* is asked | Planned |
 | **ETEST-009** | REQ-F-028, REQ-NF-003 | **Interrupt and resume — ×8, one per stage** | Reliability driver, measured | For every stage 1–8: interrupt mid-stage, re-run, resume at that stage, complete | Planned |
 | ETEST-010 | REQ-F-030, REQ-F-031 | Closing report and hand-off | The developer knows what to do next | Report names count, `[TODO]`s, blocking questions, assumptions; instruction is copy-pasteable | Planned |

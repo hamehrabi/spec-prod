@@ -67,8 +67,18 @@ const RULES = [
   { kind: 'date-stub', re: /YYYY-MM-DD/g },
   // A table row whose cells are all empty — a decision nobody made.
   { kind: 'empty-row', re: /^\|(?:\s*\|){2,}\s*$/gm },
-  // A whole line in italics is the blueprint telling you what to write there.
-  { kind: 'instructional-italic', re: /^\*(?!\*)[^*\n]{10,}\*\s*$/gm },
+  // A whole line in italics is the blueprint telling you what to write there — AND SO IS A
+  // WRAPPED PAIR OF LINES. The library hard-wraps at ~95 columns, so an instruction longer
+  // than one line arrives split, and a rule anchored to a single line cannot see it. Six of
+  // them were invisible: three more in `ADR-000-template.md`, one each in
+  // `environment-config.md`, `AGENT.md` and `agent-rules-and-coding-standards.md` (BUG-024).
+  //
+  // The allowance is the placeholder rule's, forty lines above, for the same reason: a single
+  // newline yes, a blank line no — otherwise an unclosed `*` swallows paragraphs. Matching on
+  // the raw text rather than on a whitespace-normalised copy is deliberate: `placeholders()`
+  // derives a LINE NUMBER and a context from `m.index`, and normalising first moves every
+  // index in the file.
+  { kind: 'instructional-italic', re: /^\*(?!\*)(?:[^*\n]|\n(?!\s*\n)){10,}\*[ \t]*$/gm },
   { kind: 'blank-fill', re: /_{4,}/g },
   { kind: 'angle-stub', re: /<[a-z][a-z-]{2,30}>/g },
   { kind: 'prompt-box', re: /^>\s*\*\*(?:Prompt|Ask|Paste)\b/gm },
@@ -207,8 +217,23 @@ export const headings = (text) =>
 // called ten things wrong in a workspace that had one thing wrong — which is how a check gets
 // switched off, and then the one real finding goes with it.
 
-/** A heading the fill procedure removes with its section (step 3). */
-export const isPromptHeading = (h) => /^#{1,6}\s+Prompts?\b|^#{1,6}\s+Prompt\s*[—–-]/.test(h)
+/**
+ * A heading the fill procedure removes with its section (step 3).
+ *
+ * ANCHORED, BECAUSE A WORD IS NOT A SECTION. The rule was `^#{1,6}\s+Prompts?\b`, which matches
+ * any heading at any level beginning with the word — so it ate `# Prompt Library for
+ * Spec-Driven AI Engineering`, the prompt library's own H1 title. That blueprint was then the
+ * only one of 81 whose expected outline began below its title, and the move that makes FF-007
+ * green on a correctly produced file is to delete the title.
+ *
+ * Two other headings it swallowed are content rather than instruction: `## Prompt quality
+ * checklist` is part of the library it appears in, and `## Prompt to use with the pack` is a
+ * prompt for using the finished pack — step 3 removes boxes that say how to PRODUCE the file,
+ * not prompts the file exists to deliver.
+ *
+ * `#{2,6}`, never `#`: a document title is never a prompt section.
+ */
+export const isPromptHeading = (h) => /^#{2,6}\s+Prompts?\s*$|^#{2,6}\s+Prompt\s*[—–-]/.test(h)
 
 /** The outline a generated file should have, given its blueprint. */
 export const expectedHeadings = (blueprint) =>

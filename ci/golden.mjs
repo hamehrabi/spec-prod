@@ -22,12 +22,36 @@ import { PAYLOAD_ROOT, toPosix, report } from './payload.mjs'
 
 export const GOLDEN_ROOT = 'tests/fixtures/golden'
 
-/** Every blueprint the manifest lists, as payload-relative POSIX paths. */
-export const library = () =>
-  readFileSync(`${PAYLOAD_ROOT}/blueprints/MANIFEST.md`, 'utf8')
+/**
+ * Every blueprint the manifest lists, as payload-relative POSIX paths.
+ *
+ * ONLY THE ROWS THAT CARRY A DIGEST. The manifest holds two tables and the second one is
+ * `## Deliberately not packaged` — a record of what the library does NOT contain, kept so an
+ * absence reads as a decision. A pattern that matched any backticked first cell read both, so
+ * this returned **88** members for an 81-file library, and four of the seven extras are not
+ * paths at all: `Architecture.png, architecture-types.png` is a sentence.
+ *
+ * Validation check 13 consumes this list, so a workspace that had filled every real blueprint
+ * still came back "6 blueprint(s) neither filled nor skipped", and `structural_checks` printed
+ * BREACH for a perfect run exactly as for an empty sandbox. A check that fails on correct work
+ * is a check somebody switches off.
+ *
+ * The digest column is the thing that tells the two tables apart, so the row has to have one.
+ * `tests/unit/test_ATEST-050_round_map_covers_the_manifest.mjs` already reads it this way.
+ *
+ * ONE DERIVATION SHORT OF WHERE THIS SHOULD END UP. PR #57 adds `manifestBlueprints()` to
+ * ci/validation.mjs — the same rule, found independently, from the check-13 side. It is not on
+ * main yet, so importing it here would put this branch's suite on an unmerged one. When it lands,
+ * this function becomes `export const parseLibrary = manifestBlueprints` or goes entirely: one
+ * derivation, three callers. Removing the runner's copy was the half that could be done today.
+ */
+export const parseLibrary = (text) =>
+  text
     .split('\n')
-    .map((l) => (l.match(/^\| `([^`]+)` \|/) || [])[1])
+    .map((l) => (l.match(/^\| `([^`]+)` \| `[0-9a-f]{64}` \|\s*$/) || [])[1])
     .filter(Boolean)
+
+export const library = () => parseLibrary(readFileSync(`${PAYLOAD_ROOT}/blueprints/MANIFEST.md`, 'utf8'))
 
 /** A blueprint's own text, for the checks that compare a generated file against its source. */
 export const blueprintText = (rel) => {

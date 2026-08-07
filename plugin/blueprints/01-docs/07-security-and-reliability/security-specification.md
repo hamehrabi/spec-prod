@@ -49,17 +49,12 @@ A user may be authenticated and still not allowed to perform an action.
 > A role table gives the agent a precise boundary. It does not need to guess whether a
 > Member can invite users — the table already says no.
 
-**Defensive authorization pattern (Ch. 21 §21.3)**
-```python
-ALLOWED_TO_CREATE_TASK = {"owner", "admin", "member"}
-
-def can_create_task(user, project):
-    if user is None:
-        return False
-    if user.project_id != project.id:
-        return False
-    return user.role in ALLOWED_TO_CREATE_TASK
-```
+**Defensive authorization pattern (Ch. 21 §21.3)** — specify the *order* of the checks, not
+the code that runs them. For every protected action, write three rules in this order: deny
+when there is no signed-in user; deny when the resource belongs to a tenant the user is not
+in; allow only when the user's role appears on an explicit allow-list. Each rule is one deny
+test before any code exists, and the allow-list is a decision you make here rather than one
+the agent infers. The worked example at the end of this file shows the three filled in.
 
 | ID | Authorization requirement | Acceptance criteria |
 |---|---|---|
@@ -144,20 +139,7 @@ Acceptance criteria:
 3.
 ```
 
-**Worked example (Ch. 21 §21.9)**
-```
-Feature: Invite team member to project
-Requirement ID: SEC-INVITE-001
-Only authenticated project Owners and Admins can invite a new team member.
-
-Acceptance criteria:
-1. A signed-out user cannot send an invitation.
-2. A Viewer cannot send an invitation.
-3. A Member cannot send an invitation.
-4. An Owner or Admin can invite a user with a valid email address.
-5. The system does not expose invitation tokens in logs or error messages.
-6. Unauthorized requests return a safe access-denied response.
-```
+A filled version of this block is in the worked example at the end of this file.
 
 ---
 
@@ -226,6 +208,30 @@ validation, duplicates, and safe error responses.
 | Update task status | Yes | Yes | Yes (own) | No |
 | Invite users | Yes | Yes | No | No |
 | Export CSV | Yes | Yes | No | No |
+
+### Defensive authorization, as specified then implemented — create task
+
+The §2 rule, filled in for one action.
+
+| Order | Check | Denied when | Test |
+|---|---|---|---|
+| 1 | Signed in | No session | A signed-out request returns 401 |
+| 2 | Same tenant | The project belongs to another workspace | A member of workspace B gets the 404 safe response |
+| 3 | Role on the allow-list | Role is not owner, admin or member | A Viewer returns 403 and no row is written |
+
+What the three checks look like once built — shown so the reviewer can see the specification
+survived the translation, not so it is copied:
+
+```python
+ALLOWED_TO_CREATE_TASK = {"owner", "admin", "member"}
+
+def can_create_task(user, project):
+    if user is None:
+        return False
+    if user.project_id != project.id:
+        return False
+    return user.role in ALLOWED_TO_CREATE_TASK
+```
 
 ## Input validation
 

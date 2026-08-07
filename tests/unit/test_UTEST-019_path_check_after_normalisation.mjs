@@ -33,6 +33,11 @@ const CASES = [
   ['/etc/hosts',                        false,  'absolute',   'absolute — never the kit\'s to write'],
   ['C:/Windows/System32/drivers/etc/hosts', false, 'absolute', 'the Windows form of the same'],
   ['\\\\server\\share\\x.md',           false,  'absolute',   'a UNC path is absolute too'],
+  // THE ONE-BACKSLASH FORM, which this table did not cover and `isAbsolute` did not know.
+  // Drive-rooted on Windows: `\spec\a.md` is `C:\spec\a.md`, the drive root, outside the
+  // repository — and `normalise()` dropped the empty leading segment and returned `inside`.
+  ['\\spec\\a.md',                      false,  'absolute',   'drive-rooted, and it is not spec/'],
+  ['\\etc\\hosts',                      false,  'absolute',   'the same absolute path as /etc/hosts, and the same verdict'],
   ['../outside.md',                     false,  'traversal',  'escaping above the repository root'],
   ['README.md',                         false,  'outside',    'the repository root is not the kit\'s'],
   ['04-src/app.js',                     false,  'outside',    'the developer\'s own source tree'],

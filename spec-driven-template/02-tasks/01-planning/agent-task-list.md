@@ -48,22 +48,6 @@ mini-project.
 
 ---
 
-# WORKED EXAMPLE — login feature task plan (Ch. 14 §14.8)
-
-| Task ID | Title | Depends on | Done criteria | Out of scope |
-|---|---|---|---|---|
-| AUTH-01 | Define user credential fields | None | Email and password fields defined with constraints | No UI work |
-| AUTH-02 | Write password validation rules | AUTH-01 | Weak passwords rejected by rule | No password reset |
-| AUTH-03 | Create login API contract | AUTH-01 | Request and response shapes documented | No token refresh |
-| AUTH-04 | Implement login endpoint | AUTH-02, AUTH-03 | Valid credentials return success; invalid return safe error | No registration |
-| AUTH-05 | Create login form behavior | AUTH-03 | Form submits to approved endpoint | No visual redesign |
-| AUTH-06 | Create login tests | AUTH-04, AUTH-05 | Happy path and failure cases covered | No unrelated auth tests |
-
-> **Why this is safe:** each item has a source, a dependency, done criteria, and an
-> out-of-scope boundary. The agent can work, but it cannot freely redesign the feature.
-
----
-
 ## Avoid these task words
 
 "handle everything" · "make it robust" · "finish the feature" · "improve the app" ·
@@ -106,3 +90,19 @@ Use these constraints:
 
 Return: files to edit, steps, done criteria, and review checklist.
 ```
+
+---
+
+# WORKED EXAMPLE — login feature task plan (Ch. 14 §14.8)
+
+| Task ID | Title | Depends on | Done criteria | Out of scope |
+|---|---|---|---|---|
+| AUTH-01 | Define user credential fields | None | Email and password fields defined with constraints | No UI work |
+| AUTH-02 | Write password validation rules | AUTH-01 | Weak passwords rejected by rule | No password reset |
+| AUTH-03 | Create login API contract | AUTH-01 | Request and response shapes documented | No token refresh |
+| AUTH-04 | Implement login endpoint | AUTH-02, AUTH-03 | Valid credentials return success; invalid return safe error | No registration |
+| AUTH-05 | Create login form behavior | AUTH-03 | Form submits to approved endpoint | No visual redesign |
+| AUTH-06 | Create login tests | AUTH-04, AUTH-05 | Happy path and failure cases covered | No unrelated auth tests |
+
+> **Why this is safe:** each item has a source, a dependency, done criteria, and an
+> out-of-scope boundary. The agent can work, but it cannot freely redesign the feature.
