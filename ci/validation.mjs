@@ -142,9 +142,19 @@ export const CHECKS = {
   1: {
     name: 'every referenced identifier resolves',
     run(ws) {
-      const text = all(ws)
+      // AN IDENTIFIER SHOWN AS A FORMAT IS NOT AN IDENTIFIER BEING CITED. The test-plan
+      // blueprint documents its own fields with "Test ID | Unique identifier such as
+      // `TEST-001`" — illustrating the shape a developer should use, not pointing at a test.
+      // That sentence is kept blueprint prose, so it ships into EVERY workspace, and check 1
+      // failed all of them for it.
+      //
+      // The same distinction FF-018 draws about paths: a citation is a promise something
+      // exists, an example is a thing being described. Recognised by the words that introduce
+      // one — narrow on purpose, because anything looser would let a real dangling reference
+      // hide behind a stray "e.g." earlier in the line.
+      const text = all(ws).replace(/\b(?:such as|e\.?g\.?|for example|like)\s+`?\w[\w-]*-\d{3}`?/gi, '')
       // Defined = introduced by a table row or heading that starts with the identifier.
-      const defined = new Set([...text.matchAll(/^[|#>\s-]*\**(\w[\w-]*-\d{3})\**\s*[|:—-]/gm)].map((m) => m[1]))
+      const defined = new Set([...all(ws).matchAll(/^[|#>\s-]*\**(\w[\w-]*-\d{3})\**\s*[|:—-]/gm)].map((m) => m[1]))
       const dangling = [...new Set(text.match(ID) ?? [])].filter((id) => !defined.has(id))
       return dangling.length === 0
         ? passed([`${defined.size} identifiers defined`])
@@ -184,7 +194,18 @@ export const CHECKS = {
           if (!id) continue
           const rest = row.cells.slice(1)
           const others = new Set((rest.join(' ').match(ID) ?? []).filter((x) => x !== id)).size
+          // A TABLE THAT ASKS QUESTIONS ABOUT AN IDENTIFIER IS REVIEWING IT, NOT DEFINING IT.
+          // `traceability-review.md` heads its columns "Has design decision? | Has task? | Has
+          // test? | Has code link? | Reviewed?" — a checklist whose subject is the requirement
+          // named in column one. The first eight-round run reported every requirement in it as
+          // a duplicate definition of the one in requirements.md.
+          //
+          // None of the three shapes above catch it: one ID column, one cited identifier, and a
+          // Gap cell holding real prose. The question marks are what distinguish it, and they
+          // are hard to write by accident.
+          const reviewTable = row.header.slice(1).filter((h) => h.includes('?')).length >= 2
           if (
+            reviewTable ||
             row.header.filter((h) => /\bIDs?\b/i.test(h)).length >= 2 ||
             others >= 2 ||
             !rest.some((c) => wordCount(c) >= 3)
