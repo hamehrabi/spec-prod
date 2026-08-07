@@ -38,6 +38,7 @@ import { parseAnswers, briefing as composeBriefing } from './answers.mjs'
 import { loadWorkspace, compare, CHANGE_LOG } from './workspace.mjs'
 import { score } from './eval-runner.mjs'
 import { acceptedStages } from './acceptance.mjs'
+import { library } from './golden.mjs'
 import { PAYLOAD_ROOT } from './payload.mjs'
 
 const GOLDEN = 'tests/fixtures/golden'
@@ -350,13 +351,11 @@ function drive({ sandbox, command, briefing, model, timeoutMin }) {
 
 /** What the run produced, judged and printed. */
 function verdict({ produced, golden, outside, through, host, caseId, sandbox }) {
-  const library = readFileSync(`${PAYLOAD_ROOT}/blueprints/MANIFEST.md`, 'utf8')
-    .split('\n')
-    .map((l) => (l.match(/^\| `([^`]+)` \|/) || [])[1])
-    .filter(Boolean)
-
+  // ONE READING OF THE MANIFEST, IN ci/golden.mjs. This used to be a second copy of the same
+  // three lines, and the copy carried the same defect: it swept in the manifest's "Deliberately
+  // not packaged" table and handed check 13 an 88-member library for an 81-file one.
   const rounds = acceptedStages(produced[CHANGE_LOG] ?? '').length
-  const scored = score({ workspace: produced, library, rounds, outside })
+  const scored = score({ workspace: produced, library: library(), rounds, outside })
   const diff = compare(produced, golden)
 
   console.log(`${caseId} — driven to Round ${through}`)
