@@ -23,12 +23,23 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { PAYLOAD_ROOT } from './payload.mjs'
 
-/** Every Markdown file the plugin ships, as repo-relative POSIX paths. */
-export function payloadFiles(root = PAYLOAD_ROOT, acc = []) {
-  for (const entry of readdirSync(root)) {
-    const p = join(root, entry)
-    if (statSync(p).isDirectory()) payloadFiles(p, acc)
-    else acc.push(p.split(/[\\/]/).join('/'))
+/**
+ * Every file the plugin ships, as paths RELATIVE TO ROOT, POSIX-separated.
+ *
+ * Relative on purpose. The first version returned absolute paths and split them on `/` to
+ * resolve links — which works on Windows, where a path starts `C:`, and silently stops working
+ * on Linux, where it starts with an empty segment that the resolver then discarded. The
+ * case-mismatch check quietly found nothing on the only platform the defect it hunts can occur
+ * on, and CI caught it.
+ *
+ * That is this file's own subject matter, one level up: a check written on Windows carried a
+ * Windows assumption. Root-relative paths remove the class rather than patching the instance.
+ */
+export function payloadFiles(root = PAYLOAD_ROOT, dir = '', acc = []) {
+  for (const entry of readdirSync(join(root, dir))) {
+    const rel = dir ? `${dir}/${entry}` : entry
+    if (statSync(join(root, rel)).isDirectory()) payloadFiles(root, rel, acc)
+    else acc.push(rel)
   }
   return acc
 }
@@ -46,11 +57,14 @@ export const linksIn = (text) =>
 
 const EXTERNAL = /^(https?:|mailto:|#)/
 
-/** POSIX-only absolute paths, each exempt for a written reason rather than by pattern. */
+/**
+ * POSIX-only absolute paths, each exempt for a written reason rather than by pattern.
+ * Keyed root-relative, like everything else here — see `payloadFiles` for why.
+ */
 export const POSIX_PATH_EXEMPTIONS = {
-  'plugin/blueprints/07-ops/01-deployment/cicd-pipeline.md':
+  'blueprints/07-ops/01-deployment/cicd-pipeline.md':
     '`#!/usr/bin/env` shebangs inside a CI-script template — the developer runs these on their own CI, and a shebang has no Windows spelling',
-  'plugin/instructions/boundary.md':
+  'instructions/boundary.md':
     '`/etc/hosts` is named as an example of a path the kit must REFUSE to write; it is the counter-example, not an instruction',
 }
 
@@ -82,7 +96,7 @@ export function check(root = PAYLOAD_ROOT) {
   violations.push(...caseCollisions(files))
 
   for (const file of files) {
-    const text = readFileSync(file, 'utf8')
+    const text = readFileSync(join(root, file), 'utf8')
     const dir = file.split('/').slice(0, -1)
 
     // 2. A backslash in a link is a Windows path written into a document that POSIX hosts read.

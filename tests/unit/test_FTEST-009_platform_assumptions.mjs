@@ -22,7 +22,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
-import { check, linksIn, caseCollisions, POSIX_PATH_EXEMPTIONS } from '../../ci/ff-018-platform-assumptions.mjs'
+import { check, linksIn, caseCollisions, payloadFiles, POSIX_PATH_EXEMPTIONS } from '../../ci/ff-018-platform-assumptions.mjs'
 
 /** Build a throwaway payload and run FF-018 over it. */
 function on(files) {
@@ -98,8 +98,11 @@ test('FTEST-009: a path being DISCUSSED is not a path being used', () => {
 test('FTEST-009: exemptions are named files with written reasons, never patterns', () => {
   // A pattern exemption grows silently. Two files are exempt today and each says why in a
   // sentence a reader can disagree with.
+  // Each key must name a file that actually ships. An exemption for a file that no longer
+  // exists is a rule with nothing under it, and it hides the day the real file starts failing.
+  const shipped = new Set(payloadFiles())
   for (const [file, why] of Object.entries(POSIX_PATH_EXEMPTIONS)) {
-    assert.match(file, /^plugin\//, 'an exemption names a payload file')
+    assert.ok(shipped.has(file), `the exemption names ${file}, which the payload does not contain`)
     assert.ok(why.length > 40, `the exemption for ${file} does not give a reason`)
   }
   assert.ok(Object.keys(POSIX_PATH_EXEMPTIONS).length <= 3, 'the exemption list is growing; each one is a platform the kit no longer serves')
