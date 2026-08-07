@@ -49,7 +49,7 @@ metrics on one dashboard."
 **Goals**
 -
 
-**Non-goals** → [`intent.md` §4](../01-intent/intent.md#4-non-goals--out-of-scope)
+**Non-goals** → [`constraints-and-non-goals.md`](../01-intent/constraints-and-non-goals.md#non-goals--out-of-scope)
 
 ## 6. Primary users (personas)
 
@@ -110,7 +110,7 @@ and responsibilities — not for an abstract crowd.
 |---|---|---|
 | | | |
 
-Full non-goals list → [`intent.md` §4](../01-intent/intent.md#4-non-goals--out-of-scope)
+Full non-goals list → [`constraints-and-non-goals.md`](../01-intent/constraints-and-non-goals.md#non-goals--out-of-scope)
 
 ## 9. User stories
 
@@ -176,7 +176,7 @@ connection, forget fields, or lack permission.
 
 ## 14. Open questions
 
-→ [`intent.md` §5](../01-intent/intent.md#5-open-questions)
+→ [`open-questions.md`](../01-intent/open-questions.md)
 
 ## 15. Links to requirements
 

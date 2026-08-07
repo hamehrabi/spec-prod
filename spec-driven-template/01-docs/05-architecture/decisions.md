@@ -20,15 +20,14 @@ performance in a lasting way, promote it to an ADR in
 ## Design decision format (Ch. 10 §10.3)
 
 ```
-Design Decision ID: DD-AUTH-001
-Related requirement: REQ-AUTH-001
+Design Decision ID: DD-###
+Related requirement: REQ-###
 Decision:
-  Use server-side email/password authentication.
-  Passwords must be stored as hashes.
-  A successful login returns a short-lived session token.
 Reason:
 Consequences:
 ```
+
+The worked example at the end of this file shows the same block filled in.
 
 ---
 

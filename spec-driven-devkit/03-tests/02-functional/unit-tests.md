@@ -31,7 +31,7 @@ areas get none, by design (see the coverage matrix's "deliberately empty cells")
 
 | Test ID | Requirement | Rule under test | Normal case | Edge case | Failure case | Status |
 |---|---|---|---|---|---|---|
-| UTEST-001 | REQ-F-004 | Preamble states the round count before question one | Default depth → "eight rounds" stated | Express depth → the reduced count stated, not eight | Round count absent → fail | Planned |
+| UTEST-001 | REQ-F-004 | Preamble states the round count before question one | Default depth → "eight rounds" stated | Express depth → still "eight rounds" stated; the count is not a depth setting | Round count absent → fail | Planned |
 | UTEST-002 | REQ-F-005 | A round holds at most four questions | 3 questions → accepted | Exactly 4 → accepted | 5 → fail | Planned |
 | UTEST-003 | REQ-F-006 | Recommended option is first, marked, and carries a one-line reason | Marked first with reason → pass | Reason present but option second → **fail** (position is not the marking) | No reason text → fail | Planned |
 | UTEST-004 | REQ-F-007 | Free text is honoured verbatim | "Claude Code Plugin" typed → used as-is | Text closely resembling an option → still used as typed, **not** snapped to the option | Typed answer replaced by an option → fail | Planned |
@@ -42,7 +42,7 @@ areas get none, by design (see the coverage matrix's "deliberately empty cells")
 | UTEST-009 | REQ-F-011, BR-004 | Hard stop at eight rounds | Round 8 completes → stop | Unknowns remain at round 8 → still stop; unknowns become open questions | A ninth round asked → fail | Planned |
 | UTEST-010 | REQ-F-012 | The core-subdomain question is asked | Round 2 asks it → pass | Only one capability in scope → still asked, so the answer is recorded | Never asked → fail | Planned |
 | UTEST-011 | REQ-F-013, BR-011 | At most three drivers; push back exactly once | 3 selected → accepted, no push-back | 4 selected → push back **once**, then accept 3, record the rejected one | Push back twice, or accept 4 → fail | Planned |
-| UTEST-012 | REQ-F-033 | Express depth reduces rounds and depth | Express → fewer rounds, thinner files | Express → **no stage is skipped entirely**, only written thin | A stage missing under express → fail | Planned |
+| UTEST-012 | REQ-F-033 | Express depth reduces the questions asked per round, not the round count | Express → two questions a round instead of four, thinner files, still eight rounds | Express → **no stage is skipped entirely**, only written thin | A stage missing under express, or a round absent → fail | Planned |
 | UTEST-013 | REQ-F-034 | Depth is a parameter, not a branch | One command, one path, depth as argument | — | A second flow or command exists → fail (mirrors FF-001) | Planned |
 | UTEST-014 | REQ-F-016 | Back-link names the blueprint the file came from (DD-022) | File at `spec/01-docs/01-intent/intent.md` → `> Blueprint: blueprints/01-docs/01-intent/intent.md` | Depth makes no difference — the path round-trips at every depth, so the miscount this test originally guarded **cannot occur by construction** | Names a blueprint absent from the library → fail | **Passing** |
 | UTEST-015 | REQ-F-017, BR-013 | Depth scales by subdomain class | Core area → full chain | Supporting → one page; Generic → integration contract only | Uniform depth applied to all → fail | Planned |
