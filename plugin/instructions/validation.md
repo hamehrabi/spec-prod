@@ -6,6 +6,10 @@ entry point is written, and before the hand-off block is printed.
 **The check that matters most is not any of the twelve.** It is that a check which did not
 run is never reported as passed.
 
+**The walk runs twice** — once before the entry point is written and once after. See *The walk
+runs twice* below; it is an ordering rule, and skipping the second run is the same failure as
+skipping a check.
+
 ---
 
 ## Three states, never two
@@ -28,6 +32,47 @@ This workspace is NOT fully validated.
 ```
 
 Never report the second case as a success with a footnote. It is not a success.
+
+---
+
+## The walk runs twice, and check 10 is the reason
+
+**Check 10 reads the entry point. The entry point is the last file written. A check that did
+not run forbids writing anything further.** Those three rules together are a deadlock: the
+walk ran before the entry point existed, so check 10 could never run, so the entry point could
+never be written — and every clean eight-round interview ended with no map, no hand-off, and
+*"This workspace is NOT fully validated"*.
+
+It is broken by **ordering, not by leniency**. Nothing here is ever reported as passed on the
+strength of not having been performed.
+
+| Pass | When | Question it answers |
+|---|---|---|
+| **First walk** | after the last round, before the entry point | *May the entry point be written?* |
+| **Second walk** | after the entry point is written | *May success be claimed?* |
+
+**The entry point may be written when every check has passed except check 10, and check 10's
+only complaint is that the entry point does not exist yet.** That is the one not-run state
+this permission tolerates, and it tolerates it because the file it is waiting for is the very
+file about to be written.
+
+**Every other not-run still blocks it.** An unreadable blueprint library or a missing manifest
+blocks the entry point exactly as a failure does — a map to a workspace nobody could verify is
+precisely what this rule exists to prevent.
+
+Then **run the whole walk again.** The second run is where check 10 has something to read, and
+success may be claimed only from that second result. Reporting the first walk as the finished
+one is the same act as calling a check that did not run passed.
+
+> `12 of 13 checks ran; 1 could not run. This workspace is NOT fully validated. Check 10 is
+> waiting for the entry point: write it, then run the walk again.`
+
+That line is an honest incomplete state **with a next step**, and saying so is the point. The
+version without the last sentence is indistinguishable from a broken run, and a reader whose
+only visible option is to stop will stop.
+
+*(`instructions/integrity.md` runs its check twice for a comparable reason, and says so in the
+same way. Neither is a retry.)*
 
 ---
 
@@ -58,8 +103,91 @@ become a second product.
 is missing without telling them what, and the path is the only actionable part. See
 `instructions/coverage.md`.
 
+**A recorded skip is resolved against the manifest, not compared to it.** `coverage.md` shows
+the skip row with a bare filename — `| 2026-08-04 | Skipped | frontend-component-spec.md |
+API-only product |` — and the check matched it against full manifest paths with an exact
+comparison, so a skip recorded exactly as documented matched nothing and its blueprint stayed
+uncovered. Every API-only product failed check 13 for doing what it was shown.
+
+**Both forms resolve now: the full manifest path, or the filename when the manifest holds
+exactly one blueprint with that name.** A filename that names two is reported as ambiguous and
+asks for the full path — resolving it to whichever came first would be a guess recorded as
+coverage.
+
+**The manifest's own permanent exclusion is named in the result, not applied in silence.**
+`appendix-index.md` is never generated and never skipped; it is scaffolding rather than an
+artifact of anyone's project. The check says so where the coverage claim is read, because an
+exemption nobody can see is an exemption nobody can audit.
+
+**The manifest lists two kinds of entry**, and only one of them is a blueprint: the blueprints
+carry a checksum, and *Deliberately not packaged* carries a reason. A reader that takes both
+hands this check six paths no run can ever fill, and check 13 then fails every possible
+complete run. Read the table with the checksums.
+
 *(Checks 14 and 15 — stage acceptance and library integrity — join the same walk from their
 own modules. They report in the same three states.)*
+
+### Check 2: a row that cites an identifier is not a second definition of it
+
+**The traceability matrix is a table whose first column is the requirement ID, by design.** So
+is the task index, the test plan, the release notes, and the traceability review. A check that
+read every first-cell identifier as a definition reported *every requirement in the workspace*
+as defined twice, the moment Round 8 filled the matrix — one failure line per requirement, on
+correct work, with "go and delete the traceability chain" as the obvious repair.
+
+A row is read as a **citation**, not a definition, when any of these holds:
+
+| Shape | Example |
+|---|---|
+| the table declares two or more ID columns | `\| Req ID \| … \| Task ID \| Test ID \|` |
+| the row cites two or more other identifiers | `\| REQ-F-001 \| … \| TEST-006, FTEST-001 \|` |
+| no cell after the first holds prose | `\| REQ-001 \| ✔ \| ✔ \| ✔ \| ✔ \| \|` |
+
+**This errs toward missing a duplicate rather than inventing one, deliberately.** A missed
+reuse costs one identifier nobody caught. A false positive costs the whole check, because a
+control that cries wolf on correct work is switched off within a week — and the genuine
+findings go with it. The count of rows read as citations is reported, so the blind spot is
+stated rather than hidden.
+
+### Check 7: the row it is about has been touched, and not decided
+
+**A row with every cell blank is a row nobody has opened, and check 5 already reports it** as
+an unfilled placeholder. Check 7 asking the same question found nothing check 5 had not.
+
+What it exists for is the row that was started and abandoned:
+
+```
+| Login | | | per IP + per account | 429 + `Retry-After` | |
+```
+
+The endpoint is named. The limit and the window are not. *We decided* is not distinguishable
+from *nobody looked*, which is the whole of this check.
+
+**Two or more adjacent empty cells, wherever they fall in the row.** A single gap is how a
+legitimately sparse table reads — a traceability row with no code link yet, a matrix cell that
+does not apply — and flagging those would fail correct work in every workspace that reaches
+Round 8. A *run* of them is a decision nobody made.
+
+### Check 8: the deny test is paired to the rule, per rule
+
+**This check could not fail.** It counted the words *must not* and *cannot* across the whole
+workspace and passed on one — and those are ordinary English. Forty-six of the library's
+eighty-one blueprint bodies ship one; on a real workspace the matches included the column
+header `| Role | Can do | Cannot do |`. A three-rule permission table with no denial test
+anywhere passed, reporting *"27 denial statements"*.
+
+The same words still mark a denial. The difference is entirely in **what the check is allowed
+to read them in**:
+
+- a **permission rule** is a `REQ-R-###` row, or a row of a table whose first column is *Role*
+  or *Actor* — the two ways this library writes one
+- a rule is a **denial** when its own row prohibits something, not when the document does
+- a **deny test** is an `AC-###` or `*TEST-###` row that **cites that rule by identifier**
+
+**Every denial rule needs a test that cites it**, and a rule set with no denial in it at all
+fails outright — because an allow-only rule set passes identically on a system with no
+enforcement, which is the sentence this check was written from. A role declared with an empty
+*Cannot do* cell fails too: a role with nothing it cannot do is not a permission model.
 
 ### Check 9: ask the file that declares them
 
@@ -74,6 +202,17 @@ fitness function, a round before the file that declares drivers is written (BUG-
 drivers file does not exist yet, the check reports **not run** — which blocks a success claim
 exactly as firmly as a failure, and says something true while doing it.
 
+**And it is asked per driver, from the driver's own row.** Having found the file, the check
+then tested for any `FF-###` *anywhere in the workspace* — so one identifier in one file
+proved that every driver was governed. Three drivers with the fitness-function cell filled for
+the first one only passed, reporting *"3 drivers declared"*. The evidence is per row and sits
+in the row; nothing read it.
+
+That is BUG-013's shape exactly — the defect check 6 records below, where the existence of one
+`Q-###` anywhere exempted every `[TODO]` in the workspace. **The row names its own fitness
+function, or that driver is documented rather than governed**, and the failure names which
+driver.
+
 ### Check 6: matching means matching
 
 **A `[TODO]` pairs with the question that asks it** — never with the mere existence of a question
@@ -83,6 +222,13 @@ somewhere in the workspace. Two things count, and both are a real link a reader 
 - an open-question row **asks the same question**, in the same words
 
 The second is the ordinary case, because step 4 writes the marker and the row from one source.
+
+**"Beside itself" means inside the marker's brackets or in the row that carries it, and the
+question it names has to exist.** It used to mean *within 300 characters*, which is byte
+distance rather than a citation: an orphan one line below an unrelated question row paired
+with it, and padding the gap to about five hundred characters flipped the same workspace to
+failed without a word of either changing. A `Q-###` nobody wrote a row for is the orphan case
+wearing an identifier, and it is reported as one.
 
 **The rewritten check is stricter than the one it replaces, and that was the defect.** The old
 rule went quiet as soon as one `Q-###` existed anywhere — and Round 2 creates the open-questions
@@ -140,6 +286,11 @@ Say which one, and why:
 Then **do not claim success**, do not write the entry point, and do not print the hand-off
 block. A partially validated workspace is a normal outcome and an honest one; a partially
 validated workspace announced as finished is the failure this whole module exists to prevent.
+
+**The one exception is check 10 on the first walk**, and it is an exception to the *writing*
+half only — never to the claiming half. Check 10 is waiting for the entry point, so the first
+walk cannot run it and the second walk can; write the file, walk again, and claim success from
+the second result or from nothing. See *The walk runs twice*, above.
 
 ---
 

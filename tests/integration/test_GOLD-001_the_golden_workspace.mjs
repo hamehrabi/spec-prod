@@ -235,8 +235,26 @@ test('GOLD-001: the ONE failing scorer is the unfinished run, not a defect', () 
   assert.deepEqual(failing, ['structural_checks'])
 
   const v = validate(workspace, library)
-  assert.deepEqual(v.results.filter((c) => c.state === 'failed').map((c) => c.n), [13])
+  assert.deepEqual(v.results.filter((c) => c.state === 'failed').map((c) => c.n), [7, 13])
   assert.match(v.results.find((c) => c.n === 13).detail[0], /blueprint\(s\) neither filled nor skipped/)
+})
+
+test('GOLD-001: check 7 finds a template row this workspace shipped half-filled', () => {
+  // THE LIST CHANGED, AND SOMETHING REAL CHANGED. Check 7 used to require every cell in a row
+  // to be blank, which is a row nobody has touched — and `unfilled()` already reports that one.
+  // So it never saw the row it exists for: one that has been touched and not decided.
+  //
+  // This is that row, copied verbatim out of the blueprint (spec-change-log.md:41) and shipped
+  // as though it were a change entry. It names no date, no artifact, no reason and no owner.
+  // Every other check passed it: check 5 because one cell is filled, FF-004 because there is
+  // no placeholder in it, and check 7 because the first cell is not empty.
+  const log = workspace['spec/01-docs/09-change-control/spec-change-log.md']
+  assert.match(log, /^\| CHG-001 \| \| \| v1\.0 → v1\.1 \| \| \| \| \| proposed \|$/m)
+
+  const check7 = validate(workspace, library).results.find((c) => c.n === 7)
+  assert.equal(check7.state, 'failed')
+  assert.match(check7.detail[0], /spec-change-log\.md line \d+/)
+  assert.match(check7.detail[0], /CHG-001/)
 })
 
 test('GOLD-001: an unreached blueprint is a coverage FAILURE, never a silent skip', () => {
