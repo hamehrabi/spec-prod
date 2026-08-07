@@ -48,12 +48,17 @@ Both work identically on Windows, macOS, and Linux.
 ## Use
 
 ```
-/spec-driven-devkit:spec-intake            # full depth
-/spec-driven-devkit:spec-intake express    # thinner, fewer rounds
+/spec-driven-devkit:spec-intake            # full depth — four questions a round
+/spec-driven-devkit:spec-intake express    # thinner — two questions a round
 ```
 
 Running it bare is the ordinary case. `depth` is the only argument it will ever take — it
 changes how much is asked and written, never which path runs.
+
+**Both depths run the same eight rounds.** Express keeps the two questions in each round whose
+answers most constrain what gets built, and writes shorter files. What you give up is the
+other two questions per round — each recorded as a `[TODO]` with a matching open question, so
+a thin workspace is honest about its gaps rather than filled with answers nobody gave.
 
 ## What this version does
 
