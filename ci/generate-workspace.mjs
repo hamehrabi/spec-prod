@@ -242,6 +242,31 @@ const tail = (text) => text.trim().slice(-2000)
  *                  attempt returned. A retry that cannot fit inside it is not offered.
  * @returns { ran, retry, why } — `retry` is only ever true when `ran` is false.
  */
+/**
+ * The FAIL line, naming each kind of failure separately.
+ *
+ * SAY WHICH KIND, because they send a reader to different places. A gated difference is the run
+ * disagreeing with the golden workspace — and the golden workspace can be the wrong one; EV-001
+ * has four hand-authored deviations from its own blueprints. A scorer breach is the workspace
+ * failing on its own terms, with no fixture involved. One is a question about the fixture, the
+ * other is a defect in the kit.
+ *
+ * Both were reported as one number called "gated differences": a run that printed six structural
+ * lines announced eight of them, and the missing two were breaches listed in a different section
+ * of the same report. A count that does not match what is above it tells the reader they have
+ * misread the report, when it was the report that was wrong.
+ *
+ * Exported and pure for the same reason as `classifyHost` and `hostArgs` — so the distinction is
+ * asserted rather than eyeballed.
+ */
+export const verdictLine = (gated, breaches) =>
+  [
+    gated && `${gated} gated difference${gated === 1 ? '' : 's'}`,
+    breaches && `${breaches} scorer breach${breaches === 1 ? '' : 'es'}`,
+  ]
+    .filter(Boolean)
+    .join(', ')
+
 export function classifyHost(host, { timeoutMin = null, attempt = 1, attempts = ATTEMPTS, msLeft = Infinity } = {}) {
   const stop = (why) => ({ ran: false, retry: false, why })
 
@@ -420,7 +445,7 @@ function verdict({ produced, golden, outside, through, host, caseId, sandbox }) 
     console.log(`    that one session produces this — it took ${host.attempts}, resumed from disk (resume.md)`)
 
   const failed = diff.gated.length + scored.breaches.length
-  if (failed) console.log(`\n  RESULT: FAIL — ${failed} gated difference${failed === 1 ? '' : 's'}`)
+  if (failed) console.log(`\n  RESULT: FAIL — ${verdictLine(diff.gated.length, scored.breaches.length)}`)
   // A pass here is a claim about STRUCTURE, and it stays a pass — the comparison did run. What
   // it must not do is carry unmeasured scorers along inside it silently.
   else if (scored.mayClaimSuccess) console.log('\n  RESULT: pass')
