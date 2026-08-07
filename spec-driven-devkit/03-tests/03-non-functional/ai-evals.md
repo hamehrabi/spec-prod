@@ -121,6 +121,13 @@ the most load-bearing test file in the workspace, for two reasons:
 Prefer deterministic scorers wherever possible — they are free, fast, and not themselves
 subject to drift.
 
+> **Two of the eleven have no producer yet.** `inference_stated` needs a count of suppressed
+> questions and of inference notices; `depth_scaled` needs the core and supporting file lists
+> from the subdomain map. `ci/generate-workspace.mjs` supplies neither, so on every real run so
+> far both report **NOT RUN** rather than a score. They are listed here because a scorer nobody
+> can run is a gap, and a gap is easier to close than to notice — see §5 for what happened while
+> they were reporting zero instead.
+
 > **Eleven of thirteen are deterministic, and that is the point.** Every one of them is a
 > count with a threshold. The two human scorers exist because they measure the one thing no
 > count can reach — **RSK-2, a workspace that passes every structural check and says
@@ -206,7 +213,22 @@ Re-run the full set on **any** of these:
 
 | Run | Date | Quality | Wall clock | Cost | Verdict |
 |---|---|---|---|---|---|
-| EV-001, Round 1, express | 2026-08-05 | 9 of 11 scorers at floor; 2 breaches | 648 s · 23 turns | **$2.78** | Recorded, not accepted |
+| EV-001, Round 1, express | 2026-08-05 | 7 of 11 scorers at floor; 2 breaches; **2 not run** | 648 s · 23 turns | **$2.78** | Recorded, not accepted |
+
+> **This row was corrected downwards after it was published, and the correction is the point.**
+> It read *"9 of 11 scorers at floor; 2 breaches"*. Two of those nine — `inference_stated` and
+> `depth_scaled` — had measured nothing: the runner never supplied `suppressed`/`notices` or
+> `coreFiles`/`supportingFiles`, both scorers fell through to `?? 0` and `?? []`, and both
+> reported the best possible score on no evidence. The report printed them as `at floor`,
+> indistinguishable from `no_example_content`, which reached the same words by scanning every
+> file. **A BR-009 breach inside the tool built to enforce BR-009**, and it inflated the only
+> baseline this product has.
+>
+> Both now report **NOT RUN**, which is a third state and not a bad score — nothing about
+> suppressed questions or depth inversion is claimed here in either direction. The two breaches
+> are unchanged; the arithmetic is 7 + 2 + 2. Nothing was re-run to produce this row: correcting
+> a number downwards on evidence already in hand does not cost $2.78, and waiting for a rerun
+> would have left the inflated figure standing in the meantime.
 
 **The first measurement of anything.** One round of one case, driven by
 `ci/generate-workspace.mjs` against a clean repository with the plugin installed as a plugin.

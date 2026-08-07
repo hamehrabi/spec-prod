@@ -26,8 +26,33 @@ const text = (ws) => Object.values(ws).join('\n')
  *  example about a new fictional product means adding its name here, or the leak is silent. */
 export const EXAMPLE_MARKERS = /ProjectBoard|TeamTask Lite|SaaS task app|# WORKED EXAMPLE/g
 
-/** A scorer: { name, kind, measure(run) -> number, floor, hardFail }.
- *  `run` is { workspace, library, rounds, outside, notices, suppressed }. */
+/** Code in the shape real code has it — the same two patterns validation check 11 uses, and for
+ *  the reason recorded there: bare keywords matched "definition" and "classification". */
+const CODE = [
+  /```(js|ts|python|java|go|rb|php|cs|rust|jsx|tsx)\b/i,
+  /^\s*(function\s+\w+\s*\(|class\s+\w+[\s({:]|def\s+\w+\s*\(|import\s+[\w{*].*\sfrom\s|const\s+\w+\s*=\s*\()/m,
+]
+
+/**
+ * Files in the workspace that are not Markdown — the half validation check 11 cannot see.
+ *
+ * A wrapper artifact is the one legitimate non-Markdown file a run produces (Q-024): `.gitignore`
+ * and `.env.example` are written by the fill procedure and carry its back-link as a comment.
+ * They are recognised BY THAT BACK-LINK and not by name, because an exemption list keyed on
+ * filenames is how the exemption grows until the check means nothing — and a file that carries a
+ * back-link and still looks like code is counted anyway.
+ */
+export const sourceFiles = (ws) =>
+  Object.entries(ws)
+    .filter(([p]) => !p.toLowerCase().endsWith('.md'))
+    .filter(([, t]) => blueprintOf(t) === null || CODE.some((re) => re.test(t)))
+    .map(([p]) => p)
+
+/** A scorer: { name, kind, measure(run) -> number, floor, hardFail, requires }.
+ *  `run` is { workspace, library, rounds, outside, notices, suppressed, coreFiles, supportingFiles }.
+ *
+ *  `requires` names the fields a scorer cannot measure without. A run that does not supply them
+ *  makes the scorer NOT RUN rather than zero — see `score()` in ci/eval-runner.mjs. */
 export const SCORERS = [
   {
     name: 'structural_checks',
@@ -94,7 +119,18 @@ export const SCORERS = [
   {
     name: 'no_code_written',
     kind: 'deterministic',
-    measure: (r) => (validate(r.workspace, r.library).results.find((c) => c.n === 11)?.state === 'failed' ? 1 : 0),
+    // BR-001 IS "THE KIT WRITES SPECIFICATIONS, NEVER CODE", AND A `.js` FILE IS CODE.
+    // Validation check 11 walks `.md` only, so `{'spec/app.js': 'function start(p){return p}'}`
+    // scored 0 — a perfect score — from the one scorer that exists to catch exactly that. The
+    // scorer for the product's defining boundary was blind to the plainest possible breach of it.
+    //
+    // Both halves are counted: the Markdown one check 11 already reads, plus every file in the
+    // workspace that is not Markdown at all. Counted here rather than delegated, because a
+    // workspace made of source files has to be visible to this scorer whatever check 11 grows
+    // into next.
+    measure: (r) =>
+      (validate(r.workspace, r.library).results.find((c) => c.n === 11)?.state === 'failed' ? 1 : 0) +
+      sourceFiles(r.workspace).length,
     floor: 0,
     hardFail: true,
   },
@@ -110,7 +146,13 @@ export const SCORERS = [
     name: 'inference_stated',
     kind: 'deterministic',
     // Suppressed questions carrying no notice. A silent inference is a hidden assumption.
-    measure: (r) => Math.max(0, (r.suppressed ?? 0) - (r.notices ?? 0)),
+    //
+    // NOTHING PRODUCES THESE TWO NUMBERS YET. Only the tests supply them, so every real run this
+    // scorer has ever appeared in reported 0 out of `?? 0` and printed "at floor" — and this is
+    // the only scorer that would notice express answering a question it never asked. Named as a
+    // requirement so the report says NOT RUN instead of inventing the best possible answer.
+    requires: ['suppressed', 'notices'],
+    measure: (r) => Math.max(0, r.suppressed - r.notices),
     floor: 0,
     hardFail: false,
   },
@@ -119,10 +161,15 @@ export const SCORERS = [
     kind: 'deterministic',
     // A supporting-area specification longer than the core area's means depth went to the
     // wrong place — the failure the subdomain map exists to prevent.
+    //
+    // Same gap as `inference_stated`: no caller supplies the two file lists, so `?? []` made the
+    // comparison over an empty set and the answer was always 0. An inversion measured over no
+    // files is not an absence of inversions.
+    requires: ['coreFiles', 'supportingFiles'],
     measure: (r) => {
       const len = (p) => (r.workspace[p] ?? '').split('\n').length
-      const core = Math.max(0, ...(r.coreFiles ?? []).map(len))
-      return (r.supportingFiles ?? []).filter((p) => len(p) > core).length
+      const core = Math.max(0, ...r.coreFiles.map(len))
+      return r.supportingFiles.filter((p) => len(p) > core).length
     },
     floor: 0,
     hardFail: false,
