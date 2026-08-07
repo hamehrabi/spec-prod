@@ -45,6 +45,30 @@ question asked, nothing written. The commands above are chosen because they surv
 guards. A cleverer one probably will not, and finding out costs the developer the same nine
 minutes every time.
 
+### Do not add a redirection — `2>/dev/null` is the one that keeps happening
+
+**Add nothing to the command. In particular, never append `2>/dev/null`** — or `2>$null`,
+or `2>nul`, or any other redirection.
+
+The motive is real, so read why it is wrong rather than just obeying it. The library is four
+levels deep at its deepest, but not every branch goes that far, so `*/*/*/*.md` matches
+nothing in some installs and the shell prints `No such file or directory` to stderr. That
+line looks like a failure. It is not.
+
+**The unmatched glob is expected, and the command has already succeeded.** The digests are on
+stdout; the complaint is on stderr; `sort` and the second hash never see it. Nothing is
+missing from the result — a glob that matches nothing contributes nothing, and the shallower
+globs have already covered every file that exists.
+
+Suppressing it costs the whole check. `2>` is a redirection, a redirection reads as **file
+creation** to a permission guard, and the guard denies the command that would otherwise have
+worked. This is BUG-025: a traced run had the correct command, added `2>/dev/null` to tidy up
+a message that did not matter, and was refused — then treated the refusal as the host being
+unable, which is the doorway back to BUG-005.
+
+Trading a working check for a quieter one is a bad trade at any price. **If stderr says a
+glob matched nothing, read the digest off stdout and carry on.**
+
 If the pipeline is refused, `sha256sum *.md */*.md */*/*.md */*/*/*.md` alone still prints
 every digest — but that leaves you comparing 81 strings by eye, which is the state this
 section exists to avoid. Prefer the stop message.
@@ -74,6 +98,10 @@ A command that computes and prints is fine. **A command that creates a file is n
 **A refused command is not permission to hash one file at a time.** Try the other form. If
 both are refused, use the stop message below — the check did not run, and that is a complete
 outcome.
+
+**First, check that you ran the command as written.** A command refused because you added
+something to it is not the host refusing the check — it is refusing your addition. Run the
+documented form unaltered before concluding anything about the host.
 
 This is the exact route by which BUG-005 comes back. A run traced in a guarded session had
 every command it tried refused, and began hashing blueprints individually with literal paths:
