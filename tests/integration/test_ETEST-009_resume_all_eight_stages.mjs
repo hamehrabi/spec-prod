@@ -15,6 +15,14 @@ const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
 // Eight stages, three artifacts each. Shapes the derivation, not the real round contents —
 // rounds 2-8 are not built, and inventing their file lists here would be a guess that later
 // tasks would have to unpick.
+//
+// SYNTHETIC ON PURPOSE, AND THE GAP IS COVERED ELSEWHERE. An audit flagged that a round map
+// yielding empty artifact lists would pin `resumeAt` forever and all sixteen subtests here
+// would still report 8/8 — true, and the reason not to fix it here is that this file tests the
+// derivation, not the map. `tests/unit/test_UTEST-041_resume_fitness.mjs` calls the real
+// `stages()` and asserts every round owns at least one artifact and that the totals equal the
+// library exactly. Wiring `stages()` in here instead would couple sixteen reliability subtests
+// to round-map churn and buy nothing.
 const STAGES = Array.from({ length: 8 }, (_, i) => ({
   name: `Round ${i + 1}`,
   artifacts: [`spec/r${i + 1}/a.md`, `spec/r${i + 1}/b.md`, `spec/r${i + 1}/c.md`],

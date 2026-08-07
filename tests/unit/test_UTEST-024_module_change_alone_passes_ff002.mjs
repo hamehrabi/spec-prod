@@ -32,8 +32,13 @@ test('UTEST-024: changing only blueprints passes, however many', () => {
 })
 
 test('UTEST-024: changing only the orchestration modules passes', () => {
-  const { code } = run(FF002, files('plugin/instructions/intake.md', 'plugin/commands/spec-intake.md'))
+  const { code, stdout } = run(FF002, files('plugin/instructions/intake.md', 'plugin/commands/spec-intake.md'))
   assert.equal(code, 0, 'intake.md and the command are the same module; they may move together')
+  // ASSERT THE CLASSIFICATION, NOT JUST THE EXIT CODE — its three siblings do, and this one did
+  // not. Exit 0 is also what FF-002 returns when it classified nothing: removing
+  // `plugin/commands/` from MODULES.flow left every test in this file green, because two files
+  // it no longer recognised are two files it has no rule about. The count is what notices.
+  assert.match(stdout, /0 blueprint, 0 question, 2 instruction\/command/)
 })
 
 test('UTEST-024: the question set and the orchestration may change together', () => {

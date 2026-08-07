@@ -17,11 +17,12 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { run, check } from '../_helpers.mjs'
 import { stages } from '../../ci/ff-003-resume.mjs'
+import { library } from '../../ci/golden.mjs'
 
 const FF = 'ff-003-resume.mjs'
 const STAGES = stages()
@@ -185,7 +186,14 @@ test('UTEST-041: eight stages, each owning at least one artifact', () => {
   for (const s of STAGES) assert.ok(s.artifacts.length > 0, `${s.name} expects no artifact`)
   // Guards the parsers rather than the map: a regex that matched nothing would make every
   // assertion in this file vacuously true, which is this file's own worst failure mode.
-  assert.ok(STAGES.flatMap((s) => s.artifacts).length > 70)
+  //
+  // EXACTLY THE LIBRARY, not "more than seventy". REQ-F-043 says the file set is derived from
+  // the manifest and rounds own directories — so every blueprint is owned by exactly one round,
+  // and the totals must agree. `> 70` passed with eleven blueprints silently unowned by any
+  // round, which is the same shape as a check that matches nothing.
+  const owned = STAGES.flatMap((s) => s.artifacts)
+  assert.equal(owned.length, library().length, 'the round map and the library disagree on the file set')
+  assert.equal(new Set(owned).size, owned.length, 'a blueprint is owned by more than one round')
 })
 
 test('UTEST-041: a wrapper blueprint is expected at the path it writes, not its own', () => {
@@ -202,7 +210,34 @@ test('UTEST-041: a blueprint the manifest records as not packaged is not expecte
   // Rounds 7 and 8 own the prefixes the "Deliberately not packaged" table sits under. Expecting
   // a file no run can produce has the same effect as the wrapper mistake above, in the two
   // rounds with the most files and so the least chance of anyone noticing.
+  // READ FROM THE TABLE, NOT RETYPED. The hand-written list named four tokens; the table has
+  // seven rows, so some entries had no case at all and a NEW row would have got none either.
+  //
+  // The Path column is prose, not paths — one cell holds two filenames, another an ellipsis
+  // range, another a brace expansion — so these are used as substring probes rather than parsed
+  // into paths. That is all this assertion needs, and it now grows with the table.
+  const manifest = readFileSync('plugin/blueprints/MANIFEST.md', 'utf8')
+  const excluded = [
+    ...new Set(
+      manifest
+        .slice(manifest.indexOf('## Deliberately not packaged'))
+        .split('\n')
+        .flatMap((l) => [...(l.match(/^\| `([^`]+)` \|/)?.[1] ?? '').matchAll(/[\w/.-]*\.\w+/g)].map((m) => m[0]))
+        .filter((t) => t.length > 3)
+    ),
+  ]
+  // NOT PACKAGED AS A BLUEPRINT is not the same as NEVER WRITTEN. The three wrapper targets sit
+  // in this table because they are not Markdown and so cannot be blueprints (DD-020) — but the
+  // kit does produce them, as wrappers, and `spec/.gitignore` is a correct artifact. Probing for
+  // them by substring failed the round map for doing the right thing, which is this repository's
+  // other recurring defect and the one that gets a check switched off.
+  //
+  // Named individually rather than dropped by their DD-020 reason, because the `.gitkeep` row
+  // carries the same reason and is genuinely never written.
+  const WRAPPERS = ['.gitignore', '.env.example', 'Dockerfile.example']
+  const probes = excluded.filter((t) => !WRAPPERS.includes(t))
+  assert.ok(probes.length >= 4, 'the not-packaged table yielded almost nothing; this would prove nothing')
   const all = STAGES.flatMap((s) => s.artifacts)
-  for (const excluded of ['.gitkeep', 'appendix-index', 'MASTER-PROMPT', 'steps.md'])
-    assert.ok(!all.some((a) => a.includes(excluded)), `${excluded} is not packaged and cannot be expected`)
+  for (const token of probes)
+    assert.ok(!all.some((a) => a.includes(token)), `${token} is not packaged and cannot be expected`)
 })
