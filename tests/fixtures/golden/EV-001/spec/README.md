@@ -5,12 +5,13 @@
 > **Who it is for:** anyone about to build, review, or change this software, including an
 > AI coding agent.
 
-**In one sentence, this software:** A place for a home cook to keep every recipe, and to turn
-the meals they pick for a week into one shopping list.
+**In one sentence, this software:** A recipe and shopping-list app for one home cook that
+turns a week of chosen meals into a single shopping list.
 
-**The problem it exists to solve:** People who cook at home keep recipes scattered across
-screenshots, bookmarks and handwritten cards, which causes them to forget items on the weekly
-shop and make a second trip while food goes off.
+**The problem it exists to solve:** Home cooks keep recipes scattered across screenshots,
+bookmarks and handwritten cards, and forget items when shopping for a week of meals — costing
+a second trip and wasted food. The system should keep recipes in one place and turn a week of
+chosen meals into one complete shopping list.
 
 > **The one rule to remember:**
 > Before code, write the spec. Before accepting code, run the tests. Before release,
@@ -156,7 +157,5 @@ back to 01-docs             when reality changes the spec
 > review → deployment?
 >
 > If yes, the specification is doing its job. If no, there is a gap to find.
-
----
 
 > Blueprint: blueprints/README.md

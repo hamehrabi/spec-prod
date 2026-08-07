@@ -20,6 +20,29 @@ workspace and diff it against the committed one. **If they differ, some part of 
 authored where it should have been produced**, and that is a finding rather than a nuisance —
 it is the same self-check the kit demands of every workspace it writes.
 
+### It found one, on 2026-08-07
+
+The paragraph above was written as a hypothetical. It is not one. Two runs on different days,
+and FF-007 arriving independently by a different route, agree that **four files in the committed
+workspace deviate from their own blueprints**:
+
+| File | What the fixture did |
+|---|---|
+| `intent.md` | Dropped `### Starter (Appendix A)`, which no instruction sanctions removing |
+| `subdomain-map.md` | Invented `## What this table has already changed` |
+| `fitness-functions.md` | Invented `## What each one is actually for` |
+| `database-design.md` | Dropped `## Rules` |
+
+The two invented headings sit exactly where the blueprint's `# WORKED EXAMPLE` was, so a person
+deleted the worked example and wrote a replacement section from memory. That is BUG-024 — and
+the fixture predates its fix. On the one file the comparison could reach twice, **the kit
+produced the blueprint's structure and the fixture did not.**
+
+So GOLD-001's header claim was false, and the pair this file created is what showed it. The
+workspace is being regenerated rather than patched: four hand-edits are what was found, a
+file-by-file read would find more, and every one repaired by hand recreates the defect being
+repaired.
+
 ---
 
 ## The free-text problem statement
@@ -44,8 +67,11 @@ it is the same self-check the kit demands of every workspace it writes.
 | Q3 | How many people in the first six months? | **not asked** — express keeps two |
 | Q4 | Build horizon for version one? | **not asked** — express keeps two |
 
-Dropped questions became `Q-010` and `Q-011`, recorded with decision owners rather than
-answered on the developer's behalf.
+Both dropped questions were filed in `open-questions.md` with a decision owner, rather than
+answered on the developer's behalf. **Which Q-### they became is not recorded here** — the
+numbering is something the run produces, and a number written down on the input side is a
+number the next run has to reproduce to look correct. (An earlier draft of this file did name
+them, and named them wrongly.)
 
 ## Round 2 — scope boundaries
 
@@ -71,7 +97,7 @@ Q3 is the one derivation in this run. *Single user, no sharing* settles it, so s
 repeats the developer's answer rather than inventing one — which is the line between an
 inference and a default.
 
-## Round 4 — product shape *(incomplete)*
+## Round 4 — product shape
 
 | Q | Question | Answer |
 |---|---|---|
@@ -79,24 +105,69 @@ inference and a default.
 | Q2 | What matters most in the interface? | Speed of the core task |
 | Q3 | Pick the three qualities that matter most. | Simplicity / feasibility · Reliability / graceful failure · Accessibility |
 
-**Round 4 is not accepted.** Three of its six files are written — `driving-characteristics.md`,
-`fitness-functions.md`, `runtime-and-scale.md` — and a round is accepted whole or not at all, so
-the change log records nothing for it.
-
-Q3's rejected candidates, with reasons, are in `driving-characteristics.md` step 2. The one
+Q3's rejected candidates, with reasons, belong in `driving-characteristics.md` step 2. The one
 worth reading is **security**: dropped *not* because it does not matter but because it is already
 a hard requirement with denial tests that fail loudly, and a driver slot governs what degrades
 quietly.
 
-## Rounds 5 to 8
+## Round 5 — architecture and stack
 
-Not run.
+| Q | Question | Answer |
+|---|---|---|
+| Q1 | Which architecture style? | Modular monolith |
+| Q2 | Which data store? | A relational database — SQLite while it is one person's, with nothing in the schema that would stop it becoming Postgres |
+| Q3 | Which authentication model? | **not asked** |
+| Q4 | What must be true before this is safe to run for real? | **not asked** |
+
+Q2 is a derived question, so the options a run offers depend on what Rounds 1–4 established.
+The answer above is what the developer picked, not the list they picked it from — recording
+the list would be recording the kit's behaviour, and this file is the input half.
+
+## Round 6 — security, reliability, and integrations
+
+| Q | Question | Answer |
+|---|---|---|
+| Q1 | What must never leak or be logged? | **not asked** |
+| Q2 | Which external services will you depend on? | None in version one |
+| Q3 | When something is slow or fails, what should the user see? | **not asked** |
+| Q4 | Does the system store files that users upload or generate? | Yes, and they are private to one user — photos of finished dishes |
+
+**These two answers are in tension, deliberately.** Storing user files while depending on no
+external service means the files live on the same box as the application, which is a real
+constraint with real consequences for backup and for what Round 8's answer can promise. A
+fixture whose answers never pull against each other tests only the easy path.
+
+## Round 7 — tasks and tests
+
+| Q | Question | Answer |
+|---|---|---|
+| Q1 | How should the work be sequenced? | Thin vertical slices — one feature end to end at a time |
+| Q2 | How thorough should the test plan be? | **not asked** |
+| Q3 | Who or what will write the code? | An AI coding agent, one task at a time |
+
+## Round 8 — operations
+
+| Q | Question | Answer |
+|---|---|---|
+| Q1 | Where will this run? | Not decided yet |
+| Q2 | Which environments will exist? | **not asked** |
+| Q3 | What is your monitoring appetite? | **not asked** |
+| Q4 | If the data were lost right now, how much could you afford to lose, and how long could you be down? | A day of edits would sting but survive. Losing the recipe library would end the project — those are years of handwritten cards. Being down a whole evening is fine; nobody cooks from it at 3am. |
+
+Q4 is free text at both depths, like Round 1's problem statement, and for the same reason: a
+recovery objective picked from a list is a number nobody owns.
 
 ---
 
 ## Gate responses
 
-**Accept** at rounds 1, 2 and 3. Round 4's gate has not been reached.
+**Accept** at all eight rounds. This is the happy path: a developer who answers every round and
+agrees with what each one produced.
+
+That is a deliberate choice about what EV-001 is *for*, not an assumption that runs go this way.
+Decline, revise and stop are real outcomes with their own consequences — a declined file leaves
+a stage partial, and a partial Round 1 is what BUG-026 was about. They belong in cases of their
+own, where the thing under test is the outcome rather than the interview.
 
 Each acceptance appended a dated row to
 [`EV-001/spec/01-docs/09-change-control/spec-change-log.md`](EV-001/spec/01-docs/09-change-control/spec-change-log.md),

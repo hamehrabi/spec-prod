@@ -20,9 +20,24 @@
 
 ## Change entries
 
+```
+Change ID:
+Date:
+Changed artifact:
+Old version:
+New version:
+Reason for change:
+Affected requirements:
+Affected tests:
+Affected tasks or code areas:
+Decision owner:
+Reviewer:
+Status: proposed / accepted / rejected / deferred
+Notes:
+```
+
 | Change ID | Date | Artifact | Old → New | Reason | Affected REQ | Affected TEST | Owner | Status |
 |---|---|---|---|---|---|---|---|---|
-| CHG-001 | | | v1.0 → v1.1 | | | | | proposed |
 
 ---
 
@@ -40,9 +55,16 @@ above starts with an identifier rather than a date, so it cannot serve.
 
 | Date | Stage or type | Artifact | Note or reason |
 |---|---|---|---|
-| 2026-08-04 | Round 1 — the idea | — | Four files written: brief, intent, README, this log. |
-| 2026-08-04 | Round 2 — scope boundaries | — | Three files written: constraints and non-goals, open questions, subdomain map. Two questions asked at `express` depth; the other two are recorded as Q-002 and Q-003 rather than answered. Q-001 closed, and its marker replaced in intent and brief. |
-| 2026-08-04 | Round 3 — users, roles, and data | — | Four files written: requirements, database design, API specification, data and integration specification. Permission model and entity model asked; isolation between accounts derived from the permission model with the derivation stated. Seven new questions recorded, Q-012 to Q-018. |
+| 2026-08-07 | Round 1 — the idea | — | Accepted by Developer. 4 decisions, 1 inference, 2 TODOs. |
+| 2026-08-07 | Round 2 — scope boundaries | — | Accepted by Developer. 3 decisions, 0 inferences, 2 TODOs. |
+| 2026-08-07 | Round 3 — users, roles, and data | — | Accepted by Developer. 4 decisions, 0 inferences, 5 TODOs. |
+| 2026-08-07 | Round 4 — product shape | — | Accepted by Developer. 5 decisions, 0 inferences, 3 TODOs. |
+| 2026-08-07 | Round 5 — architecture and stack | — | Accepted by Developer. 3 decisions, 0 inferences, 1 TODO; resolved Q-011. |
+| 2026-08-07 | Skipped | 01-docs/07-security-and-reliability/ai-boundary-spec.md | Pantry neither calls nor is driven by a model; there is no AI boundary to specify. |
+| 2026-08-07 | Round 6 — security, reliability, integrations | — | Accepted by Developer. 4 decisions, 1 inference, 2 TODOs; resolved Q-007, Q-008; skipped ai-boundary-spec.md. |
+| 2026-08-07 | Skipped | 03-tests/03-non-functional/ai-evals.md | Pantry has no model to evaluate; there are no AI evals to write. |
+| 2026-08-07 | Round 7 — tasks and tests | — | Accepted by Developer. 4 decisions, 0 inferences, 1 TODO; skipped ai-evals.md. |
+| 2026-08-07 | Round 8 — operations | — | Accepted by Developer. 6 decisions, 0 inferences, 2 TODOs; resolved Q-012. |
 
 **A skip with no reason is a silent skip wearing a label.** The reason is what lets a later
 reader tell a decision from an omission.
@@ -82,10 +104,10 @@ reader tell a decision from an omission.
 | Affected code area | The module, endpoint, page, job, or service connected to the change. |
 | Review status | Draft, reviewed, approved, implemented, or released. |
 
+---
+
 > **Spec drift warning (Ch. 15 §15.8):** spec drift happens when the code changes but the
 > specification stays behind. The longer you allow drift, the harder it becomes to trust
 > the source of truth for your project.
-
----
 
 > Blueprint: blueprints/01-docs/09-change-control/spec-change-log.md

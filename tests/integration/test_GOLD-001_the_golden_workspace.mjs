@@ -24,7 +24,51 @@
 //            workspace that had not yet reached the file where drivers are declared.
 //
 // A synthetic workspace built inside a test would have had none of them, because the author
-// of the test also authors the input. This fixture was not authored — it was produced.
+// of the test also authors the input.
+//
+// THIS FIXTURE IS PRODUCED, AND FOR THE FIRST TIME THAT IS TRUE. The line above used to say so
+// as a claim, and on 2026-08-07 the claim turned out to be false: `EV-001-answers.md` gave the
+// runner the input half of the pair, and re-generating the workspace found FOUR files that
+// deviated from their own blueprints — `intent.md` had dropped `### Starter (Appendix A)`,
+// `database-design.md` had dropped `## Rules`, and `subdomain-map.md` and
+// `fitness-functions.md` had each INVENTED a section where the blueprint's worked example used
+// to be. Somebody had deleted a worked example and written a replacement from memory, which is
+// BUG-024, and the fixture predated its fix. FF-007 reached the same conclusion independently,
+// and two runs on different days sided with the blueprint.
+//
+// So it was replaced rather than repaired, by one eight-round run: 80 files, 8 rounds accepted,
+// 75 minutes, $49.85. Repairing four hand-edits by hand would have been the same mistake a
+// fourth time, and a file-by-file read would only have found the ones a reader noticed.
+//
+// The run that produced it also exposed five checks that were failing correct work — see
+// UTEST-065 and UTEST-066. Every one had been green for months against the fourteen-file
+// fixture this replaces, because no workspace had ever reached the files they were wrong about.
+//
+// AND THEN SEVEN MORE, when the assertions below were rewritten against what was actually
+// produced rather than against what the authored fixture had said. They are recorded here, each
+// pinned by a test that FAILS THE DAY IT IS FIXED, because this repository has no defect
+// register other than the tests — a bug with nothing that would notice its absence is
+// decoration (BR-010):
+//
+//   BUG-033  `unfilled()` reports four things that are not gaps: Keep-a-Changelog headings
+//            (`## [Unreleased]`), id stubs used to describe a FORMAT (`REQ-### / TASK-###`),
+//            substitution slots in a prompt library, and kept `*Example (Ch. N)*` labels.
+//            The UTEST-066 distinction — described is not cited — arriving in check 5.
+//   BUG-034  two real survivals: nine `TASK-###` cells in the user-story table, and a review
+//            form shipped with its Reviewer, Date and `SEC-###` blank.
+//   BUG-035  check 6 cannot pair a [TODO] whose owner is a TASK rather than a question, so it
+//            reads the entry point's one honest marker as an orphan.
+//   BUG-036  `technical-spec.md` invents a question table and restates a security control,
+//            giving Q-009, Q-013 and SEC-A-001 two homes that can disagree.
+//   BUG-037  every fitness function says `CI | Block merge`, and there is no CI — a success
+//            claim on a check that cannot have run (BR-009).
+//   BUG-038  the core subdomain's defining invariant never reached the schema. The workspace
+//            NAMES what it competes on and does not enforce it. Nothing catches this.
+//   BUG-039  two "not needed" rows carry no reason and five carry no revisit trigger, so a
+//            first-class answer is written as a blank.
+//
+// The last three are the interesting ones: no scorer catches them, and no scorer could without
+// reading the specification for meaning rather than for shape.
 //
 // ONE FIXTURE, GROWN ROUND BY ROUND. Not a snapshot per round: Round 1's four files would
 // then exist in eight places and drift apart at the first correction, which is the
@@ -72,42 +116,39 @@ const failing = scored.breaches.map((b) => b.name).sort()
 
 // --- What has been produced -------------------------------------------------------------------
 
-test('GOLD-001: the run has reached Round 3, and the artifact is what says so', () => {
+test('GOLD-001: the run reached Round 8, and the artifact is what says so', () => {
+  // Eight accepted rounds, read from the change log rather than from a filename or a state
+  // file (ADR-004, ADR-006). The titles are asserted in full because the round a row NAMES is
+  // what resume matches on — `Stage 1 — the idea` where the instructions say `Round 1 — …` is
+  // a violation rather than an invisible absence.
   assert.deepEqual(acceptedStages(changeLog), [
     'Round 1 — the idea',
     'Round 2 — scope boundaries',
     'Round 3 — users, roles, and data',
+    'Round 4 — product shape',
+    'Round 5 — architecture and stack',
+    'Round 6 — security, reliability, integrations',
+    'Round 7 — tasks and tests',
+    'Round 8 — operations',
   ])
-  assert.equal(rounds, 3)
+  assert.equal(rounds, 8)
 })
 
-test('GOLD-001: Round 4 is part-written, with no acceptance row — the state `stop` leaves', () => {
-  // Rounds 1 to 3 are accepted. Round 4 has written two of its six files and has NOT been
-  // accepted, because a round is accepted whole or not at all (review.md forbids accepting
-  // part of one). This is the state the intake leaves on `stop`, and the state `resume.md`
-  // has to pick up from — everything written stays written, and the change log does not
-  // claim a round that did not finish.
-  assert.equal(rounds, 3, 'three accepted rounds, and a fourth in progress')
-  assert.ok(workspace['spec/01-docs/02-requirements/driving-characteristics.md'])
-  assert.ok(workspace['spec/01-docs/04-technical-spec/fitness-functions.md'])
-  assert.ok(workspace['spec/01-docs/04-technical-spec/runtime-and-scale.md'])
-  assert.doesNotMatch(changeLog, /Round 4/, 'an unfinished round records nothing (BR-009)')
-  assert.deepEqual(Object.keys(workspace).sort(), [
-    'spec/01-docs/01-intent/constraints-and-non-goals.md',
-    'spec/01-docs/01-intent/intent.md',
-    'spec/01-docs/01-intent/open-questions.md',
-    'spec/01-docs/01-intent/project-brief.md',
-    'spec/01-docs/01-intent/subdomain-map.md',
-    'spec/01-docs/02-requirements/driving-characteristics.md',
-    'spec/01-docs/02-requirements/requirements.md',
-    'spec/01-docs/04-technical-spec/fitness-functions.md',
-    'spec/01-docs/04-technical-spec/runtime-and-scale.md',
-    'spec/01-docs/06-api-and-data-design/api-specification.md',
-    'spec/01-docs/06-api-and-data-design/data-and-integration-spec.md',
-    'spec/01-docs/06-api-and-data-design/database-design.md',
-    'spec/01-docs/09-change-control/spec-change-log.md',
-    'spec/README.md',
-  ])
+test('GOLD-001: the workspace is complete — every round accepted, nothing part-written', () => {
+  // THIS FIXTURE USED TO STOP AT ROUND 3 with Round 4 half-written, and that state was the
+  // point of it: it was what `stop` leaves and what resume.md has to pick up from. Replacing
+  // it with a complete run REMOVED that coverage, and nothing else has it.
+  //
+  // Recorded rather than quietly dropped. EV-001 is the happy-path case (ai-evals.md §1) and a
+  // happy path finishes; a run that stops part-way is a different case, and the golden set was
+  // scoped to this one on 2026-08-07. So the `stop` state is UNCOVERED, deliberately, and this
+  // comment is the only thing that says so.
+  assert.equal(rounds, 8, 'every round accepted')
+  assert.equal(acceptedStages(changeLog).length, 8)
+  assert.ok(Object.keys(workspace).length > 70, 'a complete run writes the whole library')
+  // The entry point is written last and only on a complete run (entrypoint.md), so its presence
+  // is the one-file test of "this run finished".
+  assert.ok(workspace['spec/CLAUDE.md'], 'a complete run writes the entry point')
 })
 
 test('GOLD-001: the workspace README is about THIS project, not about the template', () => {
@@ -137,18 +178,79 @@ test('GOLD-001: no identifier from the KIT survives into the workspace', () => {
   assert.equal(check1.state, 'passed', check1.detail.join(' · '))
 })
 
-test('GOLD-001: every file carries a back-link that resolves to a real blueprint', () => {
+test('GOLD-001: every filled blueprint carries a back-link that resolves to a real one', () => {
+  // `spec/CLAUDE.md` is EXEMPT, and by name rather than by position. entrypoint.md composes it
+  // out of what the workspace already contains, so there is no blueprint it is a copy of and
+  // nothing for a back-link to point at. Check 3 draws the same exemption the same way, for the
+  // same reason (UTEST-065) — "files at the workspace root" would also excuse README.md, which
+  // IS a filled blueprint and whose back-link is the only thing tying it to one.
   for (const [path, text] of Object.entries(workspace)) {
+    if (path === 'spec/CLAUDE.md') continue
     const bp = blueprintOf(text)
     assert.ok(bp, `${path} has no back-link`)
     assert.ok(library.includes(bp), `${path} points at ${bp}, which is not in the library`)
   }
+  assert.ok(workspace['spec/CLAUDE.md'], 'the exemption must name a file that exists')
 })
 
-test('GOLD-001: no placeholder survived as body text', () => {
-  for (const [path, text] of Object.entries(workspace)) {
-    assert.deepEqual(unfilled(text), [], `${path} still holds an unfilled placeholder`)
-  }
+// Every placeholder still standing in the finished workspace, with WHY each one is standing.
+// The list is the point: a bare count would let a new survival hide behind a fixed one, and
+// `assert.deepEqual(unfilled(text), [])` — what this used to be — cannot say "these six are
+// understood and nothing else is allowed".
+//
+// Two kinds, and they are not the same kind of problem:
+//   FALSE POSITIVE  `unfilled()` is wrong about it. The text is correct and must not be edited.
+//   REAL GAP        the run left something unfilled that should have been [TODO] or a value.
+const SURVIVING_PLACEHOLDERS = {
+  'spec/01-docs/05-architecture/architecture-decisions/ADR-000-template.md': {
+    n: 12,
+    why: 'TEMPLATE — it says "Copy this file to ADR-001-short-title.md and fill it in", and its placeholders are what make it usable. Filling them destroys the file. Check 5 exempts it through isTemplate() (UTEST-065); this test applies the same rule rather than a second opinion.',
+  },
+  'spec/07-ops/04-release/release-notes.md': {
+    n: 2,
+    why: 'FALSE POSITIVE (BUG-033) — `## [Unreleased]` and `## [1.0.0]` are Keep-a-Changelog headings. The brackets are the format, not a gap, and there is nothing to fill.',
+  },
+  'spec/06-agent/01-instructions/AGENT.md': {
+    n: 3,
+    why: 'FALSE POSITIVE (BUG-033) — "**Requirement covered** (REQ-### / TASK-###)" describes the SHAPE of the id a handoff report must carry. It is the distinction UTEST-066 drew for check 1: an identifier being described is not an identifier being used.',
+  },
+  'spec/06-agent/03-prompts/prompt-library.md': {
+    n: 1,
+    why: 'FALSE POSITIVE (BUG-033) — "Implement only TASK-[ID]" is a prompt the developer substitutes into at the moment they use it. A filled-in TASK-001 here would be a library of one prompt.',
+  },
+  'spec/01-docs/03-product-spec/product-spec.md': {
+    n: 10,
+    why: 'MIXED — `*Example (Ch. 6 §6.3)*` is a kept section LABEL and a false positive (BUG-033); deleting it would make the example table below read as real content. The nine `TASK-###` / `TEST-###` cells in the user-story table are a REAL GAP (BUG-034): the run reached Round 7 and wrote TASK-001, so those cells should hold either a real id or a [TODO], and a bare stub is neither. BR-003 sanctions the marker, not the stub.',
+  },
+  'spec/05-review/02-checklists/security-review.md': {
+    n: 1,
+    why: 'REAL GAP (BUG-034) — `**Related requirements:** SEC-###` on a review form whose Reviewer and Date are also blank. The review has not happened, which is honest, but an unfilled form shipped as content is not how this kit records "not yet".',
+  },
+}
+
+test('GOLD-001: every surviving placeholder is one of the six that are understood', () => {
+  const found = Object.fromEntries(
+    Object.entries(workspace)
+      .map(([p, t]) => [p, unfilled(t).length])
+      .filter(([, n]) => n > 0)
+  )
+  assert.deepEqual(
+    found,
+    Object.fromEntries(Object.entries(SURVIVING_PLACEHOLDERS).map(([p, e]) => [p, e.n])),
+    'a placeholder survived in a file that has no entry in SURVIVING_PLACEHOLDERS, or a known one changed count'
+  )
+})
+
+test('GOLD-001: two of the six are real gaps, and they are named as gaps', () => {
+  // BR-009 in the fixture's own terms. Recording these as "known" is only honest while the
+  // record says which ones are DEFECTS — an allow-list that does not distinguish a wrong check
+  // from a wrong workspace turns both into background noise.
+  const real = Object.entries(SURVIVING_PLACEHOLDERS).filter(([, e]) => e.why.includes('REAL GAP'))
+  assert.deepEqual(real.map(([p]) => p).sort(), [
+    'spec/01-docs/03-product-spec/product-spec.md',
+    'spec/05-review/02-checklists/security-review.md',
+  ])
+  for (const [p, e] of real) assert.match(e.why, /BUG-034/, `${p} names no defect to fix`)
 })
 
 // --- ADR-006 / ADR-004: acceptance is a row, never a file -------------------------------------
@@ -162,10 +264,20 @@ test('GOLD-001: each round recorded its own acceptance as a dated row', () => {
   // row from the change log made both sides 0 and the test passed on a workspace recording no
   // acceptance at all, which is the opposite of its name.
   const accepted = acceptedStages(changeLog)
-  assert.equal(accepted.length, 3, 'three rounds are accepted; Round 4 is written but not accepted')
+  assert.equal(accepted.length, 8, 'all eight rounds are accepted')
   // Each row carries a DATE, which is what ADR-006 makes acceptance out of.
   const dated = changeLog.split('\n').filter((l) => /^\| \d{4}-\d{2}-\d{2} \|/.test(l))
-  assert.equal(dated.length, accepted.length, 'every accepted stage is a dated row and nothing else is')
+
+  // TEN dated rows for eight rounds, and the two extra are not slop — they are the skips, which
+  // ADR-006 records the same way and for the same reason. `dated.length === accepted.length` was
+  // the old assertion and it would now fail on a workspace doing exactly the right thing, so it
+  // is replaced by the rule it was standing in for: every dated row is an acceptance or a skip,
+  // and nothing else gets to be written in that column.
+  assert.equal(dated.length, 10)
+  const second = dated.map((l) => l.split('|')[2].trim())
+  const skips = second.filter((s) => s === 'Skipped')
+  assert.equal(skips.length, 2)
+  assert.deepEqual(second.filter((s) => s !== 'Skipped'), accepted, 'every non-skip dated row is an accepted round, named in full')
 })
 
 test('GOLD-001: no state, progress or acceptance file exists anywhere', () => {
@@ -184,18 +296,32 @@ test('GOLD-001: Round 2 asked its two express questions and recorded the other t
   // it never asked, the exact defect this test is named for — satisfied it.
   const status = (id) => open.cell(id, 'Status')
 
-  // Asked: capabilities (Q1) and the core subdomain (Q4). Q-001 closes as a result.
-  assert.equal(status('Q-001'), 'Answered')
-  assert.match(open.cell('Q-001', 'Question'), /^Which capabilities must exist in version one\?$/)
-  assert.ok(open.cell('Q-001', 'Answer / decision').length > 0, 'answered means an answer is recorded')
+  // A QUESTION EXPRESS ASKED LEAVES NO ROW HERE. That is the shape of this file and it is easy
+  // to misread as an omission: "which capabilities must exist in version one?" WAS asked, was
+  // answered, and became content in intent.md and project-brief.md — so there is nothing open
+  // to track. Every Q-### row below is therefore a question express DROPPED.
+  assert.ok(
+    !open.rows.some((r) => /which capabilities must exist/i.test(r.join(' '))),
+    'a question that was asked and answered must not also be filed as open'
+  )
 
-  // Not asked: out-of-scope (Q2) and constraints (Q3). Recorded, never answered for them.
-  for (const id of ['Q-002', 'Q-003']) {
+  // Round 1 dropped two of its four; they are recorded, with an owner, and never answered for.
+  assert.match(open.cell('Q-001', 'Question'), /^How many people will use Pantry in the first six months\?$/)
+  assert.match(open.cell('Q-002', 'Question'), /^What is the build horizon for version one\?$/)
+  // Round 2 dropped out-of-scope. Its consequence is visible two tests down.
+  assert.match(open.cell('Q-003', 'Question'), /^Which capabilities are explicitly out of scope for version one\?$/)
+
+  for (const id of ['Q-001', 'Q-002', 'Q-003']) {
     assert.equal(status(id), 'Open', `${id} was dropped at express and must stay open`)
     assert.equal(open.cell(id, 'Answer / decision').replace(/[—-]/g, '').trim(), '', `${id} must carry NO answer`)
+    assert.ok(open.cell(id, 'Decision owner').length > 0, `${id} names nobody to answer it, so nobody will`)
+    assert.ok(open.cell(id, 'Why it matters').length > 20, `${id} does not say what it would change`)
   }
-  assert.match(open.cell('Q-002', 'Question'), /^Which capabilities are explicitly ruled out of version one\?$/)
-  assert.match(open.cell('Q-003', 'Question'), /^What hard constraints already exist/)
+
+  // Eighteen across eight rounds. The number is asserted because a run that drops questions and
+  // FORGETS to file them is indistinguishable from a run that asked them, and the change log's
+  // per-round TODO counts are the only other place that would notice.
+  assert.equal(open.rows.length, 18, 'every dropped question across eight rounds is filed')
 })
 
 test('GOLD-001: the constraint table is MARKED, never filled with what usually applies', () => {
@@ -213,14 +339,29 @@ test('GOLD-001: the constraint table is MARKED, never filled with what usually a
   for (const row of rows) {
     assert.match(row[2], /\[TODO:/, `a constraint nobody stated must not be written as one: ${row.join(' | ')}`)
   }
-  assert.match(con, /This table is marked, not filled, and that is deliberate/)
+  // And the file SAYS the table is empty on purpose, so a reader does not take it for an
+  // oversight and helpfully fill it in. The wording is the run's own, not the authored
+  // fixture's — what is pinned is the claim, not the sentence that used to carry it.
+  assert.match(con, /\*\*Not asked at express depth\.\*\*/)
+  assert.match(con, /rather than a default that\s*\n?> would "probably" apply/)
+  // Every marker cites the question that would close it, or check 6 has nothing to pair.
+  for (const row of rows) assert.match(row[2], /— Q-0\d\d\]$/, `${row[0]} cites no question`)
 })
 
 test('GOLD-001: unbuilt is distinguished from ruled out', () => {
-  // Q-002 was not asked, so the workspace may claim what is IN scope and may not claim what
-  // is out of it. Collapsing the two is how a capability nobody rejected becomes rejected.
+  // Q-003 was not asked, so the workspace may claim what is IN scope and may not claim what is
+  // out of it. Collapsing the two is how a capability nobody rejected becomes rejected.
+  //
+  // The authored fixture said so in a sentence. The produced one says it STRUCTURALLY, which is
+  // stronger: the non-goals table holds exactly one row, that row is the open question itself,
+  // and its future status is "Waiting for information" — so there is no list of exclusions to
+  // mistake for a decision.
   const con = workspace['spec/01-docs/01-intent/constraints-and-non-goals.md']
-  assert.match(con, /Anything not on that list is unbuilt, not ruled out/)
+  const nonGoals = table(con, 'Item')
+  assert.equal(nonGoals.rows.length, 1, 'nothing may be listed as excluded, because nobody was asked')
+  assert.match(nonGoals.rows[0][0], /\[TODO: which capabilities are explicitly out of scope for version one\? — Q-003\]/)
+  assert.equal(nonGoals.rows[0][2], 'Waiting for information')
+  assert.match(nonGoals.rows[0][1], /not asked at express depth/i, 'and it says why it is waiting')
 })
 
 test('GOLD-001: the subdomain map names one core, and leaves the blocked row blocked', () => {
@@ -228,16 +369,23 @@ test('GOLD-001: the subdomain map names one core, and leaves the blocked row blo
   const core = [...map.matchAll(/^\| ([^|]+)\| \*\*Core\*\* \|/gm)].map((m) => m[1].trim())
   assert.deepEqual(core, ['Turning a week of chosen meals into one shopping list'], 'exactly one core subdomain')
 
-  // Generic says buy — unless a constraint forbids it, and then the row names the constraint
-  // and stays undecided rather than defaulting to build (depth.md). CON-006 is unanswered
-  // here, so this row is the visible price of the dropped question.
-  // The second match used to be unanchored across the whole document, and the prose section
-  // below the table already says "the row stays undecided — blocked on CON-006". So the CELL
-  // could have been changed to `Buy` — defaulting to buy, which is exactly what this test's
-  // comment says the row must not do — and both assertions still passed.
+  // Generic says buy — unless a constraint forbids it, and then the row stays undecided and
+  // names what is blocking it rather than defaulting either way (depth.md). Hard constraints
+  // were the question express dropped, so this row is the visible price of dropping it.
+  //
+  // The assertion is on the CELL, not on the document. Prose below the table already explains
+  // the row, so a whole-file match would still pass if the cell itself were changed to `Buy` —
+  // which is the one thing this row must not say.
   const areas = table(map, 'Area of the system')
-  assert.equal(areas.cell('Accounts and sign-in', 'Type'), '**Generic**')
-  assert.match(areas.cell('Accounts and sign-in', 'Build / Buy'), /Undecided — blocked on \[`CON-006`\]/)
+  assert.equal(areas.cell('Account / authentication', 'Type'), '**Generic**')
+  assert.match(areas.cell('Account / authentication', 'Build / Buy'), /^\[TODO: buy vs build depends on hard constraints — Q-004\]$/)
+
+  // And the section the AUTHORED fixture invented here is gone. `## What this table has already
+  // changed` sat exactly where the blueprint's `# WORKED EXAMPLE` was — somebody had deleted the
+  // worked example and written a replacement from memory (BUG-024). The produced file carries
+  // the blueprint's own section instead, which is how the deviation was found.
+  assert.match(map, /^## What each type changes downstream$/m)
+  assert.doesNotMatch(map, /What this table has already changed/)
 })
 
 // --- BUG-014: a marker whose question was answered ---------------------------------------------
@@ -249,9 +397,29 @@ test('GOLD-001: Round 2 closed the marker Round 1 left in files Round 2 does not
     assert.doesNotMatch(workspace[path], /\[TODO: which capabilities must exist in version one\?\]/)
     assert.match(workspace[path], /Save a recipe with its ingredients/)
   }
-  // And check 6 agrees: nothing is orphaned and nothing is stale.
+  // And check 6 agrees about every marker in the specification proper. It has exactly ONE
+  // complaint, and it is against the entry point rather than against any round's work.
   const check6 = validate(workspace, library).results.find((c) => c.n === 6)
-  assert.equal(check6.state, 'passed', check6.detail.join(' · '))
+  assert.equal(check6.state, 'failed')
+  assert.equal(check6.detail.length, 1, 'one complaint, and it is the one named below')
+  assert.match(check6.detail[0], /^spec\/CLAUDE\.md: \[TODO: ask the team — the stack and its install\] has no Q-### row$/)
+})
+
+test('GOLD-001: the entry point carries a [TODO] that check 6 cannot pair — BUG-035', () => {
+  // A FOURTH CHECK FAILING CORRECT WORK, and it is recorded here rather than fixed here so the
+  // check change lands with its own unit tests instead of riding along with a fixture swap.
+  //
+  // entrypoint.md composes `spec/CLAUDE.md` last, and the stack is genuinely not chosen — the
+  // run assigned choosing it to TASK-001. So the marker is honest and the thing that will close
+  // it is a TASK, not a Q. Check 6 only knows how to pair with `open-questions.md`, so it reads
+  // a tracked decision as an orphan.
+  //
+  // The direction matters, which is why this is a defect and not a curiosity: the repair a
+  // reader makes from "has no Q-### row" is to file a duplicate question for work already
+  // assigned, and now two records disagree about who owns the stack.
+  const entry = workspace['spec/CLAUDE.md']
+  assert.match(entry, /\[TODO: ask the team — the stack and its install \/ test \/ lint \/ run \/ gate commands are set in TASK-001 and not yet chosen\.\]/)
+  assert.ok(workspace['spec/02-tasks/02-task-files/TASK-001.md'], 'the task it defers to must exist, or this really is an orphan')
 })
 
 // --- What is honestly still open --------------------------------------------------------------
@@ -262,55 +430,147 @@ test('GOLD-001: gaps are recorded as [TODO], not filled with plausible values', 
   assert.ok(count < 90, 'but a workspace that is nothing but TODOs is not a specification')
 })
 
-test('GOLD-001: the ONE failing scorer is the unfinished run, not a defect', () => {
-  // It was three at Round 1. Round 2 cleared todo_pairing — the [TODO]s now pair with Q-###
-  // rows in open-questions.md — and ids_resolve, once BUG-015 removed the kit's own ADR
-  // numbers from the shipped change log. What is left is check 13: 80 blueprints belong to
-  // rounds 3 to 8 and the run has not reached them.
+test('GOLD-001: three scorers breach, and every one traces to a named defect', () => {
+  // THE LIST CHANGED, AND SOMETHING REAL CHANGED — the run finished. `structural_checks` used
+  // to breach on check 13 (80 blueprints the run had not reached) and check 7 (a half-filled
+  // template row shipped as a change entry). BOTH ARE GONE: coverage is complete and the
+  // change log is clean. What breaches now are three findings the eight-round run exposed for
+  // the first time, because no workspace had ever reached the files they live in.
   //
   // Naming the list is the point. The day it changes, something real changed.
-  assert.deepEqual(failing, ['structural_checks'])
+  assert.deepEqual(failing, ['no_leftover_template', 'structural_checks', 'todo_pairing'])
 
   const v = validate(workspace, library)
-  assert.deepEqual(v.results.filter((c) => c.state === 'failed').map((c) => c.n), [7, 13])
-  assert.match(v.results.find((c) => c.n === 13).detail[0], /blueprint\(s\) neither filled nor skipped/)
+  assert.deepEqual(v.results.filter((c) => c.state === 'failed').map((c) => c.n), [2, 5, 6])
+  assert.equal(scored.results.find((x) => x.name === 'structural_checks').value, 3, 'one per failing check')
+
+  // Each breach is one of the findings this file already documents, and none is a surprise:
+  //   no_leftover_template  29 = the six entries in SURVIVING_PLACEHOLDERS (BUG-033, BUG-034)
+  //   todo_pairing           1 = the entry point's TASK-tracked marker (BUG-035)
+  //   structural_checks      3 = checks 2, 5 and 6, which are those same two findings plus
+  //                              the duplicate definitions asserted below (BUG-036)
+  assert.equal(scored.results.find((x) => x.name === 'no_leftover_template').value, 29)
+  assert.equal(
+    Object.values(SURVIVING_PLACEHOLDERS).reduce((n, e) => n + e.n, 0),
+    29,
+    'the ledger and the scorer must be counting the same 29 things'
+  )
+  assert.equal(scored.results.find((x) => x.name === 'todo_pairing').value, 1)
 })
 
-test('GOLD-001: check 7 finds a template row this workspace shipped half-filled', () => {
-  // THE LIST CHANGED, AND SOMETHING REAL CHANGED. Check 7 used to require every cell in a row
-  // to be blank, which is a row nobody has touched — and `unfilled()` already reports that one.
-  // So it never saw the row it exists for: one that has been touched and not decided.
+test('GOLD-001: check 7 passes — and the row it exists for is no longer here', () => {
+  // The authored fixture shipped `| CHG-001 | | | v1.0 → v1.1 | | | | | proposed |` — copied
+  // verbatim out of the blueprint and left as though it were a change entry. It named no date,
+  // no artifact, no reason and no owner, and it was the only thing in this repository
+  // exercising check 7's positive case.
   //
-  // This is that row, copied verbatim out of the blueprint (spec-change-log.md:41) and shipped
-  // as though it were a change entry. It names no date, no artifact, no reason and no owner.
-  // Every other check passed it: check 5 because one cell is filled, FF-004 because there is
-  // no placeholder in it, and check 7 because the first cell is not empty.
+  // The produced workspace does not ship it, which is correct and is a REAL LOSS OF COVERAGE
+  // here. Recorded rather than quietly dropped: check 7's ability to FAIL now rests entirely on
+  // UTEST-052..059, and if that file goes, nothing notices.
   const log = workspace['spec/01-docs/09-change-control/spec-change-log.md']
-  assert.match(log, /^\| CHG-001 \| \| \| v1\.0 → v1\.1 \| \| \| \| \| proposed \|$/m)
-
+  assert.doesNotMatch(log, /^\| CHG-001 \| \| \|/m, 'no half-filled template row survived')
   const check7 = validate(workspace, library).results.find((c) => c.n === 7)
-  assert.equal(check7.state, 'failed')
-  assert.match(check7.detail[0], /spec-change-log\.md line \d+/)
-  assert.match(check7.detail[0], /CHG-001/)
+  assert.equal(check7.state, 'passed', check7.detail.join(' · '))
 })
 
-test('GOLD-001: an unreached blueprint is a coverage FAILURE, never a silent skip', () => {
-  // coverage.md is explicit: not reaching a blueprint is the intake producing less than it
-  // promised. Recording those 80 as "skipped" would turn an unfinished run into a finished
-  // one on paper, which is the easiest way there is to fake this whole product.
-  assert.doesNotMatch(changeLog, /\| Skipped \|/, 'nothing has been skipped in this run')
+test('GOLD-001: a skip is a dated decision with a reason, never a silent absence', () => {
+  // coverage.md is explicit: NOT REACHING a blueprint is the intake producing less than it
+  // promised, and recording an unreached file as "skipped" turns an unfinished run into a
+  // finished one on paper. That is the easiest way there is to fake this whole product.
+  //
+  // A DELIBERATE skip is the opposite thing, and the finished run has two. Both are AI files
+  // in a product with no model in it. What makes them decisions rather than cover is that each
+  // names the file and says why — so the assertion is on the reason, not on the absence.
+  const skipped = changeLog
+    .split('\n')
+    .filter((l) => /^\| \d{4}-\d{2}-\d{2} \| Skipped \|/.test(l))
+    .map((l) => l.split('|').map((c) => c.trim()))
+  assert.equal(skipped.length, 2)
+  for (const [, , , file, reason] of skipped) {
+    assert.ok(library.includes(file), `${file} is not a blueprint, so skipping it means nothing`)
+    assert.ok(reason.length > 40, `${file} was skipped with no reason worth reading: "${reason}"`)
+    assert.match(reason, /Pantry (neither calls nor is driven by a model|has no model)/, `${file}`)
+  }
+
+  // And coverage AGREES: 77 filled + 2 skipped + README = every blueprint accounted for, which
+  // is why check 13 is not in the failing list above.
+  const check13 = validate(workspace, library).results.find((c) => c.n === 13)
+  assert.equal(check13.state, 'passed', check13.detail.join(' · '))
 })
 
-test('GOLD-001: BR-009 — a partial workspace may not claim success', () => {
+test('GOLD-001: BR-009 — a COMPLETE workspace still may not claim success', () => {
   const v = validate(workspace, library)
   assert.equal(v.mayClaimSuccess, false)
-  assert.ok(v.notRun > 0, 'and a check that could not run is not a check that passed')
+
+  // `notRun > 0` used to carry this, and it cannot any more: every check runs on a finished
+  // workspace, so notRun is 0 and the old assertion would fail on the very thing it wanted.
+  //
+  // What replaces it is the stronger claim. The run reached every blueprint and was accepted at
+  // all eight rounds, and it STILL may not claim success — because three checks failed, and
+  // finishing is not the same as being right. A gate that let completeness stand in for
+  // correctness would pass this workspace, and this workspace has real defects in it.
+  assert.equal(v.notRun, 0, 'a finished workspace leaves no check unable to run')
+  assert.equal(rounds, 8)
+  assert.equal(v.results.filter((c) => c.state === 'failed').length, 3)
 })
 
 test('GOLD-001: the scorers that must hold at ANY round do hold', () => {
   const ok = (name) => scored.results.find((x) => x.name === name).atFloor
-  for (const name of ['no_leftover_template', 'no_example_content', 'boundary_respected', 'no_code_written', 'todo_pairing', 'ids_resolve']) {
-    assert.equal(ok(name), true, `${name} must pass in a partial workspace too`)
+  // TWO NAMES LEFT THIS LIST, and neither because the rule stopped mattering. `no_example_content`,
+  // `boundary_respected`, `no_code_written` and `ids_resolve` are the ones that held all the way
+  // to Round 8 — the ones about not inventing, not escaping `spec/`, and not writing code.
+  for (const name of ['no_example_content', 'boundary_respected', 'no_code_written', 'ids_resolve']) {
+    assert.equal(ok(name), true, `${name} must hold at every round`)
+  }
+  // `no_leftover_template` and `todo_pairing` breach, and the test above says exactly why. They
+  // are listed here so this test cannot be read as "everything that used to pass still passes".
+  for (const name of ['no_leftover_template', 'todo_pairing']) {
+    assert.equal(ok(name), false, `${name} is expected to breach — if it now holds, delete this line`)
+  }
+  assert.equal(scored.results.find((x) => x.name === 'rounds_within_limit').value, 8)
+})
+
+test('GOLD-001: two scorers could not run, and that is not the same as passing', () => {
+  // BR-009's three-state rule, applied to the scorers rather than to the checks. `inference_stated`
+  // and `depth_scaled` read the TRANSCRIPT of the interview, and a fixture is the output half —
+  // there is no transcript on disk to read. They report null, they are absent from `breaches`,
+  // and nothing anywhere converts that into a pass.
+  for (const name of ['inference_stated', 'depth_scaled']) {
+    const s = scored.results.find((x) => x.name === name)
+    assert.equal(s.value, null, `${name} must report "not run", not a number it cannot know`)
+    assert.ok(!failing.includes(name), `${name} did not fail — it did not run`)
+  }
+})
+
+test('GOLD-001: the same identifier is defined in two places — BUG-036', () => {
+  // Check 2's whole complaint, pinned. Five duplicates, and they are NOT all the same problem —
+  // sorting that out is what makes this worth a test rather than a bug number:
+  //
+  //   Q-009, Q-013   technical-spec.md INVENTED a question table. Its blueprint has none, so the
+  //                  run wrote a second home for rows open-questions.md owns — and the day one is
+  //                  answered, two files disagree about whether it is still open. A real defect.
+  //   SEC-A-001      technical-spec.md §7 restates a control security-specification.md defines.
+  //                  Same shape as above: one owner, two statements, no way to keep them equal.
+  //   REQ-F-002/005  deployment-plan.md and release-notes.md CITE requirements in tables whose
+  //                  subject is the RELEASE. That is a cross-reference, not a definition, and
+  //                  check 2's table-shape heuristic cannot tell them apart — the distinction
+  //                  UTEST-066 already drew for review tables, arriving in a second shape.
+  //
+  // So three are the workspace's fault and two are the check's, and the fix for each goes in a
+  // different direction. A single bug number covering all five would get half-fixed.
+  const check2 = validate(workspace, library).results.find((c) => c.n === 2)
+  assert.equal(check2.state, 'failed')
+  assert.deepEqual(check2.detail.map((d) => d.split(' ')[0]).sort(), ['Q-009', 'Q-013', 'REQ-F-002', 'REQ-F-005', 'SEC-A-001'])
+
+  // The three real ones all have technical-spec.md as their second home, which is the pattern:
+  // a file that summarises other files ends up redefining them.
+  for (const id of ['Q-009', 'Q-013', 'SEC-A-001']) {
+    const d = check2.detail.find((x) => x.startsWith(id))
+    assert.match(d, /spec\/01-docs\/04-technical-spec\/technical-spec\.md/, `${id} — the duplicate half is the one to delete`)
+  }
+  // The two false ones are both about a release, not about a requirement.
+  for (const id of ['REQ-F-002', 'REQ-F-005']) {
+    assert.match(check2.detail.find((x) => x.startsWith(id)), /deployment-plan\.md/, `${id}`)
   }
 })
 
@@ -328,9 +588,32 @@ test('GOLD-001: Round 3 declared one role, and wrote the denials that make it te
   // at all. Single-user was chosen, which is the answer most likely to be mistaken for "no
   // permissions needed".
   const req = workspace['spec/01-docs/02-requirements/requirements.md']
-  assert.match(req, /REQ-R-002 \| A cook must not be able to read, change, or delete a record owned by another account/)
-  assert.match(req, /REQ-R-003 \| A signed-out visitor must not be able to read/)
-  assert.match(req, /One role is a decision, not an omission/)
+
+  // ONE role requirement, and the word carrying the whole permission model is "only". The
+  // authored fixture wrote three — one grant and two explicit denials — and the produced run
+  // writes the grant as a bounded one instead. Both are defensible; what is NOT defensible is a
+  // grant with no bound, so the assertion is on the bound.
+  // Anchored on the ROLE table's own header. `table(req, 'ID')` would find the functional
+  // requirements table forty lines above it — same first cell, entirely different subject.
+  const ROLE_HEADER = '| ID | Role requirement |'
+  assert.ok(req.includes(ROLE_HEADER), 'the role table header changed; this test is now reading the wrong table')
+  const roles = table(req.slice(req.indexOf(ROLE_HEADER)), 'ID')
+  assert.deepEqual(roles.rows.map((r) => r[0]), ['REQ-R-001'])
+  assert.match(roles.rows[0][1], /^A home cook may only read and write data belonging to their own account\.$/)
+  assert.match(req, /A single-user tool has one role; say so\./)
+
+  // And the denials the old fixture put in requirements.md ARE written — one layer down, as
+  // tests, which is where a denial becomes checkable. This is the substance of the assertion:
+  // a rule with no deny test passes identically on a system with no access control at all.
+  const sec = workspace['spec/03-tests/03-non-functional/security-tests.md']
+  const stest = table(sec, 'Test ID')
+  assert.match(stest.cell('STEST-001', 'Scenario'), /Account A requests account B's recipe by changing the ID/)
+  assert.match(stest.cell('STEST-001', 'Requirement'), /REQ-R-001/, 'the deny test names the rule it denies')
+  assert.match(stest.cell('STEST-002', 'Scenario'), /Open a protected route without signing in/)
+  // The matrix says deny is the DEFAULT, which is what makes the two rows above a floor and not
+  // a ceiling — a permission nobody wrote is refused rather than allowed.
+  assert.match(sec, /\*\*Default access is deny unless explicitly allowed\*\*/)
+  assert.match(sec, /\| allow \| \*\*deny → STEST-001\*\* \| \*\*deny → STEST-002\*\* \|/)
 
   const check8 = validate(workspace, library).results.find((c) => c.n === 8)
   assert.equal(check8.state, 'passed', check8.detail.join(' · '))
@@ -396,41 +679,101 @@ test('GOLD-001: every driver has a fitness function, and the dropped ones say wh
   for (const r of rejected) assert.ok(r[2].length > 20, `${r[0]} was rejected with no reason given`)
 
   // Security is dropped, and the reason is the one most likely to be misread as negligence.
-  assert.match(dc, /\*\*Not because it does not matter\.\*\*/)
-  assert.match(dc, /already a hard requirement with denial tests/)
-  assert.match(dc, /The security row is the one worth reading twice/)
+  // Not because it does not matter — because it is ALREADY governed, so a driver slot (BR-011
+  // allows three) spent on it would buy nothing and cost one of the three.
+  const security = table(dc, 'Candidate').rows.find((r) => r[0].startsWith('Security'))
+  assert.match(security[2], /Already a hard constraint \(single-user privacy\) with deny tests; a driver slot buys nothing more\./)
 
   const ffs = workspace['spec/01-docs/04-technical-spec/fitness-functions.md']
   for (const id of ['FF-001', 'FF-002', 'FF-003', 'FF-004']) assert.ok(ffs.includes(id))
-  // And the register admits none of them is wired, which is what makes it honest.
-  assert.match(ffs, /None of these four runs anywhere/)
-  assert.match(ffs, /a fitness function that is written down but not in a gate governs nothing/)
+  // And security has a fitness function anyway — FF-005 — which is the proof the rejection was
+  // about the driver slot rather than about the concern.
+  assert.match(table(ffs, 'ID').cell('FF-005', 'Check'), /Every data query scoped by `account_id`/)
 })
 
-test('GOLD-001: the core rule reached the schema, not just the prose', () => {
-  // BR-001 is the product. A rule that lives only in a sentence is a rule the first refactor
-  // removes; as a uniqueness constraint it is one the store enforces.
+test('GOLD-001: the register claims a gate that does not exist — BUG-037', () => {
+  // Every row of fitness-functions.md says `CI | Block merge`, and there is no CI. Pantry has
+  // no repository, no pipeline and no stack — TASK-001 is where the stack gets chosen, and
+  // `spec/CLAUDE.md` still carries a [TODO] saying so.
+  //
+  // The authored fixture ended this file with "None of these four runs anywhere" and "a fitness
+  // function that is written down but not in a gate governs nothing". The produced one does not,
+  // and the difference is exactly BR-009: a column asserting enforcement is a success claim, and
+  // no check ran to earn it. The blueprint's own Rules section makes it worse rather than better
+  // — "It must **fail the build**, not print a warning" reads as a description of what IS.
+  //
+  // Recorded, not repaired. Repairing it means editing a produced fixture by hand, which is the
+  // mistake this whole regeneration was undertaken to undo.
+  const ffs = workspace['spec/01-docs/04-technical-spec/fitness-functions.md']
+  const rows = table(ffs, 'ID').rows
+  assert.equal(rows.length, 5)
+  for (const r of rows) {
+    assert.match(table(ffs, 'ID').cell(r[0], 'Runs'), /^CI$/, `${r[0]} claims a gate`)
+  }
+  assert.doesNotMatch(ffs, /none of (these|them)/i, 'if this now says none of them run, delete this test and restore the honesty assertions above')
+  assert.match(workspace['spec/CLAUDE.md'], /not yet chosen/, 'the stack the CI would run on is still undecided')
+})
+
+test('GOLD-001: the core rule did NOT reach the schema — BUG-038', () => {
+  // The one finding here that is about the SPECIFICATION rather than about a check, and the
+  // most valuable thing the regeneration produced.
+  //
+  // subdomain-map.md names exactly one core subdomain: "turning a week of chosen meals into ONE
+  // shopping list". Merging the same ingredient from three recipes into one line IS that
+  // sentence — it is the whole differentiator. `shopping_list_items` carries no uniqueness
+  // constraint, so nothing in the store stops the same ingredient appearing three times, and
+  // the column is `text` rather than a normalised ingredient at all.
+  //
+  // The authored fixture had `unique on (shopping_list_id, ingredient_name, unit) -- BR-001`.
+  // Somebody wrote that by hand because they understood the product. The run did not, and no
+  // check noticed: check 11 does not read schemas for domain rules, and there is no scorer for
+  // "the core subdomain's invariant is enforced somewhere".
+  //
+  // Pinned as ABSENT so the day a run gets it right, this test fails and gets deleted.
   const db = workspace['spec/01-docs/06-api-and-data-design/database-design.md']
-  assert.match(db, /unique on \(shopping_list_id, ingredient_name, unit\) {3}-- BR-001/)
-  assert.match(db, /The uniqueness constraint on `ShoppingListItem` is the core rule made structural/)
+  assert.match(db, /^shopping_list_items$/m, 'the table exists')
+  assert.doesNotMatch(db, /unique on \(shopping_list_id/, 'if this is now written, the defect is fixed — delete this test')
+
+  // The core IS named, which is what makes the gap a gap rather than an oversight nobody could
+  // have caught: the workspace knows what it competes on and did not carry it into the store.
+  const map = workspace['spec/01-docs/01-intent/subdomain-map.md']
+  assert.match(map, /\| Turning a week of chosen meals into one shopping list \| \*\*Core\*\* \|/)
 })
 
-test('GOLD-001: the API answers 404 rather than 403 for another account\'s record', () => {
-  // The disclosure AC-005 tests for. 403 confirms the record exists, which is the one thing
-  // the response must not reveal.
+test('GOLD-001: the safe-404 rule is written as a test, not as an API decision', () => {
+  // 403 confirms the record exists, which is the one thing the response must not reveal.
+  //
+  // The rule IS in the workspace and it is checkable — STEST-001 says "Safe 404; no data
+  // returned" for account A fetching account B's recipe. What is NOT there is the decision at
+  // the API layer: api-specification.md carries only the blueprint's generic status-code table,
+  // so an endpoint author reading it alone sees 403 offered as a normal option.
+  const sec = workspace['spec/03-tests/03-non-functional/security-tests.md']
+  assert.match(table(sec, 'Test ID').cell('STEST-001', 'Expected result'), /^Safe 404; no data returned\.$/)
+
   const api = workspace['spec/01-docs/06-api-and-data-design/api-specification.md']
-  assert.match(api, /403 is deliberately unused/)
-  assert.match(api, /Everything not theirs is 404/)
+  assert.match(api, /\| 404 \| Resource not found\. \| Avoid confirming whether another user's resource exists\. \|/)
+  // Kept prose, not a decision — the distinction this whole file exists to police. If the run
+  // ever writes "403 is deliberately unused" for Pantry's own endpoints, this line fails.
+  assert.doesNotMatch(api, /403 is deliberately unused/)
 })
 
 test('GOLD-001: no external provider was named before one was chosen', () => {
   // Round 6's question. Two candidates are visible and both are held open — a provider named
   // in a specification becomes the choice, and nobody made it.
+  // Round 6 ASKED this one, and the answer was "none in version one" — so the file records a
+  // decision rather than an open question, and names the round and the question that closed it.
+  // That is the strongest form of this test: nothing is held open, and nothing was invented.
   const integ = workspace['spec/01-docs/06-api-and-data-design/data-and-integration-spec.md']
-  assert.match(integ, /No external service is specified here, and that is not the same as none being needed/)
-  assert.match(integ, /a provider named before it is chosen\s*\n?becomes the choice/)
-  // But the rules that hold for ANY provider are written, because those do not depend on it.
-  assert.match(integ, /The six rules written above hold for every provider/)
+  assert.match(integ, /> \*\*Resolved \(Round 6, Q-007\): none in version one\.\*\* Pantry depends on no external services,/)
+  assert.match(integ, /^\| Provider \| None in version one\. \|$/m)
+  assert.match(integ, /^\| Rate limits \| None — no external or paid API\. \|$/m)
+
+  // And no provider name leaked in anyway. The blueprint lists categories — "identity providers,
+  // storage, analytics, AI model APIs" — and a run that turned one of those into a vendor would
+  // be making the choice on the developer's behalf (BR-002).
+  for (const vendor of ['Auth0', 'Stripe', 'AWS', 'S3', 'Cloudflare', 'SendGrid', 'OpenAI', 'Firebase']) {
+    assert.doesNotMatch(integ, new RegExp(`\\b${vendor}\\b`), `${vendor} was named, and nobody chose it`)
+  }
 })
 
 test('GOLD-001: "not needed" is written as a decision with a revisit trigger, never left blank', () => {
@@ -440,45 +783,59 @@ test('GOLD-001: "not needed" is written as a decision with a revisit trigger, ne
   // rejection becomes written decisions rather than four empty tables that read as an oversight.
   const rs = workspace['spec/01-docs/04-technical-spec/runtime-and-scale.md']
 
-  // ONE GLOBAL MATCH CANNOT SAY "EVERY". `assert.match(rs, /\*Revisit when:\*/)` was satisfied
-  // by a single occurrence anywhere in the file — including the prose at the bottom — and it
-  // was already false of the document it passed on: three of the seven refusal rows carried
-  // no trigger at all. Check each refusal where it lives.
+  // ONE GLOBAL MATCH CANNOT SAY "EVERY", so each refusal is checked where it lives. The marker
+  // is `☐ Not needed`, and the produced run writes the reason inline after an em dash rather
+  // than in the authored fixture's `*why:*` field — the shape is the run's, the rule is not.
   const refusals = rs
     .split(/\r?\n/)
-    .filter((l) => l.includes('☐ Not needed — *why:*'))
-    .map((l) => ({ what: l.split('|')[1].trim(), line: l }))
-  assert.ok(refusals.length >= 6, `expected several explicit refusals, found ${refusals.length}`)
+    .filter((l) => /☐ (Not needed|Optional)/.test(l))
+    .map((l) => ({ what: l.split('|')[1].trim(), said: l.slice(l.indexOf('☐')).replace(/\|$/, '').trim() }))
+  assert.deepEqual(
+    refusals.map((r) => r.what),
+    ['Write endpoints', 'Expensive / AI endpoints', 'Everything else', 'Static assets', 'Reference data', 'Expensive query', 'Per-user data']
+  )
 
-  // The ONE row with no trigger, named with its reason — because it is refused on principle
-  // rather than on volume, so there is no number that could change and make it needed. The
-  // next test in this file is about exactly that row. An exemption nobody has to justify is
-  // how three missing triggers stayed invisible.
-  const NO_TRIGGER_EXPECTED = {
-    'Per-user data': 'refused on principle, not on volume — a shared cache without the account in the key breaks REQ-NF-002 at any size, so no threshold could reverse it',
-  }
-  for (const { what, line } of refusals) {
-    if (what in NO_TRIGGER_EXPECTED) {
-      assert.doesNotMatch(line, /\*Revisit when:\*/, `"${what}" is exempt because it cannot be reversed by a number; a trigger here would be misleading`)
+  // FOUR of the seven say why. `☐ Not needed` on its own is the failure depth.md names: "not
+  // needed" is a first-class ANSWER, and an answer with no reason is indistinguishable from a
+  // row nobody read. Listed by name so a fifth cannot join them quietly — BUG-039.
+  const NO_REASON_GIVEN = ['Reference data', 'Per-user data']
+  for (const { what, said } of refusals) {
+    if (NO_REASON_GIVEN.includes(what)) {
+      assert.equal(said, '☐ Not needed', `"${what}" now gives a reason — remove it from NO_REASON_GIVEN`)
       continue
     }
-    assert.match(line, /\*Revisit when:\*/, `"${what}" is refused with no revisit trigger — depth.md calls that a refusal that expires silently`)
+    assert.ok(said.length > '☐ Not needed'.length + 8, `"${what}" is refused with no reason: "${said}"`)
   }
 
-  assert.match(rs, /☑ \*\*Single instance is fine\*\* — \*why:\*/)
+  // Only ONE refusal in the file carries a revisit trigger, and the scaling row carries the
+  // other. depth.md wants one on every refusal that a number could reverse; six of these seven
+  // are exactly that kind, and five have none. Same defect, recorded as one.
+  const withTrigger = refusals.filter((r) => /Revisit if|revisit when/i.test(r.said))
+  assert.deepEqual(withTrigger.map((r) => r.what), ['Everything else'])
+  assert.match(rs, /☐ \*\*Single instance is fine\*\* — \*why:\*.*\*revisit when:\* the user\s*\n?count is known and grows \(Q-001\)/)
 
-  // The one row that stays "yes" is the one an attacker can reach before authenticating.
-  assert.match(rs, /Login is the exception, and it stays "yes" even though nothing else does/)
+  // The one row that stays "yes" is the one an attacker can reach before authenticating, and
+  // its reason is written even though every neighbouring row was refused.
+  assert.match(rs, /\| Login \| 5 \| 10 min \| per IP \+ per account \| 429 \+ `Retry-After` \| ✅ protects the one account from credential guessing \|/)
+  assert.match(rs, /Login needs limiting \*\*per account as well as per IP\*\*/)
 })
 
-test('GOLD-001: the per-user cache row is refused on principle, not on volume', () => {
-  // The distinction that matters: every other refusal here would flip if the numbers changed.
-  // This one would not — a shared cache without the account in the key breaks REQ-NF-002, and
-  // it passes every functional test because the tests only ever run one account.
+test('GOLD-001: the per-user cache row is refused with nothing at all — BUG-039', () => {
+  // The row worth naming on its own, because it is the one where a bare "not needed" is most
+  // dangerous rather than least. A shared cache without the account in the key breaks REQ-NF-002
+  // AT ANY SIZE — and it passes every functional test, because the tests only ever run one
+  // account. So this is the one refusal no number could ever reverse, and it is recorded with
+  // less justification than "Write endpoints — single user".
+  //
+  // The authored fixture said so at length. The produced one writes `☐ Not needed`. That
+  // difference is the finding: the run refused the row correctly and could not say why, and a
+  // reader who later needs a cache has nothing telling them what the key must contain.
   const rs = workspace['spec/01-docs/04-technical-spec/runtime-and-scale.md']
-  assert.match(rs, /a decision, not a measurement/)
-  assert.match(rs, /passes every\s*\n?functional test because the tests only ever run one account/)
-  assert.match(rs, /this row needs an ADR rather than an edit/)
+  assert.match(rs, /^\| Per-user data \| — \| — \| — \| usually no \| ☐ Not needed \|$/m)
+
+  // REQ-NF-002 is the rule that would be broken, and it IS written down — in another file,
+  // with nothing linking the two.
+  assert.match(workspace['spec/01-docs/02-requirements/requirements.md'], /REQ-NF-002/)
 })
 
 // --- The input half of the pair (TASK-016) -----------------------------------------------------
@@ -493,19 +850,32 @@ test('GOLD-001: the answers this workspace was produced from are recorded', () =
   // should have been produced.
   const answers = readFileSync('tests/fixtures/golden/EV-001-answers.md', 'utf8')
 
-  // Every round the change log says was accepted must have its answers recorded, or the run
-  // is not reproducible up to the point it claims to have reached.
-  for (const n of [1, 2, 3]) {
-    assert.match(answers, new RegExp(`^## Round ${n} — `, 'm'), `Round ${n} was accepted; its answers must be here`)
+  // Every round the change log says was accepted must have its answers recorded, or the run is
+  // not reproducible up to the point it claims to have reached. Derived from `acceptedStages`
+  // rather than from a literal list, so the two can never drift: adding a round to the change
+  // log without recording its answers is what this is here to catch.
+  for (const stage of acceptedStages(changeLog)) {
+    const n = stage.match(/^Round (\d)/)[1]
+    assert.match(answers, new RegExp(`^## Round ${n} — `, 'm'), `${stage} was accepted; its answers must be here`)
   }
-  // And the part-written round is recorded as part-written, not as accepted.
-  assert.match(answers, /^## Round 4 — product shape \*\(incomplete\)\*$/m)
-  assert.match(answers, /\*\*Round 4 is not accepted\.\*\*/)
+  assert.equal(answers.match(/^## Round \d — /gm).length, 8, 'eight rounds recorded, and no ninth')
 
   // The dropped questions are named as dropped rather than silently absent — express asks
   // less, it never assumes more, and the record has to show which is which.
   assert.match(answers, /\*\*not asked\*\* — express keeps two/)
   assert.match(answers, /\*\*not asked\*\* — \*derived\* from Q1, with the derivation stated/)
+
+  // The two free-text questions are asked at BOTH depths, and both answers are here in the
+  // developer's own words. They are the only part of the record not chosen from an option list,
+  // so a fixture that lost them would still look complete.
+  assert.match(answers, /^## The free-text problem statement$/m)
+  assert.match(answers, /keep recipes scattered across screenshots, bookmarks and handwritten/)
+  assert.match(answers, /those are years of handwritten cards/, "Round 8's recovery objective is free text too")
+
+  // It records that every round was ACCEPTED, and says why that is a choice about what EV-001
+  // covers rather than an assumption that runs go this way.
+  assert.match(answers, /\*\*Accept\*\* at all eight rounds\./)
+  assert.match(answers, /Decline, revise and stop are real outcomes with their own consequences/)
 
   // It must not become the state file ADR-004 forbids.
   assert.match(answers, /It records what was answered, never where the run is/)

@@ -20,7 +20,7 @@ test('UTEST-032: the real answer record parses into rounds and answers', () => {
   assert.match(record.project, /^Pantry/)
   assert.deepEqual(
     record.rounds.map((r) => r.n),
-    [1, 2, 3, 4]
+    [1, 2, 3, 4, 5, 6, 7, 8]
   )
   // Four asked at default depth; express keeps two, and the record says which two.
   assert.equal(record.rounds[0].answers.length, 4)

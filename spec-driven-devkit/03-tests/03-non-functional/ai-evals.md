@@ -253,6 +253,7 @@ Re-run it on **any** of these:
 | Run | Date | Quality | Wall clock | Cost | Verdict |
 |---|---|---|---|---|---|
 | EV-001, Round 1, express | 2026-08-05 | 7 of 11 scorers at floor; 2 breaches; **2 not run** | 648 s · 23 turns | **$2.78** | Recorded, not accepted |
+| EV-001, all 8 rounds, express | 2026-08-07 | 6 of 11 scorers at floor; 3 breaches; **2 not run** | 4 500 s · 237 turns | **$49.85** | Recorded, not accepted |
 
 > **This row was corrected downwards after it was published, and the correction is the point.**
 > It read *"9 of 11 scorers at floor; 2 breaches"*. Two of those nine — `inference_stated` and
@@ -281,6 +282,23 @@ workspace**, and the 36-case golden set of `§1` is of the order of **$800 and 5
 figure has never existed before, and it is the reason `§1`'s case count is now a question
 rather than a plan: 36 was chosen before anything could run, and nothing in this file justifies
 it against a defect curve where two runs found five defects.
+
+> **The projection above was low by a factor of 2.5, and it is left standing because that is
+> the finding.** The eight-round row measures **$49.85 and 75 minutes**, not $20 and 90. The
+> estimate scaled by file count and the cost does not: later rounds carry the whole workspace
+> as context, so round eight is dearer than round one for the same number of files. A 36-case
+> set is therefore of the order of **$1 800 and 45 hours**, and `§1`'s decision to build one
+> case was taken against the $800 figure — it survives the corrected one comfortably.
+
+**The eight-round row is the more useful measurement, and it cost seven defects to get.** The
+three breaches are not the run being sloppy; each traces to something no partial workspace
+could have reached. `no_leftover_template` (29) and `todo_pairing` (1) are BUG-033 to BUG-035
+— two checks reading correct work as defective, and one marker tracked by a task rather than a
+question. `structural_checks` (3) is checks 2, 5 and 6, which is those same findings plus
+duplicate definitions in `technical-spec.md` (BUG-036). Three more the scorers do **not** catch
+are recorded in GOLD-001: a register claiming a CI gate that does not exist (BUG-037), the core
+subdomain's invariant never reaching the schema (BUG-038), and refusals written with no reason
+(BUG-039). Every one is pinned by a test that fails the day it is fixed.
 
 **Latency, measured before and after a fix, because the fix was worth its own row:**
 

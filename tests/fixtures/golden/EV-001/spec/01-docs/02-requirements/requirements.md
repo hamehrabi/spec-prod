@@ -8,18 +8,12 @@ A useful requirement is **clear, testable, bounded, and traceable**.
 
 **Project name:** Pantry
 
-**Problem statement:** *(from [`intent.md`](../01-intent/intent.md))* People who cook at home
-keep recipes scattered across screenshots, bookmarks and handwritten cards, which causes them
-to forget items on the weekly shop and make a second trip while food goes off. The system
-should hold every recipe in one place and turn the meals chosen for a week into a single
-shopping list.
+**Problem statement:** *(from [`intent.md`](../01-intent/intent.md))* Home cooks keep recipes
+scattered and forget items when shopping for a week of meals; the system should keep recipes
+in one place and turn a week of chosen meals into one shopping list.
 
 **Primary users:**
-- The cook — one person, who saves the recipes, plans the week, and does the shopping.
-
-There is no second role. The permission model chosen in Round 3 is **single user, no
-sharing**, and that is recorded as a decision rather than as a stage the product has not
-reached yet.
+- Home cook (account owner) — the only role; single user, no sharing.
 
 ---
 
@@ -29,28 +23,21 @@ Format: `REQ-F-###: [Actor] must be able to [action] [object] so that [outcome].
 
 | ID | Requirement | Priority |
 |---|---|---|
-| REQ-F-001 | A cook must be able to save a recipe with a name and a list of ingredient lines, so that it can be found again and used in a plan. | Must |
-| REQ-F-002 | A cook must be able to search their saved recipes by recipe title and by ingredient name, so that a recipe is found without hunting through six places. | Must |
-| REQ-F-003 | A cook must be able to create a weekly plan covering seven consecutive days from a chosen start date, so that a week's meals are decided in one place. | Must |
-| REQ-F-004 | A cook must be able to place a saved recipe on a day of a weekly plan, and the same recipe may appear on more than one day, so that a repeated meal is expressed rather than duplicated. | Must |
-| REQ-F-005 | A cook must be able to generate a shopping list from a weekly plan, in which identical ingredients across that week's recipes are combined into one line with quantities summed per unit, so that the week's shopping is one trip. | Must |
-| REQ-F-006 | [TODO: does version one need to edit and delete a saved recipe, or only add one?] | Undecided |
+| REQ-F-001 | A home cook must be able to create an account and sign in so that their recipes and plans are private to them. | Must |
+| REQ-F-002 | A home cook must be able to save a recipe with a title and one or more ingredient lines so that their recipes live in one place. | Must |
+| REQ-F-003 | A home cook must be able to search their saved recipes so that they can find a recipe again. | Must |
+| REQ-F-004 | A home cook must be able to create a weekly plan and add planned meals (chosen recipes) to it so that they can decide what to cook that week. | Must |
+| REQ-F-005 | A home cook must be able to generate one shopping list from a weekly plan, covering every ingredient of every planned meal, so that they can shop for the week in one trip. [TODO: should identical ingredients across meals be merged into one line, and how are units combined? — Q-009] | Must |
 
-**REQ-F-005 is the core requirement.** It is the one the subdomain map classifies as core, and
-it is the only one on this list a competitor would find hard to copy — see
-[`subdomain-map.md`](../01-intent/subdomain-map.md).
-
-**REQ-F-006 is deliberately not written as a requirement.** "Save a recipe" was the answer;
-whether that includes changing one afterwards was not asked, and it is a separate capability
-with its own screens, rules, and failure cases. Assuming it in would be a requirement the
-developer never made.
+*Example:* `REQ-F-001: A team member must be able to create a task with a title,
+description, due date, and status so that work can be tracked clearly.`
 
 | Element | Question to ask | Example |
 |---|---|---|
-| Actor | Who performs the action? | The cook |
-| Action | What must they do? | Place a recipe on a day |
-| Object | What is being acted on? | A weekly plan |
-| Result | What should happen after the action? | That day's meal is set, and the shopping list will include its ingredients |
+| Actor | Who performs the action? | Project manager |
+| Action | What must they do? | Assign a task |
+| Object | What is being acted on? | A task record |
+| Result | What should happen after the action? | The assigned user can see the task |
 
 ---
 
@@ -58,25 +45,15 @@ developer never made.
 
 Format: `REQ-NF-###: [Quality condition with a measurable limit].`
 
-> **Six of these seven are marked, not written.** The quality attributes and their measurable
-> limits are Round 4's question, and a non-functional requirement without a limit is not a
-> requirement — it is an adjective. They are one question,
-> [`Q-012`](../01-intent/open-questions.md), and answering it fills the table in one pass.
-
 | ID | Category | Requirement |
 |---|---|---|
-| REQ-NF-001 | Performance | [TODO: which quality attributes matter most, and what measurable limit does each have?] |
-| REQ-NF-002 | Security | No account may read, change, or delete another account's recipes, plans, or shopping lists. Every stored record belongs to exactly one account, and every read is scoped to the signed-in account. |
-| REQ-NF-003 | Reliability | [TODO: which quality attributes matter most, and what measurable limit does each have?] |
-| REQ-NF-004 | Usability | [TODO: which quality attributes matter most, and what measurable limit does each have?] |
-| REQ-NF-005 | Maintainability | [TODO: which quality attributes matter most, and what measurable limit does each have?] |
-| REQ-NF-006 | Accessibility | [TODO: which quality attributes matter most, and what measurable limit does each have?] |
-| REQ-NF-007 | Privacy | [TODO: which quality attributes matter most, and what measurable limit does each have?] |
-
-**Why REQ-NF-002 is written and the rest are not.** It is not a guess: it follows from the
-permission model the cook actually chose. *Single user, no sharing* means there is no path by
-which one account reaches another's data, and stating that is repeating their answer rather
-than inventing one. The other six would be invented.
+| REQ-NF-001 | Performance | Generating a shopping list from a weekly plan must feel immediate for a single cook's data. [TODO: precise target depends on expected scale — Q-001] |
+| REQ-NF-002 | Security | Only the signed-in account owner may read or write their recipes, plans, and lists. |
+| REQ-NF-003 | Reliability | If generating a shopping list fails, the system must show a clear error and preserve the weekly plan. |
+| REQ-NF-004 | Usability | A cook must be able to go from a week's chosen meals to a shopping list without reading a manual. |
+| REQ-NF-005 | Maintainability | Recipe and planning logic must be separable from account and authentication logic. |
+| REQ-NF-006 | Accessibility | The interface must be operable by keyboard and usable with a screen reader. |
+| REQ-NF-007 | Privacy | A cook's recipes, plans, and lists are private to their account and are never shared. |
 
 **Examples (Ch. 5 §5.3)**
 
@@ -101,21 +78,23 @@ features that expose data to the wrong users.
 
 | Role | Can do | Cannot do |
 |---|---|---|
-| Cook | Save, search, plan with, and generate shopping lists from their own recipes. Sign in and sign out. | See, change, or delete any record belonging to another account. Share a recipe or a plan with anyone. Grant anyone access to their data. |
-
-**One role is a decision, not an omission.** *Owner / Admin / Member / Viewer* was offered and
-declined: nothing in this product is shared, so a second role would be a permission system
-guarding a boundary that does not exist. It is easier to add a role than to remove one, and
-adding one later is a change to the data model rather than to the wording here.
+| Home cook (account owner) | Create, save, and search recipes; plan weeks; generate and view shopping lists; manage their own account. | Access any other account's data; there is no sharing, admin, or viewer role. |
 
 | ID | Role requirement |
 |---|---|
-| REQ-R-001 | The system must support exactly one role, the cook, who owns every record they create. |
-| REQ-R-002 | A cook must not be able to read, change, or delete a record owned by another account, through any route — including a direct link, a guessed identifier, or an exported file. |
-| REQ-R-003 | A signed-out visitor must not be able to read any recipe, plan, or shopping list. |
+| REQ-R-001 | A home cook may only read and write data belonging to their own account. |
 
-**REQ-R-002 and REQ-R-003 are denials, and they are the testable half.** A test proving the
-cook can read their own recipes passes identically on a system with no access control at all.
+**Examples (Ch. 5 §5.4)**
+
+| Role | Can do | Cannot do |
+|---|---|---|
+| Owner | Create workspace, invite users, manage billing, delete workspace. | Bypass audit rules or view another workspace. |
+| Project manager | Create projects, assign tasks, update project settings. | Manage billing or delete the workspace. |
+| Team member | Create tasks, update assigned tasks, comment on work. | Invite users or change workspace settings. |
+| Viewer | Read permitted projects and tasks. | Create, edit, delete, or assign tasks. |
+
+**A role you list here is a role the agent will build.** Four roles is four permission paths,
+four sets of deny tests, and an invitation flow. A single-user tool has one role; say so.
 
 Full permission matrix and enforcement rules → [`technical-spec.md` §7 Security](../04-technical-spec/technical-spec.md#7-security-requirements)
 
@@ -128,35 +107,29 @@ instructions** — when the rule changes you update the spec first, then the tes
 
 | ID | Rule | Why it matters |
 |---|---|---|
-| BR-001 | Identical ingredients across a week's chosen recipes combine into one shopping-list line, with quantities summed within a unit. | This is the product. A list that repeats "onion" four times is the pile of screenshots with extra steps. |
-| BR-002 | Quantities in different units for the same ingredient are listed separately rather than converted. | A wrong conversion is worse than two lines: the cook can add two lines in their head and cannot detect a silent unit error at the shop. |
-| BR-003 | A weekly plan covers seven consecutive days from its start date. A day holds zero or more meals, and the same recipe may appear on more than one day. | Without it, "a week" is three different things to three developers, and the shopping list is wrong in a way nobody can see. |
-| BR-004 | Deleting a recipe that appears in a weekly plan is blocked while that plan exists. | Otherwise a plan silently loses a meal and its shopping list silently loses ingredients — a data loss the cook discovers in the shop. |
-| BR-005 | A shopping list is generated from a plan at a point in time and does not change when the plan changes afterwards. | A list that rewrites itself while the cook is shopping is worse than no list. Regenerating is the cook's decision. |
+| BR-001 | A shopping list is generated from exactly one weekly plan and includes every ingredient of every planned meal in that plan. | This is the product's core promise — nothing forgotten. |
+| BR-002 | A recipe must have a title and at least one ingredient line. | A recipe with no ingredients cannot contribute to a shopping list. |
+| BR-003 | Every recipe, plan, and list belongs to exactly one account and is private to it. | Single-user isolation; a cook must never see another account's data. |
 
-**BR-004 and BR-005 were not asked about.** They are consequences of BR-001 and REQ-F-005 that
-have to be decided by someone, and they are written here as proposals for the Round 3 gate to
-accept or change — not as facts. Each has an alternative worth naming: BR-004 could soft-delete
-instead of blocking, and BR-005 could regenerate on every view.
+**Examples (Ch. 5 §5.5)**
+
+| Business rule | Why it matters |
+|---|---|
+| A completed task cannot be edited unless it is reopened. | Protects completed work from accidental changes. |
+| Only an Owner can delete a workspace. | Prevents destructive actions by lower-permission users. |
+| A task due date cannot be earlier than today when the task is created. | Prevents invalid planning data. |
+| A user can belong to multiple workspaces, but workspace data must remain separate. | Protects data boundaries. |
 
 ---
 
 ## 5. System constraints
 
-Maintained in [`intent.md` §3](../01-intent/intent.md#3-constraints). Referenced here as `CON-###`.
+Maintained in [`constraints-and-non-goals.md`](../01-intent/constraints-and-non-goals.md),
+which `intent.md` delegates them to. Referenced here as `CON-###`.
 
-**The constraints are defined once, in
-[`constraints-and-non-goals.md`](../01-intent/constraints-and-non-goals.md), and referenced
-here.** Repeating a definition in two documents is how the two come to disagree, and both then
-look authoritative.
-
-| Affected requirements | Waiting on | What changes when it is answered |
+| ID | Constraint | Affects requirements |
 |---|---|---|
-| REQ-NF-002, REQ-NF-007 | `CON-003` — what data may not be stored | Whether recipe text and shopping habits count as personal data, and what that adds to storage and deletion. |
-| REQ-R-001 | `CON-006` — budget | Whether sign-in is bought from an identity provider or built. The subdomain map holds this row open for the same reason. |
-
-That table is itself marked rather than filled, so these rows record which requirements are
-waiting on it rather than pretending the constraints are known.
+| CON-001…008 | [TODO: hard constraints not asked at express depth — Q-004] | REQ-F-001 … REQ-F-005 |
 
 ---
 
@@ -167,17 +140,10 @@ Format: Given–When–Then. These become the acceptance tests in
 
 | ID | Requirement | Criterion |
 |---|---|---|
-| AC-001 | REQ-F-001 | **Given** a signed-in cook, **When** they save a recipe with a name and two ingredient lines, **Then** the recipe is stored against their account and appears in their recipe list. |
-| AC-002 | REQ-F-002 | **Given** a cook with a saved recipe containing "chickpeas", **When** they search for "chickpeas", **Then** that recipe is returned even though the word is not in its title. |
-| AC-003 | REQ-F-005 | **Given** a plan whose week contains two recipes each needing 1 onion, **When** the cook generates the shopping list, **Then** the list contains one line reading 2 onions. |
-| AC-004 | REQ-F-005 | **Given** a plan containing one recipe needing 200 g of flour and another needing 2 cups of flour, **When** the cook generates the shopping list, **Then** flour appears as two lines and neither quantity has been converted. |
-| AC-005 | REQ-R-002 | **Given** a signed-in cook and a recipe identifier belonging to another account, **When** they request that recipe directly, **Then** the system responds as though it does not exist and no part of it is returned. |
-| AC-006 | REQ-R-003 | **Given** a signed-out visitor, **When** they request any recipe, plan, or shopping list, **Then** access is refused and no content is returned. |
-| AC-007 | BR-004 | **Given** a recipe that appears on a day of an existing plan, **When** the cook deletes that recipe, **Then** the deletion is refused and the plan naming it is identified. |
-
-**AC-004, AC-005, AC-006 and AC-007 are the failure paths**, and they outnumber the happy
-paths deliberately. Every one of them is a case where the obvious implementation does the wrong
-thing quietly.
+| AC-001 | REQ-F-005 | **Given** a weekly plan with planned meals, **When** the cook generates a shopping list, **Then** the list contains an item for every ingredient of every planned meal. |
+| AC-002 | REQ-F-005 | **Given** generation fails, **When** the cook retries, **Then** a clear error is shown and the weekly plan is preserved. |
+| AC-003 | REQ-F-002 | **Given** a signed-in cook, **When** they save a recipe with a title and ingredient lines, **Then** it appears in their recipe list and is findable by search. |
+| AC-004 | REQ-NF-002 | **Given** a cook signed into account A, **When** they request account B's data, **Then** access is denied. |
 
 ---
 
@@ -191,13 +157,13 @@ thing quietly.
 
 | Check | Question | ✔ |
 |---|---|---|
-| Clear | Can you understand the requirement without guessing? | [x] |
-| Actor defined | Does it say who performs the action? | [x] |
-| Action defined | Does it say exactly what must happen? | [x] |
-| Bounded | Does it avoid hidden extra features? | [x] |
-| Testable | Can you prove whether it works? | [x] |
-| Traceable | Can it become a task, test, and code change later? | [x] |
-| No implementation leak | Does it avoid technical decisions that belong in the technical spec? | [x] |
+| Clear | Can you understand the requirement without guessing? | [ ] |
+| Actor defined | Does it say who performs the action? | [ ] |
+| Action defined | Does it say exactly what must happen? | [ ] |
+| Bounded | Does it avoid hidden extra features? | [ ] |
+| Testable | Can you prove whether it works? | [ ] |
+| Traceable | Can it become a task, test, and code change later? | [ ] |
+| No implementation leak | Does it avoid technical decisions that belong in the technical spec? | [ ] |
 
 > **The safest habit:** before you send requirements to an AI agent, read each one and ask
 > "could two people interpret this differently?" If yes, rewrite it.
