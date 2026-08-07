@@ -70,7 +70,15 @@ test('UTEST-043: a self-inflicted refusal is not the host refusing', () => {
 test('UTEST-043: the documented commands still carry no redirection themselves', () => {
   // The doc cannot ban what it demonstrates. This is the one assertion here that reads the
   // commands rather than the prose, so it fails if someone ever "fixes" the stderr noise upstream.
-  const commands = [...DOC.matchAll(/^\s{3}\S[^\n]*?\s{2,}(sha256sum .+|shasum .+)$/gm)].map((m) => m[1])
-  assert.ok(commands.length >= 1, 'no command found in the doc')
-  for (const command of commands) assert.doesNotMatch(command, /\d?>[&\s]*\S/)
+  // THE FILTER USED TO DROP THE MOST DANGEROUS ONE. `/^\s{3}\S[^\n]*?\s{2,}(sha256sum|shasum)/`
+  // only matched the two ladder rows, and integrity.md carries a THIRD command inline: the
+  // single-command fallback offered when the pipeline is refused. That is precisely the
+  // context in which BUG-025's run reached for `2>/dev/null`, so the one command most likely
+  // to gain a redirection was the one command this assertion could not see.
+  //
+  // Take every hasher invocation in the document, wherever it is written.
+  const commands = [...DOC.matchAll(/`([^`\n]*\b(?:sha256sum|shasum)\b[^`\n]*)`|^\s*\S[^\n]*?\s{2,}((?:sha256sum|shasum) [^\n]+)$/gm)]
+    .map((m) => (m[1] ?? m[2]).trim())
+  assert.ok(commands.length >= 3, `expected every hasher command in the doc; found ${commands.length}`)
+  for (const command of commands) assert.doesNotMatch(command, /\d?>[&\s]*\S/, `redirection in: ${command}`)
 })

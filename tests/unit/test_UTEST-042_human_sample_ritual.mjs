@@ -19,7 +19,12 @@ import { readFileSync } from 'node:fs'
 const EVALS = readFileSync('spec-driven-devkit/03-tests/03-non-functional/ai-evals.md', 'utf8')
 // Whitespace-normalised: ten defects in this repository have been a pattern that failed to
 // match across a hard-wrapped line, and this file is hard-wrapped prose.
-const RITUAL = EVALS.slice(EVALS.indexOf('### The human sample')).replace(/\s+/g, ' ')
+// BOUNDED. This used to run to end of file, swallowing §4, §5 and "What this harness is
+// expected to catch" — so single-word matches like `/happy/` or `/highest/` could be satisfied
+// by ninety lines of unrelated document rather than by the ritual itself.
+const start = EVALS.indexOf('### The human sample')
+const end = EVALS.indexOf('\n## ', start)
+const RITUAL = EVALS.slice(start, end === -1 ? undefined : end).replace(/\s+/g, ' ')
 
 test('UTEST-042: the ritual says how many, and that they are whole workspaces', () => {
   // "Four cases" is ambiguous in the one direction that matters: four files is a tenth of the
@@ -31,10 +36,20 @@ test('UTEST-042: the ritual says how many, and that they are whole workspaces', 
 test('UTEST-042: which four is decided by rule, not by preference', () => {
   // The highest-todo_density case is picked by NUMBER precisely so it cannot be picked by
   // comfort. A sample chosen by the person being reviewed is not a sample.
-  assert.match(RITUAL, /highest/)
-  assert.match(RITUAL, /cannot be chosen by comfort/)
-  assert.match(RITUAL, /happy/)
-  assert.match(RITUAL, /adversarial/)
+  //
+  // THE RULE HAS FOUR COMPONENTS AND ONLY THREE WERE CHECKED. `edge` was never asserted, so
+  // rewriting the row as "one happy and one adversarial, and the highest todo_density" — a
+  // sample missing a whole case category — passed every test in this file. Assert the rule as
+  // one sentence, so a category cannot go missing from the middle of it.
+  assert.match(
+    RITUAL,
+    /One `happy`, one `edge`, one `adversarial`, and the case whose `todo_density` is \*\*highest\*\* in that release/,
+    'all four components, in one sentence — dropping any one changes what the sample covers'
+  )
+  assert.match(RITUAL, /chosen by number precisely so it cannot be chosen by comfort/)
+
+  // And four is the number, stated where the categories are counted.
+  assert.match(RITUAL, /\*\*How many\*\* \| Four\./)
 })
 
 test('UTEST-042: the reader is not the author of the change', () => {

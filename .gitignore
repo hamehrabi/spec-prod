@@ -38,3 +38,6 @@ build/
 coverage/
 .pytest_cache/
 *.log
+
+# CI scratch — the TAP stream stage 2 parses its own test count from (gate.yml).
+stage2.tap

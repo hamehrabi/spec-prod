@@ -12,6 +12,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { parseQuestions } from '../../ci/questions.mjs'
+import { inOrder } from '../_helpers.mjs'
 
 const inf = readFileSync('plugin/instructions/inference.md', 'utf8')
 const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
@@ -123,10 +124,10 @@ test('derivation rules live in inference.md; questions only point at them', () =
 
 test('intake consults inference BEFORE composing a round', () => {
   assert.match(intake, /First consult `instructions\/inference\.md`/i)
-  assert.ok(
-    intake.search(/First consult `instructions\/inference\.md`/) < intake.search(/Then ask what remains/),
-    'inference precedes asking, or it is not inference'
-  )
+  // Line 125 matches case-insensitively; this ordering used to search case-SENSITIVELY, so
+  // `First Consult` would keep the first assertion green, send this one to -1, and leave "Then
+  // ask what remains" free to move above it.
+  inOrder(intake, /First consult `instructions\/inference\.md`/i, /Then ask what remains/i)
 })
 
 test('the question set still asks what is NOT derivable', () => {

@@ -9,6 +9,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, existsSync } from 'node:fs'
 import { parseQuestions } from '../../ci/questions.mjs'
+import { inOrder } from '../_helpers.mjs'
 
 const { questions, rounds, inRound, freeText, text } = parseQuestions()
 const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
@@ -101,10 +102,9 @@ test('ADR-001: the question module holds no orchestration and no blueprint conte
 test('ETEST-008 / BR-005: the round writes BEFORE the next round could be asked', () => {
   // REQ-NF-001. An interrupted intake must leave usable output; a run that holds everything
   // until the end leaves nothing when it is closed at round three.
-  const write = intake.search(/### 2b\. Write/)
-  const summarise = intake.search(/### 2c\. Summarise/)
-  const ask = intake.search(/### 2a\. Ask/)
-  assert.ok(ask < write && write < summarise, 'the order is ask -> write -> summarise')
+  // Each step has to EXIST before its position means anything — a missing `### 2a. Ask`
+  // searches to -1, which is before everything, and the claim would hold by its absence.
+  inOrder(intake, /### 2a\. Ask/, /### 2b\. Write/, /### 2c\. Summarise/)
   assert.match(intake, /before the next round is asked/i)
   assert.match(intake, /not at the end of the run/i)
 })

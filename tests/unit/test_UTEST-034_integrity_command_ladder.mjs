@@ -19,6 +19,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { norm } from '../_helpers.mjs'
 
 const DOC = readFileSync('plugin/instructions/integrity.md', 'utf8')
 const MANIFEST = readFileSync('plugin/blueprints/MANIFEST.md', 'utf8')
@@ -49,9 +50,12 @@ test('UTEST-034: the comparison is one string, not eighty-one', () => {
 })
 
 test('UTEST-034: the per-file table is named as a second step, not the first', () => {
-  const purpose = DOC.slice(DOC.indexOf('What the per-file table is for'))
-  assert.match(purpose, /only when.*the two strings differ/is)
-  assert.match(purpose, /never the first comparison/i)
+  // `/only when.*the two strings differ/is` let the condition and what it is conditional on
+  // drift arbitrarily far apart — the ordering claim lives in the two being one sentence, so
+  // assert the sentence, whitespace-normalised so the hard wrap cannot break it.
+  const purpose = norm(DOC.slice(DOC.indexOf('What the per-file table is for')))
+  assert.match(purpose, /Read it when — and only when — the two strings differ/)
+  assert.match(purpose, /It is never the first comparison, and it is never a substitute for the digest/i)
 })
 
 test('UTEST-034: composing your own command is forbidden', () => {

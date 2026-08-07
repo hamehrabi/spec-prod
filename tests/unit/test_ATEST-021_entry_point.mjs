@@ -8,6 +8,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { CHECKS } from '../../ci/validation.mjs'
+import { inOrder, table } from '../_helpers.mjs'
 
 const doc = readFileSync('plugin/instructions/entrypoint.md', 'utf8')
 const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
@@ -15,11 +16,10 @@ const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
 test('TEST-009: the entry point is written LAST, after validation', () => {
   assert.match(doc, /After validation, after every other file, and never before/i)
   assert.match(doc, /a link nobody verified/i)
-  assert.ok(
-    intake.search(/## Step \d+ — Validate/) < intake.search(/## Step \d+ — Write the entry point/),
-    'validation precedes the entry point'
-  )
-  assert.ok(intake.search(/### 2b\. Write/) < intake.search(/## Step \d+ — Write the entry point/), 'and everything it links to is already written')
+  // `a.search(x) < a.search(y)` was NOT an ordering assertion: `search` returns -1 when it
+  // finds nothing, so renaming intake.md's `## Step 3 — Validate` by one letter sent the left
+  // side to -1 and this test went green on an intake with no validation step at all.
+  inOrder(intake, /### 2b\. Write/, /## Step \d+ — Validate/, /## Step \d+ — Write the entry point/)
 })
 
 test('a failed or unrun check means the entry point is NOT written', () => {
@@ -79,8 +79,23 @@ test('inapplicable rows are dropped, and the reason is stated', () => {
 })
 
 test('the structure a build agent needs is named', () => {
-  for (const section of [/Start here/, /Working a task/, /Never/, /Commands/, /Where things stand/]) {
-    assert.match(doc, section)
+  // MATCHED AGAINST THE WHOLE DOCUMENT, `/Never/` WAS FREE. entrypoint.md has no `## Never`
+  // heading — the section exists only as a row of the "What it contains" table — while the
+  // word "Never" appears in body prose that two other tests in this file already require
+  // ("Never restate a requirement…", "Never invent one"). Deleting the row took the build
+  // agent's prohibition section out of the map's contract and every assertion still passed.
+  const contains = table(doc, 'Section')
+  assert.deepEqual(contains.labels, [
+    '**Start here**',
+    '**Working a task**',
+    '**Never**',
+    '**Commands**',
+    '**Where things stand**',
+  ], 'five sections, these five — the map is a contract, and a section dropped from it is a change to that contract')
+
+  // Each says what it holds, or the row is a name with nothing behind it.
+  for (const label of contains.labels) {
+    assert.ok(contains.cell(label, 'Holds').length > 20, `${label} does not say what it holds`)
   }
 })
 

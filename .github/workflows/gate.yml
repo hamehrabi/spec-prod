@@ -77,5 +77,32 @@ jobs:
           done
           exit $failed
 
+      # A GLOB THAT MATCHES NOTHING IS NOT A PASS. `node --test "tests/**/*.nomatch"` prints
+      # `# tests 0` and exits 0 — verified on this pinned runtime. So a renamed directory, a
+      # changed extension, or a runner that stopped expanding this pattern would turn the one
+      # step standing behind GOLD-001 and every unit and integration test green while running
+      # nothing, and the log would say `pass 0` where a reader expects a number.
+      #
+      # That is the same defect the tests in this suite exist to catch — a check reporting
+      # success having judged nothing — committed by the gate itself, and it has a third
+      # outcome where the comment at the top of this file promises two.
+      #
+      # The TAP stream goes to a file so the count is parsed from a stable format; the spec
+      # reporter still goes to the log so a human reads what they always did.
       - name: Stage 2 — unit and integration tests
-        run: node --test "tests/**/*.mjs"
+        run: |
+          set -euo pipefail
+          node --test \
+            --test-reporter=tap --test-reporter-destination=stage2.tap \
+            --test-reporter=spec --test-reporter-destination=stdout \
+            "tests/**/*.mjs"
+          ran=$(sed -n 's/^# tests \([0-9]\+\)$/\1/p' stage2.tap | tail -1)
+          if [ -z "$ran" ]; then
+            echo "::error::stage 2 produced no TAP summary — the count could not be read, so nothing is claimed"
+            exit 1
+          fi
+          echo "stage 2 collected $ran test(s)"
+          if [ "$ran" -eq 0 ]; then
+            echo "::error::stage 2 ran ZERO tests. The glob tests/**/*.mjs matched nothing. A test stage that is green because it found no tests is not a pass."
+            exit 1
+          fi

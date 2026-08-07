@@ -26,6 +26,21 @@ const FILL = readFileSync('plugin/instructions/fill.md', 'utf8')
 // the first version of this file made it eleven: `not a control` wraps in the source.
 const FINISHED = FILL.slice(FILL.indexOf('## When the file is finished')).replace(/\s+/g, ' ')
 
+// AND BOUNDED, because `FINISHED` runs to end of file and spans BOTH subsections. Every claim
+// below is about the OUTLINE check specifically, and a match satisfied from the content check
+// next door is a match about a different rule. `OUTLINE` keeps its line breaks so the three
+// allowed differences can be counted as bullets; `OUTLINE_TEXT` is the normalised form for
+// prose, since the library hard-wraps.
+const section = (from, to) => {
+  const start = FILL.indexOf(from)
+  assert.notEqual(start, -1, `fill.md has no section "${from}"`)
+  const end = FILL.indexOf(to, start)
+  assert.notEqual(end, -1, `fill.md has no section "${to}" after "${from}"`)
+  return FILL.slice(start, end)
+}
+const OUTLINE = section('### First, the outline check', '### Then, the content check')
+const OUTLINE_TEXT = OUTLINE.replace(/\s+/g, ' ')
+
 test('UTEST-038: the finished-file check compares headings against the blueprint', () => {
   assert.match(FINISHED, /Compare the finished file's headings against the blueprint's, in order/)
 })
@@ -34,16 +49,25 @@ test('UTEST-038: exactly the three legitimate differences are named', () => {
   // Naming fewer would make the check fail on files that did the right thing, and a check that
   // fails on correct work is switched off within a week. Naming more would let an authored file
   // through under whichever exemption it happened to need.
-  for (const allowed of [/worked example's headings are gone \(step 2\)/, /prompt sections' headings are gone/, /placeholder now contains the answer \(step 4\)/])
-    assert.match(FINISHED, allowed)
+  //
+  // ONLY THE FIRST HALF USED TO BE ASSERTED. Three regexes matched against the section still
+  // matched with a FOURTH bullet added — "a heading you rephrased for clarity is unchanged in
+  // substance", say — which is a blanket exemption readmitting exactly BUG-024. The count in
+  // this test's own name was never measured, so count the bullets.
+  const allowed = [...OUTLINE.matchAll(/^- (.+)$/gm)].map((m) => m[1].trim())
+  assert.equal(allowed.length, 3, `exactly three legitimate differences; found ${allowed.length}: ${allowed.join(' / ')}`)
+  for (const pattern of [/worked example's headings are gone \(step 2\)/, /prompt sections' headings are gone/, /placeholder now contains the answer \(step 4\)/])
+    assert.ok(allowed.some((a) => pattern.test(a)), `no listed difference matches ${pattern}`)
 })
 
 test('UTEST-038: any other difference is stated to mean step 1 did not happen', () => {
-  assert.match(FINISHED, /Any other difference means step 1 did not happen/)
-  // Both directions. A dropped heading and an invented one are different mistakes with the same
-  // cause, and a check that named only one would pass the workspace that produced BUG-024.
-  assert.match(FINISHED, /was dropped/)
-  assert.match(FINISHED, /was invented/)
+  // Scoped to the outline subsection: "both directions" is a claim about THIS rule, and a
+  // match taken from the content check next door would be about a different one.
+  assert.match(OUTLINE_TEXT, /Any other difference means step 1 did not happen/)
+  // A dropped heading and an invented one are different mistakes with the same cause, and a
+  // check that named only one would pass the workspace that produced BUG-024.
+  assert.match(OUTLINE_TEXT, /A heading the blueprint has and the file does not was dropped/)
+  assert.match(OUTLINE_TEXT, /a heading the file has and the blueprint does not was invented/)
 })
 
 test('UTEST-038: the check is decidable, not a judgement about whether the file looks right', () => {

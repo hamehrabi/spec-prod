@@ -9,6 +9,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { acceptanceRows, acceptedStages, forbiddenStateFiles, unacceptedStages } from '../../ci/acceptance.mjs'
+import { inOrder, norm, table } from '../_helpers.mjs'
 
 const review = readFileSync('plugin/instructions/review.md', 'utf8')
 const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
@@ -28,13 +29,31 @@ test('ATEST-041: the gate blocks the next round', () => {
   assert.match(review, /before the next round's questions are asked/i)
   assert.match(intake, /blocks the next round/i)
   // Ordering inside intake: write, then gate, then stop.
-  assert.ok(intake.search(/### 2b\. Write/) < intake.search(/### 2d\. Present the gate/))
+  inOrder(intake, /### 2b\. Write/, /### 2d\. Present the gate/)
 })
 
+// THE WHOLE CONTENT OF REQ-F-039 IS THE NUMBER THREE, and that was the one thing this test did
+// not check. It looked for the words accept, revise and stop anywhere in the document — they
+// occur 3, 5 and 9 times in the surrounding prose — so a fourth `| **skip** |` row could be
+// added to the choice table and it still passed. Count the rows.
 test('REQ-F-039: exactly three choices, named in words', () => {
-  for (const choice of [/\baccept\b/, /\brevise\b/, /\bstop\b/]) assert.match(review, choice)
-  assert.match(review, /named \*\*in words\*\*|in words/i)
-  assert.match(review, /No single-key shortcuts/i)
+  const choices = table(review, 'Choice')
+  assert.deepEqual(
+    choices.labels,
+    ['**accept**', '**revise**', '**stop**'],
+    'three choices, these three, and no fourth — a `skip` row is exactly what this must catch'
+  )
+  // Each says what it does, or it is a name without a meaning.
+  for (const label of choices.labels) {
+    assert.ok(choices.cell(label, 'What happens').length > 10, `${label} does not say what happens`)
+  }
+  // "In words" is the requirement's other half: a one-character choice is a keystroke, and
+  // the point of the gate is that accepting takes a deliberate act.
+  for (const label of choices.labels) {
+    assert.ok(label.replace(/\*/g, '').length > 1, `${label} is a single-key shortcut`)
+  }
+  assert.match(norm(review), /Exactly three, named \*\*in words\*\*/i)
+  assert.match(norm(review), /No single-key shortcuts/i)
 })
 
 // --- UTEST-026: silence is not consent --------------------------------------------------

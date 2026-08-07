@@ -69,6 +69,13 @@ test('STEST-013: a refusal names the path and never the file contents', () => {
 })
 
 test('STEST-007 / STEST-008: the protected files are never proposed, not merely refused', () => {
+  // A LOOP OVER AN EMPTY LIST ASSERTS NOTHING. `PROTECTED = []` made this test execute zero
+  // assertions and pass — and nothing else in this file names root `CLAUDE.md` or root
+  // `.gitignore`, so `verdict('CLAUDE.md')` would have degraded silently from `protected` to
+  // `outside`, i.e. the kit asking permission to overwrite the developer's own CLAUDE.md.
+  // That is the one thing STEST-007 exists to forbid, and every test here stayed green.
+  assert.deepEqual([...PROTECTED].sort(), ['.gitignore', 'CLAUDE.md'], 'these two, by name — the loop below is only as good as this list')
+
   for (const file of PROTECTED) {
     const v = verdict(file)
     assert.equal(v.allowed, false)

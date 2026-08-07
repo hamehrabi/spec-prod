@@ -9,20 +9,30 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { validate, report as reportLine } from '../../ci/validation.mjs'
+import { inOrder } from '../_helpers.mjs'
 
 const doc = readFileSync('plugin/instructions/report.md', 'utf8')
 const intake = readFileSync('plugin/instructions/intake.md', 'utf8')
 
-test('ATEST-034: all five sections are named', () => {
-  for (const section of [
-    /What was created/i,
-    /What is still `\[TODO\]`/i,
-    /Which open questions block coding/i,
-    /What was assumed rather than asked/i,
-    /Where the entry point is/i,
-  ]) {
-    assert.match(doc, section)
-  }
+// THIS TEST SAID "ALL FIVE" AND THE DOCUMENT HAS SIX. It matched five phrases against the
+// whole file, so it could neither notice the sixth section (`5. Which stages were written
+// thin`, which REQ-F-033 requires and nothing else here pinned) nor notice a seventh being
+// added, nor notice a section being renumbered out of order. A counting claim asserted by
+// presence cannot count — which is the one thing it is for.
+test('ATEST-034: the report has exactly six numbered sections, in order, each named', () => {
+  const numbered = [...doc.matchAll(/^### (\d+)\. (.+)$/gm)].map((m) => [Number(m[1]), m[2].trim()])
+  assert.deepEqual(
+    numbered,
+    [
+      [1, 'What was created'],
+      [2, 'What is still `[TODO]`, and why'],
+      [3, 'Which open questions block coding'],
+      [4, 'What was assumed rather than asked'],
+      [5, 'Which stages were written thin'],
+      [6, 'Where the entry point is'],
+    ],
+    'REQ-F-030 names four of these and REQ-F-033 the fifth; a section added or dropped here is a change to what the developer is told'
+  )
 })
 
 test('the assumptions section is identified as the one irreplaceable part', () => {
@@ -115,6 +125,8 @@ test('ETEST-003 failing is raised, not patched by rewording', () => {
 })
 
 test('the report runs after validation in the intake, never before', () => {
-  assert.ok(intake.search(/## Step \d+ — Validate/) < intake.search(/## Step \d+ — Report/))
+  // Existence first: `search` returns -1 for a step that is not there, and -1 is before
+  // everything, so a deleted validation step would have SATISFIED this ordering claim.
+  inOrder(intake, /## Step \d+ — Validate/, /## Step \d+ — Report/)
   assert.match(intake, /After validation, never before/i)
 })
