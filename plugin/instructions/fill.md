@@ -251,7 +251,7 @@ same list, with exactly three differences allowed, all of them made by the steps
 - the worked example's headings are gone (step 2)
 - the prompt sections' headings are gone — `## Prompts`, `## Prompt — …` (step 3)
 - a heading that contained a placeholder now contains the answer (step 4): `# [project name] —
-  specification workspace` becomes `# Pantry — specification workspace`
+  specification workspace` becomes `# Acme Reporting — specification workspace`
 
 **Any other difference means step 1 did not happen.** A heading the blueprint has and the file
 does not was dropped; a heading the file has and the blueprint does not was invented. Neither
