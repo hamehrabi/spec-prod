@@ -73,6 +73,36 @@
 // The last three are the interesting ones: no scorer catches them, and no scorer could without
 // reading the specification for meaning rather than for shape.
 //
+// ────────────────────────────────────────────────────────────────────────────────────────────
+// READ THIS BEFORE BELIEVING THE PINS BELOW.
+//
+// BUG-034 and BUG-036 to BUG-041 have all been FIXED IN THE PAYLOAD — the blueprints and
+// instructions no longer contain the defects described above. **None of those fixes has been
+// observed in a produced workspace**, and the assertions in this file are unchanged because
+// THIS FIXTURE PREDATES THEM. Every pin below still describes the committed workspace
+// correctly; none of them describes the current library.
+//
+// So a green run of this file means "the old workspace still has the defects it had", which is
+// true and is not the same claim as "the fixes work". Do not read it as the second.
+//
+// Verification needs a regenerated workspace, and four attempts on 2026-08-07 produced none:
+//
+//   run 1  killed deliberately — a blueprint edit had put EV-001's own answer into the
+//          instruction the run reads, so it would have been graded against its own answer key
+//   run 2  killed at the 45-minute ceiling — BUG-041, a `--timeout=110` silently discarded
+//   run 3  host stalled four minutes in, after a tool result, and never produced another turn;
+//          killed at 110 minutes with 2 rounds accepted
+//   run 4  bounded to 3 rounds; zero files written before the 30-minute ceiling
+//
+// Runs 3 and 4 are the host hanging, not the kit failing — the transcript ends mid-turn with no
+// error. The spend was stopped there rather than continued blind (ai-evals.md §5 records the
+// attempts as NOT RUN, which is the third state and not a bad score).
+//
+// WHEN A REGENERATION SUCCEEDS, every pin below marked with a BUG number should be re-examined:
+// the ones whose defect is fixed must FAIL, and that failure is the evidence. A pin that has to
+// be rewritten to stay green is a fix that did not take, and belongs in the report as such.
+// ────────────────────────────────────────────────────────────────────────────────────────────
+//
 // ONE FIXTURE, GROWN ROUND BY ROUND. Not a snapshot per round: Round 1's four files would
 // then exist in eight places and drift apart at the first correction, which is the
 // duplication this design refuses everywhere else. How far the run has got is read from the
