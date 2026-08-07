@@ -44,17 +44,13 @@ URL, request body, status code, response body, validation rules, **and side effe
 | Missing password is rejected | `{email only}` | 400 | Password required error | No session created |
 | Unknown email is rejected | `{unknown email, password}` | 401 | Authentication error | No session created |
 
-**Example (Ch. 18 §18.6)**
-```python
-def test_login_rejects_missing_password(api_client):
-    response = api_client.post('/login', json={
-        'email': 'ada@example.com'
-    })
-
-    assert response.status_code == 400
-    assert response.json()['error'] == 'Password is required'
-    assert response.json().get('session') is None
-```
+**What one row becomes (Ch. 18 §18.6).** Specify each row as three assertions and nothing
+else: the status code, the field of the response body that carries the answer, and the side
+effect that must **not** have happened. "Missing password is rejected" is therefore *400, the
+error names the password field, and no session row exists afterwards* — three statements a
+test can be written from without a decision being made in the test file. The side-effect
+assertion is the one that catches a handler which returns the right status after it has
+already written. The worked example at the end of this file shows the pair written out.
 
 ---
 

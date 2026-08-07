@@ -20,7 +20,7 @@ failure, not a bonus.
 
 ## Library digest
 
-**Library digest:** `c2a40489fb79c9a541ed6570f91c77d514af0e839fc24e2dbadfe68347a78d81`
+**Library digest:** `8c414fa508c617d6ec75b1c7b1d0cc523c71db7c9eeeb1bb6540c82c6f6eaee1`
 
 One value for the whole library: SHA-256 over the 81 digests below —
 lowercased, sorted, one per line, each ending in a newline. **Compare this first.** It matches
@@ -41,27 +41,27 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `01-docs/01-intent/project-brief.md` | `1e686cae0a5ef7de8cfdd1a36497630870f724867aa3783d6ddd71b7c8e1089c` |
 | `01-docs/01-intent/subdomain-map.md` | `a83a568e3454306ad41e42591052cb6a043d5ce784ea5005a11d1023283c4367` |
 | `01-docs/02-requirements/driving-characteristics.md` | `8bdf0e370773be7d0c76f45e48f168739cf2977ab61dbd332b4a917368c6c96f` |
-| `01-docs/02-requirements/requirements.md` | `7768c68951597d7aa9f7d73db2ae2fbd5215335e33748bf108146093bc02b3f1` |
-| `01-docs/03-product-spec/product-spec.md` | `7ad8bf8d3efad2c58e5a68f8a07c8a850b7b9f9646a232f5571051fd0954cce4` |
+| `01-docs/02-requirements/requirements.md` | `d74222099b6a94d4ccff95ac0278ef4a052de53803cd1a53321b0aec389a7160` |
+| `01-docs/03-product-spec/product-spec.md` | `bb2c18caa6b9695bba75d5b16cf3eb2e6a0c95d60182746d30625b9ff7bc57b1` |
 | `01-docs/04-technical-spec/fitness-functions.md` | `453e556be669738f6d99bea4bfd67c5806615afd0f516954f2bca5f4fc562513` |
 | `01-docs/04-technical-spec/frontend-component-spec.md` | `121d75fe0510397db01071c55ab3ea052717e6e7746cb40ed16d3f0933d0335d` |
 | `01-docs/04-technical-spec/runtime-and-scale.md` | `517073da5befde39bdceca9fec79f0c4c31526c8e9abed994d3517550fa12650` |
-| `01-docs/04-technical-spec/technical-spec.md` | `52e08acf591a155ccbbd592a465c7ce98b93d3e4249d6758278d8ae24ceea579` |
+| `01-docs/04-technical-spec/technical-spec.md` | `96a585b888c04334c836565b79b18d8dd9a3290ae09c24798530e8c6d7885ba4` |
 | `01-docs/05-architecture/architecture-decisions/ADR-000-template.md` | `dfb8753724a663841a2e3dbfa6b3eff69707c93deb3996461a324018c99e4ee6` |
 | `01-docs/05-architecture/architecture-decisions/adr-index.md` | `cd4eaadce220ac9b68afbdd730764be667ca7ab57b42a165ea2366881b301c37` |
-| `01-docs/05-architecture/decisions.md` | `18cf2be60bd1bffb8052fdbe908885a5bf8ea0cfb66c869cbb6df1e6a017a079` |
+| `01-docs/05-architecture/decisions.md` | `25c945748e2543120ed3bfb85e36b3751e6dd03e2c35e1f0c3214ae9add79cda` |
 | `01-docs/06-api-and-data-design/api-specification.md` | `58ff58b15d701812bd52d9fb1639fb7e79f677a5ed0c3558e8b5c4888926efa2` |
 | `01-docs/06-api-and-data-design/data-and-integration-spec.md` | `90deb5933be6148f26df2572a066f9d7f8a0ce064a80972458e519d6aed541bf` |
 | `01-docs/06-api-and-data-design/database-design.md` | `6d60ddfa7a4becc6627444ca81c75eb43d77201e558a8bdd306f697f7fcf8c2a` |
 | `01-docs/07-security-and-reliability/ai-boundary-spec.md` | `f3591db3b0c8b47c82c03ec909496153d573bb7320b08ec545a9ad6cb89c056b` |
 | `01-docs/07-security-and-reliability/reliability-specification.md` | `e57c09390b3e01016544857435170631dfa5190d9e7994a38314d595b061085b` |
-| `01-docs/07-security-and-reliability/security-specification.md` | `70cb4bd6e05973ba4d5340a4e5926ce6d8262cc60922792dedb8dad7a51ed397` |
+| `01-docs/07-security-and-reliability/security-specification.md` | `c6429d2a8e7c9270f47dcbade14b19eb371c60d01117d78aa4fe485b8b27e5e9` |
 | `01-docs/08-traceability/traceability.md` | `f7db9b214a9aa5620e1483fab08e04415fad897d6e102b1d5ed3662a04aaa495` |
 | `01-docs/09-change-control/spec-change-log.md` | `2d3fe196c14a991a82bc09c083920b06cd6fad7eff1fa52956f6a298c6c46447` |
 | `01-docs/10-reference/glossary.md` | `51eb99881fc8d754d6cdc4b32e053102fb92d4e7a262f1eacd9e995ab3c35601` |
 | `01-docs/10-reference/recommended-tools.md` | `55d9d570fe2bccc6008096afd2d3eefaab15cded9bf88cc1102c8207e5c06232` |
 | `01-docs/10-reference/repeatable-system.md` | `632fe60b8be4219fa001c71d91e6a3a819386c756750433fa79c5cab7fc422b5` |
-| `02-tasks/01-planning/agent-task-list.md` | `dbbed5b1afe3f960ffa60338dde8a0a94efcbd068f55cf596860ca2a7b37468c` |
+| `02-tasks/01-planning/agent-task-list.md` | `dc5188170be9e2eb9bfb7d3dc8dbc333921eb0b24d120103653d970f4c49f622` |
 | `02-tasks/01-planning/task-index.md` | `28264c6272513aa3d24267de0ff02a930fe848971fdcd919e14898a12f68b591` |
 | `02-tasks/02-task-files/TASK-001.md` | `16dbe72676ae78178ded3e106958904a13b0a31b888c908d35496eb058a08dd6` |
 | `02-tasks/03-control/scope-change-log.md` | `57737d078abac2d3d0a3cbf478c6519e0fd129e8163745fb348dde53bbeda7fe` |
@@ -70,7 +70,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `03-tests/01-plan/test-specification.md` | `54898b20070349e9c362682734c9b264b184cc54a899509652b7c05536887779` |
 | `03-tests/02-functional/acceptance-tests.md` | `3b648fd60977cf5f4142f07be67f826a2903d022df7a7fb1d00b6a29fc0d0944` |
 | `03-tests/02-functional/end-to-end-tests.md` | `4af82d6e39a541548ff1a2067aa2900e9b7de18dbc57e068afe862f495e7cfa9` |
-| `03-tests/02-functional/integration-tests.md` | `9723303c94aec3964fbf7d77bfc058064caf6c2a682e9da8004e630ae19f9f3f` |
+| `03-tests/02-functional/integration-tests.md` | `48cdabdd021eb02b79a73435f839f9ef47df4a0c59d0a77014107757da64d421` |
 | `03-tests/02-functional/unit-tests.md` | `634c0fb4cbc54c577cc267cc83e16883692ea3972c80b7034177fc91e0f6be09` |
 | `03-tests/03-non-functional/ai-evals.md` | `52be655dace6570121ab3805a56c98facaa3ca1bf536d1967ba8f0cc2eb74732` |
 | `03-tests/03-non-functional/performance-tests.md` | `ee876be30dde23fbdaf4242688987fbb9d0461463e4d803224cad0005df9dc84` |
@@ -78,7 +78,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `03-tests/04-failure/edge-cases-and-failures.md` | `f705ae1af116d8684b0eed29f86c38e1290f333c01ad6a5330ac7975ed9a8e32` |
 | `03-tests/04-failure/failure-tests.md` | `c2ed361fe18c94f3056e497208e41cc848acc40be29d8190db9a74709055ed37` |
 | `03-tests/05-executable/executable-tests.md` | `8ab99c6bb4af735bcffaf786905e09fa64097588cc956b4104ae2e88344279d0` |
-| `04-src/README.md` | `b608dca0b3af2e04239094e8467de7bb032b1c482d5e667f1ae1d11b38d45131` |
+| `04-src/README.md` | `48b4f69dc9403bc0e1337aacf409cd90e6671e2395bf9137cccddc662f37d74c` |
 | `05-review/01-logs/change-log.md` | `88856d29f1b397e1dfff8a2efc39817395e82848349d4e01b4e57add104746a6` |
 | `05-review/01-logs/feedback-register.md` | `ccca20eadf50446507128d55542a3e0a81e8bc100d6c72cc8cb49aac827210ed` |
 | `05-review/01-logs/review-log.md` | `5afd93cb912f8ed351fa3a9c3460f13173648bfe7fbd8ddebc00fad27cbc9c9d` |
@@ -101,7 +101,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `07-ops/01-deployment/backup-and-recovery.md` | `ca5a3f9802b8b9653322b7b2253af2e7528403137221ec296be4b9b299857337` |
 | `07-ops/01-deployment/cicd-pipeline.md` | `4e260ffe336c0cd317959e410a01a081e434147127f0edb09a69061b468140d6` |
 | `07-ops/01-deployment/database-migration-plan.md` | `b186337b35ccd15bb3778f3599e3097e873fb4d1b7bb65084a16333d38732fb9` |
-| `07-ops/01-deployment/deployment-checklist.md` | `af4d16b72a7c72615dc95597482302de67d081572c612eea033f31b921665cda` |
+| `07-ops/01-deployment/deployment-checklist.md` | `86c5b89a6c2e6b60da5da5c6d66cbbac0385db921b4e0f06749a8427d9f96e10` |
 | `07-ops/01-deployment/deployment-plan.md` | `c284b65d499b0a83261a1a2baf90b8d9f78bd6fca746d28305fae108f1a2bd65` |
 | `07-ops/01-deployment/environment-config.md` | `dcd04fbb5ebfefc82409605925ffea92cb181bf78c13eef73b6631535b93f547` |
 | `07-ops/01-deployment/production-readiness-checklist.md` | `4869b03b75304bb03e2828298d8742fa482a761e48fa4dd52ad0af8a2a0d0ed1` |

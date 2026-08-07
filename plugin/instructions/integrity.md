@@ -46,7 +46,7 @@ so for that developer Step 0 could never run and the kit stopped before question
 is not a degraded experience — it is the whole product refusing to start.
 
 The PowerShell line above was **verified by execution against this library**: it produces
-`c2a40489fb79c9a541ed6570f91c77d514af0e839fc24e2dbadfe68347a78d81`, byte-identical to what
+`8c414fa508c617d6ec75b1c7b1d0cc523c71db7c9eeeb1bb6540c82c6f6eaee1`, byte-identical to what
 the POSIX form produces and to the manifest's declared digest. It uses only built-ins that
 ship with Windows, and it **creates no file** — the accumulation happens in a variable and
 the final hash is computed in memory, which is what keeps it inside the BUG-004 rule.

@@ -74,17 +74,29 @@ features that expose data to the wrong users.
 
 | Role | Can do | Cannot do |
 |---|---|---|
+| | | |
+| | | |
+
+| ID | Role requirement |
+|---|---|
+| REQ-R-001 | |
+| REQ-R-002 | |
+
+**Examples (Ch. 5 §5.4)**
+
+| Role | Can do | Cannot do |
+|---|---|---|
 | Owner | Create workspace, invite users, manage billing, delete workspace. | Bypass audit rules or view another workspace. |
 | Project manager | Create projects, assign tasks, update project settings. | Manage billing or delete the workspace. |
 | Team member | Create tasks, update assigned tasks, comment on work. | Invite users or change workspace settings. |
 | Viewer | Read permitted projects and tasks. | Create, edit, delete, or assign tasks. |
 
-*Replace with your project's real roles.*
+| Role requirement example |
+|---|
+| A Viewer must be able to read assigned project information but must not create, edit, assign, or delete tasks. |
 
-| ID | Role requirement |
-|---|---|
-| REQ-R-001 | The system must support the roles listed above. |
-| REQ-R-002 | *e.g. A Viewer must be able to read assigned project information but must not create, edit, assign, or delete tasks.* |
+**A role you list here is a role the agent will build.** Four roles is four permission paths,
+four sets of deny tests, and an invitation flow. A single-user tool has one role; say so.
 
 Full permission matrix and enforcement rules → [`technical-spec.md` §7 Security](../04-technical-spec/technical-spec.md#7-security-requirements)
 
@@ -113,7 +125,8 @@ instructions** — when the rule changes you update the spec first, then the tes
 
 ## 5. System constraints
 
-Maintained in [`intent.md` §3](../01-intent/intent.md#3-constraints). Referenced here as `CON-###`.
+Maintained in [`constraints-and-non-goals.md`](../01-intent/constraints-and-non-goals.md),
+which `intent.md` delegates them to. Referenced here as `CON-###`.
 
 | ID | Constraint | Affects requirements |
 |---|---|---|
@@ -143,7 +156,7 @@ Format: Given–When–Then. These become the acceptance tests in
 
 ## 7. Open questions
 
-→ [`intent.md` §5](../01-intent/intent.md#5-open-questions)
+→ [`open-questions.md`](../01-intent/open-questions.md)
 
 ---
 
