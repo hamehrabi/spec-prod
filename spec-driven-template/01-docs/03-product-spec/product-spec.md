@@ -118,8 +118,16 @@ Format: `US-###: As a [specific role], I want [one clear capability], so that [b
 
 | ID | Story | Supports | Produces task | Produces test |
 |---|---|---|---|---|
-| US-001 | As a …, I want …, so that … | REQ-F-001 | TASK-### | TEST-### |
+| US-001 | As a …, I want …, so that … | REQ-F-001 | — | — |
 | US-002 | | | | |
+
+> **"Produces task" and "Produces test" are written by a LATER round, not this one.** Tasks and
+> tests do not exist yet when the stories are written, so the honest value here is `—`.
+>
+> **Never write `TASK-###` or `TEST-###` into these cells.** A stub reads as an identifier that
+> exists — a reader follows it and finds nothing — and it is not the sanctioned way to record
+> something unknown. If a story still has no task once the task list is written, that is a gap
+> worth a `[TODO]`, not a stub.
 
 | Weak story | Stronger story |
 |---|---|

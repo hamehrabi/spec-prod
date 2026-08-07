@@ -4,6 +4,10 @@
 > Use this **before accepting AI-generated code** that handles users, data, files, APIs,
 > payments, or administrative actions — and again before deployment.
 
+> Copy this file to `security-review-<feature>.md` and fill it in, once per review. **The
+> header fields below stay blank in this copy** — a review that has not happened has no
+> reviewer and no date, and writing a plausible one is worse than leaving it empty.
+
 **Feature / module:**
 **Reviewer:**
 **Date:**

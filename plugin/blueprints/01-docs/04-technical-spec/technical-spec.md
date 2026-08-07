@@ -273,9 +273,15 @@ promises about consistency.
 | Logout | *How does access end?* |
 | Multi-factor (if any) | |
 
-| ID | Authentication requirement | Acceptance criteria |
-|---|---|---|
-| SEC-A-001 | | |
+> **`SEC-` identifiers are DEFINED in
+> [`security-specification.md`](../07-security-and-reliability/security-specification.md), and
+> only there.** This section decides the authentication *model*; the numbered controls that
+> enforce it have one home, and this is not it.
+>
+> This blueprint used to mint `SEC-A-001` in a table of its own — the same row
+> `security-specification.md` opens with — so **every workspace this kit produced defined that
+> identifier twice**, and the day one copy was edited the two disagreed about what the control
+> was. Cite the id here; do not restate the row.
 
 ### 7.2 Authorization / RBAC (*what are you allowed to do?*)
 

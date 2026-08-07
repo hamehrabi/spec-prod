@@ -20,7 +20,7 @@ failure, not a bonus.
 
 ## Library digest
 
-**Library digest:** `8c414fa508c617d6ec75b1c7b1d0cc523c71db7c9eeeb1bb6540c82c6f6eaee1`
+**Library digest:** `0e7832c6e0d29da6aa7741bcdfef89de112984ebe2bbdad6b2509fbc43a65ff3`
 
 One value for the whole library: SHA-256 over the 81 digests below —
 lowercased, sorted, one per line, each ending in a newline. **Compare this first.** It matches
@@ -42,17 +42,17 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `01-docs/01-intent/subdomain-map.md` | `a83a568e3454306ad41e42591052cb6a043d5ce784ea5005a11d1023283c4367` |
 | `01-docs/02-requirements/driving-characteristics.md` | `8bdf0e370773be7d0c76f45e48f168739cf2977ab61dbd332b4a917368c6c96f` |
 | `01-docs/02-requirements/requirements.md` | `d74222099b6a94d4ccff95ac0278ef4a052de53803cd1a53321b0aec389a7160` |
-| `01-docs/03-product-spec/product-spec.md` | `bb2c18caa6b9695bba75d5b16cf3eb2e6a0c95d60182746d30625b9ff7bc57b1` |
-| `01-docs/04-technical-spec/fitness-functions.md` | `453e556be669738f6d99bea4bfd67c5806615afd0f516954f2bca5f4fc562513` |
+| `01-docs/03-product-spec/product-spec.md` | `d2f0c44f87560f3a73c93ff0b28cc4aaffa8a147bb549bf2c343ba8465f9c5e5` |
+| `01-docs/04-technical-spec/fitness-functions.md` | `9e35989328e76b63d7ed019ee86e0f582d2187e2c8fe9399a64f0ea483f5e68c` |
 | `01-docs/04-technical-spec/frontend-component-spec.md` | `121d75fe0510397db01071c55ab3ea052717e6e7746cb40ed16d3f0933d0335d` |
-| `01-docs/04-technical-spec/runtime-and-scale.md` | `517073da5befde39bdceca9fec79f0c4c31526c8e9abed994d3517550fa12650` |
-| `01-docs/04-technical-spec/technical-spec.md` | `96a585b888c04334c836565b79b18d8dd9a3290ae09c24798530e8c6d7885ba4` |
+| `01-docs/04-technical-spec/runtime-and-scale.md` | `22bfade2adde09d1b942b2b6aa494fd12b0eb61a8ea50776676344bf2537f50a` |
+| `01-docs/04-technical-spec/technical-spec.md` | `650939d412fafd52df431274e48ccba49be3a20967ccc5972649dbfdd04b9ddd` |
 | `01-docs/05-architecture/architecture-decisions/ADR-000-template.md` | `dfb8753724a663841a2e3dbfa6b3eff69707c93deb3996461a324018c99e4ee6` |
 | `01-docs/05-architecture/architecture-decisions/adr-index.md` | `cd4eaadce220ac9b68afbdd730764be667ca7ab57b42a165ea2366881b301c37` |
 | `01-docs/05-architecture/decisions.md` | `25c945748e2543120ed3bfb85e36b3751e6dd03e2c35e1f0c3214ae9add79cda` |
 | `01-docs/06-api-and-data-design/api-specification.md` | `58ff58b15d701812bd52d9fb1639fb7e79f677a5ed0c3558e8b5c4888926efa2` |
 | `01-docs/06-api-and-data-design/data-and-integration-spec.md` | `90deb5933be6148f26df2572a066f9d7f8a0ce064a80972458e519d6aed541bf` |
-| `01-docs/06-api-and-data-design/database-design.md` | `6d60ddfa7a4becc6627444ca81c75eb43d77201e558a8bdd306f697f7fcf8c2a` |
+| `01-docs/06-api-and-data-design/database-design.md` | `2987a8fdd216665901ba033c4bc8b831ba572e46c100eca774d5cbc9b6c75696` |
 | `01-docs/07-security-and-reliability/ai-boundary-spec.md` | `f3591db3b0c8b47c82c03ec909496153d573bb7320b08ec545a9ad6cb89c056b` |
 | `01-docs/07-security-and-reliability/reliability-specification.md` | `e57c09390b3e01016544857435170631dfa5190d9e7994a38314d595b061085b` |
 | `01-docs/07-security-and-reliability/security-specification.md` | `c6429d2a8e7c9270f47dcbade14b19eb371c60d01117d78aa4fe485b8b27e5e9` |
@@ -84,14 +84,14 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `05-review/01-logs/review-log.md` | `5afd93cb912f8ed351fa3a9c3460f13173648bfe7fbd8ddebc00fad27cbc9c9d` |
 | `05-review/02-checklists/code-review-checklist.md` | `e50400aa65bd8c6b94855b5c845442e5a14c0f0ab79b1f52559d0d603a5b52cc` |
 | `05-review/02-checklists/risk-storming.md` | `5aa093bab26fade6c5b7d456d7179ca4ce8d9f874c75a52d6274157223c54fb3` |
-| `05-review/02-checklists/security-review.md` | `20ad5a3af7b684dce4e9208b64744dfd1b13daf943016b3cb826fabe44b041c5` |
+| `05-review/02-checklists/security-review.md` | `5e26890d13e79afa669cbb85d85bd94ee825fc5cd4880c6355f05568226cf6fc` |
 | `05-review/02-checklists/traceability-review.md` | `25d2d796af3e2f944bab81690267f53053edc619993c1102361a0474db24bfb1` |
 | `05-review/03-version-control/issue-template.md` | `39d679b7f6ed59a06755d61c8ebb01dfe04daaf13195ad8dee660627c504c6d3` |
 | `05-review/03-version-control/pull-request-template.md` | `943f151b52fe57c7bf19df9dd86de76ca9a4faf45c9020aa8dec403f511b1be1` |
 | `05-review/03-version-control/version-control-checklist.md` | `55094dac84d4f9c168bb7d02b84fff354d9b163048d8493deaa455fccf41cfcb` |
 | `05-review/04-debugging/debugging-checklist.md` | `c781485b64b688bb0fded946baec0df12e6ac45ff54f98b620beadb0831af551` |
 | `05-review/04-debugging/debugging-specification.md` | `e86a6d8b77499722ebd5d9be202b79b1dddf8d6bd57f1a86b660750e18607e18` |
-| `06-agent/01-instructions/AGENT.md` | `d5ee246a6cd28d39445766fa28ffb0cc3cc74537eee0da91665f936851c3783c` |
+| `06-agent/01-instructions/AGENT.md` | `aea62dcd6a13813f7ee989a760c9180db7103cffe3a0904e19eb98494e21fcfa` |
 | `06-agent/01-instructions/agent-rules-and-coding-standards.md` | `2014d6ebca42944f0712006f53e361c15c90066aba6211acbd8d7a77cfc05671` |
 | `06-agent/02-context/context-pack.md` | `cd0c7aff1951a37b4b4af4816cd1292fe16c51b3d0b3402ae0301553f2b2f273` |
 | `06-agent/03-prompts/prompt-library.md` | `513bd22c1329f29a11143312bd86f94bbd38de19c267e7b6a867710700bab9ab` |

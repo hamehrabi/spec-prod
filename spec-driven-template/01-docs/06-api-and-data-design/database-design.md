@@ -87,6 +87,27 @@ tasks
 
 *Replace the example above with your project's real schema.*
 
+> ### The core subdomain's rule belongs HERE, not only in prose
+>
+> [`subdomain-map.md`](../01-intent/subdomain-map.md) names exactly one **core** subdomain — the
+> one thing the product competes on. Whatever makes that thing correct is the rule most worth
+> enforcing in the store, and the one a reader is most likely to assume is already handled.
+>
+> **Go through §1's "Rule that must always be true" column and, for each rule, write the
+> constraint that enforces it above — naming the rule in a trailing comment.** A uniqueness
+> constraint, a foreign key, a check constraint, a `not null`. For example, if the core is
+> *turning a week of meals into ONE shopping list*, then the same ingredient must not appear on
+> a list twice, and that is `unique (shopping_list_id, ingredient_name, unit)` — not a sentence.
+>
+> **If a rule cannot be expressed as a constraint, say where it IS enforced** — a service-layer
+> check, a background job — and name the test that would fail if it stopped working. What is
+> not allowed is a rule stated in §1 and enforced nowhere: a rule that lives only in a sentence
+> is a rule the first refactor removes, and every functional test still passes without it.
+>
+> This section shipped with primary and foreign keys only, and every generated workspace
+> inherited that shape — so a run could name what its product competes on and enforce it
+> nowhere, with nothing to notice.
+
 ---
 
 ## 4. Schema concepts (Ch. 9 §9.3)
