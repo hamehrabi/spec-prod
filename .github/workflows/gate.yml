@@ -96,7 +96,11 @@ jobs:
             --test-reporter=tap --test-reporter-destination=stage2.tap \
             --test-reporter=spec --test-reporter-destination=stdout \
             "tests/**/*.mjs"
-          ran=$(sed -n 's/^# tests \([0-9]\+\)$/\1/p' stage2.tap | tail -1)
+          # [0-9][0-9]* and not \+ — BSD sed has no \+, and the first macOS run of the `suite`
+          # job proved it the hard way: 695 tests passed, this extraction returned nothing,
+          # and the guard reported a green run as having judged nothing. The guard against
+          # false success was itself the platform-dependent step.
+          ran=$(sed -n 's/^# tests \([0-9][0-9]*\)$/\1/p' stage2.tap | tail -1)
           if [ -z "$ran" ]; then
             echo "::error::stage 2 produced no TAP summary — the count could not be read, so nothing is claimed"
             exit 1
@@ -218,7 +222,9 @@ jobs:
             --test-reporter=tap --test-reporter-destination=suite.tap \
             --test-reporter=spec --test-reporter-destination=stdout \
             "tests/**/*.mjs"
-          ran=$(sed -n 's/^# tests \([0-9]\+\)$/\1/p' suite.tap | tail -1)
+          # Portable BRE — see the identical note in stage 2. This line is what failed the
+          # first macOS run of this job.
+          ran=$(sed -n 's/^# tests \([0-9][0-9]*\)$/\1/p' suite.tap | tail -1)
           if [ -z "$ran" ] || [ "$ran" -eq 0 ]; then
             echo "::error::the suite collected no tests on ${{ matrix.os }} — a green run that judged nothing is not a pass"
             exit 1
