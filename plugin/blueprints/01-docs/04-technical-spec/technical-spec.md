@@ -602,9 +602,15 @@ provider whose rate limit becomes a design constraint rather than a configuratio
 
 → [`open-questions.md`](../01-intent/open-questions.md)
 
-| ID | Decision needed | Owner | Must be resolved before |
-|---|---|---|---|
-| | | | |
+> **`Q-` rows are DEFINED in `open-questions.md`, and only there.** This table CITES the
+> questions that block parts of this specification — the id and the section it blocks, never
+> the question restated with its own owner and status. A second home for a question row is a
+> second thing to keep correct, and the day the register closes one, a copy here would still
+> say open.
+
+| Question ID | Spec section IDs it blocks |
+|---|---|
+| | |
 
 ---
 

@@ -68,9 +68,16 @@
 
 ## Tests to run or create
 
-| Test ID | Scenario | Expected result |
-|---|---|---|
-| TEST-### | | |
+> **Test rows are DEFINED in their test files (`03-tests/…`), and only there.** This table
+> CITES them: the id and the file that owns it, never the scenario or expected result
+> restated. A task that restates a test carries a second copy with nothing keeping the two in
+> step — consistent on the day it is written, wrong the first time the owning file changes. A
+> reviewer reads the id and opens the owning file. (`fitness-functions.md`'s register states
+> the same rule for `FF-` ids, for the same reason.)
+
+| Test ID | Defined in |
+|---|---|
+| TEST-### | [the test file that owns this id] |
 
 ## Review checklist
 
@@ -108,10 +115,10 @@ Out of scope:
 - Notifications
 - File attachments
 
-Tests required:
-- Valid task is created successfully.
-- Missing title returns validation error.
-- User cannot create a task for another account.
+Tests required (cited — each is defined in its own test file):
+- T-004 (acceptance tests)
+- T-006 (failure tests)
+- T-009 (security tests)
 
 Review checklist:
 - Code matches REQ-001.
