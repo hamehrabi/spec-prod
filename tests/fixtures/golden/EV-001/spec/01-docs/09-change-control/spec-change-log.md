@@ -55,16 +55,16 @@ above starts with an identifier rather than a date, so it cannot serve.
 
 | Date | Stage or type | Artifact | Note or reason |
 |---|---|---|---|
-| 2026-08-08 | Round 1 — the idea | — | Accepted by Developer — 3 decisions, 1 inference, 5 TODOs (Q-001…Q-005). |
-| 2026-08-08 | Round 2 — scope boundaries | — | Accepted by Developer — 2 decisions, 0 inferences; Q-003 resolved, Q-004 & Q-005 deferred at express. |
-| 2026-08-08 | Round 3 — users, roles, and data | — | Accepted by Developer — 4 decisions, 1 inference, 4 TODOs (Q-006…Q-009). |
-| 2026-08-08 | Round 4 — product shape | — | Accepted by Developer — drivers + fitness functions, PRD, frontend + runtime; 1 inference (modular monolith proposed), 1 new TODO (Q-010). |
-| 2026-08-08 | Round 5 — architecture and stack | — | Accepted by Developer — 2 decisions (modular monolith → ADR-001; relational store SQLite→Postgres → ADR-002), 0 inferences; Q-009 (auth) & Q-011 (safe-to-run) deferred at express. |
-| 2026-08-08 | Skipped | ai-boundary-spec.md | No AI model is called or embedded in version one. Revisit if a model is added. |
-| 2026-08-08 | Round 6 — security, reliability, integrations | — | Accepted by Developer — 2 decisions (external services: none in v1 → Q-007; recipe photos private to one account → Q-008), 1 inference (no external deps ⇒ integration spec has no external blocks, no rate-limit rule); Q-012 (leak list) & Q-013 (failure UX) deferred at express; ai-boundary-spec.md skipped (no model). |
-| 2026-08-08 | Skipped | ai-evals.md | No AI model to evaluate in version one. Revisit if a model is added. |
-| 2026-08-08 | Round 7 — tasks and tests | — | Accepted by Developer — 2 decisions (thin vertical slices → TASK-001…006; an AI coding agent, one task at a time), 0 inferences; Q-014 (test thoroughness) deferred at express; ai-evals.md skipped (no model). |
-| 2026-08-08 | Round 8 — operations | — | Accepted by Developer — 2 decisions (deployment target not decided → container, Q-017; backup RPO ≤ 1 day of edits, recipe library ≈ zero-loss with a tested restore, RTO ≤ an evening), 0 inferences; Q-015 (environments) & Q-016 (monitoring appetite) deferred at express; CI wires FF-001/FF-002/FF-003. |
+| 2026-08-08 | Round 1 — the idea | — | Accepted by the developer. 4 decisions, 1 inference, 7 TODOs (Q-001–Q-007). |
+| 2026-08-08 | Round 2 — scope boundaries | — | Accepted by the developer. 3 decisions, 2 inferences, 2 TODOs (Q-004, Q-005). Q-003 answered. |
+| 2026-08-08 | Round 3 — users, roles, and data | — | Accepted by the developer. 5 decisions, 3 inferences, 8 TODOs (Q-008–Q-015). |
+| 2026-08-08 | Round 4 — product shape | — | Accepted by the developer. 4 decisions, 3 inferences, 6 TODOs (Q-016–Q-020, Q-006 recited). Q-010 answered. |
+| 2026-08-08 | Round 5 — architecture and stack | — | Accepted by the developer. 2 decisions (ADR-001, ADR-002), 1 inference, 1 TODO (Q-021). Q-016, Q-017 answered. |
+| 2026-08-08 | Skipped | 01-docs/07-security-and-reliability/ai-boundary-spec.md | No model is called or embedded — Pantry has no AI capability, and Round 6 named no external services in version one. Revisit if an AI feature arrives. |
+| 2026-08-08 | Round 6 — security, reliability, and integrations | — | Accepted by the developer. 3 decisions, 1 inference, 2 TODOs (Q-022, Q-023). Q-014, Q-015 answered. |
+| 2026-08-08 | Skipped | 03-tests/03-non-functional/ai-evals.md | The product neither calls nor is driven by a model — no AI behaviour exists to evaluate. Revisit if an AI feature arrives. |
+| 2026-08-08 | Round 7 — tasks and tests | — | Accepted by the developer. 2 decisions, 1 inference, 1 TODO (Q-024). Tasks TASK-002, TASK-012, TASK-017 recorded as blocked on Q-009, Q-011, Q-023. |
+| 2026-08-08 | Round 8 — operations | — | Accepted by the developer. 2 decisions (deployment deferred with container posture; RPO 24 h / RTO 12 h with absolute library durability), 2 inferences, 0 new TODOs. Q-018 deferral noted in its row; Q-019, Q-020 remain open. |
 
 **A skip with no reason is a silent skip wearing a label.** The reason is what lets a later
 reader tell a decision from an omission.
@@ -109,7 +109,5 @@ reader tell a decision from an omission.
 > **Spec drift warning (Ch. 15 §15.8):** spec drift happens when the code changes but the
 > specification stays behind. The longer you allow drift, the harder it becomes to trust
 > the source of truth for your project.
-
----
 
 > Blueprint: blueprints/01-docs/09-change-control/spec-change-log.md

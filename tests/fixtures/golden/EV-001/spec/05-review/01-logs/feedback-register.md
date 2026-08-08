@@ -14,8 +14,6 @@ and states who owns the next action.
 | ID | Date | Source | Type | Summary | Affected artifact | Owner | Status | Spec update? | Test update? |
 |---|---|---|---|---|---|---|---|---|---|
 
-No entries yet — the first piece of feedback adds the first row.
-
 **Status:** New · Under review · Accepted · Rejected · Deferred
 **Types:** Clarification · Bug · Design concern · Scope request · Operational concern · Performance
 
@@ -44,11 +42,11 @@ Next action:
 
 | Type | Example | Where to record it | Owner | Next action |
 |---|---|---|---|---|
-| Clarification | "The recipe search labels are unclear." | Feedback register + product spec. | Owner. | Define label meanings; update acceptance criteria (REQ-F-002). |
-| Bug | "The generated list left out a planned meal's ingredients." | Issue list, test plan, review log. | Owner. | Fix the list-build logic (REQ-F-004 / BR-001); add regression test. |
-| Design concern | "The failure message after a save error is confusing." | Reliability specification. | Owner. | Add graceful-failure wording and test (REQ-NF-003 / FF-002). |
-| Scope request | "I want to share my plan with a housemate." | Scope change log. | Owner. | Decide now, later, or reject (v1 is one account, no sharing). |
-| Operational concern | "When a save fails I can't tell why." | Reliability specification and monitoring plan. | Owner. | Add structured logs and error surfacing. |
+| Clarification | "The task status labels are unclear." | Feedback register + product spec. | Product manager. | Define label meanings; update acceptance criteria. |
+| Bug | "A viewer can access an edit-only screen." | Issue list, test plan, security checklist. | Developer. | Fix permission logic; add regression test. |
+| Design concern | "The AI answer appears too confident." | AI behavior spec and prompt rules. | Product + developer. | Add unsupported-answer rule and test. |
+| Scope request | "Stakeholders want team notifications." | Scope change log. | Product manager. | Decide now, later, or reject. |
+| Operational concern | "Errors are hard to diagnose in production." | Reliability spec and monitoring plan. | Engineering. | Add structured logs and error tracking. |
 
 ---
 
@@ -60,10 +58,10 @@ errors and still be confusing.
 
 | Feedback type | Example | Spec action |
 |---|---|---|
-| Confusion | "I do not know which button saves my recipe." | Update user flow and UI requirement (REQ-F-001 / REQ-NF-004). |
-| Missing behavior | "I want to tick items off as I shop from my phone." | Add or **explicitly reject** a requirement (REQ-F-006). |
-| Wrong expectation | "I expected deleting a recipe to just work." | Clarify the delete-guard rule (BR-004). |
-| Performance complaint | "Generating the list feels slow." | Confirm the performance target and monitoring signal (REQ-NF-001, Q-010). |
+| Confusion | "I do not know which button saves my changes." | Update user flow and UI requirement. |
+| Missing behavior | "I need to export only completed tasks." | Add or **explicitly reject** a new requirement. |
+| Wrong expectation | "I expected project members to see shared reports." | Clarify role permissions and access rules. |
+| Performance complaint | "The dashboard is slow every morning." | Add a performance requirement and monitoring signal. |
 
 > Treat feedback as **engineering input, not casual opinion**. Map every report to a
 > requirement, user flow, design decision, or missing acceptance criterion.

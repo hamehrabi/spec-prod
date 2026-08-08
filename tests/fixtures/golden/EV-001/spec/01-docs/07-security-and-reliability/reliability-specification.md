@@ -7,17 +7,16 @@
 > **Spec rule:** do not describe reliability as a general wish. Write it as a specific
 > rule: *"If X fails, the system must do Y, record Z, and show message M."*
 
-**Feature name:** Pantry — save recipes, plan a week, generate one shopping list
-**Requirement ID:** `REQ-NF-003`
+**Feature name:** Generate one shopping list from a weekly plan (the core capability)
+**Requirement ID:** REQ-F-003
 
 ---
 
 ## 1. Normal behavior
 
-A signed-in cook saves recipes, plans meals on the days of a week, and generates one shopping
-list from that week. Every action is a single synchronous request that either completes and is
-shown as saved, or fails cleanly with the cook's input preserved. Reliability is a driving
-characteristic (FF-002).
+The account holder opens their weekly plan and generates its shopping list. One list is
+created in a single transaction, covering every ingredient line of the week's planned
+meals (BR-001), and is shown within the REQ-NF-001 target.
 
 ---
 
@@ -28,35 +27,60 @@ characteristic (FF-002).
 | User input | Missing, invalid, or unexpected data? | Reject with field-level validation messages. |
 | Database | Write fails or takes too long? | Do not show success. Return a retry-safe error and log the failure. |
 | Network | Request times out? | Apply a timeout rule and let the user retry safely. |
-| External service | Third-party API unavailable? | Not applicable in version one — no external services (`Q-007`). |
-| Background job | Job fails after the user left the page? | Not applicable in version one — no background jobs; every action is synchronous. |
+| External service | Third-party API unavailable? | Queue the action for later or mark it pending. |
+| Background job | Job fails after the user left the page? | Store job status, retry if safe, expose the final result. |
+
+Pantry has **no external services and no background jobs in version one** (Round 6;
+technical-spec §9.5), so the last two rows are dormant until that changes.
 
 ---
 
 ## 3. Important failure states
 
-```
-- Failure state: RECIPE_SAVE_FAILED
-  - Trigger:        The database write for a new or edited recipe fails.
-  - Recovery path:  The action is not reported as saved; the form is returned with input intact.
-  - User message:   "We could not save your recipe right now. Please try again."
-  - Log event:      RECIPE_SAVE_FAILED with account id and a safe error code (no recipe content).
-  - Test case:      FTEST-001
+Copy per failure state.
 
-- Failure state: LIST_GENERATION_FAILED
-  - Trigger:        The read while generating a shopping list from a week fails.
-  - Recovery path:  No partial list is shown; a retry-safe error is returned.
-  - User message:   "We could not generate your list. Please try again."
-  - Log event:      LIST_GENERATION_FAILED with account id and a safe error code.
-  - Test case:      FTEST-002
+```
+- Failure state: [name]
+  - Trigger:        [what causes it]
+  - Recovery path:  [what the system does next]
+  - User message:   [plain language, safe, with a next action]
+  - Log event:      [EVENT_NAME with safe context fields]
+  - Test case:      TEST-###
+```
+
+The failure states this workspace already knows about, filled:
+
+```
+- Failure state: Shopping-list generation fails
+  - Trigger:        The write fails or times out mid-generation
+  - Recovery path:  The transaction rolls back; no partial list exists; the plan is
+                    unchanged (REQ-NF-003)
+  - User message:   [TODO: when something is slow or fails, what should the user see? — Q-022]
+  - Log event:      LIST_GENERATION_FAILED with request_id, account_id, plan_id, safe reason
+  - Test case:      — (minted at the test stage against AC-003)
+
+- Failure state: Recipe save fails
+  - Trigger:        Validation passes but the write fails
+  - Recovery path:  Nothing is stored; every typed value is preserved on screen (REQ-NF-003)
+  - User message:   [TODO: when something is slow or fails, what should the user see? — Q-022]
+  - Log event:      RECIPE_SAVE_FAILED with request_id, account_id, safe reason
+  - Test case:      — (minted at the test stage against AC-001)
+
+- Failure state: Photo upload fails or is rejected
+  - Trigger:        The file is not an accepted image, exceeds the limit (Q-023), or the write fails
+  - Recovery path:  Nothing is stored; no orphan row and no orphan file (write file first,
+                    then row — database-design addendum)
+  - User message:   [TODO: when something is slow or fails, what should the user see? — Q-022]
+  - Log event:      PHOTO_UPLOAD_FAILED with request_id, account_id, safe reason
+  - Test case:      — (minted at the test stage)
 ```
 
 | Error state | Recovery path | What to test |
 |---|---|---|
-| Save fails | Return a retry-safe error; keep the cook's input. | A simulated save failure does not report success and preserves input (FTEST-001). |
-| Empty week | Show an empty list with a clear message. | Generating from a week with no meals yields an empty list, not an error (AC-003). |
-| Not signed in | Ask the user to sign in. | A protected action while signed out returns 401 (SEC-A-001). |
-| Another account's data | Safe not-found. | A request for a week the account does not own is denied (BR-002, SEC-Z-001). |
+| Generation fails mid-write | Transaction rolls back; no partial list; plan unchanged. | A simulated failure leaves zero orphan lists and items. |
+| Recipe save fails | Nothing stored; typed values kept. | A simulated write failure never shows a saved recipe. |
+| Not signed in | Redirect to sign-in, preserving the safe destination. | A protected route redirects instead of crashing. |
+| Another account's resource | Safe not-found; nothing revealed (SEC-Z-001). | A guessed ID returns the safe 404. |
 
 ---
 
@@ -64,8 +88,7 @@ characteristic (FF-002).
 
 | Operation | Maximum wait |
 |---|---|
-| Generate shopping list (read) | A few seconds, then a retry-safe error rather than an indefinite hang. |
-| Save recipe or plan (write) | A few seconds, then a retry-safe error; nothing partially written. |
+| Any request served by the application | 10 seconds — proposed by the kit; no number was asked for. The user is never left waiting on a hung request. |
 
 ## 5. Retry rules
 
@@ -79,39 +102,46 @@ characteristic (FF-002).
 
 | Operation | Safe to retry? | Max retries | Delay | On give-up |
 |---|---|---|---|---|
-| Generate shopping list (read-only) | Yes | 1 | brief | Show a retry-safe error message. |
-| Save recipe or plan (write) | No — would risk a duplicate | 0 | — | Return a retry-safe error; nothing written. |
+| Save recipe | No automatic retry — the user retries; typed input preserved. | 0 | — | Clear error, input kept. |
+| Generate shopping list | User-initiated regeneration only; nothing is replaced until it succeeds. | 0 automatic | — | Clear error, plan unchanged. |
+| Photo upload | No automatic retry. | 0 | — | Clear error; nothing stored. |
 
 > Uncontrolled retry logic creates new problems: duplicate records, hidden failures,
 > and hammered dependencies.
 
 ## 6. Background job and queue rules
 
-None in version one — every action is synchronous request/response, so there are no background
-jobs or queues to define. Revisit if list generation becomes slow enough to move off the
-request path (`Q-010`).
+| Requirement | Definition |
+|---|---|
+| Job name | None in version one — every operation completes in the request. |
+| Trigger | n/a |
+| Input data | n/a |
+| Retry rule | n/a |
+| Failure state | n/a |
+| User visibility | n/a — revisit this table if imports, reminders, or photo processing arrive. |
 
 ## 7. Logging requirements
 
 | Log requirement | Good practice |
 |---|---|
-| Event name | Clear names such as `RECIPE_SAVE_FAILED`, `LIST_GENERATED`. |
+| Event name | Clear names such as `AUTH_LOGIN_FAILED`, `JOB_RETRY_SCHEDULED`. |
 | Severity | Use `info`, `warning`, `error`, `critical` consistently. |
 | Request / correlation ID | Attach a request ID so related events can be traced. |
-| Safe context | Account ID and action — never recipe content, photos, or credentials. |
+| Safe context | User ID, role, action — never secrets or raw credentials. |
 | Failure reason | Error type or safe error code, not a sensitive dump. |
-| Outcome | Whether the system recovered, retried, or stopped safely. |
+| Outcome | Whether the system recovered, retried, queued, or stopped safely. |
 
-**Must never be logged:** passwords · tokens · reset links · full secret values · recipe and
-plan content · photos (`REQ-NF-007`; full list is `Q-012`).
+**Must never be logged:** passwords · tokens · reset links · full secret values · raw
+payment data.
 
 **Structured log example (Ch. 24 §24.3)**
 ```json
 {
   "level": "error",
-  "event": "recipe_save_failed",
+  "event": "report_export_failed",
   "request_id": "REQ-20491",
-  "account_id": "ACC-118",
+  "user_id": "USER-118",
+  "project_id": "PROJ-42",
   "reason": "database_timeout",
   "duration_ms": 12000,
   "recovery_action": "user_can_retry"
@@ -122,22 +152,22 @@ plan content · photos (`REQ-NF-007`; full list is `Q-012`).
 
 | Rule | Definition |
 |---|---|
-| Partial write protection | A multi-step write (a plan and its planned meals, a list and its items) runs in one transaction; a failure rolls the whole change back. |
-| Duplicate protection | Regenerating a list for the same week does not accumulate duplicate lists — it replaces or returns the same list (BR-001). |
-| Ordering guarantees | Not required — one user, synchronous actions; there is no concurrent ordering to guarantee. |
+| Partial write protection | A shopping list and its items are written in one transaction; a recipe and its ingredient lines likewise (ADR-002 — the store supports transactions). |
+| Duplicate protection | Regeneration replaces nothing until it succeeds; whether a regenerated list replaces or joins the old one is part of Q-013. |
+| Ordering guarantees | Ingredient lines and list items carry a stable `position`; display order never depends on insertion accidents. |
 
 ## 9. User-facing error messages
 
 | Weak message | Better message | Why it is better |
 |---|---|---|
 | `DatabaseError: connection refused` | "We could not save your changes right now. Please try again." | Understandable; reveals no internals. |
-| `Invalid request` | "Please enter a recipe title before saving." | Tells the user exactly what to fix. |
-| `Unauthorized` | "You do not have permission to view this." | Explains without exposing security details. |
-| `Job failed` | "We could not generate your list. Please try again." | Gives a next action. |
+| `Invalid request` | "Please enter a project name before saving." | Tells the user exactly what to fix. |
+| `Unauthorized` | "You do not have permission to edit this project." | Explains without exposing security details. |
+| `Job failed` | "Your report could not be generated. You can try again or contact support." | Gives a next action. |
 
 ## 10. Monitoring / alerting notes
 
-→ [`../../07-ops/02-monitoring/monitoring-plan.md`](../../07-ops/02-monitoring/monitoring-plan.md)
+→ [`../ops/monitoring-plan.md`](../../07-ops/02-monitoring/monitoring-plan.md)
 
 ---
 
@@ -170,13 +200,17 @@ plan content · photos (`REQ-NF-007`; full list is `Q-012`).
 
 ## A1. The dual-write problem — use the outbox
 
-**Not applicable in version one.** Pantry has no message bus and publishes no events; every
-write is a single local database transaction, so an event cannot escape a failed commit. The
-pattern below is kept for the day an event bus or external consumer is added (`Q-007`).
+There is **no transaction spanning a database and a message bus.** This is broken:
 
-There is **no transaction spanning a database and a message bus.** If one is ever added,
-committing the state change and publishing the event are two steps that can fail between —
-the outbox pattern closes that gap:
+```
+commit task to database        ✅
+publish TaskCreated to bus     💥  process dies here
+```
+
+The task exists; no consumer ever hears about it. Publishing *before* the commit is worse
+— the event escapes and cannot be retracted if the commit then fails.
+
+**The outbox pattern:**
 
 1. Commit the state change **and** the outgoing events in the **same atomic transaction**
    (an `outbox` table, or events embedded in the document).
@@ -187,6 +221,10 @@ the outbox pattern closes that gap:
 | Guarantee | Consequence |
 |---|---|
 | **At-least-once** | If the relay dies after publishing but before marking, the message goes out **again**. Every consumer must be able to **deduplicate**. |
+
+**Not applicable in version one:** Pantry has no message bus and no external services
+(Round 6); every write is a single database transaction. Revisit this section if events,
+queues, or integrations arrive.
 
 | Checklist | |
 |---|---|
@@ -209,10 +247,8 @@ the outbox pattern closes that gap:
 
 | Entity / aggregate | Transaction boundary | Consistency outside | Concurrency control |
 |---|---|---|---|
-| Recipe | recipe + its ingredient lines | account, plans (by ID) | version field |
-| WeeklyPlan | plan + its planned meals | recipes (by ID), account | version field |
-| ShoppingList | list + its items | week / plan (by ID), account | version field |
-
----
+| Recipe | recipe + its ingredient lines | referenced by planned meals by ID | version field |
+| WeeklyPlan | plan + its planned meals | references recipes by ID | version field |
+| ShoppingList | list + its items, written in one generation transaction | references its plan by ID | version field |
 
 > Blueprint: blueprints/01-docs/07-security-and-reliability/reliability-specification.md

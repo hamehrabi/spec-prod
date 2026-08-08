@@ -4,9 +4,6 @@
 > A short record of how a bug was diagnosed, what evidence proved the cause, what changed,
 > and how you will prevent the same problem from returning. Not a long report — a clear
 > trace from symptom to fix.
->
-> For Pantry, a bug's regression test ties to a failure test (FTEST-###) in
-> [`../../03-tests/04-failure/failure-tests.md`](../../03-tests/04-failure/failure-tests.md).
 
 ---
 
@@ -14,8 +11,6 @@
 
 | Bug ID | Date | Feature | Requirement | Symptom | Root cause | Regression test | Spec updated? | Status |
 |---|---|---|---|---|---|---|---|---|
-
-No entries yet — the first diagnosed bug adds the first row.
 
 ---
 
@@ -34,7 +29,7 @@ Evidence:            [logs, stack trace, failing test, reproduction steps]
 Root Cause:          [the real cause, not just the error message]
 
 Smallest Safe Fix:   [what changed]
-Regression Test:     [FTEST-### or test case]
+Regression Test:     [test name or test case]
 Spec Update Needed:  [requirement, technical spec, API contract, or agent instruction]
 Prevention Note:     [what you will not repeat]
 ```
@@ -62,7 +57,5 @@ find where the instruction, context, code, or test coverage was incomplete.
 
 | Bug ID | Pattern | Guardrail added | Where |
 |---|---|---|---|
-
-No entries yet — the first fixed bug adds its guardrail rows here.
 
 > Blueprint: blueprints/05-review/04-debugging/debugging-specification.md

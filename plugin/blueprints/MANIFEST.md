@@ -20,7 +20,7 @@ failure, not a bonus.
 
 ## Library digest
 
-**Library digest:** `0c859dd9a60b4fdfe88e30a5945da5ca70e2efaba219cdc03bc3868941386046`
+**Library digest:** `8e1ee8317ae9fe99382bf18aaf1fae4bdb0bdde014333ef17fad988114f20104`
 
 One value for the whole library: SHA-256 over the 81 digests below —
 lowercased, sorted, one per line, each ending in a newline. **Compare this first.** It matches
@@ -82,7 +82,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `05-review/01-logs/change-log.md` | `88856d29f1b397e1dfff8a2efc39817395e82848349d4e01b4e57add104746a6` |
 | `05-review/01-logs/feedback-register.md` | `ccca20eadf50446507128d55542a3e0a81e8bc100d6c72cc8cb49aac827210ed` |
 | `05-review/01-logs/review-log.md` | `5afd93cb912f8ed351fa3a9c3460f13173648bfe7fbd8ddebc00fad27cbc9c9d` |
-| `05-review/02-checklists/code-review-checklist.md` | `e50400aa65bd8c6b94855b5c845442e5a14c0f0ab79b1f52559d0d603a5b52cc` |
+| `05-review/02-checklists/code-review-checklist.md` | `2146afb47c05460251f674036830335e10f808e18aabc92bfbac65e8ed2c0055` |
 | `05-review/02-checklists/risk-storming.md` | `5aa093bab26fade6c5b7d456d7179ca4ce8d9f874c75a52d6274157223c54fb3` |
 | `05-review/02-checklists/security-review.md` | `5e26890d13e79afa669cbb85d85bd94ee825fc5cd4880c6355f05568226cf6fc` |
 | `05-review/02-checklists/traceability-review.md` | `25d2d796af3e2f944bab81690267f53053edc619993c1102361a0474db24bfb1` |

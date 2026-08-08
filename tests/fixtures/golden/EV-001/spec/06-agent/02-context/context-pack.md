@@ -10,53 +10,35 @@
 
 ---
 
-## Specs the agent should have on hand (cite by path, do not restate)
-
-| Need | Where it lives |
-|---|---|
-| Requirements + acceptance criteria | `../../01-docs/02-requirements/requirements.md` (REQ-F-001..006, REQ-NF-001..007, REQ-R-001) |
-| Technical decisions + fitness functions | `../../01-docs/04-technical-spec/technical-spec.md`, `../../01-docs/04-technical-spec/fitness-functions.md` (FF-001..003) |
-| Architecture decisions | `../../01-docs/05-architecture/decisions.md`, `../../01-docs/05-architecture/architecture-decisions/` (ADR-001, ADR-002) |
-| API contract | `../../01-docs/06-api-and-data-design/api-specification.md` |
-| Data model + entities | `../../01-docs/06-api-and-data-design/database-design.md` (Account, Recipe, IngredientLine, WeeklyPlan, PlannedMeal, ShoppingList, ShoppingListItem) |
-| Security rules | `../../01-docs/07-security-and-reliability/security-specification.md` (SEC-A-001..004, SEC-Z-001..002) |
-| Reliability rules | `../../01-docs/07-security-and-reliability/reliability-specification.md` |
-| Current task | `../../02-tasks/02-task-files/` (TASK-001..006) |
-
----
-
 ## Template (Ch. 12 §12.8)
 
 ```markdown
 # Project Context Pack
 
 ## 1. Project Background
-Project name:   Pantry
-Purpose:        Turn a week of chosen meals into ONE shopping list for a single home cook
-Primary users:  One account owner (single-user, no sharing)
-Current stage:  Building the first working version, one task at a time
+Project name:   [Name]
+Purpose:        [What the system helps users do]
+Primary users:  [User roles]
+Current stage:  [Planning / building / testing / improving]
 
 ## 2. Current Task
-Task:            Generate one consolidated shopping list from a weekly plan (TASK-005).
-Expected output: ShoppingList generation logic and unit tests.
-Do not change:   Recipe storage, Account/Auth, the database schema, or the API contract.
+Task:            [One focused task]
+Expected output: [What should be created or changed]
+Do not change:   [Files, schema, features, or decisions to protect]
 
 ## 3. Relevant Requirements
-Requirement ID:        REQ-F-004
-Requirement statement: A signed-in cook can generate ONE consolidated shopping list from a
-                       weekly plan.
+Requirement ID:        [REQ-###]
+Requirement statement: [What the system must do]
 Acceptance criteria:
-- BR-001: one list per week — a second generation for the same week replaces, not duplicates.
-- Ingredient lines from all planned meals are consolidated into shopping-list items.
-- Only the owner's recipes and plans are read (BR-002, SEC-Z-001).
+- [Criterion 1]
+- [Criterion 2]
+- [Criterion 3]
 
 ## 4. Technical Decisions
-Architecture rule: ShoppingList list-generation is a core module separate from recipe
-                   storage and Account/Auth; it must not import UI or store-specific code
-                   (ADR-001, REQ-NF-005, FF-001).
-Data rule:         Use only portable SQL and types; every migration is reversible (ADR-002).
-API rule:          Follow the contract in api-specification.md; do not rename fields.
-Security rule:     Scope every read/write by account_id; another account returns not-found.
+Architecture rule: [Relevant architecture decision / ADR]
+Data rule:         [Relevant database or model rule]
+API rule:          [Relevant endpoint or contract rule]
+Security rule:     [Relevant authentication or authorization rule]
 
 ## 5. File Map
 [Show only the folders and files relevant to this task]
@@ -78,6 +60,11 @@ Before finishing, explain:
 - Any assumption made
 ```
 
+The standing values for Pantry, reused in every pack: project name **Pantry**; purpose —
+one account holder saves recipes, plans a week, generates one shopping list, searches
+recipes; primary users — the account holder (one role, no sharing); current stage —
+implementation not started, TASK-001 next.
+
 ---
 
 ## The context slice pattern (Ch. 12 §12.3)
@@ -91,14 +78,14 @@ For a focused task, supply exactly five things:
 5. **Restrictions** — what the agent must not change.
 
 ```
-Current goal: Consolidate ingredient lines from a weekly plan into one shopping list.
-Relevant requirement: REQ-F-004 — generate ONE shopping list from a plan.
+Current goal: Implement the save-recipe validation logic.
+Relevant requirement: REQ-F-001 — save a recipe with its ingredient lines.
 Acceptance criteria:
-- BR-001: exactly one list per week; regenerating replaces the previous list.
-- Duplicate ingredients across meals are merged into single items.
-- Only the owner's plan and recipes are read.
-Technical rule: The list-generation core must not import UI or store-specific code (ADR-001).
-Restriction: Do not change the database schema or the Account/Auth module in this task.
+- Title is required and trimmed before saving.
+- At least one ingredient line is required.
+- A failed save stores nothing and keeps the typed values.
+Technical rule: Recipe and lines are written in one transaction (ADR-002).
+Restriction: Do not change the plan, list, or account modules in this task.
 ```
 
 ---
@@ -122,19 +109,19 @@ layer, or ignoring the structure you already chose. List only what the current t
 ```
 pantry/
   01-docs/
-    02-requirements/requirements.md      # REQ-F-004 and acceptance criteria
-    04-technical-spec/technical-spec.md
-    06-api-and-data-design/database-design.md
+    requirements.md          # user-facing and system requirements
+    technical-spec.md
   06-agent/
-    02-context/context-pack.md           # compact agent context for current work
+    context-pack.md          # compact agent context for current work
   04-src/
-    modules/shopping-list/               # core list-generation logic (no UI, no store code)
-    modules/planning/                    # weekly plan the generator reads
-    api/                                 # API route handlers
-    data/                                # data access and schema helpers
+    pages/                   # screen-level frontend pages
+    components/              # reusable interface pieces
+    api/                     # API route handlers or client calls
+    services/                # business logic — list generation lives here
+    data/                    # data access and schema helpers
   03-tests/
-    unit/                                # small behavior tests
-    integration/                         # API and workflow tests
+    unit/                    # small behavior tests
+    integration/             # API and workflow tests
 ```
 
 ---
@@ -168,5 +155,14 @@ start the next task.
 - [ ] Does the next task need a smaller context slice?
 
 ---
+
+## Prompt to use with the pack (Ch. 12)
+
+```
+Using the Project Context Pack above, implement only the current task. Do not add
+unrelated features. Do not change protected files or decisions. After completing the work,
+summarize what changed, list the requirement implemented, and identify the tests that
+should pass.
+```
 
 > Blueprint: blueprints/06-agent/02-context/context-pack.md

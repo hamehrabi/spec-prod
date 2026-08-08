@@ -218,7 +218,16 @@ export const CHECKS = {
       // exists, an example is a thing being described. Recognised by the words that introduce
       // one — narrow on purpose, because anything looser would let a real dangling reference
       // hide behind a stray "e.g." earlier in the line.
-      const text = all(ws).replace(/\b(?:such as|e\.?g\.?|for example|like)\s+`?\w[\w-]*-\d{3}`?/gi, '')
+      //
+      // FENCED BLOCKS ARE EXAMPLES, NOT CITATIONS — the line BUG-017 drew for check 5 and
+      // tableRows() drew for the table checks, arriving here last. The traceability blueprint
+      // keeps a fenced "Linking pattern" illustrating the chain on `REQ-AUTH-001`, and the
+      // first run to keep that fence faithfully was reported for a dangling identifier that
+      // exists only as an illustration. References inside fences are therefore not scanned;
+      // definitions stay scanned everywhere, which can only make this check QUIETER about a
+      // fence, never louder.
+      const noFences = (t) => t.replace(/^\s*(```|~~~)[\s\S]*?^\s*\1.*$/gm, '')
+      const text = noFences(all(ws)).replace(/\b(?:such as|e\.?g\.?|for example|like)\s+`?\w[\w-]*-\d{3}`?/gi, '')
       // Defined = introduced by a table row or heading that starts with the identifier.
       const defined = new Set([...all(ws).matchAll(/^[|#>\s-]*\**(\w[\w-]*-\d{3})\**\s*[|:—-]/gm)].map((m) => m[1]))
       const dangling = [...new Set(text.match(ID) ?? [])].filter((id) => !defined.has(id))

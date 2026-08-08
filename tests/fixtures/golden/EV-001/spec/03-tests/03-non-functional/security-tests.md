@@ -14,11 +14,12 @@ For every important feature ask:
 
 | Test ID | Requirement | Risk | Scenario | Expected result | Status |
 |---|---|---|---|---|---|
-| STEST-001 | SEC-Z-001, REQ-R-001 | Unauthorized access | A cook requests another account's recipe, week, or list by id | Safe not-found; no data returned (BR-002) | Planned |
-| STEST-002 | SEC-A-001 | Unauthenticated access | A protected data route is opened without a session | 401 / redirect to sign in | Planned |
-| STEST-003 | SEC-A-002 | Credential exposure | Inspect storage and logs after sign-in | Only a password hash stored; no password in any log line | Planned |
-| STEST-004 | SEC-Z-002 | Private file leakage | Another account or an unauthenticated request fetches a recipe photo | Denied; the photo is not returned | Planned |
-| STEST-005 | SEC-A-003 | Account enumeration | Request a password reset for an unknown vs a known email | Identical response; existence not revealed | Planned |
+| STEST-001 | SEC-Z-001 | Unauthorized access | An account holder requests another account's recipe, plan, or list by guessing an ID. | Safe 404; existence not confirmed; no data returned. | Planned |
+| STEST-002 | SEC-A-001 | Unauthenticated access | Open any data route without signing in. | 401 and the sign-in prompt. | Planned |
+| STEST-003 | SEC-Z-002 | Private file exposure | Request another account's dish photo by URL. | Safe 404; a signed-out request gets 401; photo never served. | Planned |
+| STEST-004 | REQ-NF-003 | Information leakage | Force a server error. | No stack trace, path, token, or private data in the response. | Planned |
+| STEST-005 | REQ-F-001 | Broken validation | A save request carries unexpected fields (for example `account_id`). | Extra fields ignored or rejected; ownership never reassigned. | Planned |
+| STEST-006 | BR-002 | Cross-account reference | Add a planned meal referencing another account's recipe ID. | Safe rejection; no planned-meal row written. | Planned |
 
 ---
 
@@ -26,22 +27,23 @@ For every important feature ask:
 
 | Security risk | Test planning question |
 |---|---|
-| Unauthorized access | What happens when a cook tries to access data they do not own? |
+| Unauthorized access | What happens when a user tries to access data they do not own? |
 | Broken validation | What happens when the request contains unexpected fields or dangerous input? |
 | Information leakage | Does an error message reveal private data or system details? |
-| Weak authorization | Can a request reach a resource the account does not own? |
+| Weak authorization | Pantry has one role, so the question becomes: can any route reach another account's data? |
 
 ---
 
 ## Per-role negative matrix
 
-Version one has one role, so the denial cases are another account and signed out. For each
-protected action, the deny cell cites the test that proves the server refuses it.
+Pantry has **one role** — the account holder — so the matrix has two columns: the owner
+and everyone else.
 
-| Action | Home cook (own data) | Another account | Signed out |
+| Action | Account holder (owner) | Another account | Signed out |
 |---|---|---|---|
-| Read / write a recipe, plan, or list | allow | **deny → STEST-001** | **deny → STEST-002** |
-| View a recipe photo | allow | **deny → STEST-004** | **deny → STEST-002** |
+| Read or write a recipe, plan, or list | allow | **deny → STEST-001** | **deny → STEST-002** |
+| View a dish photo | allow | **deny → STEST-003** | **deny → STEST-003** |
+| Plan a meal from a recipe | allow (own recipes) | **deny → STEST-006** | **deny → STEST-002** |
 
 > **Default access is deny unless explicitly allowed** (Appendix M).
 
@@ -50,13 +52,13 @@ protected action, the deny cell cites the test that proves the server refuses it
 ## Rules
 
 - Security tests must include **negative cases**, not only happy paths.
-- Every rule in [`../../01-docs/07-security-and-reliability/security-specification.md`](../../01-docs/07-security-and-reliability/security-specification.md)
+- Every rule in [`../docs/security-specification.md`](../../01-docs/07-security-and-reliability/security-specification.md)
   needs at least one test.
 - Hiding a control in the UI is not a passing security test — assert the **server**
   rejects the request.
+- Session-expiry and credential tests are written once Q-009 chooses the
+  authentication model; SEC-A-002's test arrives with it.
 
-Full review pass → [`../../05-review/02-checklists/security-review.md`](../../05-review/02-checklists/security-review.md)
-
----
+Full review pass → [`../review/security-review.md`](../../05-review/02-checklists/security-review.md)
 
 > Blueprint: blueprints/03-tests/03-non-functional/security-tests.md

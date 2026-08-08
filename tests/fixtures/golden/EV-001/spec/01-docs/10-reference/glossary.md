@@ -25,45 +25,38 @@
 
 ---
 
-## Pantry domain terms
-
-| Term | Definition |
-|---|---|
-| **Account** | The single owner's identity in Pantry; one account per person, no sharing. |
-| **Recipe** | A saved dish with a title, its ingredient lines, and optional private photo. |
-| **IngredientLine** | One ingredient entry on a Recipe: name, quantity, and unit. |
-| **WeeklyPlan** | A named week that groups the meals the home cook has chosen to cook. |
-| **PlannedMeal** | A single Recipe placed into a WeeklyPlan for a chosen day or slot. |
-| **ShoppingList** | The one consolidated list generated from a WeeklyPlan's planned meals. |
-| **ShoppingListItem** | One line on a ShoppingList: a consolidated ingredient with quantity, tickable when bought. |
-| **Home cook** | The single B2C user Pantry serves — a person planning meals for their household. |
-| **Week** | The planning window a WeeklyPlan covers; the unit of meal selection turned into one list. |
-| **Shopping list** | The consolidated buy-list output of the core capability (see ShoppingList). |
-| **Core capability** | Turning a chosen week of meals into ONE consolidated shopping list (REQ-F-004). |
-
----
-
 ## Additional terms used in this template
 
 | Term | Definition |
 |---|---|
 | **Acceptance test** | A test written from the user or business view that proves a requirement works end to end. |
-| **ADR** | Architecture decision record (see above); Pantry cites ADR-001 modular monolith and ADR-002 relational store. |
-| **Business rule** | A policy decision the software must enforce, written separately from implementation (BR-001…004). |
+| **Business rule** | A policy decision the software must enforce, written separately from implementation. |
 | **Constraint** | A fixed condition that limits the solution (budget, time, technology, compliance, device). |
 | **Edge case** | An unusual but possible situation the system must still handle correctly. |
 | **Failure condition** | A situation where the system cannot complete the request safely. |
-| **Fitness function** | An automated check that guards a driver over time; Pantry uses FF-001 simplicity, FF-002 reliability, FF-003 accessibility. |
 | **Idempotency** | The property that repeating an operation produces no additional harmful effect — a prerequisite for safe retries. |
-| **Modular monolith** | One deployable application organized internally into clear modules with respected boundaries (ADR-001). |
+| **Modular monolith** | One deployable application organized internally into clear modules with respected boundaries. |
 | **Non-goal** | Something the team deliberately chooses not to build in this release. |
 | **Observability** | The ability to use logs, metrics, and traces together to understand *why* a system behaved as it did. |
 | **Quality gate** | A condition that must be true before work is allowed to move to the next stage. |
-| **RBAC** | Role-based access control: permissions defined per role instead of per user (Pantry has one owner role, REQ-R-001). |
+| **RBAC** | Role-based access control: permissions defined per role instead of per user. |
 | **Scope creep** | New features entering the work without being approved in the specification. |
 | **Shallow test** | A test that confirms something happened without proving the behavior was correct. |
 | **Smoke test** | A short check of core flows run immediately after deployment. |
 | **Stage gate** | A checkpoint between lifecycle stages that prevents unfinished work from moving forward. |
 | **Vibe coding** | Prompting an AI repeatedly until the result "feels right" — useful for exploration, unsafe for production. |
+
+---
+
+## Pantry's own terms
+
+| Term | Definition |
+|---|---|
+| **Recipe** | A saved dish with a title and one or more ingredient lines, belonging to one account. |
+| **Ingredient line** | One ingredient entry inside a recipe, with a stable position. |
+| **Weekly plan** | The set of meals an account holder chooses to cook in one week. |
+| **Planned meal** | One recipe placed into a weekly plan (BR-002: same account only). |
+| **Shopping list** | The single list generated from one weekly plan, covering every ingredient line of that week (BR-001). |
+| **Dish photo** | A private photo of a finished dish, visible only to its owner (SEC-Z-002). |
 
 > Blueprint: blueprints/01-docs/10-reference/glossary.md

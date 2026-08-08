@@ -1,12 +1,13 @@
-# TASK-001: Project skeleton and account sign-in
+# TASK-001: Create project structure and configuration loading
 
 > Source: Ch. 4 §4.5 (`TASK-001.md` starter) + Ch. 14 (agent-friendly task template) +
-> Ch. 16 §16.5 (engineering task template). One task = one outcome.
+> Ch. 16 §16.5 (engineering task template).
+> Copy to `TASK-###-short-name.md`. One task = one outcome.
 
 ---
 
 **Task ID:** TASK-001
-**Task title:** Project skeleton and account sign-in
+**Task title:** Create project structure and configuration loading
 **Priority:** P0
 **Status:** Not started
 **Assigned to:** AI agent
@@ -15,45 +16,46 @@
 
 ## Source requirement or spec section
 
-`REQ-F-005` (private account), `REQ-NF-002` (only the account may read or write its data),
-`SEC-A-001` (sign-in required); ADR-001 (modular monolith), ADR-002 (relational store).
+ADR-001 (modular monolith), ADR-002 (relational store, SQLite first),
+technical-spec §1 (system overview).
 
 ## Business reason
 
-Every recipe, plan, and list is private to one account, so nothing else can be built or
-tested until an account can sign in and requests can be scoped to it.
+Every slice that follows needs a running skeleton to land in. Without this there is
+nowhere to put the first feature and no way to check anything runs.
 
 ## Goal
 
-Stand up the modular-monolith skeleton and a working sign-in so a home cook has a private
-account every later feature can be scoped to — one outcome: an authenticated session.
+A runnable application skeleton with module boundaries per ADR-001 and configuration
+loaded from the environment — one outcome, no features.
 
 ## Inputs
 
-- [`technical-spec.md`](../../01-docs/04-technical-spec/technical-spec.md) §2, §7
-- [`security-specification.md`](../../01-docs/07-security-and-reliability/security-specification.md) §1
-- [`database-design.md`](../../01-docs/06-api-and-data-design/database-design.md) (Account)
+- technical-spec §1 and §5 (module boundaries)
+- ADR-001, ADR-002
+- `.env.example` (the variables that must load: `APP_ENV`, `DATABASE_PATH`, `PHOTO_STORAGE_PATH`)
 
 ## Expected files or components
 
-The Account/Auth module, the API-layer skeleton, and config loading — inside the module
-boundaries set by ADR-001.
+The `04-src/` layout described in `04-src/README.md`, when it exists. The concrete file
+layout is the task's own output; nothing else prescribes it.
 
 ## Expected output
 
-A running app with config loading, an Account table, and sign-in / sign-out that establishes
-a session; a signed-out request to any data route is refused.
+The application starts locally, reads its configuration from the environment, opens the
+SQLite database at `DATABASE_PATH`, and answers an empty health check.
 
 ## Step-by-step instructions
 
-1. Create the modular-monolith skeleton (UI, API, domain modules, data layer) per ADR-001.
-2. Add the Account entity with a store-neutral schema per ADR-002.
-3. Implement sign-in, sign-out, and session handling (concrete model deferred — `Q-009`).
-4. Refuse any data route without a signed-in session (SEC-A-001).
+1. Create the module structure ADR-001 describes — separate modules for recipes, plans,
+   lists, and accounts, with no import cycles (REQ-NF-005).
+2. Add configuration loading for the variables named in `.env.example`, with safe failure
+   when one is missing.
+3. Add a health-check route that touches no business logic.
 
 ## Dependencies
 
-None.
+None. This is the first task.
 
 ## Constraints / Boundaries
 
@@ -61,24 +63,29 @@ None.
 - Do not add unrequested features.
 - Do not rename public interfaces unless this task explicitly requires it.
 - Do not introduce a new dependency without approval.
-- Use only portable SQL and types (ADR-002); no SQLite-only features.
+- Do not implement any business feature — no recipes, plans, lists, search, or photos.
 
 ## Do not change
 
-No recipe, planning, or list behaviour exists yet — do not build it in this task.
+`spec/` — the specification workspace is read-only for implementation tasks.
 
 ## Acceptance check / Done criteria
 
-The app runs; a cook can sign in and out; a signed-out request to a data route returns 401.
+The application starts locally with a copied `.env`, the health check answers, and no
+business route exists.
 
 ## Tests to run or create
 
-| Test ID | Scenario | Expected result |
-|---|---|---|
-| ATEST-007 | A cook signs in to their own private account | Session created; the cook reaches only their own data |
-| STEST-002 | A protected route is opened with no session | 401 / sign-in prompt; no data returned |
-| STEST-003 | Passwords are stored and logged | Only a hash is stored; no log line contains a password |
-| FTEST-004 | A data action is attempted while signed out | 401 + sign-in prompt; no data changed |
+> **Test rows are DEFINED in their test files (`03-tests/…`), and only there.** This table
+> CITES them: the id and the file that owns it, never the scenario or expected result
+> restated. A task that restates a test carries a second copy with nothing keeping the two in
+> step — consistent on the day it is written, wrong the first time the owning file changes. A
+> reviewer reads the id and opens the owning file. (`fitness-functions.md`'s register states
+> the same rule for `FF-` ids, for the same reason.)
+
+| Test ID | Defined in |
+|---|---|
+| — | No test row exists for the skeleton; the health check is its own evidence. The first cited tests arrive with TASK-004. |
 
 ## Review checklist
 
@@ -91,12 +98,13 @@ The app runs; a cook can sign in and out; a signed-out request to a data route r
 
 ## Out of scope
 
-- Recipes, planning, list generation, and photos — later tasks.
+- Authentication (TASK-002, blocked on Q-009).
+- Any entity table (TASK-003 onwards).
+- Any screen.
 
 ## Stop condition
 
-Stop and ask if the authentication model (`Q-009`) must be pinned down before proceeding.
-
----
+Stop and ask if the module boundaries in ADR-001 cannot be expressed in the chosen
+runtime, or if configuration needs a variable `.env.example` does not name.
 
 > Blueprint: blueprints/02-tasks/02-task-files/TASK-001.md

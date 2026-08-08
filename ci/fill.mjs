@@ -200,8 +200,20 @@ export const unfilled = (text) => placeholders(text).filter((p) => p.context ===
  * A `[TODO: ...]` is the SANCTIONED outcome of step 4 when a fact is unknown (BR-003), not a
  * leftover. It is only correct if a matching Q-### exists (FF-012), so it is reported
  * separately rather than counted as either filled or unfilled.
+ *
+ * A MENTION OF THE FORM IS NOT A USE OF IT. The BUG-036 payload fixes teach the citation rule
+ * in blueprint notes that quote the marker — "the same `[TODO: ...]` form every other unknown
+ * uses" — and the first workspace produced after them was reported as carrying two orphan
+ * TODOs that were both this sentence. Two shapes mark a mention: the marker wrapped in inline
+ * backticks (quoted, the way prose quotes code), and a content of bare `...` — the form's own
+ * placeholder, which by BR-003 could never be a real marker because it names no question.
+ * Fences are NOT excluded: the entry point's five real markers live inside its command fence.
  */
-export const todos = (text) => [...text.matchAll(/\[TODO:\s*([^\]]+)\]/g)].map((m) => m[1].trim())
+export const todos = (text) =>
+  [...text.matchAll(/(`?)\[TODO:\s*([^\]]+)\](`?)/g)]
+    .filter((m) => !(m[1] === '`' && m[3] === '`'))
+    .filter((m) => !/^(\.{3}|…)$/.test(m[2].trim()))
+    .map((m) => m[2].trim())
 
 // --- Step 5: identifier minting ---------------------------------------------------------
 

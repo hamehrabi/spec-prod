@@ -14,15 +14,16 @@ the approved requirements, specifications, tasks, and tests.
 
 ## Project goal
 
-Pantry is a recipe and shopping-list web application for a single home cook (one account, no
-sharing). The core capability is turning a week of chosen meals into ONE shopping list: the
-cook saves recipes, searches them, plans a week of meals, then generates a single
-consolidated list and ticks items off while shopping (REQ-F-001..006).
+Pantry is a web application for home cooks. One account holder saves recipes with their
+ingredient lines, plans which meals to cook in a week, generates one shopping list from
+that week, and searches their saved recipes. The capability it competes on is turning a
+week of chosen meals into one shopping list. Single user, no sharing; private dish photos
+are the only stored files.
 
 ## Current stage
 
-Task planning → implementation (tasks TASK-001..006 defined; code written one task at a time
-by an AI coding agent).
+Task planning complete; implementation not started. TASK-001 is the first task, and
+TASK-002, TASK-012, and TASK-017 are blocked on open questions Q-009, Q-011, and Q-023.
 
 ---
 
@@ -67,7 +68,6 @@ When information conflicts, the higher item wins.
 9. Do not expose secrets, tokens, or private data — in code, logs, examples, or output.
 10. Do not rename public interfaces unless the task explicitly requires it.
 11. If a request has no matching spec entry, **pause and ask** instead of implementing it.
-12. Do not treat an open question (Q-###) as an assumption — stop and ask.
 
 ## Workflow rule
 
@@ -116,23 +116,14 @@ Every completion must include:
 - Do not expose secrets, tokens, or private data.
 - Do not expand scope without approval.
 
-## Scope boundaries (Pantry)
-
-- Build only what the current task cites. One task at a time.
-- Out of scope: sharing, nutrition, pricing, and recipe import. Do not add them.
-- Every behaviour change adds or updates a test.
-- Report unclear requirements before coding; do not fill gaps with guesses.
-
 ---
 
 ## Project-specific rules from ADRs
 
 | ADR ID | Rule the agent must follow | Fitness function ID |
 |---|---|---|
-| ADR-001 | Each feature area lives in its named module (Recipes, Planning, ShoppingList, Account/Auth). Route handlers contain no business rules; business logic lives in domain modules, never in UI components. No module reaches another account's data. | FF-001 |
-| ADR-002 | Use only portable SQL and types; no SQLite-only feature, function, or extension. Every migration is reversible. | FF-001 |
-| ADR-001 | Core boundary: the ShoppingList list-generation logic (REQ-F-004, BR-001) stays separate from recipe storage and Account/Auth; it must not import UI or store-specific code. | FF-001, FF-002 |
-| ADR-001 | Ownership: every read/write is scoped by `account_id`; a request for another account's data returns a safe not-found (BR-002, SEC-Z-001). | FF-002 |
+| ADR-001 | Each feature area (recipes, plans, lists, accounts) lives in its own module with no import cycles; route handlers must not contain business rules; shopping-list generation lives in a domain service. | FF-001 |
+| ADR-002 | Use only relational features SQLite and Postgres share; every multi-row write (recipe + lines, list + items) is one transaction; reference across aggregates by ID. | FF-004 |
 
 > **Cite the ADR; do not restate the decision.** Every accepted ADR that constrains
 > implementation gets a row here, and the right-hand cell is **the one imperative it puts on
@@ -154,8 +145,6 @@ Every completion must include:
 | Date | Mistake | Rule added |
 |---|---|---|
 
-No entries yet — the first bug that reveals a repeatable AI mistake adds the first row.
-
 ---
 
 ## Agent rule checklist (Appendix H)
@@ -165,7 +154,5 @@ No entries yet — the first bug that reveals a repeatable AI mistake adds the f
 - [ ] The agent knows what it must not change.
 - [ ] The agent must explain assumptions before acting on them.
 - [ ] The agent must preserve tests and security rules.
-
----
 
 > Blueprint: blueprints/06-agent/01-instructions/AGENT.md

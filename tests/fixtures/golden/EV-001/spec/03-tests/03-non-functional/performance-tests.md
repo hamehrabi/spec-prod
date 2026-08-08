@@ -12,8 +12,12 @@ system becomes slow?
 
 | Test ID | Workflow | Metric | Target | Data volume | Action if exceeded | Status |
 |---|---|---|---|---|---|---|
-| PTEST-001 | Generate one shopping list (REQ-NF-001, REQ-F-004) | Response time | Prompt for one cook's library — the concrete threshold is deferred (`Q-010`) and set as a fitness function once chosen | one cook's recipes and one week | Profile the gather query; add an index; revisit `Q-010`. | Planned |
-| PTEST-002 | Search saved recipes (REQ-F-002) | Response time | Returns promptly over one person's library | one cook's recipes | Add an index or simplify the query. | Planned |
+| PTEST-001 | Generate the shopping list | Response time | Under 2 s (REQ-NF-001) | A plan of 21 meals | Check the generation query — one query for the week's lines, not one per meal. | Planned |
+| PTEST-002 | Recipe search | Response time | Under 1 s (REQ-NF-001) | 500 saved recipes | Check the search query and its index (database-design). | Planned |
+
+The two rows are the two numbers REQ-NF-001 promises. Nothing else in version one carries
+a stated performance target — scaling and caching rows are recorded as *not needed* in
+`runtime-and-scale.md`, with their revisit triggers.
 
 ---
 
@@ -21,10 +25,10 @@ system becomes slow?
 
 | Feature | Simple performance expectation |
 |---|---|
-| Weekly plan page | Should load quickly for one cook's plan. |
-| Recipe list and search | Should handle one person's library without freezing. |
-| List generation | Should return promptly for a planned week. |
-| No external calls | Version one calls no external service (`Q-007`), so no third-party latency applies. |
+| Shopping-list generation | Within 2 seconds for a full week of up to 21 meals. |
+| Recipe search | Within 1 second for a library of up to 500 recipes. |
+| Recipe save | Feels immediate; no stated number — it is a single-row write. |
+| Weekly plan view | Loads a week without visible delay at version-one volumes. |
 
 ---
 
@@ -32,9 +36,9 @@ system becomes slow?
 
 | Weak statement | Stronger requirement |
 |---|---|
-| "The list should generate fast." | "List generation should return within the target set by `Q-010` for one cook's library." |
-| "Search should be quick." | "Recipe search should return results promptly over one person's library." |
-| "The app should support many users." | Not a version-one target — one user (`Q-001`); revisit at a real multi-user count. |
+| "The list should generate fast." | "Generating the week's shopping list must complete within 2 seconds for a plan of up to 21 meals." (REQ-NF-001) |
+| "Search should be quick." | "Search must return within 1 second for a library of up to 500 recipes." (REQ-NF-001) |
+| "The app should support many users." | Not claimed — expected volume is unknown (Q-001), so no load target is stated. |
 
 ---
 
@@ -42,11 +46,11 @@ system becomes slow?
 
 | Performance risk | What to check |
 |---|---|
-| Repeated queries | Does the code query the database inside a loop while gathering ingredient lines? |
-| Overfetching | Does it load fields or records that are not needed? |
-| Slow external calls | Not applicable in version one — no external calls (`Q-007`). |
-| Missing limits | Can a request return an unbounded result set? |
-| Blocking work | Should heavy work move to a background job? (None in version one.) |
+| Repeated queries | Does generation query per meal (N+1) instead of once for the week? |
+| Overfetching | Does search return whole recipes when the list needs titles? |
+| Slow external calls | Not applicable — no external services in version one (Round 6). |
+| Missing limits | Can a plan or library grow past the stated volumes without a word? |
+| Blocking work | Generation is synchronous by design; revisit if it ever exceeds its target. |
 
 > Only refactor for performance when the change supports a clear goal: faster response,
 > lower cost, fewer failures, or simpler scaling. Avoid asking the agent to "optimize
@@ -59,8 +63,6 @@ system becomes slow?
 Set realistic targets for the version you are building now. Overengineering performance
 too early makes the system harder to finish and harder to understand.
 
-Production performance signals → [`../../07-ops/02-monitoring/monitoring-plan.md`](../../07-ops/02-monitoring/monitoring-plan.md)
-
----
+Production performance signals → [`../ops/monitoring-plan.md`](../../07-ops/02-monitoring/monitoring-plan.md)
 
 > Blueprint: blueprints/03-tests/03-non-functional/performance-tests.md

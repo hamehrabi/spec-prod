@@ -58,32 +58,15 @@ Completion note:
 
 | Standard area | Rule |
 |---|---|
-| Naming | Use clear names such as `saveRecipe`, `generateShoppingList`, `getRecipeById`. |
-| Functions | Prefer small functions that do one job. |
-| Validation | Validate inputs before saving or processing data. |
-| Errors | Return safe user-facing messages. Do not expose internal details. |
-| Tests | Add or update tests for every behavior change. |
-| Structure | Keep validation separate from request handling; keep business logic out of route handlers and UI components; each feature area lives in its named module (Recipes, Planning, ShoppingList, Account/Auth) per ADR-001. |
-| Data access | Use only portable SQL and types; no SQLite-only feature, function, or extension; every migration is reversible (ADR-002). |
-| Ownership | Scope every read and write by `account_id`; a request for another account's data returns a safe not-found (BR-002, SEC-Z-001). |
-| Logging | Include a request ID; never log secrets, passwords, or credentials (SEC-A-002). |
+| Naming | Clear names such as `saveRecipe`, `generateShoppingList`, `validateIngredientLines`. |
+| Functions | Prefer small functions that do one job — if it validates **and** persists, split it. |
+| Validation | Validate at the API boundary, before business logic, before any write (technical-spec §6). |
+| Errors | Return safe user-facing messages; scope every error to what SEC rules allow (security-specification §6). |
+| Tests | Add or update tests for every behavior change, named for their test IDs. |
+| Structure | Handler → service → data (ADR-001); shopping-list generation lives in its own domain service; business logic never in route handlers or UI components. |
+| Logging | Include a request ID; never log secrets, credentials, or photo storage paths. What must never be logged beyond that is open — Q-012. |
 | Comments | Explain *why*, not *what*. |
-
-*These are Pantry's real conventions. Keep it short — the goal is to prevent avoidable
-inconsistency, not to write a style manual.*
-
----
-
-## Project rules from ADRs and boundaries (must match AGENT.md)
-
-| Rule | Source |
-|---|---|
-| Each feature area lives in its named module; route handlers contain no business rules; business logic never lives in UI components; no module reaches another account's data. | ADR-001, FF-001 |
-| Use only portable SQL and types; no SQLite-only feature/function/extension; every migration is reversible. | ADR-002, FF-001 |
-| The ShoppingList list-generation logic (REQ-F-004, BR-001) stays separate from recipe storage and Account/Auth; it must not import UI or store-specific code. | ADR-001, REQ-NF-005, FF-001 |
-| Every read/write is scoped by `account_id`; another account's data returns a safe not-found. | BR-002, SEC-Z-001, FF-002 |
-| Build only what the current task cites; no sharing, nutrition, pricing, or recipe import; one task at a time; every behaviour change adds/updates a test; report unclear requirements before coding. | Scope discipline |
-| Do not treat an open question (Q-###) as an assumption — stop and ask. | Scope discipline |
+| Transactions | Every multi-row write is one transaction; carry a `version` field for optimistic concurrency (ADR-002, reliability §A2). |
 
 ---
 
@@ -106,8 +89,6 @@ Update this file when a **repeated AI mistake** or a **new coding boundary** app
 
 | Version | Date | Change | Reason | Example that triggered it |
 |---|---|---|---|---|
-| AGENT v1.0 | 2026-08-08 | Initial rules. | Project start. | — |
-
----
+| AGENT v1.0 | 2026-08-08 | Initial rules. | — | — |
 
 > Blueprint: blueprints/06-agent/01-instructions/agent-rules-and-coding-standards.md

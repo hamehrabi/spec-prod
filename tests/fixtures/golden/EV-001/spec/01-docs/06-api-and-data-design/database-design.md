@@ -12,20 +12,20 @@ Identify what the system must remember, before you design tables.
 
 | Entity | Purpose | Key fields | Relationships | Rule that must always be true |
 |---|---|---|---|---|
-| Account | The single home cook's account. | id, email, password_hash, created_at | Owns all recipes, weekly plans, and lists. | Email is unique; all data belongs to one account. |
-| Recipe | A saved recipe. | id, account_id, title, notes, created_at | Belongs to one account; has many ingredient lines; referenced by planned meals. | Belongs to exactly one account. |
-| IngredientLine | One ingredient of a recipe. | id, recipe_id, name, quantity, unit, position | Belongs to one recipe. | Belongs to exactly one recipe. |
-| WeeklyPlan | A week of chosen meals. | id, account_id, week_start_date, created_at | Belongs to one account; has many planned meals; has one shopping list. | One plan per account per week. |
-| PlannedMeal | A saved recipe chosen for a day of the week. | id, weekly_plan_id, recipe_id, day_of_week | Belongs to one weekly plan; references one recipe. | Its recipe belongs to the same account as its plan. |
-| ShoppingList | The one list generated from a weekly plan. | id, weekly_plan_id, generated_at | Belongs to exactly one weekly plan (one-to-one). | Exactly one shopping list per weekly plan. |
-| ShoppingListItem | One line on the shopping list. | id, shopping_list_id, ingredient_name, quantity, unit, checked | Belongs to one shopping list. | Every item traces to the plan's planned meals. |
+| Account | The home cook using Pantry. | id, email, created_at | Owns all other entities. | Email is unique. |
+| Recipe | One saved recipe. | id, account_id, title, notes | Belongs to one account; has many ingredient lines. | A recipe belongs to exactly one account (BR-003). |
+| IngredientLine | One ingredient of a recipe. | id, recipe_id, name, quantity, unit, position | Belongs to one recipe. | An ingredient line cannot exist without its recipe. |
+| WeeklyPlan | The meals chosen for one week. | id, account_id, week_start_date | Belongs to one account; has many planned meals. | A weekly plan belongs to exactly one account. |
+| PlannedMeal | One recipe chosen for the week. | id, weekly_plan_id, recipe_id | Belongs to one weekly plan; references one recipe. | The referenced recipe is saved in the same account (BR-002). |
+| ShoppingList | One list generated from one week. | id, weekly_plan_id, created_at | Belongs to one weekly plan; has many items. | Generated from exactly one weekly plan (BR-001). |
+| ShoppingListItem | One line to buy. | id, shopping_list_id, name, quantity | Belongs to one shopping list; traces to ingredient lines. | Every ingredient line of the week's planned meals is represented (BR-001). Whether duplicates combine is open ([TODO: when two planned recipes share an ingredient, does the shopping list combine them into one line, or list them separately? — Q-011]). |
 
 | Question | Your answer |
 |---|---|
-| What objects must the system remember? | Account, Recipe, IngredientLine, WeeklyPlan, PlannedMeal, ShoppingList, ShoppingListItem. |
+| What objects must the system remember? | Account, Recipe, IngredientLine, WeeklyPlan, PlannedMeal, ShoppingList, ShoppingListItem — the developer's own list. |
 | What details describe each object? | See the key fields above and the schema in §3. |
-| How do objects relate? | Account owns recipes and weekly plans; a plan has planned meals (each a recipe) and one shopping list of items. |
-| What rule must always be true? | A shopping list belongs to exactly one weekly plan and gathers that week's meals' ingredients (the core rule). |
+| How do objects relate? | An account owns recipes and weekly plans; a recipe has ingredient lines; a weekly plan has planned meals that reference recipes; a shopping list belongs to one weekly plan and has items. |
+| What rule must always be true? | One account owns everything it sees (BR-003); a shopping list covers every ingredient line of its week (BR-001). |
 
 ---
 
@@ -63,57 +63,53 @@ Retention rules:  [how long data is kept and when it is deleted]
 ```
 accounts
 - id: string, primary key
-- email: string, required, unique
-- password_hash: string, required
+- email: string, required, unique          -- rule: email is unique
 - created_at: datetime, required
+- [TODO: which authentication model? — Q-009] -- credential fields depend on the answer
 
 recipes
 - id: string, primary key
-- account_id: string, required, foreign key -> accounts.id
-- title: string, required, max 200
+- account_id: string, required, foreign key -> accounts.id   -- rule: BR-003, one owner
+- title: string, required
 - notes: text, optional
 - created_at: datetime, required
 - updated_at: datetime, required
 
 ingredient_lines
 - id: string, primary key
-- recipe_id: string, required, foreign key -> recipes.id   -- on delete cascade
+- recipe_id: string, required, foreign key -> recipes.id     -- rule: no line without its recipe
 - name: string, required
-- quantity: decimal, optional
+- quantity: string, optional
 - unit: string, optional
-- position: integer, required   -- order within the recipe
+- position: integer, required
 
 weekly_plans
 - id: string, primary key
-- account_id: string, required, foreign key -> accounts.id
+- account_id: string, required, foreign key -> accounts.id   -- rule: one owner
 - week_start_date: date, required
 - created_at: datetime, required
-- unique (account_id, week_start_date)   -- one plan per account per week
 
 planned_meals
 - id: string, primary key
-- weekly_plan_id: string, required, foreign key -> weekly_plans.id   -- on delete cascade
-- recipe_id: string, required, foreign key -> recipes.id            -- on delete restrict (BR-004)
-- day_of_week: string, required   -- which day/slot in the week
+- weekly_plan_id: string, required, foreign key -> weekly_plans.id
+- recipe_id: string, required, foreign key -> recipes.id     -- rule: BR-002 (same-account
+                                                             -- check is service-layer; see below)
 - created_at: datetime, required
 
 shopping_lists
 - id: string, primary key
-- weekly_plan_id: string, required, unique, foreign key -> weekly_plans.id   -- one list per plan (core rule)
-- generated_at: datetime, required
+- weekly_plan_id: string, required, foreign key -> weekly_plans.id  -- rule: BR-001, exactly one plan
+- created_at: datetime, required
 
 shopping_list_items
 - id: string, primary key
-- shopping_list_id: string, required, foreign key -> shopping_lists.id   -- on delete cascade
-- ingredient_name: string, required
-- quantity: decimal, optional
-- unit: string, optional
-- checked: boolean, required, default false
+- shopping_list_id: string, required, foreign key -> shopping_lists.id
+- name: string, required
+- quantity: string, optional
+- position: integer, required
+-- item-to-ingredient-line tracing depends on Q-011: one line per ingredient line, or
+-- one combined line per ingredient name
 ```
-
-> The schema uses portable types only (string, text, date, datetime, decimal, boolean,
-> integer) so it stands on an embedded relational store now and moves to a server relational
-> store later without a shape change (data-store choice: `technical-spec`, Round 5).
 
 > ### The core subdomain's rule belongs HERE, not only in prose
 >
@@ -121,21 +117,30 @@ shopping_list_items
 > one thing the product competes on. Whatever makes that thing correct is the rule most worth
 > enforcing in the store, and the one a reader is most likely to assume is already handled.
 >
-> **The core rule — one shopping list per week, gathering that week's meals — is enforced in
-> the schema, not only in prose:**
+> **Go through §1's "Rule that must always be true" column and, for each rule, write the
+> constraint that enforces it above — naming the rule in a trailing comment.** A uniqueness
+> constraint, a foreign key, a check constraint, a `not null`.
 >
-> - `shopping_lists.weekly_plan_id` is **unique** and a foreign key → a plan has at most one
->   list, and a list cannot exist without a plan (BR-001). Refusal: a second `INSERT` for the
->   same plan fails the unique constraint.
-> - `planned_meals.recipe_id` foreign key with **on delete restrict** → a recipe cannot be
->   deleted while a plan references it (BR-004). Refusal: the `DELETE` fails.
-> - `weekly_plans (account_id, week_start_date)` is **unique** → one plan per account per week.
-> - Every table chains to `accounts.id`, so ownership (BR-002) is a foreign-key fact, not a
->   convention.
+> The question to ask each rule is **"what would the store refuse?"** *A customer may hold only
+> one active subscription* is a uniqueness constraint over the customer and that status. *A
+> booking cannot end before it starts* is a check constraint. If the honest answer is "nothing
+> would be refused", then the rule is not enforced, whatever the prose says.
 >
-> The one rule that a constraint cannot fully express — that every `shopping_list_item`
-> reflects the plan's planned meals — is enforced in the list-generation service and proven by
-> the acceptance test for REQ-F-004 (AC-002/AC-003).
+> **If a rule cannot be expressed as a constraint, say where it IS enforced** — a service-layer
+> check, a background job — and name the test that would fail if it stopped working. What is
+> not allowed is a rule stated in §1 and enforced nowhere: a rule that lives only in a sentence
+> is a rule the first refactor removes, and every functional test still passes without it.
+>
+> This section shipped with primary and foreign keys only, and every generated workspace
+> inherited that shape — so a run could name what its product competes on and enforce it
+> nowhere, with nothing to notice.
+
+**Where each §1 rule is enforced:** email uniqueness, ownership, and the one-plan-per-list
+rule are foreign keys, `not null`, and a unique index above. Two rules cannot be plain
+constraints: BR-002's same-account check (a foreign key cannot compare two rows' owners)
+is enforced in the service layer, and BR-001's every-line-is-represented rule is enforced
+by the generation routine — each is proven by a test written at the test stage, which fails
+if the check stops working.
 
 ---
 
@@ -143,11 +148,11 @@ shopping_list_items
 
 | Item | Meaning | Example |
 |---|---|---|
-| Primary key | Unique identifier for one row. | `accounts.id` |
-| Foreign key | Field pointing to another table. | `recipes.account_id` |
-| Unique constraint | Prevents duplicates. | `shopping_lists.weekly_plan_id` must be unique |
-| Index | Makes common lookups faster. | index `recipes` by `account_id` |
-| Status field | Controlled value showing state. | `shopping_list_items.checked` true/false |
+| Primary key | Unique identifier for one row. | `users.id` |
+| Foreign key | Field pointing to another table. | `tasks.project_id` |
+| Unique constraint | Prevents duplicates. | `users.email` must be unique |
+| Index | Makes common lookups faster. | index `tasks` by `project_id` |
+| Status field | Controlled value showing state. | `todo`, `doing`, `done` |
 
 ---
 
@@ -158,15 +163,9 @@ Every query must be scoped correctly. State the rule explicitly so the agent can
 
 | Entity | Scoping rule |
 |---|---|
-| Recipe, WeeklyPlan | All reads/writes are scoped by `account_id`. |
-| IngredientLine | Scoped through `recipe_id` → `recipes.account_id`. |
-| PlannedMeal | Scoped through `weekly_plan_id` → `weekly_plans.account_id`; the referenced recipe must share that account. |
-| ShoppingList, ShoppingListItem | Scoped through `weekly_plan_id` → the owning account. |
-
-> Baseline scoping is by `account_id`; a cook must never reach another account's data by
-> guessing an ID. The formal cross-account **isolation guarantee level** (e.g. whether row
-> scoping is enough or stronger tenant separation is required) was not asked at express depth —
-> [TODO: does data need to be isolated between accounts, and to what guarantee? (`Q-006`)].
+| Recipe, WeeklyPlan | Every read/write is scoped by `account_id`. |
+| IngredientLine, PlannedMeal, ShoppingList, ShoppingListItem | Every read/write is scoped through its parent to an account the caller owns. |
+| All entities | Isolation between customers is still open: [TODO: does data need to be isolated between customers? — Q-008] |
 
 ---
 
@@ -174,8 +173,8 @@ Every query must be scoped correctly. State the rule explicitly so the agent can
 
 | Field | Sensitivity | Storage rule | Logging rule |
 |---|---|---|---|
-| `accounts.password_hash` | Credential | Hashed only — never plain text. | Never logged. |
-| `accounts.email` | Personal data | Stored; unique index. | Logged only as `account_id`, never the address. |
+| `password_hash` | Credential | Hashed only — never plain text. Applies only if password authentication is chosen ([TODO: which authentication model? — Q-009]). | Never logged. |
+| `accounts.email` | Personal data | Stored; unique index. | [TODO: what must never leak or be logged? — Q-012] |
 
 ---
 
@@ -183,9 +182,8 @@ Every query must be scoped correctly. State the rule explicitly so the agent can
 
 | Data | Retention period | Deletion behavior (hard / soft / archive) |
 |---|---|---|
-| Recipe (and its ingredient lines) | Until the cook deletes it | Hard delete of the recipe cascades its ingredient lines; blocked while a plan references it (BR-004) |
-| WeeklyPlan (with planned meals and shopping list) | Until the cook deletes it | Hard delete cascades its planned meals, shopping list, and items |
-| Account | Until account closure | Hard delete cascades all of the account's data |
+| Recipe, IngredientLine | Until the account holder deletes them. | [TODO: what are the retention and deletion rules — hard or soft delete, and do generated lists outlive their plan? — Q-013] |
+| WeeklyPlan, PlannedMeal, ShoppingList, ShoppingListItem | [TODO: what are the retention and deletion rules — hard or soft delete, and do generated lists outlive their plan? — Q-013] | [TODO: what are the retention and deletion rules — hard or soft delete, and do generated lists outlive their plan? — Q-013] |
 
 ---
 
@@ -195,10 +193,10 @@ Every query must be scoped correctly. State the rule explicitly so the agent can
 
 | Migration question | Answer |
 |---|---|
-| Is the migration reversible? | Each migration ships an up and a down step. |
-| Will existing data break? | Add columns as nullable and backfill before making them required. |
-| Can code and database deploy safely? | Deploy the schema change before code that depends on it. |
-| Is downtime required? | No — the tables are small (one user's library); nullable adds do not lock meaningfully. |
+| Is the migration reversible? | Every migration ships with an up and a down. |
+| Will existing data break? | New fields arrive nullable, with a backfill before becoming required. |
+| Can code and database deploy safely? | The schema change deploys before the code that depends on it. |
+| Is downtime required? | Not at this scale; staged migrations if a table ever grows large. |
 
 > **Deployment caution (Ch. 23):** never treat database changes as ordinary code changes.
 > A broken file can be redeployed. A careless database change can damage production data.
@@ -235,27 +233,19 @@ Every query must be scoped correctly. State the rule explicitly so the agent can
 
 ## Specification
 
-Version one stores files: **photos of finished dishes, private to the one account** (`Q-008`,
-answered in Round 6). A photo is referenced from its recipe by a generated object key/path (a
-`photo_key` written with the recipe row); the file itself is not a database row.
-
 | Item | Decision |
 |---|---|
-| What is stored | One optional photo per recipe — a photo of the finished dish. |
-| Where | Private object store or a private disk path; never a public bucket. |
-| **Max size** per file | Bounded (e.g. a few MB per photo); reject larger uploads. |
-| Allowed types | An allow-list of common image types only. |
-| Type verified by | Content inspection, not the file extension. |
-| Naming | A generated ID/key; never the user-supplied filename (kept only as a display label). |
-| Access control | Private to the owning account — served through an endpoint that checks the account, or a signed, expiring URL; never a public URL. |
-| Public or private | **Private** to the one account. |
-| Malware scanning | Optional at this scale; revisit if photos are ever shared. |
-| Retention / cleanup | A photo is deleted with its recipe; an orphaned file is removed by a cleanup step. |
-| Backed up | → [`../../07-ops/01-deployment/backup-and-recovery.md`](../../07-ops/01-deployment/backup-and-recovery.md) (Round 8). |
-
-**Write order:** write the file first, then set the recipe's `photo_key`. If the process dies
-between the two, the file is a recoverable orphan the cleanup step removes — safer than a recipe
-that points at a photo that was never written.
+| What is stored | Photos of finished dishes, uploaded by the account holder (Round 6). Which entity a photo attaches to is part of Q-023. |
+| Where | [TODO: what are the photo storage rules — where stored, maximum size, allowed image types, malware scanning, retention, and which entity a photo attaches to? — Q-023] |
+| **Max size** per file | [TODO: what are the photo storage rules — where stored, maximum size, allowed image types, malware scanning, retention, and which entity a photo attaches to? — Q-023] |
+| Allowed types | Images only (security-specification §3); the exact allow-list is part of Q-023. |
+| Type verified by | Content inspection of the file itself, never the extension (security-specification §3). |
+| Naming | Stored under a generated ID; the original filename is a display field only (rules below). |
+| Access control | Owner-only — readable and deletable solely by the owning account (SEC-Z-002). |
+| Public or private | Private to one user (Round 6). |
+| Malware scanning | [TODO: what are the photo storage rules — where stored, maximum size, allowed image types, malware scanning, retention, and which entity a photo attaches to? — Q-023] |
+| Retention / cleanup | [TODO: what are the photo storage rules — where stored, maximum size, allowed image types, malware scanning, retention, and which entity a photo attaches to? — Q-023] |
+| Backed up | → [`../../07-ops/01-deployment/backup-and-recovery.md`](../../07-ops/01-deployment/backup-and-recovery.md) |
 
 ## Rules
 
@@ -270,7 +260,5 @@ that points at a photo that was never written.
   garbage; a broken reference is a user-visible error.
 - **Bound the total, not just each file.** Per-user and per-tenant quotas.
 - Orphan cleanup is a **scheduled job**, not a hope.
-
----
 
 > Blueprint: blueprints/01-docs/06-api-and-data-design/database-design.md

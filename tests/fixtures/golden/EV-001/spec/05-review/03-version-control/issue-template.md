@@ -11,7 +11,7 @@ Use this inside a local document, a tracker, or a GitHub issue.
 ```
 Issue Title:    [short behavior summary]
 Requirement ID: REQ-###
-Spec Source:    01-docs/04-technical-spec/technical-spec.md, [section]
+Spec Source:    01-docs/technical-spec.md, [section]
 Goal:           [one sentence: what should be true after this is done]
 
 Acceptance Criteria:

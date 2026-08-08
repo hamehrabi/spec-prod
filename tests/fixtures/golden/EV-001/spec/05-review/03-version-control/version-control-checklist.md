@@ -33,9 +33,9 @@
 
 **Branch naming**
 ```
-feature/REQ-F-004-generate-one-list
-fix/REQ-F-004-list-missing-ingredient
-chore/TASK-004-delete-guard-cleanup
+feature/REQ-F-001-save-recipe
+fix/REQ-F-003-list-generation-rollback
+chore/TASK-001-project-structure
 ```
 
 ## During work
@@ -45,8 +45,6 @@ chore/TASK-004-delete-guard-cleanup
 - [ ] Tests are added or updated **with** the code.
 - [ ] No unrelated formatting or dependency changes are mixed in.
 - [ ] Secrets and credentials are not committed.
-- [ ] No business logic added to route handlers or UI, and no cross-account data access (ADR-001).
-- [ ] Only portable SQL/types; migrations are reversible; no SQLite-only features (ADR-002).
 
 **Commit message format (Ch. 15 §15.3)**
 ```
@@ -55,19 +53,19 @@ type(scope): action linked to requirement ID
 
 | Weak commit message | Better commit message |
 |---|---|
-| `update recipe` | `feat(recipes): add recipe validation for REQ-F-001` |
-| `fix bug` | `fix(shoppinglist): include every planned meal for REQ-F-004` |
-| `tests` | `test(planning): add delete-guard tests for BR-004` |
-| `changes` | `docs(spec): update list-generation rules after review` |
+| `update recipes` | `feat(recipes): add save-recipe validation for REQ-F-001` |
+| `fix bug` | `fix(lists): roll back partial list on failed generation for REQ-NF-003` |
+| `tests` | `test(lists): add generation coverage tests for REQ-F-003` |
+| `changes` | `docs(spec): update ingredient-line rules after review` |
 
 | Change type | Suggested message |
 |---|---|
 | New intent document | `docs(intent): add engineering intent for Pantry` |
-| Updated requirements | `docs(spec): refine save-recipe requirements and acceptance criteria` |
-| New task file | `docs(tasks): add TASK-005 for generate-list core` |
-| Test plan added | `test(shoppinglist): add acceptance and failure tests for list generation` |
-| Implementation completed | `feat(shoppinglist): implement TASK-005 one-list-from-a-week workflow` |
-| Review notes added | `docs(review): record review results for TASK-005` |
+| Updated requirements | `docs(spec): refine recipe requirements and acceptance criteria` |
+| New task file | `docs(tasks): add TASK-003 for the recipe tables` |
+| Test plan added | `test(recipes): add acceptance and failure tests for recipe saving` |
+| Implementation completed | `feat(recipes): implement TASK-004 save-recipe endpoint` |
+| Review notes added | `docs(review): record review results for TASK-004` |
 
 ## Pull request / review package
 
@@ -116,7 +114,7 @@ return to before the AI agent starts changing files.
 ```
 git checkout main
 git pull                      # if you use a remote repository
-git checkout -b feature/REQ-F-004-generate-one-list
+git checkout -b feature/REQ-F-001-save-recipe
 
 # Let the agent work on one task.
 # Review the files.
@@ -125,7 +123,7 @@ git checkout -b feature/REQ-F-004-generate-one-list
 git status
 git diff
 git add src tests 02-specs
-git commit -m "feat(shoppinglist): generate one list from a week for REQ-F-004"
+git commit -m "feat(recipes): add save-recipe endpoint for REQ-F-001"
 ```
 
 If you are not using a remote repository, use branches locally. The important habit is

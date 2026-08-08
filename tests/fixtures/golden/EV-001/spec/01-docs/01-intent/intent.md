@@ -26,18 +26,18 @@ agent this instead of a vague idea.
 | Field | Value |
 |---|---|
 | **Project name** | Pantry |
-| **Problem statement** | Home cooks keep recipes scattered across screenshots, bookmarks, and handwritten cards. Planning a week of meals means opening several places and still forgetting items at the shop, which costs a second trip and food that spoils. Pantry should let a cook keep recipes in one place, plan a week, and shop from a single list. |
-| **Primary users** | Individual home cooks managing their own recipes and weekly meal planning (B2C). |
-| **Secondary users** | None in version one — one person uses Pantry for their own cooking; there is no separate reviewer, manager, or support role. |
-| **Business goal** | Home cooks adopt Pantry as the single home for their recipes and weekly plan, so they shop once and waste less; the value that earns continued use is turning a chosen week of meals into one shopping list. |
-| **User goal** | Keep all recipes in one place, plan the week's meals, and leave for the shop with one list — nothing forgotten, fewer second trips, less spoiled food. |
-| **Current pain points** | Recipes live in screenshots, bookmarks, and handwritten cards; planning a week means opening several separate places; items are forgotten at the shop; a forgotten item means a second trip; unbought or unused ingredients spoil. |
-| **Core capabilities** | Save a recipe with its ingredients; plan which meals to cook in a week; generate one shopping list from that week; search saved recipes. The one it competes on is generating a single shopping list from a chosen week (`Q-003`). |
-| **Desired outcome** | A home cook plans a week of meals in one place and shops from a single generated list, making second trips and spoiled food the exception rather than the norm. |
+| **Problem statement** | People who cook at home keep recipes scattered across screenshots, bookmarks and handwritten cards. When they plan a week of meals they have to open six places and still forget something at the shop, which costs them a second trip and food that goes off. |
+| **Primary users** | Home cooks — individual consumers (B2C). |
+| **Secondary users** | None identified — inferred from "Individual consumers (B2C)": one person's tool, with nobody reviewing, managing, or supporting it. Say if that is wrong. |
+| **Business goal** | [TODO: what does success look like in the first month? — Q-006] |
+| **User goal** | Plan a week of meals in one place instead of six, and leave the shop with everything the week needs. |
+| **Current pain points** | Recipes live in screenshots, bookmarks and handwritten cards; planning a week means opening six places; something is still forgotten at the shop; the cost is a second trip and food that goes off. |
+| **Core capabilities** | Save a recipe with its ingredients · plan which meals to cook in a week · generate one shopping list from that week · search saved recipes. |
+| **Desired outcome** | A week of chosen meals becomes one shopping list, so one trip covers the week and less food is wasted. |
 | **Out of scope** | → [`constraints-and-non-goals.md`](constraints-and-non-goals.md) |
-| **Success measures** | A chosen week of meals produces one shopping list the cook actually shops from; a weekly shop is completed without a forgotten-item second trip; recipes that were scattered are all found in one place. |
+| **Success measures** | [TODO: what does success look like in the first month? — Q-006] |
 | **Constraints** | → [`constraints-and-non-goals.md`](constraints-and-non-goals.md) |
-| **Risks** | The core "week → one list" value may not clearly beat the scattered status quo, so cooks do not switch; and the recipe library is precious and hard to re-enter (years of handwritten cards), so losing it would end the project. |
+| **Risks** | [TODO: what could make the project fail? — Q-007] |
 | **Open questions** | → [`open-questions.md`](open-questions.md) |
 
 ### Starter (Appendix A)
@@ -62,11 +62,11 @@ Open Questions:
 
 | Element | Question to answer | Your answer |
 |---|---|---|
-| Primary user | Who uses the system most often? | Individual home cooks planning and cooking their own meals. |
-| Secondary user | Who reviews, manages, or supports the system? | None in version one — a single-user consumer product. |
-| Goal | What should improve after the system exists? | A home cook plans a week and shops from one list, instead of juggling several places and forgetting items. |
-| Constraint | What must limit the design? | A browser-based web application used by one individual consumer. |
-| Risk | What could make the project fail? | The core "week → one list" value not clearly beating the scattered status quo, or loss of the hard-to-re-enter recipe library. |
+| Primary user | Who uses the system most often? | A home cook planning the week's meals and the shop for them. |
+| Secondary user | Who reviews, manages, or supports the system? | None identified — inferred from the B2C answer. |
+| Goal | What should improve after the system exists? | The week's meals and the shopping for them are handled in one place, with nothing forgotten. |
+| Constraint | What must limit the design? | [TODO: what hard constraints already exist? — Q-005] |
+| Risk | What could make the project fail? | [TODO: what could make the project fail? — Q-007] |
 
 > **Important distinction:** a goal is not a feature. "Create task comments" is a feature.
 > "Make task discussions easier to follow" is a goal.
@@ -99,7 +99,5 @@ Open Questions:
 ---
 
 **Next:** [`requirements.md`](../02-requirements/requirements.md)
-
----
 
 > Blueprint: blueprints/01-docs/01-intent/intent.md

@@ -9,7 +9,7 @@
 | Document | Covers |
 |---|---|
 | [`deployment-plan.md`](deployment-plan.md) | Full release plan template (Ch. 23 §23.9). |
-| [`cicd-pipeline.md`](cicd-pipeline.md) | Install → lint → test → fitness → build → smoke gates. |
+| [`cicd-pipeline.md`](cicd-pipeline.md) | Install → lint → test → build → smoke gates. |
 | [`database-migration-plan.md`](database-migration-plan.md) | Reversibility, backfill, deploy order. |
 | [`rollback-plan.md`](rollback-plan.md) | Stable version, triggers, owner, comms. |
 | [`production-readiness-checklist.md`](production-readiness-checklist.md) | Full Appendix N pass + sign-off. |
@@ -31,11 +31,11 @@
 
 | Field | Value |
 |---|---|
-| Release name / version | Pantry v1.0 (first production release) |
-| Date | 2026-08-08 |
-| Release owner | The owner/developer (single-user B2C project) |
-| **Rollback owner** | The owner/developer |
-| Requirements included | REQ-F-001..006 (F-004 = generate one shopping list, CORE), REQ-NF-001..007, REQ-R-001, BR-001..004, SEC-A-001..004, SEC-Z-001..002 |
+| Release name / version | Pantry v1.0 — no release has been prepared yet |
+| Date | — |
+| Release owner | The developer |
+| **Rollback owner** | The developer |
+| Requirements included | REQ-F-001–004, REQ-NF-001–006, REQ-R-001 |
 
 ---
 
@@ -47,9 +47,9 @@
 | Tests | Do unit, integration, and key end-to-end tests pass? | Not started |
 | Configuration | Are required environment variables documented? | Not started |
 | Secrets | Are secrets stored outside source code? | Not started |
-| Build | Does the production build (container) complete successfully? | Not started |
-| Migration | Are database changes planned and reversible (ADR-002)? | Not started |
-| Monitoring | Are logs and error checks available after deployment? | Not started |
+| Build | Does the production build complete successfully? | Not started |
+| Migration | Are database changes planned and reversible where possible? | Not started |
+| Monitoring | Are logs and error checks available after deployment? | Not started — appetite open (Q-020) |
 | Rollback | Is the rollback path clear before release? | Not started |
 
 ## Deployment readiness (Ch. 16 §16.9)
@@ -72,14 +72,11 @@
 
 ## Environments (Ch. 23 §23.2)
 
-Local + production are known; a test environment between them is undecided (Q-015). The
-app ships as a stateless **container** so the deployment target stays open (Q-017).
-
 | Environment | Purpose | Typical data | Release rule |
 |---|---|---|---|
-| Local | You build and run the app while developing. | Small fake recipes/plans | Fast changes are allowed. |
-| Test | You run automated checks and verify behavior. | [TODO: a test environment between local and production is undecided (Q-015)] | Only tested changes move forward. |
-| Production | The single home cook depends on this. | Real recipes, plans, shopping lists, private photos | Only reviewed, deployable changes enter. |
+| Local | You build and run the app while developing. | Small fake data | Fast changes are allowed. |
+| Test | You run automated checks and verify behavior. | Controlled sample data | Only tested changes move forward. Existence open — Q-019. |
+| Production | Real users depend on this. | The real recipe library | Only reviewed, deployable changes enter. Target open — Q-018. |
 
 > An environment is not just a server. It is a **promise about how carefully code should be
 > handled** there. Local can be flexible. Production must be controlled.
@@ -91,38 +88,38 @@ app ships as a stateless **container** so the deployment target stays open (Q-01
 ```
 1. Install dependencies.
 2. Run linting and static checks.
-3. Run unit and integration tests, plus the fitness functions (FF-001, FF-002, FF-003).
-4. Build the production container image.
-5. Apply database migrations (reversible — ADR-002).
-6. Start the application (stateless container).
+3. Run unit and integration tests.
+4. Build the production application.
+5. Apply database migrations.
+6. Start the application.
 7. Run a smoke test against the health endpoint.
 8. Monitor logs for the first release window.
 ```
 
 Commands for this project:
 ```
-Install:  [TODO: install command (Q-018)]
-Lint:     [TODO: lint command (Q-018)]
-Test:     [TODO: test + fitness-function command (Q-018)]
-Build:    [TODO: build container image (Q-018)]
-Migrate:  [TODO: migrate command (Q-018)]
-Start:    [TODO: run command (Q-018)]
-Smoke:    [TODO: smoke command against /health (Q-018)]
+Install:  decided with TASK-001's stack choice
+Lint:     decided with TASK-001
+Test:     decided with TASK-001
+Build:    decided with TASK-001
+Migrate:  decided with TASK-001
+Start:    decided with TASK-001
+Smoke:    the production smoke test in end-to-end-tests.md
 ```
 
 ---
 
 ## Post-deploy smoke test
 
-1. Sign in as the account owner.
-2. Create a Recipe (the primary entity).
-3. Add an IngredientLine to it, and add a PlannedMeal to the WeeklyPlan.
-4. Generate the single ShoppingList from the week's plan (REQ-F-004, the core action).
-5. Trigger the main failure path (e.g. generate with an empty plan) and confirm the safe message.
+1. Sign in as a test user.
+2. Create the primary entity.
+3. Add a child record.
+4. Perform the core action.
+5. Trigger the main failure path and confirm the safe message.
 6. Confirm logs and audit events exist.
 7. Confirm monitoring shows no critical errors.
 
-**Evidence captured:** Captured at the first release (not yet run).
+**Evidence captured:** none yet — fills at the first release.
 
 ---
 
@@ -136,10 +133,8 @@ Smoke:    [TODO: smoke command against /health (Q-018)]
 
 | Role | Name | Date | Decision |
 |---|---|---|---|
-| Release owner | The owner/developer | 2026-08-08 | Hold — pending first pass |
-| Rollback owner | The owner/developer | 2026-08-08 | Acknowledged |
-| Security reviewer | The owner/developer | 2026-08-08 | Pending — deny tests STEST-001..005 must pass |
-
----
+| Release owner | The developer | | Approve / Hold |
+| Rollback owner | The developer | | Acknowledged |
+| Security reviewer | The developer | | Pass / Block |
 
 > Blueprint: blueprints/07-ops/01-deployment/deployment-checklist.md

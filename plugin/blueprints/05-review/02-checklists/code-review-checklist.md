@@ -4,6 +4,11 @@
 > **Beginner rule:** do not review AI code by asking "does it look okay?" Review it by
 > asking **"which requirement, design decision, and test does this code satisfy?"**
 
+> Copy this file to `code-review-<feature>.md` and fill it in, once per review. **The header
+> fields and the Decision section's fill-in slots stay blank in this copy** — a review that
+> has not happened has no reviewer, no date, and no follow-up tasks, and writing a plausible
+> value is worse than leaving it empty.
+
 **Feature or module:**
 **Requirement IDs:**
 **Task IDs:**

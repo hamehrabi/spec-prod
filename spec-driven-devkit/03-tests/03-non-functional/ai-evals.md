@@ -259,6 +259,8 @@ Re-run it on **any** of these:
 | EV-001, rounds 1–7, express | 2026-08-08 | **5 fixes verified, 1 partial, 2 not reached** | **32 min** · 1 118 turns · 40 files | not itemised | Partial — recorded |
 | EV-001, all 8 rounds, express | 2026-08-08 | **ALL EIGHT FIXES VERIFIED** | **67 min** · 1 852 turns · 81 files | not itemised | Recorded, not accepted |
 | EV-001 fixture swap (TASK-016) | 2026-08-08 | The run above **became the golden fixture**; 18 GOLD-001 pins failed on the swap and were rewritten against the produced files, none softened; suite 695/695 | — (no run — consumed the row above) | $0 | **Accepted — the committed baseline** |
+| EV-001, all 8 rounds, express — **BUG-036 re-run** | 2026-08-08 | **Duplicates 27 → 0; check 2 passes.** All three citation-rule shapes obeyed (§13 citation table, `Test ID \| Defined in`, no Q rows in the handoff). Exposed BUG-048 (a second BUG-034b-class form) and two checker defects (UTEST-094/095, fixed). Filed the core ambiguity as Q-011 instead of assuming it | **~74 min over three legs** (leg 1 ended at Round 5 by an unrelated plugin's SessionEnd hook; leg 2 ended one step early; resume banked both) | leg 2 $18.74 + leg 3 $4.61 (+ leg 1, not itemised) | Recorded, not accepted |
+| EV-001 second fixture swap (BUG-036 verification) | 2026-08-08 | The three-leg run **became the golden fixture**; 20 pins failed and were rewritten, none softened; the Round 6 title pin corrected TOWARD `questions.md`'s canon (the old fixture had drifted); suite 705/705 | — | $0 | **Accepted — the committed baseline** |
 
 > **This row was corrected downwards after it was published, and the correction is the point.**
 > It read *"9 of 11 scorers at floor; 2 breaches"*. Two of those nine — `inference_stated` and
@@ -397,9 +399,9 @@ it against a defect curve where two runs found five defects.
 > defect was flipped to assert the fix as present — none had to be softened, which is the
 > evidence the rule exists to force. The suite is 695/695 against the new baseline.
 >
-> What the swapped-in workspace still carries, measured rather than remembered:
+> What the swapped-in workspace still carried, measured rather than remembered:
 >
-> - **Check 2 is the one failing check: 27 duplicate definitions**, up from ten, and systemic.
+> - **Check 2 was the one failing check: 27 duplicate definitions**, up from ten, and systemic.
 >   Six task files restate the scenario and expected result of the 22 tests they should cite,
 >   and two summarising files re-mint Q rows the register owns — `technical-spec.md` invents a
 >   four-row "Decision needed" table one line below its link to `open-questions.md`. No single
@@ -412,6 +414,24 @@ it against a defect curve where two runs found five defects.
 >   the copy was taken three minutes before the run's final write — 86 files complete, missing
 >   exactly the file whose presence means "this run finished". Two tests caught it. Swap rule:
 >   `diff -rq` against the sandbox AFTER the runner's process exits, never while it is live.
+>
+> **AND THEN THE 27 WENT TO ZERO, the same day.** PR #87 put the citation rule into the three
+> blueprint shapes that invited the copying — the task-file test table became `| Test ID |
+> Defined in |`, technical-spec §13 became a citation table with the register note, the handoff
+> got the cite-in-prose rule — and the obliged re-run produced a workspace check 2 has nothing
+> to say about. The register-note treatment is now three for three: FF ids held in the first
+> post-fix run, Q ids and test ids held in this one.
+>
+> The re-run's own findings, each owned: **BUG-048** — `code-review-checklist.md` ships its
+> Decision form with a `______` slot and no per-review-copy declaration, BUG-034b's defect in
+> a second file (payload fix shipped; unverified until a future run). **UTEST-094** — check 1
+> read a kept FENCED example as a dangling reference; BUG-017's lesson arrived at check 1 last.
+> **UTEST-095** — `todos()` read the teaching notes' quoted `[TODO: ...]` as an orphan marker:
+> the checker tripped over the fix's own documentation, caught because the report was read
+> rather than trusted. And one thing no earlier run managed: the run filed the CORE AMBIGUITY
+> — does the list combine two recipes' shared ingredient? — as **Q-011, open**, blocking
+> TASK-012, where every predecessor silently assumed the answer. The strongest BR-002 evidence
+> this product has produced.
 
 **The eight-round row is the more useful measurement, and it cost seven defects to get.** The
 three breaches are not the run being sloppy; each traces to something no partial workspace

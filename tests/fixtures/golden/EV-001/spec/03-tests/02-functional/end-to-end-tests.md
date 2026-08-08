@@ -14,8 +14,10 @@ flows that decide whether the product is usable.
 
 | Test ID | Requirement | User flow | Goal | Expected result | Status |
 |---|---|---|---|---|---|
-| ETEST-001 | REQ-F-004 | Plan → generate list → tick off | The core flow works end to end | One list of every planned meal's ingredients; items tick off and persist | Planned |
-| ETEST-002 | REQ-F-005 | Sign in → save a recipe | A cook signs in and saves a recipe they can see | The recipe appears in their private list | Planned |
+| ETEST-001 | SEC-A-001 | Sign in | The account holder signs in and reaches their recipes. | Recipe list visible; sign-in mechanics follow the Q-009 model. | Planned |
+| ETEST-002 | REQ-F-001 | Save a recipe | A recipe with ingredient lines can be saved from the browser. | Recipe appears in the library immediately. | Planned |
+| ETEST-003 | REQ-F-002, REQ-F-003 | Plan the week and generate the list — **the core flow** | A planned week turns into one shopping list. | One list, covering every planned meal's ingredient lines, on screen within the REQ-NF-001 target. | Planned |
+| ETEST-004 | REQ-NF-003 | Error recovery | A failed save keeps the typed values on screen. | Safe error shown; typed values still present; nothing saved. | Planned |
 
 ---
 
@@ -26,7 +28,7 @@ Test ID:
 Requirement:
 Flow name:
 
-Preconditions:      [signed-in cook, seeded data]
+Preconditions:      [signed-in role, seeded data]
 
 Steps:
 1.
@@ -42,6 +44,39 @@ Status:
 
 ---
 
+## Written out
+
+```
+Test ID:      ETEST-003
+Requirement:  REQ-F-002, REQ-F-003
+Flow name:    Plan the week, generate the shopping list
+
+Preconditions: signed in as the account holder; at least two recipes saved
+
+Steps:
+1. Open the weekly plan.
+2. Add two saved recipes to the week.
+3. Generate the shopping list.
+
+Expected visible result:
+  - One shopping list opens
+  - Every ingredient line of both recipes appears as a list item
+  - The list is on screen within the REQ-NF-001 target (2 s for up to 21 meals)
+
+Failure path tested:
+  Generate while the write is forced to fail.
+
+Expected error result:
+  - The safe error message ([TODO: when something is slow or fails, what should the
+    user see? — Q-022])
+  - The plan is unchanged; no partial list exists
+
+Evidence to capture: the list screen, the plan's ingredient lines, list row count
+Status: Planned
+```
+
+---
+
 ## UI test inputs (Ch. 18 §18.7)
 
 Describe the **screen**, the **user action**, and the **visible result**. This prevents the
@@ -49,11 +84,11 @@ agent from writing tests that depend on imaginary buttons, labels, or flows.
 
 | UI test input | Example |
 |---|---|
-| Screen | Weekly plan page |
-| User action | Choose saved recipes for the days of the week, then click Generate list. |
-| Expected visible result | One shopping list opens with every planned meal's ingredients. |
-| Failure path | Generate a list from a week with no planned meals. |
-| Expected error result | An empty list with a clear message appears; no error page. |
+| Screen | Weekly plan |
+| User action | Add a saved recipe to the week, then generate the list. |
+| Expected visible result | The shopping list opens with the week's items. |
+| Failure path | Generate while the database write fails. |
+| Expected error result | Safe message; plan unchanged; no partial list. |
 
 ---
 
@@ -61,48 +96,16 @@ agent from writing tests that depend on imaginary buttons, labels, or flows.
 
 The same flows, run against the deployed system after release.
 
-1. Sign in as a test cook.
-2. Save a recipe with ingredient lines.
-3. Plan that recipe on a day of the week.
-4. Generate the shopping list and confirm it lists the recipe's ingredients.
-5. Generate from an empty week and confirm the safe empty-list message.
-6. Confirm logs and events exist (`LIST_GENERATED`) with a request id.
+1. Sign in as a test user.
+2. Save a test recipe.
+3. Add it to a weekly plan.
+4. Generate the shopping list.
+5. Trigger the main failure path and confirm the safe message.
+6. Confirm logs and audit events exist.
 7. Confirm monitoring shows no critical errors.
 
-→ [`../../07-ops/01-deployment/production-readiness-checklist.md`](../../07-ops/01-deployment/production-readiness-checklist.md)
+→ [`../ops/production-readiness-checklist.md`](../../07-ops/01-deployment/production-readiness-checklist.md)
 
-Executable tests live in [`../05-executable/executable-tests.md`](../05-executable/executable-tests.md) (`end-to-end/`).
-
----
-
-## Written out
-
-```
-Test ID:      ETEST-001
-Requirement:  REQ-F-004
-Flow name:    Plan a week, generate one list, tick items off
-
-Preconditions: signed-in cook with two saved recipes; an empty week
-
-Steps:
-1. Open the weekly plan and add both recipes on two days.
-2. Click "Generate shopping list".
-3. Tick off two items on the generated list.
-
-Expected visible result:
-  - One shopping list appears containing both recipes' ingredient lines
-  - The two ticked items show as picked up; the rest remain
-
-Failure path tested:
-  Generate the list again from a different, empty week.
-
-Expected error result:
-  - An empty list with a clear message, not an error page
-
-Evidence to capture: screenshot of the list, 200 response, shopping-list rows in the database
-Status: Planned
-```
-
----
+Executable tests live in [`../tests/end-to-end/`](../05-executable/end-to-end).
 
 > Blueprint: blueprints/03-tests/02-functional/end-to-end-tests.md

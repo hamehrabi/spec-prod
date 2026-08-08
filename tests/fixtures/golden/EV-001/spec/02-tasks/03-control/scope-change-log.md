@@ -12,8 +12,6 @@
 
 ## Change requests
 
-Copy this block per requested change:
-
 ```
 Change ID:
 Date:
@@ -48,9 +46,6 @@ Artifacts updated:
 | Change ID | Date | Requested change | Decision | Owner | Artifacts updated |
 |---|---|---|---|---|---|
 
-No scope changes have been requested for version one. Every new idea passes through this log
-before it becomes a task — the next accepted change is recorded as `SC-001`.
-
 ---
 
 ## Evaluation questions (Ch. 29 §29.6)
@@ -68,8 +63,7 @@ before it becomes a task — the next accepted change is recorded as `SC-001`.
 ## Preventing scope creep from the agent (Ch. 14 §14.7)
 
 Scope creep happens quickly with AI agents because they may "helpfully" add extra fields,
-extra screens, or extra logic that was never requested — for Pantry, sharing, nutrition,
-pricing, or importing recipes would each be exactly this.
+extra screens, or extra logic that was never requested.
 
 **Rule:** every task must point back to an approved requirement or design decision. If a
 requested change has no matching spec entry, **pause the implementation** — reject it,
@@ -88,7 +82,5 @@ new idea → evaluate against intent & goals → accept/defer/reject
                   ↓
            implementation
 ```
-
----
 
 > Blueprint: blueprints/02-tasks/03-control/scope-change-log.md
