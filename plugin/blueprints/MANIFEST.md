@@ -20,7 +20,7 @@ failure, not a bonus.
 
 ## Library digest
 
-**Library digest:** `fdf45480fd5425ad31d8e4e16801ba21de140a714a5eabfdc34525e6369851ed`
+**Library digest:** `d1e9cb62a3997b56a2089db1090f955c91f2ad7df235eb32c9e80ecdb3b0e8cc`
 
 One value for the whole library: SHA-256 over the 81 digests below —
 lowercased, sorted, one per line, each ending in a newline. **Compare this first.** It matches
@@ -67,7 +67,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `02-tasks/03-control/scope-change-log.md` | `57737d078abac2d3d0a3cbf478c6519e0fd129e8163745fb348dde53bbeda7fe` |
 | `02-tasks/03-control/task-handoff-notes.md` | `19c27347b6ac6021e14e6285eeeef0cbba9751d9ef41e2835659b70b0de3eab1` |
 | `03-tests/01-plan/test-plan.md` | `fa1db02c46d5437934816405fc7a48ad57f74530264e59de0fbc1226d0ee6247` |
-| `03-tests/01-plan/test-specification.md` | `54898b20070349e9c362682734c9b264b184cc54a899509652b7c05536887779` |
+| `03-tests/01-plan/test-specification.md` | `37b0bfc6912e59a7ec33614c6409085c94d8a078a616642161ffbf5f52cd48b2` |
 | `03-tests/02-functional/acceptance-tests.md` | `3b648fd60977cf5f4142f07be67f826a2903d022df7a7fb1d00b6a29fc0d0944` |
 | `03-tests/02-functional/end-to-end-tests.md` | `4af82d6e39a541548ff1a2067aa2900e9b7de18dbc57e068afe862f495e7cfa9` |
 | `03-tests/02-functional/integration-tests.md` | `48cdabdd021eb02b79a73435f839f9ef47df4a0c59d0a77014107757da64d421` |
@@ -75,7 +75,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `03-tests/03-non-functional/ai-evals.md` | `52be655dace6570121ab3805a56c98facaa3ca1bf536d1967ba8f0cc2eb74732` |
 | `03-tests/03-non-functional/performance-tests.md` | `ee876be30dde23fbdaf4242688987fbb9d0461463e4d803224cad0005df9dc84` |
 | `03-tests/03-non-functional/security-tests.md` | `4d81e11845fc50d7e31d3af30f58b89352d1b398d3b7fff2763f2bfb3322e199` |
-| `03-tests/04-failure/edge-cases-and-failures.md` | `b0718d3351d8367454baea8997ae4a5bec020c831c1941512d74877a3c134fba` |
+| `03-tests/04-failure/edge-cases-and-failures.md` | `235d627140990befcc95bcbc31da310b69fc55ba6e370aac4b2f68154fb66ad6` |
 | `03-tests/04-failure/failure-tests.md` | `c2ed361fe18c94f3056e497208e41cc848acc40be29d8190db9a74709055ed37` |
 | `03-tests/05-executable/executable-tests.md` | `8ab99c6bb4af735bcffaf786905e09fa64097588cc956b4104ae2e88344279d0` |
 | `04-src/README.md` | `48b4f69dc9403bc0e1337aacf409cd90e6671e2395bf9137cccddc662f37d74c` |
@@ -91,7 +91,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `05-review/03-version-control/version-control-checklist.md` | `55094dac84d4f9c168bb7d02b84fff354d9b163048d8493deaa455fccf41cfcb` |
 | `05-review/04-debugging/debugging-checklist.md` | `c781485b64b688bb0fded946baec0df12e6ac45ff54f98b620beadb0831af551` |
 | `05-review/04-debugging/debugging-specification.md` | `e86a6d8b77499722ebd5d9be202b79b1dddf8d6bd57f1a86b660750e18607e18` |
-| `06-agent/01-instructions/AGENT.md` | `aea62dcd6a13813f7ee989a760c9180db7103cffe3a0904e19eb98494e21fcfa` |
+| `06-agent/01-instructions/AGENT.md` | `5a26d1308b57918d9ad25d97493b24852c0fcde65a6216e1dbbe91658bc1187e` |
 | `06-agent/01-instructions/agent-rules-and-coding-standards.md` | `2014d6ebca42944f0712006f53e361c15c90066aba6211acbd8d7a77cfc05671` |
 | `06-agent/02-context/context-pack.md` | `cd0c7aff1951a37b4b4af4816cd1292fe16c51b3d0b3402ae0301553f2b2f273` |
 | `06-agent/03-prompts/prompt-library.md` | `513bd22c1329f29a11143312bd86f94bbd38de19c267e7b6a867710700bab9ab` |

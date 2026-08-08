@@ -59,8 +59,22 @@ test('UTEST-067: a changelog version heading is the format, not a gap', () => {
   assert.deepEqual(unfilled('## [1.0.0] — YYYY-MM-DD\n').map((p) => p.text), ['YYYY-MM-DD'])
   // NOT a bracket span that merely sits in a heading.
   assert.equal(unfilled('## [project name] — specification\n').length, 1)
-  // NOT a version-looking span outside a heading, where it is a value somebody has to supply.
-  assert.equal(unfilled('The first release is [1.0.0].\n').length, 1)
+
+  // THIS ASSERTION USED TO READ THE OTHER WAY, and a real run showed it was wrong.
+  //
+  // It required `[1.0.0]` OUTSIDE a heading to be a gap, on the reasoning that a version in
+  // prose is a value somebody must supply. Then a run wrote *"requirements listed under
+  // [1.0.0] below"* — a cross-reference to the `## [1.0.0]` section three lines down — and
+  // check 5 reported the file's own internal pointer as an unfilled placeholder.
+  //
+  // The shapes do not overlap, which is what makes widening safe rather than lax. A placeholder
+  // names something to supply: `[project name]`, `[Option A]`, `[Decision Title]`. A concrete
+  // semver is already the value — there is nothing a developer could write in its place. A
+  // blueprint asking for one writes `[version]`, and that is still caught below.
+  assert.deepEqual(unfilled('The requirements listed under [1.0.0] below.\n'), [])
+  assert.deepEqual(unfilled('## [Unreleased]\n\nSee [Unreleased] above.\n'), [])
+  assert.equal(unfilled('The first release is [version].\n').length, 1, 'a slot is still a slot')
+  assert.equal(unfilled('Ship it in [the next quarter].\n').length, 1)
 })
 
 test('UTEST-067: two id-stubs offered as a choice are describing which kind of id', () => {

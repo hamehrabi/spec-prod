@@ -23,8 +23,9 @@ duplicated, expired, unavailable, unauthorized, or invalid*.
 > **"Case ID" CITES the test that covers the case — it does not mint a new identifier.**
 > A case found here becomes a test somewhere: a failure case is an `FTEST-###` in
 > [`failure-tests.md`](failure-tests.md), a boundary case is a `UTEST-###` in
-> [`unit-tests.md`](../02-functional/unit-tests.md). Write that id here once it exists, and
-> `[TODO: which test covers this?]` until it does.
+> [`unit-tests.md`](../02-functional/unit-tests.md). Write that id here once it exists. Until it
+> does, leave the sanctioned marker naming the question — the same `[TODO: ...]` form every
+> other unknown uses.
 >
 > **And do not restate the test's expected result here.** A run that cites correctly can still
 > copy the outcome into this table in its own words, and then two files describe the same

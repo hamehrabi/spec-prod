@@ -30,7 +30,7 @@
 //   2  nothing ran. No claim is made either way.
 
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, rmSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, existsSync, readFileSync, readdirSync, writeFileSync, cpSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve, dirname } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -68,6 +68,10 @@ const USAGE = `Usage: node ci/generate-workspace.mjs <case-id> [options]
   --timeout <min>    wall-clock ceiling for the run. Default: 45. Shared across attempts, not
                      renewed by them: a dropped connection is retried in the same workspace,
                      up to ${ATTEMPTS} attempts, within this one ceiling.
+  --from <dir>       seed the sandbox from a finished workspace and let the kit RESUME.
+                     Delete the rounds you want re-run (whole files) and their acceptance rows
+                     first; resume.md continues from the first stage that is not complete, so
+                     a Round 7 change costs a Round 7 run rather than a whole one.
   --keep             leave the sandbox on disk and print its path. A run that stopped part-way
                      keeps its sandbox anyway — what it wrote cost money and is resumable.
   --dry-run          compose the prompt and print it. Spawns nothing, spends nothing.
@@ -119,6 +123,30 @@ function main(argv) {
   const sandbox = mkdtempSync(join(tmpdir(), `spec-prod-${args.caseId}-`))
   let keep = args.keep
   try {
+    // `--from <dir>` — SEED THE SANDBOX AND LET THE KIT RESUME.
+    //
+    // Verifying a blueprint change used to cost a whole run: 67 minutes to reach a Round 7 file
+    // through six rounds that were not being tested. The kit already solves this — resume.md
+    // derives position by reading the workspace, every time, never from a state file (ADR-004),
+    // and continues "from the first stage that is not complete".
+    //
+    // So: keep one complete workspace, copy it in, delete the rounds you want re-run along with
+    // their acceptance rows, and the kit picks up exactly there. Deleting WHOLE FILES is the
+    // clean way to do it — resume reads an absent file as a stage that is not complete, with
+    // none of the ambiguity of edited prose, which resume.md says it must ask about rather than
+    // guess at.
+    //
+    // TEST SCAFFOLDING, like the rest of this file. It changes what the sandbox starts as, never
+    // what the kit does with it — the same command, the same briefing, the same instructions.
+    // What it cannot tell you is whether rounds 1..N-1 still work; it assumes the seed.
+    if (args.from) {
+      if (!existsSync(args.from)) return notRun(`--from ${args.from} does not exist`)
+      cpSync(args.from, sandbox, { recursive: true })
+      const seeded = existsSync(join(sandbox, 'spec')) ? loadWorkspace(sandbox) : {}
+      const at = acceptedStages(seeded[CHANGE_LOG] ?? '').length
+      console.log(`  seeded from ${args.from} — ${Object.keys(seeded).length} file(s), ${at} accepted round(s).`)
+      console.log('  the kit resumes from what is on disk; rounds already complete are NOT re-tested.')
+    }
     const host = drive({ sandbox, command, briefing, model: args.model, timeoutMin: args.timeout })
     if (!host.ran) {
       // WHAT A STOPPED RUN WROTE OUTLIVES IT. A connection that drops 25 minutes in leaves a
@@ -489,9 +517,9 @@ function notRun(why, sandbox = null) {
  * and the failure it precedes arrives 45 minutes later looking like a host problem.
  */
 function parse(argv) {
-  const args = { caseId: null, rounds: null, model: null, timeout: 45, keep: false, dryRun: false }
+  const args = { caseId: null, rounds: null, model: null, timeout: 45, keep: false, dryRun: false, from: null }
   const NUMERIC = { '--rounds': 'rounds', '--timeout': 'timeout' }
-  const STRING = { '--model': 'model' }
+  const STRING = { '--model': 'model', '--from': 'from' }
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]
     // `--name=value` and `--name value` are the same flag. Split on the FIRST `=` only, so a

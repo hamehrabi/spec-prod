@@ -150,7 +150,15 @@ function contextOf(text, index) {
  * looked", and only the first one is honest.
  */
 function describesFormat(kind, matchText, line) {
-  if (kind === 'placeholder' && /^#{1,6}\s*\[/.test(line) && /^\[(?:Unreleased|v?\d+\.\d+(?:\.\d+)?)\]$/.test(matchText)) return true
+  // A VERSION IN BRACKETS IS NEVER A PLACEHOLDER, wherever it sits. This was anchored to
+  // headings, which covered `## [1.0.0]` and missed the sentence pointing AT that heading:
+  // "requirements listed under [1.0.0] below". A run wrote exactly that, and check 5 reported
+  // its own changelog cross-reference as an unfilled gap.
+  //
+  // Safe to widen because the shapes do not overlap. A placeholder names a thing to supply —
+  // `[project name]`, `[Option A]`, `[Decision Title]`. `[1.0.0]` and `[Unreleased]` are
+  // Keep-a-Changelog section names, and there is nothing a developer could write in their place.
+  if (kind === 'placeholder' && /^\[(?:Unreleased|v?\d+\.\d+(?:\.\d+)?)\]$/.test(matchText)) return true
   if (kind === 'id-stub' && /###\s*\/\s*[A-Z]{2,6}(?:-[A-Z])?-###/.test(line)) return true
   if (kind === 'instructional-italic' && /^\*Examples?\b[^*]{0,40}\*$/.test(matchText)) return true
   if (kind === 'placeholder' && /\b[A-Z]{2,6}(?:-[A-Z])?-\[/.test(line)) return true
