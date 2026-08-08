@@ -56,8 +56,8 @@ in the file that owns the test.
 
 > **The Test ID column CITES; it does not mint.** A test is defined once, in the file for its
 > level — `unit-tests.md`, `integration-tests.md`, `acceptance-tests.md`, `security-tests.md`,
-> `failure-tests.md`. Write that id here once it exists, and `[TODO: which test covers this?]`
-> until it does.
+> `failure-tests.md`. Write that id here once it exists. Until it does, leave the sanctioned
+> marker naming the question — the same `[TODO: ...]` form every other unknown uses.
 >
 > This matrix used to carry `Scenario`, `Preconditions`, `Input` and `Expected result` columns —
 > the whole test, restated. A run filled both, in different words, and the two agreed on the day
