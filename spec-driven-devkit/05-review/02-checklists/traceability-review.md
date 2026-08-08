@@ -32,7 +32,7 @@
 - [ ] Every test traces to a requirement or an acceptance criterion
 - [ ] Every question in the question set traces to something a generated file needs
 - [ ] **Every file the plugin ships traces to a requirement**
-- [ ] Every task in the index has a requirement — **TASK-019 does not, which is why it is blocked**
+- [x] Every task in the index has a requirement — **TASK-019 did not, stayed blocked for exactly that reason, and was rejected via SC-008 (2026-08-08); every task that can still run names one**
 
 > **The backward trace is the one that matters with an AI agent.** The forward trace catches
 > work that did not happen, which someone usually notices. The backward trace catches work
@@ -66,7 +66,7 @@ decide which, in writing.
 | REQ-NF-004 has no automatable test | **Yes** — it is genuinely a human judgement; covered by the manual smoke test step 3 | `traceability.md`; `end-to-end-tests.md` |
 | REQ-F-032 has one thin test | **Yes** — P2, thin coverage makes it cheap to cut | `product-spec.md` §11 |
 | SM-2 has no requirement, task, or test | **Yes, and it is a problem** | **Q-002** |
-| TASK-019 has no requirement | **Yes** — which is why it is blocked | SC-008 |
+| TASK-019 has no requirement | **Yes** — which is why it stayed blocked until SC-008 rejected it for v1 (2026-08-08) | SC-008 |
 | Performance cells nearly all empty | **Yes** — performance was rejected as a driver, with reopening triggers | `test-plan.md` |
 
 ---

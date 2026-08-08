@@ -181,7 +181,7 @@ A **gap is any missing link**. Blank cells are the point of this document.
 | **REQ-NF-004** (usable without documentation) has one acceptance test and no automatable one. | It is genuinely a human judgement — *did a person understand it?* | Marked **Needs update**. Covered by the manual smoke test (`end-to-end-tests.md`) step 3, which is explicitly the one step that cannot be automated. |
 | **REQ-F-032** (round progress) is P2 with a single acceptance test. | It may be cut under CON-002. | Deliberate. Thin coverage makes it cheap to drop, and the matrix shows exactly what would be lost. |
 | **SM-2** (intake completion rate) has no requirement, task, or test. | The kit author's own definition of first-month success is unmeasurable under CON-007. | **Q-002 — open and unresolved.** It appears in `intent.md` §4 and `product-spec.md` §4 rather than being quietly dropped. |
-| **TASK-019** (two sessions, one repository) has **no requirement**. | It came from the seven-questions worksheet, not from an answer. | Stays **P3 and blocked** until it passes through `scope-change-log.md`. Code with no requirement is suspicious; so is a task with none. |
+| **TASK-019** (two sessions, one repository) has **no requirement**. | It came from the seven-questions worksheet, not from an answer. | Stayed P3 and blocked until it passed through `scope-change-log.md` — **SC-008, 2026-08-08: rejected for v1**, one session per repository at a time recorded as a non-goal. A task with no requirement is as suspicious as code with none, and this one was never allowed to run without one. |
 | **Q-003** — the blueprint library may be core, not supporting. | If wrong, the library's thin specs and acceptance-only tests are the wrong strategy. | Open. Revisit after the first ten real intakes. |
 | **RSK-3** (host plugin format changes) has **no detector**. | It would be discovered from a user report. | `[TODO]` in `intent.md` and `data-and-integration-spec.md`. Open. |
 
@@ -193,7 +193,7 @@ A **gap is any missing link**. Blank cells are the point of this document.
 
 | AI risk | Traceability response |
 |---|---|
-| The agent builds a related but wrong feature. | Every task names its requirement; TASK-019 has none and is therefore blocked. |
+| The agent builds a related but wrong feature. | Every task names its requirement; TASK-019 had none, stayed blocked for exactly that reason, and was rejected via SC-008 rather than built. |
 | The agent skips an edge case. | Every acceptance criterion produced an `ATEST`; the seven-questions worksheet produced eighteen `FTEST`s. |
 | Code passes basic tests but breaks a rule. | All fourteen business rules appear in the coverage matrix with named tests. |
 | The implementation changes architecture silently. | Every ADR's Compliance field names a fitness function, and `adr-index.md`'s rules are copied into `AGENT.md`. |
@@ -210,7 +210,7 @@ A **gap is any missing link**. Blank cells are the point of this document.
 - [x] Every implemented feature has a code link — **four so far**: REQ-F-001, REQ-F-002, REQ-F-004, REQ-NF-005.
 - [x] Every security rule maps to a denial test.
 - [ ] Every released feature maps back to a PRD requirement — **nothing released yet.**
-- [ ] Any code without a requirement has been removed, documented, or approved — **no code yet**; the analogous case, TASK-019, is blocked.
+- [x] Any code without a requirement has been removed, documented, or approved — **no code yet**; the analogous case, TASK-019, was held blocked and then **rejected via SC-008 (2026-08-08)**, which is this checklist's rule applied to a task.
 - [x] Any blank matrix cell has been reviewed — see the gap analysis; every blank is deliberate and named.
 - [x] Every changed behavior is reflected in updated specs.
 
