@@ -6,18 +6,34 @@
 >
 > **The best task list is boring, specific, and controlled.**
 
+The work is sequenced as **thin vertical slices — one feature end to end at a time**
+(Round 7): recipes, then plans, then the shopping list (the core), then search. Each slice
+is reviewable by using it. The code is written by **an AI coding agent, one task at a time**
+(Round 7), which is why every task carries an out-of-scope boundary.
+
 ---
 
 ## Task table
 
 | Task ID | Agent task | Input artifacts | Acceptance check | Depends on | Out of scope |
 |---|---|---|---|---|---|
-| TASK-001 | Create the modular-monolith skeleton and account sign-in. | technical-spec §2/§7, security-spec §1, ADR-001/ADR-002 | App runs; sign-in works; a signed-out data request returns 401. | — | Any recipe, planning, or list feature. |
-| TASK-002 | Add recipe save with ingredient lines, scoped to the account. | requirements REQ-F-001, database-design, security-spec §3 | Recipe saves and lists; missing title rejected; never visible to another account. | TASK-001 | Search, planning, photos. |
-| TASK-003 | Add search over the cook's own recipes. | requirements REQ-F-002, api-specification | Search returns own matches; empty result on no match. | TASK-002 | Ranking, external search service. |
-| TASK-004 | Add weekly planning with the reference and delete-guard rules. | requirements REQ-F-003, database-design (WeeklyPlan, PlannedMeal) | Plan saves; non-owned recipe rejected; delete blocked while referenced. | TASK-002 | List generation. |
-| TASK-005 | Implement the ShoppingList service and generate-list endpoint. | requirements REQ-F-004, database-design, security-spec §7 | One list of all planned meals; empty week → empty list; other account denied. | TASK-004 | Ticking items; pricing; quantities. |
-| TASK-006 | Add check / uncheck for shopping-list items. | requirements REQ-F-006, database-design | Items check and uncheck and persist; own list only. | TASK-005 | Anything beyond checking off. |
+| TASK-001 | Create project structure and configuration loading. | Technical spec, ADR-001, ADR-002. | Project runs locally with an empty health check. | — | Any business feature. |
+| TASK-002 | Implement account record and sign-in. **Blocked on Q-009** — the authentication model is not chosen. | database-design (accounts), security-specification §1, Q-009 answer. | SEC-A-001: a signed-out request to any data route returns 401. | TASK-001 | Password reset, multi-factor, any second role. |
+| TASK-003 | Create the Recipe and IngredientLine tables with their constraints. | database-design.md, REQ-F-001. | Both tables exist; a recipe row cannot exist without an account; lines carry a stable `position`. | TASK-001 | Plans, lists, photos, search. |
+| TASK-004 | Implement the save-recipe endpoint with validation. | api-specification.md, REQ-F-001, security-specification §3. | AC-001 behaviour over the API; recipe + lines written in one transaction; invalid input saves nothing. | TASK-002, TASK-003 | Editing other entities; search; any UI. |
+| TASK-005 | Build the save/edit recipe screen. | frontend-component-spec.md, REQ-NF-004, REQ-NF-006. | A recipe can be saved from the browser; keyboard-only completion works; failure keeps typed values. | TASK-004 | Planning screens; list screens. |
+| TASK-006 | Write the recipe-slice tests. | acceptance-, integration-, failure-, unit-test plans. | ATEST-001, ITEST-001, ITEST-005, UTEST-001, UTEST-002, FTEST-001, FTEST-002, FTEST-008 pass. | TASK-004, TASK-005 | Tests for other slices. |
+| TASK-007 | Create the WeeklyPlan and PlannedMeal tables. | database-design.md, REQ-F-002. | Tables exist; a planned meal references a recipe in the same account (BR-002 constraint). | TASK-003 | Shopping-list tables. |
+| TASK-008 | Implement plan endpoints — create a week's plan, add and remove planned meals. | api-specification.md, REQ-F-002, BR-002. | AC-002 behaviour over the API; a cross-account recipe reference is rejected. | TASK-002, TASK-007 | List generation; recipes UI. |
+| TASK-009 | Build the week view screen. | frontend-component-spec.md, REQ-NF-004, REQ-NF-006. | A saved recipe can be planned into a week from the browser. | TASK-008 | Shopping-list screen. |
+| TASK-010 | Write the plan-slice tests. | acceptance-, integration-, security-test plans. | ATEST-002, ITEST-003, STEST-006 pass. | TASK-008, TASK-009 | Tests for other slices. |
+| TASK-011 | Create the ShoppingList and ShoppingListItem tables. | database-design.md, REQ-F-003. | Tables exist; items carry a stable `position`; a list belongs to exactly one plan. | TASK-007 | Generation logic. |
+| TASK-012 | Implement the shopping-list generation domain service — **the core**. **Blocked on Q-011** — whether shared ingredients combine into one line is undecided. | REQ-F-003, BR-001, REQ-NF-001, Q-011 answer. | AC-003: one list, an item for every ingredient line of the week, in one transaction, within 2 s for 21 meals. | TASK-011 | Endpoint and screen (TASK-013); any change to recipes or plans. |
+| TASK-013 | Implement the generate-list endpoint and the shopping-list screen. | api-specification.md, frontend-component-spec.md. | The list is generated and shown from the browser; failure leaves the plan unchanged. | TASK-012 | Editing list items beyond the generated content. |
+| TASK-014 | Write the list-slice tests — the full pyramid, because this is the core. | all test plans. | ATEST-003, ATEST-005, ITEST-004, UTEST-003, UTEST-005, FTEST-005, FTEST-006, PTEST-001, ETEST-003 pass. | TASK-013 | Tests for other slices. |
+| TASK-015 | Implement recipe search — endpoint and screen. | REQ-F-004, api-specification.md. | AC-004 behaviour; results scoped to the calling account; 1 s for 500 recipes. | TASK-004 | Ranking, filters, or fuzzy matching not in the spec. |
+| TASK-016 | Write the search-slice tests. | acceptance-, integration-, performance-test plans. | ATEST-004, ITEST-006, PTEST-002 pass. | TASK-015 | Tests for other slices. |
+| TASK-017 | Implement dish-photo upload, storage, and viewing. **Blocked on Q-023** — the storage rules are not decided. | database-design file-storage table, SEC-Z-002, Q-023 answer. | A photo is stored privately and viewable only by its owner; FTEST-007 and STEST-003 pass. | TASK-004 | Sharing, thumbnails, or processing of any kind. |
 
 ---
 
@@ -60,11 +76,9 @@ They sound helpful but leave too much room for interpretation.
 
 | Weak task | Better task |
 |---|---|
-| Build recipes. | Create the Recipe and IngredientLine entities scoped by `account_id`, validate the title, and add create/read endpoints (TASK-002). |
-| Add errors. | Return a retry-safe error on a save failure without reporting success, preserving the cook's input (REQ-NF-003). |
-| Make the list. | Implement a ShoppingList service that gathers every planned meal's ingredient lines from one week into one list (TASK-005). |
-| Build planning. | Add WeeklyPlan and PlannedMeal, enforce the owned-recipe reference rule (BR-003), and block deletion of a referenced recipe (BR-004). |
-
----
+| Build recipes. | TASK-004: implement the save-recipe endpoint that validates title and ingredient lines, writes recipe + lines in one transaction, and returns the saved recipe. |
+| Add errors. | Return the safe validation error naming the field, with nothing written (FTEST-001). |
+| Make the list work. | TASK-012: implement generation exactly as BR-001 states, one transaction, within the REQ-NF-001 target — and stop if Q-011 is still open. |
+| Build photos. | TASK-017: implement upload against the Q-023 rules once they exist; owner-only reads per SEC-Z-002. |
 
 > Blueprint: blueprints/02-tasks/01-planning/agent-task-list.md

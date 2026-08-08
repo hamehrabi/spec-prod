@@ -1,4 +1,4 @@
-# Prompt Library for Spec-Driven AI Engineering — Pantry
+# Prompt Library for Spec-Driven AI Engineering
 
 > Source: Appendix J + Ch. 13.
 > Replace bracketed sections with your project details. The strongest prompts connect the
@@ -226,7 +226,7 @@ Return:
 
 ## Lifecycle control prompts
 
-### Stage gate review (§3.4)
+### Stage gate review (Prompt box 3.4)
 ```
 Act as a spec-driven AI engineering reviewer.
 
@@ -238,7 +238,7 @@ vague statements, risky assumptions, and the exact corrections needed. Do not mo
 implementation.
 ```
 
-### Implement one controlled task (§3.3 / Ch. 16 §16.7)
+### Implement one controlled task (Prompt box 3.3 / Ch. 16 §16.7)
 ```
 You are implementing one task from the approved spec-to-code pipeline.
 
@@ -287,74 +287,11 @@ Explain:
 
 | Weak prompt | Spec-driven prompt |
 |---|---|
-| Build a login system. | Using REQ-F-005 and the security specification, implement only the email/password sign-in endpoint. Do not add social login or account roles. Generate unit tests for the acceptance criteria before implementation (SEC-A-001..004). |
-| Make the app better. | Review the shopping-list generation against REQ-F-004 acceptance criteria. List missing validations first. Then propose only the smallest code changes needed to satisfy the requirement. |
-| Fix the bugs. | Use the failing test output and REQ-F-004 to identify the root cause. Explain the mismatch between expected behavior and current behavior before suggesting a patch. |
-| Add recipe saving. | Implement REQ-F-001 only: save a recipe with its ingredient lines. Use the existing Recipe entity. Do not add nutrition or import. Add validation and tests. |
-| Fix the plan screen. | Fix TASK-004: a planned meal must reference an owned recipe (BR-003). Update the service function and its unit test only. |
-| Improve the API. | Update the shopping-list endpoint to enforce BR-001 (one list per week). Do not change response fields. Add validation errors for a second generation of the same week. |
-
----
-
-# Worked example — Pantry prompts
-
-## 1. Clarify before building (used before REQ-F-004 was locked)
-
-```
-Before writing code, review the specification below.
-List any missing details, contradictions, risky assumptions, or unclear requirements.
-Do not implement anything yet.
-
-Specification:
-"A signed-in cook can generate ONE consolidated shopping list from their weekly plan."
-
-Return:
-- Missing details
-- Contradictions
-- Questions I should answer
-- Safe assumptions, if any
-```
-
-## 2. Implement one task (TASK-005 — generate one list)
-
-```
-Implement this one task only:
-TASK-005 - Generate one consolidated shopping list from a weekly plan.
-
-Source of truth:
-REQ-F-004: A signed-in cook can generate ONE shopping list from a weekly plan.
-BR-001: one list per week — regenerating replaces the previous list, it does not duplicate.
-API contract: see 01-docs/06-api-and-data-design/api-specification.md
-
-Boundaries:
-- Do not work on other tasks.
-- Allowed files: 04-src/modules/shopping-list/, 03-tests/unit/
-- Do not change: Recipes storage, Account/Auth, the database schema.
-- The list-generation core must not import UI or store-specific code (ADR-001, FF-001).
-
-Return:
-- Code changes
-- Short explanation
-- Requirement IDs covered
-- Suggested tests
-```
-
-## 3. Acceptance criteria → tests (REQ-F-006 — tick off items)
-
-```
-Create tests from the acceptance criteria below.
-Do not test behavior that is not listed.
-
-Feature: Tick off a shopping-list item
-Acceptance criteria:
-1. Ticking an item marks it done for the owner's list only (SEC-Z-001).
-2. Un-ticking returns it to not-done.
-3. A request for another account's list item returns a safe not-found (BR-002).
-
-Return a table with Test ID, Scenario, Input, Expected result, Requirement ID covered.
-Then provide the test code.
-```
-
----
+| Build the recipe feature. | Using REQ-F-001 and the technical spec, implement only TASK-004 — the save-recipe endpoint. Do not add editing, search, or any UI. Tests come from AC-001. |
+| Make the app better. | Review the save-recipe flow against AC-001. List missing validations first. Then propose only the smallest code changes needed to satisfy the requirement. |
+| Fix the bugs. | Use the failing test output and the requirement below to identify the root cause. Explain the mismatch between expected behavior and current behavior before suggesting a patch. |
+| Add the shopping list. | Implement TASK-012 only: the generation domain service per BR-001, one transaction, within the REQ-NF-001 target. Stop and ask if Q-011 is still open. |
+| Fix search. | Fix TASK-015 against AC-004: a word from a recipe's title must match. Update the search service and its tests only. |
+| Improve the API. | Update the generate-list contract per `api-specification.md`. Do not change response fields. Add validation errors for a missing or foreign plan ID. |
 
 > Blueprint: blueprints/06-agent/03-prompts/prompt-library.md

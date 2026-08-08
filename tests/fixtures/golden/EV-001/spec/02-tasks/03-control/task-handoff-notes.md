@@ -4,9 +4,6 @@
 > Notes passed between a human and an agent, or between sessions, when a task is picked
 > up, paused, or returned.
 
-No handoff is in progress yet. When a task is paused or returned, copy the entry block below
-and fill it in.
-
 ---
 
 ## Handoff entries
@@ -47,8 +44,7 @@ The agent must not skip a stage. You check the right-hand column.
 
 ## Mid-work checkpoint (Ch. 29 §29.7)
 
-Trigger a checkpoint when the agent or developer finds ambiguity. The Answer column is filled
-per checkpoint.
+Trigger a checkpoint when the agent or developer finds ambiguity.
 
 | Check | Answer |
 |---|---|
@@ -64,13 +60,11 @@ per checkpoint.
 
 | Control rule | How you apply it |
 |---|---|
-| One task at a time | Do not combine sign-in, recipes, planning, and list generation in one request. |
+| One task at a time | Do not combine recipes, plans, list generation, and search in one request. |
 | Approved files only | Tell the agent which folders or files it may edit. |
 | Plan before edit | Ask for a short plan before allowing implementation. |
 | No silent assumptions | Require the agent to report unclear requirements before coding. |
 | Tests required | Every behavior change includes or updates a test. |
 | Review before next task | Do not move on until you have checked the current result. |
-
----
 
 > Blueprint: blueprints/02-tasks/03-control/task-handoff-notes.md

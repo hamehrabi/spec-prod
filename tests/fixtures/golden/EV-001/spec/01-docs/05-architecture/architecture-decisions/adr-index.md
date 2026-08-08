@@ -14,7 +14,7 @@ context and tell the assistant to follow it.
 |---|---|---|---|---|
 | [ADR-000](ADR-000-template.md) | Template — copy me | — | — | — |
 | [ADR-001](ADR-001-modular-monolith.md) | Use a modular monolith for Pantry | Accepted | 2026-08-08 | — |
-| [ADR-002](ADR-002-relational-store-sqlite-to-postgres.md) | Relational store: SQLite now, Postgres-ready schema | Accepted | 2026-08-08 | — |
+| [ADR-002](ADR-002-relational-store-sqlite-first.md) | Relational store — SQLite first, Postgres path kept open | Accepted | 2026-08-08 | — |
 
 ## Conventions
 
@@ -33,7 +33,5 @@ context and tell the assistant to follow it.
 | Accepted | Agreed; binding on implementation. |
 | Rejected | Considered and declined; kept for the record. |
 | Replaced / Superseded | A later ADR governs instead. |
-
----
 
 > Blueprint: blueprints/01-docs/05-architecture/architecture-decisions/adr-index.md

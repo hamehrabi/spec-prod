@@ -10,11 +10,11 @@
 
 | Component | Purpose | Data needed | States | Rules |
 |---|---|---|---|---|
-| `AppShell` | Frame: navigation, current cook, sign-out. | current account | loading, ready, unauthorized | Do not show content until the account is confirmed; the UI never enforces access on its own. |
-| `RecipeList` | Shows the cook's saved recipes with a search box. | recipe list, search term | loading, success, empty, error | Empty state says "No recipes yet", never renders as a broken page. |
-| `RecipeForm` | Save or edit a recipe with a title and ingredient lines. | recipe (for edit), draft input | idle, validating, saving, success, error | Keeps typed values on error (`REQ-NF-003`); at least one ingredient line required. |
-| `WeekPlanner` | Assign saved recipes to the days of a week. | week, saved recipes | loading, ready, empty, error | A planned meal must reference a recipe the account owns (BR-003). |
-| `ShoppingListView` | The single list generated from a week, with tick-off. | generated list | loading, success, empty, error | Empty week shows an empty list with a message, not an error (AC-003). |
+| `AppShell` | Frame: navigation, current account. | current account | loading, ready, unauthorized | Render nothing until sign-in is confirmed. |
+| `RecipeForm` | Save a recipe with its ingredient lines. | none beyond input | idle, validating, saving, error | Keeps every typed value on error (REQ-NF-003). At least one ingredient line before save. |
+| `RecipeSearch` | Search saved recipes. | query, matching recipes | loading, success, empty, error | Empty state explains how to save a first recipe — never reads as a failure. |
+| `WeekPlanner` | Choose which meals to cook this week. | saved recipes, current weekly plan | loading, success, empty, error | Adding a meal updates the week immediately — this screen carries the "speed of the core task" priority. |
+| `ShoppingListView` | Show the list generated from the week. | shopping list with items | loading, success, empty, error | Generated in one action from the plan (REQ-F-003). How duplicate ingredients render is open (Q-011). |
 
 **Example (Ch. 27 §27.6)**
 
@@ -61,42 +61,44 @@ Accessibility notes:
 Out of scope for this component:
 ```
 
-Filled in for the recipe form (kept short at express depth):
+The core screen's component, filled:
 
 ```
-Component name:       RecipeForm
-Purpose:              Let the signed-in cook save or edit a recipe with a title and ingredient lines.
-Supports requirement: REQ-F-001, AC-001
+Component name:       ShoppingListView
+Purpose:              Show the one shopping list generated from the weekly plan, and let
+                      the account holder generate or regenerate it.
+Supports requirement: REQ-F-003, AC-003, AC-005
 
 Props / inputs:
-  - recipe: Recipe|null — optional — present when editing
-  - onSaved: fn         — required — called with the saved recipe
+  - planId: string — required — the weekly plan the list belongs to
 
 Internal state:
-  - values { title, ingredientLines[] }
-  - status: idle | validating | saving | error
+  - status: idle | generating | success | error
+  - list { id, items[] } or null
 
 States to handle:
-  - Loading:           save button shows a spinner and is disabled
-  - Success:           the recipe appears in the list; the form clears or closes
-  - Empty:             n/a (form, not a data view)
-  - Error:             inline message under the offending field; ALL typed values kept (REQ-NF-003)
-  - Disabled:          save disabled while the title is empty or a save is in flight
-  - Permission denied: only the owner reaches their own recipes; the server also enforces it
+  - Loading:           progress indicator on the Generate action; never a blank frame
+  - Success:           the list, one item per line, in a stable order
+  - Empty:             "This week has no planned meals yet — add meals to generate a
+                       list." Never rendered as an error or as an empty white page
+  - Error:             "The list could not be generated. Your plan is unchanged." + Retry
+  - Disabled:          Generate disabled while the plan has no meals or a run is in flight
+  - Permission denied: another account's plan is a safe not-found; nothing is revealed
 
-User actions:         type title, add/remove ingredient lines, save, cancel
+User actions:         generate, regenerate, review items
 
 Validation shown inline:
-  - Title required, 1-120 characters
-  - At least one ingredient line
+  - none — the action carries no fields; failures surface as the error state
 
 Accessibility notes:
-  - Labels:            every field has a visible <label>, not a placeholder-only label
-  - Keyboard navigation: the form is completable with the keyboard alone (REQ-NF-006)
-  - Error announcement: error text is tied to the field and announced on submit
+  - Labels: the Generate control is a real, visibly labelled button
+  - Keyboard navigation: the whole flow — generate, then read the list — works with
+    keyboard alone (FF-003)
+  - Error announcement: generation failure is announced to screen readers, not only shown
+    as a colour change
 
 Out of scope for this component:
-  - Photos of finished dishes (handled elsewhere), import from other apps, sharing
+  - Editing recipes, editing the plan, sharing or exporting the list
 ```
 
 ---
@@ -114,32 +116,22 @@ AI-generated UIs fail (Ch. 27 §27.3).
 | **Error** | Safe message + retry option. Never a stack trace. |
 | **Permission denied** | Hide or disable; do not reveal protected resource details. |
 
-Filled in for the core `ShoppingListView`:
-
-| State | What the user sees |
-|---|---|
-| Loading | A short progress indicator while the list is generated; no layout jump when it arrives. |
-| Success | One list, grouped by the week's meals; each item can be ticked off. |
-| **Empty** | "This week has no planned meals yet, so the list is empty." — plus a link to the planner (AC-003). |
-| **Error** | "We could not generate your list right now. Please try again." + Retry. No stack trace. |
-| **Permission denied** | A week the account does not own is not reachable; a deep link returns the safe not-found. |
-
 ---
 
 ## Frontend requirement areas (Ch. 7 §7.4)
 
 | Area | Specify |
 |---|---|
-| Screens or pages | Sign-in, recipe list/search, recipe form, week planner, shopping list. |
-| Components | Navigation, list, form, search bar, list item with a tick control. |
-| Form fields | Recipe title (required), ingredient lines (at least one), planned-meal day. |
-| UI states | Loading, empty, error, success, disabled, permission-denied. |
-| User actions | Save, edit, delete, search, plan, generate list, tick off, retry. |
-| Accessibility basics | Readable labels, keyboard-friendly navigation, clear error messages (`REQ-NF-006`). |
+| Screens or pages | Sign-in, recipe library (with search), recipe form, week planner, shopping list. |
+| Components | The five components in the table above. |
+| Form fields | Recipe title (required), ingredient lines (name required; quantity and unit optional). |
+| UI states | Loading, empty, error, success, disabled, permission-denied — per the five states rule. |
+| User actions | Save recipe, search, add meal to week, generate list, retry after failure. |
+| Accessibility basics | Visible labels on every field, keyboard-completable core flow, errors announced — accessibility is a driving characteristic (FF-003). |
+
+---
 
 > **Security rule (Ch. 27 §27.7):** hiding a button in the frontend is helpful for the
 > user interface, but it is **not security by itself**. Enforce permissions on the server.
-
----
 
 > Blueprint: blueprints/01-docs/04-technical-spec/frontend-component-spec.md

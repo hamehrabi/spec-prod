@@ -4,14 +4,11 @@
 > **Beginner rule:** do not review AI code by asking "does it look okay?" Review it by
 > asking **"which requirement, design decision, and test does this code satisfy?"**
 
-> Copy this file per review and fill the header fields below. They stay blank in this
-> template — a review that has not happened has no reviewer and no date.
-
-**Feature or module:**
-**Requirement IDs:**
-**Task IDs:**
-**Reviewer:**
-**Date:**
+**Feature or module:** One pass per agent task output — nothing reviewed yet; TASK-001 will be first.
+**Requirement IDs:** Those the task under review cites.
+**Task IDs:** The task under review.
+**Reviewer:** The developer — Pantry is a one-person project, and every implementation task is agent-written (Round 7).
+**Date:** —
 
 ---
 
@@ -47,9 +44,9 @@ Review in this order. Reviewing randomly means you miss hidden scope changes.
 - [ ] Responsibilities are placed in the correct module or layer.
 - [ ] Endpoint/controller only receives input, calls the service layer, returns the response.
 - [ ] Validation runs **before** business logic.
-- [ ] Business rules live in the service/domain layer, not in route handlers or UI components (ADR-001).
+- [ ] Business rules live in the service/domain layer, not in route handlers or UI components.
 - [ ] Data access goes through a clear boundary.
-- [ ] No new coupling across boundaries that the ADRs forbid — a module must not reach another account's data (ADR-001); no SQLite-only features and only portable SQL/types (ADR-002).
+- [ ] No new coupling across boundaries that the ADRs forbid.
 
 | Layer | Main responsibility |
 |---|---|
@@ -61,12 +58,12 @@ Review in this order. Reviewing randomly means you miss hidden scope changes.
 
 ## 3. Security and validation
 
-- [ ] The code confirms **who** the user is (authentication) — SEC-A-001.
-- [ ] The code confirms **what** the user is allowed to do (authorization) — SEC-Z-001.
+- [ ] The code confirms **who** the user is (authentication).
+- [ ] The code confirms **what** the user is allowed to do (authorization).
 - [ ] Missing, malformed, or dangerous values are rejected early.
-- [ ] Tokens, keys, and credentials are kept out of source code and logs — SEC-A-002.
+- [ ] Tokens, keys, and credentials are kept out of source code and logs.
 - [ ] Errors are safe for users and useful for internal logs.
-- [ ] Ownership/tenant scoping is enforced on every query; cross-account access returns a safe not-found (SEC-Z-001).
+- [ ] Ownership/tenant scoping is enforced on every query.
 
 → full pass: [`security-review.md`](security-review.md)
 
@@ -82,7 +79,7 @@ Review in this order. Reviewing randomly means you miss hidden scope changes.
 
 - [ ] Tests cover happy paths, failures, edge cases, and permissions.
 - [ ] Tests verify business behavior, not only implementation details.
-- [ ] Security-sensitive paths have **negative** tests (STEST-001…005 deny tests).
+- [ ] Security-sensitive paths have **negative** tests.
 - [ ] Tests were not weakened or deleted to make the code pass.
 - [ ] Refactoring does not change behavior unless the spec approves it.
 
@@ -124,14 +121,12 @@ Refactoring means improving structure **without changing what the code does**.
 | # | Severity | Layer | Finding | Affected requirement / artifact | Risk | Recommended fix | Changes the spec? | Status |
 |---|---|---|---|---|---|---|---|---|
 
-No entries yet — the first review finding adds the first row.
-
 ---
 
 ## Decision
 
 - [ ] **Accept** — merge as is.
-- [ ] **Accept with follow-up** — merge; follow-up tasks created.
+- [ ] **Accept with follow-up** — merge; follow-up tasks created: ______
 - [ ] **Revise** — return to the agent with specific findings.
 - [ ] **Block** — security or requirement failure.
 

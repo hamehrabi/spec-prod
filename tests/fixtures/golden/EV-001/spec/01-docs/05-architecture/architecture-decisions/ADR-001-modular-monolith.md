@@ -1,84 +1,95 @@
-# ADR-001: Use a modular monolith for Pantry
+# ADR-001: Use a Modular Monolith for Pantry
 
 > Source: Ch. 8 §8.8 + Appendix K.
-> Derived from the ADR template (`ADR-000-template.md`). An accepted ADR is immutable —
-> supersede it with a new one rather than editing it.
+> Copy this file to `ADR-001-short-title.md` and fill it in. Never edit an accepted ADR —
+> supersede it with a new one.
 
 **ADR ID:** ADR-001
 **Status:** Accepted
 **Date:** 2026-08-08
-**Decision owner:** Developer
-**Review date:** Revisit trigger below.
+**Decision owner:** Developer (product owner)
+**Review date:** None scheduled — see Revisit when.
 
 ---
 
 ## Context
 
-Pantry's first version is built by one developer for one home cook and must ship a small,
-finishable product (driver: simplicity / feasibility). It needs enough internal structure to
-keep the competitive core — turning a week of chosen meals into one shopping list — isolated
-and testable (`REQ-NF-005`), but it does not need independent deployment of features.
+Pantry is a single-user consumer web application with four capabilities and one core
+subdomain (shopping-list generation). Simplicity/feasibility is a driving characteristic:
+version one must be finishable, and the structure must not cost more than the product.
+The architecture style shapes every file in this folder and the module layout of the code.
 
 ## Options considered
 
-1. **Simple monolith** — fastest to write, but nothing stops the core list logic from
-   tangling with recipe storage and auth; the module boundary lives only in someone's head.
-2. **Modular monolith** — one deployment, named modules with boundaries respected by
-   discipline; a small amount of structure to maintain.
-3. **Microservices** — independent scaling and ownership, paid for in operations, deployment,
-   and cross-network debugging that a single-user v1 has no use for.
+> **Design it twice** (Ousterhout Ch. 11). You must compare **at least two genuinely
+> different** options — not one option and two strawmen. Make them radically different;
+> that is where the learning is. The winner is often a third design you only found by
+> seeing what was wrong with the first two.
 
-*Compared on:* which keeps the core list logic isolated · which is cheapest to run for one
-person · which is cheapest to reverse.
+1. **Simple monolith** — fastest start; the boundaries live in someone's head and decay as the code grows.
+2. **Modular monolith** — one deployment with named internal modules; structure without operational cost; cheap to reverse.
+3. **Service-based / serverless** — real independence per capability, paid for in operations, deployment, and debugging across a network that a one-person product does not need.
+
+*Compared on:* which interface is simpler · which is more general · which forces callers
+to do work that should be inside · which is cheaper to reverse.
 
 ## Decision
 
-Use a **modular monolith**: named domain modules (Recipes, Planning, ShoppingList — core;
-Account/Auth — generic) behind an API layer and a data layer, deployed as one unit.
+Use a **modular monolith**: one deployable application with named modules — accounts,
+recipes, planning, and shopping-list generation (the core).
 
 ## Reason
 
-It gives enough structure to keep the competitive core isolated and portable to Postgres
-later, without the operational cost of distribution — the right fit for one developer and one
-user, and the only option here that is cheap to reverse.
+The developer chose it, and it fits the drivers: structure without deployment complexity,
+and the only option on the list that is cheap to reverse once more is known. Nothing in
+the product needs independent scaling or deployment.
 
 ## Consequences
 
-- **Positive:** the core list-generation logic is testable in isolation and portable; the app
-  is stateless, so a restart is not an incident.
-- **Trade-off or limitation:** module boundaries are held by discipline, not enforced by a
-  network — they can be violated silently without a guard.
-- **Rule the AI assistant must follow during implementation:** each feature area lives inside
-  its named module; route handlers must not contain business rules; business logic goes in
-  domain modules, never inside UI components; no module reaches another account's data.
+- **Positive:** one thing to build, run, and back up; module boundaries keep the core separable.
+- **Trade-off or limitation:** module discipline is not enforced by deployment — it must be enforced by review and FF-001.
+- **Rule the AI assistant must follow during implementation:** every feature area lives inside its named module; route handlers must not contain business rules; business logic goes in domain modules, never in UI components.
+
+> **If no trade-off is visible, keep looking.** A choice with no downside was never a
+> choice — you are comparing in the abstract instead of weighted for this context.
 
 ## Compliance
 
 | Enforced by | Where |
 |---|---|
-| FF-001 (no import cycles between UI, domain modules, and data layer) — not wired until Round 8 CI | [`../../04-technical-spec/fitness-functions.md`](../../04-technical-spec/fitness-functions.md) |
+| FF-001 (no import cycles between modules) — not wired yet | [`../../04-technical-spec/fitness-functions.md`](../../04-technical-spec/fitness-functions.md) |
 
 ## Revisit when
 
-A second developer or team needs to deploy a feature area independently, or one module needs
-to scale separately from the rest.
+One module genuinely needs independent scaling or deployment, or Q-001 is answered with a
+volume that a single deployment cannot serve.
 
 ## Impact
 
 | Dimension | Impact |
 |---|---|
-| Security | Named boundaries keep Account/Auth isolated from domain modules. |
-| Reliability | Stateless process; a restart loses no state and is not an incident. |
-| Performance | Neutral at one user; no distribution overhead. |
-| Cost | Single instance — the cheapest shape to run. |
-| Maintainability | High — the core stays isolated and independently testable (the point of the choice). |
+| Security | One process, one boundary to defend; owner-scoping enforced in one service layer. |
+| Reliability | One deployable to keep healthy; a restart is the whole system. |
+| Performance | No network hops between modules; well within REQ-NF-001 at personal scale. |
+| Cost | One small instance; no orchestration. |
+| Maintainability | Named modules keep the core separable; discipline required (FF-001). |
 
 ## Related
 
-- Related requirements: `REQ-NF-005`, `REQ-F-004`.
-- Related technical spec sections: [`technical-spec.md`](../../04-technical-spec/technical-spec.md) §2.
-- Supersedes / superseded by: none.
+- Related requirements: REQ-NF-005
+- Related technical spec sections: `technical-spec.md` §2
+- Supersedes / superseded by: —
 
 ---
+
+## Why each field matters (Appendix K)
+
+| Field | Why it matters |
+|---|---|
+| Context | Prevents future reviewers from judging the decision without knowing the problem. |
+| Decision | States the actual choice clearly. |
+| Alternatives | Shows that the team considered other options. |
+| Consequences | Makes trade-offs visible. |
+| Related requirements | Keeps architecture tied to product value. |
 
 > Blueprint: blueprints/01-docs/05-architecture/architecture-decisions/ADR-000-template.md

@@ -7,10 +7,8 @@
 AI-generated code may create models or queries but forget the release path. Require
 migration planning in the specification.
 
-> **Two rules hold for every migration in Pantry (ADR-002):** every migration is
-> **reversible** (an up and a down), and the schema must move **SQLite → Postgres
-> unchanged** — no SQLite-only feature, type, or pragma. The store is SQLite now and
-> Postgres-ready; nothing may depend on SQLite specifics.
+For Pantry every migration must also honour ADR-002: use only relational features SQLite
+and Postgres share, so the same migration runs on both.
 
 ---
 
@@ -39,10 +37,11 @@ Tested on:                   [local / staging with production-like data]
 
 | ID | Date | Change | Reversible? | Deploy order | Downtime | Status |
 |---|---|---|---|---|---|---|
-| MIG-001 | 2026-08-08 | Create initial schema: Account, Recipe, IngredientLine, WeeklyPlan, PlannedMeal, ShoppingList, ShoppingListItem | Yes | schema→code | No | Planned |
-
-> Later migrations are added here as tasks (TASK-001..006) produce schema change. Keep the
-> ADR-002 rules — reversible, portable SQLite→Postgres — for each new row.
+| MIG-001 | — | Create `accounts` (TASK-002 — schema fields wait on Q-009) | Yes | schema → code | No | Blocked on Q-009 |
+| MIG-002 | — | Create `recipes` + `ingredient_lines` (TASK-003) | Yes | schema → code | No | Planned |
+| MIG-003 | — | Create `weekly_plans` + `planned_meals` (TASK-007) | Yes | schema → code | No | Planned |
+| MIG-004 | — | Create `shopping_lists` + `shopping_list_items` (TASK-011) | Yes | schema → code | No | Planned |
+| MIG-005 | — | Create the photo table (TASK-017 — fields wait on Q-023) | Yes | schema → code | No | Blocked on Q-023 |
 
 ---
 
@@ -50,10 +49,10 @@ Tested on:                   [local / staging with production-like data]
 
 | Migration question | Why it matters | Spec example |
 |---|---|---|
-| Is the migration reversible? | Rollback is harder if the schema cannot return to a previous state. | ADR-002 requires an **up** and **down** for every migration. |
+| Is the migration reversible? | Rollback is harder if the schema cannot return to a previous state. | Provide an **up** and **down** migration. |
 | Will existing data break? | Old rows may not fit new rules. | Backfill missing values **before** making a field required. |
 | Can code and database deploy safely? | A code change may expect a column that does not exist yet. | Deploy the schema change **before** the code that depends on it. |
-| Is downtime required? | Some changes lock tables or interrupt users. | Single-user app; a short evening window is acceptable, but prefer no-downtime staged migrations for large tables (e.g. many Recipe/IngredientLine rows). |
+| Is downtime required? | Some changes lock tables or interrupt users. | Use a staged migration for large tables. |
 
 ---
 
@@ -71,15 +70,12 @@ Each step is independently reversible. A single "add NOT NULL column" migration 
 ## Pre-migration checklist
 
 - [ ] Migration tested on staging data that resembles production.
-- [ ] Down migration exists **or** the irreversibility is documented and accepted (ADR-002 expects a down).
-- [ ] Schema is portable — SQLite → Postgres unchanged, no SQLite-only feature (ADR-002).
+- [ ] Down migration exists **or** the irreversibility is documented and accepted.
 - [ ] Backfill plan written for existing rows.
 - [ ] Deploy order (schema vs. code) is explicit.
-- [ ] Backup or restore point confirmed before running in production (see [`backup-and-recovery.md`](backup-and-recovery.md); the recipe library must never be lost).
+- [ ] Backup or restore point confirmed before running in production.
 - [ ] Verification query written before, not after.
 - [ ] Rollback owner named (see [`rollback-plan.md`](rollback-plan.md)).
 - [ ] Database design spec updated (`../docs/database-design.md`).
-
----
 
 > Blueprint: blueprints/07-ops/01-deployment/database-migration-plan.md

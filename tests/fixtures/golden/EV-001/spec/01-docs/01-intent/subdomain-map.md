@@ -20,11 +20,11 @@ actually compete on.
 
 | Area of the system | Type | Why | Build / Buy | Spec depth | Test depth |
 |---|---|---|---|---|---|
-| Weekly plan → single shopping list (aggregating a week's meals into one list) | Core | This is what Pantry competes on — turning a week of chosen meals into one shopping list. | Build in-house | Full | Full |
-| Recipe storage (a recipe with its ingredient lines) | Supporting | Necessary raw material for the core; simple to model and changes rarely. | Build simply | Light | Acceptance only |
-| Weekly meal planning (choosing which meals to cook this week) | Supporting | Selecting saved recipes into a week; simple, and it feeds the core list. | Build simply | Light | Acceptance only |
-| Recipe search | Supporting | Finding a saved recipe over one person's library; simple and stable. | Build simply | Light | Acceptance only |
-| Account / authentication | Generic | Every app needs a signed-in account; nobody wins on it. | Adopt/buy unless a constraint forbids — revisit with hard constraints (`Q-005`) and the auth model in Round 5 | Contract only | Contract + failure |
+| Turning a week of chosen meals into one shopping list | Core | The developer's own words: this is the one capability Pantry competes on. | Build | Full | Full |
+| Recipe capture — save a recipe with its ingredients | Supporting | Necessary input to the core; simple records that change rarely. | Build simply | Light | Acceptance only |
+| Weekly meal planning — choose which meals to cook in a week | Supporting | A simple selection over saved recipes; its value is in what it feeds the core. | Build simply | Light | Acceptance only |
+| Search saved recipes | Supporting | Necessary, simple, rarely changes. | Build simply | Light | Acceptance only |
+| Accounts and sign-in | Generic | Every product needs it; nobody wins with it. | Buy or adopt, unless a constraint forbids it — constraints are still open ([TODO: what hard constraints already exist? — Q-005]) | Contract only | Contract + failure |
 
 **Test:** *could this be sold on its own? would someone pay for it?* → then it is **core**.
 
@@ -49,7 +49,5 @@ the business refuses to rewrite because of the risk. That is very often a core s
 ---
 
 > Blueprint source: this file is new to the template — added from the architecture review.
-
----
 
 > Blueprint: blueprints/01-docs/01-intent/subdomain-map.md

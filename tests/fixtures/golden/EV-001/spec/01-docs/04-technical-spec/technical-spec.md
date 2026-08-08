@@ -9,7 +9,7 @@
 A PRD says *what product you want*. This says *how the system should be structured so that
 product can be built safely and consistently*.
 
-**Version:** TECH v1.0 · **Owner:** Developer · **Date:** 2026-08-08
+**Version:** TECH v1.0 · **Owner:** Developer (product owner) · **Date:** 2026-08-08
 
 ---
 
@@ -37,12 +37,12 @@ product can be built safely and consistently*.
 | Field | Value |
 |---|---|
 | System name | Pantry |
-| Purpose | A single-user web application that keeps a home cook's recipes in one place, lets them plan a week of meals, and generates one shopping list from that week. |
-| Primary users | One home cook (owner) per account — B2C, no sharing (`REQ-R-001`). |
-| Core capabilities | Save a recipe with ingredient lines; search recipes; plan a week; generate one shopping list; tick off list items. |
-| System boundary | This system includes **recipe storage, weekly planning, single-list generation, the private account, and private recipe photos**. This system does **not** include **sharing, collaboration, nutrition, pricing, or importing recipes from other services** — the full out-of-scope list was deferred at express depth (`Q-004`). |
-| External dependencies | None in version one (`Q-007` answered: none). |
-| Assumptions | One user with a small library; a single low-cost runtime; the deployment target is not yet chosen (`Q-017`); the authentication model is not yet chosen (`Q-009`). |
+| Purpose | A web application in which one account holder saves recipes with their ingredient lines, plans a week of meals, and generates one shopping list from that week. |
+| Primary users | The account holder — a home cook. One role, no sharing. |
+| Core capabilities | Save a recipe with its ingredients · plan a week · generate one shopping list from that week · search saved recipes. |
+| System boundary | This system includes **recipe capture, weekly planning, shopping-list generation, recipe search, and accounts/sign-in**. This system does **not** include **[TODO: which capabilities are explicitly out of scope for version one? — Q-004]**. |
+| External dependencies | None in version one (Round 6). |
+| Assumptions | Single user per account, no sharing (Round 3). A web UI is the only client of the API. |
 
 > A good system overview prevents a common AI coding problem: the assistant builds more
 > than you asked for because the system boundary was unclear.
@@ -53,12 +53,12 @@ product can be built safely and consistently*.
 
 | Item | Decision |
 |---|---|
-| Architecture style | **Modular monolith** — proposed as an inference in Round 4 and confirmed in Round 5; recorded as an ADR in [`decisions.md`](../05-architecture/decisions.md). |
-| Main components | Browser UI · API layer · domain modules (Recipes, Planning, ShoppingList — **core**; Account/Auth — generic) · data layer (relational store) · private file storage for photos. |
-| Responsibility of each component | UI shows screens and captures actions; the API validates and checks ownership; domain modules hold the rules (BR-001–BR-004); the data layer persists, scoped by `account_id`; file storage holds private photos. |
-| Data flow | User action → API validates and checks the signed-in account → domain module applies rules → data layer persists → response. List generation reads one week's planned meals, gathers the ingredient lines of every meal, and returns one list (BR-001). |
-| State ownership | All persistent state lives in the relational database, scoped by `account_id`; photos live in private file storage; requests hold no in-process state (stateless). |
-| Trade-offs | A modular monolith gives clear module boundaries (`REQ-NF-005`) without deployment complexity — the right fit for one developer and one user, and it keeps the core list logic isolated so it stays testable and portable to Postgres later. |
+| Architecture style | **Modular monolith** (ADR-001). |
+| Main components | Frontend, API layer, domain modules — accounts, recipes, planning, shopping-list generation (core) — and the data layer (ADR-001). |
+| Responsibility of each component | See the component boundaries table below (ADR-001). |
+| Data flow | User action → API layer (validates, checks auth) → domain module (business rules, including BR-001 generation) → data layer → response. |
+| State ownership | All durable state lives in the data store; nothing important lives only in the browser. Session state depends on Q-009. |
+| Trade-offs | One deployment and module discipline instead of distributed complexity — acceptable for a one-person version one (ADR-001). |
 
 ### Choosing the style (Ch. 8 §8.3, §8.7)
 
@@ -89,9 +89,9 @@ forbidden to do?*
 | Component | Owns | Must **not** do |
 |---|---|---|
 | User Interface | Screens, forms, display states, user actions. | Contain database queries or hidden business rules. |
-| API Layer | Routes, request validation, ownership checks, response formatting. | Hide domain logic (list generation, ownership rules) in route handlers. |
-| ShoppingList / Recipes / Planning modules | Business rules and core decisions (BR-001–BR-004). | Depend on screen layout, or reach another account's data. |
-| Data Layer | Database access, `account_id`-scoped queries, persistence. | Decide user-facing business behavior. |
+| API Layer | Routes, request validation, response formatting. | Hide complex domain logic in route handlers. |
+| Domain Module | Business rules and core decisions. | Depend directly on screen layout. |
+| Data Layer | Database access, queries, persistence. | Decide user-facing business behavior. |
 
 > **Architecture rule:** a boundary is useful only when you can tell whether a piece of
 > code belongs inside or outside it.
@@ -101,18 +101,19 @@ forbidden to do?*
 Use large labels, simple boxes, clear arrows, and short names.
 
 ```
-[ Browser / Home cook ]
+[ Browser / Client ]
         |
         v
-[ API Layer ]  --- validates request, checks the signed-in account owns the data
+[ API Layer ]  --- validates request, checks auth
         |
         v
-[ Domain Modules ]  --- Recipes · Planning · ShoppingList (core: week -> one list)
+[ Domain / Service Modules ]  --- business rules
         |
         v
-[ Data Layer ] ---> [ Relational DB ]   (SQLite now, Postgres-ready; every row scoped by account_id)
+[ Data Layer ] ---> [ Database ]
         |
-        +--------> [ Private file storage ]  (recipe photos, private to one account)
+        +--------> [ External Services ]
+        +--------> [ Background Jobs / Queue ]
 ```
 
 | Diagram element | Use it to show |
@@ -152,8 +153,11 @@ and who owns it, what the interface is allowed to assume about the API.
 
 | Cross-cutting interface decision | Consequence elsewhere in this document |
 |---|---|
-| The UI never enforces access — it may hide a control, but every read and write is authorised on the server. | §7.2 authorization is server-side; a hidden button is not a security boundary. |
-| Core screens (plan a week, generate the list) are the shortest path in the UI, because speed of the core task is the interface priority. | §8 performance target is on the list-generation flow (`Q-010`). |
+
+Leave this table empty if there are none.
+
+> **Security rule (Ch. 27 §27.7):** hiding a button in the frontend is helpful for the user
+> interface, but it is **not security by itself**. Enforce permissions on the server.
 
 ---
 
@@ -161,12 +165,12 @@ and who owns it, what the interface is allowed to assume about the API.
 
 | Area | Decision |
 |---|---|
-| Business logic | Enforce BR-001–BR-004 server-side; a shopping list is generated from exactly one weekly plan and includes the ingredients of every planned meal. |
-| Authorization | Every read and write is scoped by `account_id`; one owner role (`REQ-R-001`); deny when there is no signed-in account. |
-| Validation | Reject a recipe with no title; a planned meal must reference a saved recipe owned by the same account (BR-003); refuse to delete a recipe still referenced by a plan (BR-004). |
-| Service layer | List generation lives in a ShoppingList service, kept separate from recipe storage and account/auth (`REQ-NF-005`, FF-001). |
-| Background jobs | None in version one — list generation is synchronous and fast for one library. Revisit if generation becomes slow (`Q-010`). |
-| Integrations | None (`Q-007`). |
+| Business logic | BR-001 (one list covers the week's ingredient lines), BR-002 (a planned meal references a same-account recipe), BR-003 (one owner, no sharing) are enforced in domain modules, never only in the UI. |
+| Authorization | Every query is scoped to the calling account (REQ-R-001). Deny-by-default: no signed-in user, no data. |
+| Validation | The backend validates every request at the API boundary; the frontend's validation is a courtesy copy. |
+| Service layer | Shopping-list generation — the core — lives in its own domain service, not in a route handler. |
+| Background jobs | None identified for version one; generation is synchronous. Revisit if imports, reminders, or photo processing arrive. |
+| Integrations | None in version one (Round 6); the integration table in `data-and-integration-spec.md` §5 records the decision. |
 
 **Examples (Ch. 7 §7.5)**
 
@@ -213,7 +217,10 @@ shape rather than from the data model.
 
 | Cross-cutting database decision | Consequence elsewhere in this document |
 |---|---|
-| Relational store: SQLite while this is one person's, with nothing SQLite-only in the schema, so it can become Postgres unchanged (recorded in `decisions.md`). | §12 deployment carries a reversible migration plan (Round 8); no store-specific feature may enter the code. |
+| Relational store: SQLite while it is one person's, schema kept Postgres-compatible (ADR-002). | The store is a single file — deployment (§12) and backup treat it as one unit; no store-specific SQL anywhere. |
+
+Leave this table empty if there are none. An empty table with a heading is a statement; a
+copied schema is a second source of truth.
 
 ---
 
@@ -241,7 +248,7 @@ promises about consistency.
 
 | Cross-cutting API decision | Consequence elsewhere in this document |
 |---|---|
-| Every request is synchronous request/response; the API promises read-after-write consistency within one account's data. | §4 needs no background jobs or queues in version one. |
+| Everything is synchronous in version one. | §9.5 has no background jobs; the UI never shows a "pending" state for core actions. |
 
 ---
 
@@ -258,12 +265,12 @@ promises about consistency.
 
 | Area | Requirement |
 |---|---|
-| Account access | A home cook signs in to their own private account; the exact model (built-in sessions vs. an adopted provider) is deferred at express depth (`Q-009`). |
-| Session lifetime | Access lasts for a signed-in session and ends on logout or expiry — the concrete lifetime is set with the auth model (`Q-009`). |
-| Password handling | Plain-text passwords must never be stored or logged. |
-| Account recovery | Reset links must expire and must not reveal whether an account exists. |
-| Logout | Ends the session and the account's access. |
-| Multi-factor (if any) | None in version one. |
+| Account access | [TODO: which authentication model? — Q-009] |
+| Session lifetime | [TODO: which authentication model? — Q-009] |
+| Password handling | Plain-text passwords must never be stored or logged — applies if password authentication is chosen (Q-009). |
+| Account recovery | [TODO: which authentication model? — Q-009] |
+| Logout | [TODO: which authentication model? — Q-009] |
+| Multi-factor (if any) | [TODO: which authentication model? — Q-009] |
 
 > **`SEC-` identifiers are DEFINED in
 > [`security-specification.md`](../07-security-and-reliability/security-specification.md), and
@@ -277,25 +284,26 @@ promises about consistency.
 
 ### 7.2 Authorization / RBAC (*what are you allowed to do?*)
 
-Version one has one role and no sharing (`REQ-R-001`), so the matrix is one column.
+Pantry has **one role** — the account holder — so the matrix is one column, and the real
+rule is the scoping row at the bottom.
 
-| Action | Home cook (owner) |
+| Action | Account holder |
 |---|---|
-| Save / edit / delete own recipe | Yes (own data only) |
-| Search own recipes | Yes |
-| Plan a week / edit the plan | Yes (own data only) |
-| Generate a shopping list from a week | Yes (own data only) |
-| Tick off list items | Yes |
-| Reach another account's data | No — there is no other account, and nothing is shared |
+| Save a recipe | Yes |
+| Plan a week | Yes |
+| Generate a shopping list | Yes |
+| Search recipes | Yes |
+| Reach another account's recipes, plans, or lists | **No — under any route, ever** (REQ-R-001) |
 
 > A role table gives the agent a precise boundary. It does not need to guess whether a
 > Member can invite users — the table already says no.
 
 **Defensive authorization pattern (Ch. 21 §21.3)** — specify the *order* of the checks, not
 the code that runs them. State, per protected action: deny when there is no signed-in user;
-deny when the resource belongs to another account; allow only when the signed-in account owns
-it. Written that way the rule is testable before any code exists — one test per denial, one
-for the allow.
+deny when the resource belongs to a tenant the user is not in; allow only when the user's role
+is on an explicit allow-list. Written that way the rule is testable before any code exists —
+one test per denial, one for the allow. The worked example at the end of this file shows the
+same three checks as a filled specification.
 
 ### 7.3 Input validation
 
@@ -304,9 +312,9 @@ requests can come from outside the visible interface.
 
 | Input | Validation rule | Error behavior |
 |---|---|---|
-| Recipe title | Required; 1–120 characters; trimmed before saving. | Clear message naming the field; typed values kept. |
-| Ingredient line | Required text on each line; a recipe needs at least one. | Validation error without saving. |
-| Planned meal → recipe | Required; must reference a saved recipe owned by the same account (BR-003). | Safe not-found or access-denied response. |
+| Recipe title | Required; trimmed before saving. | Clear message naming the field; typed values kept. |
+| Ingredient line name | Required per line; a recipe needs at least one line. | Validation error without saving. |
+| Plan and list identifiers | Required; must belong to a resource the caller owns. | Safe not-found or access-denied response. |
 
 ### 7.4 Data protection
 
@@ -315,8 +323,8 @@ requests can come from outside the visible interface.
 | Data minimization | Do you need this data? | Do not collect personal data not needed for the feature. |
 | Storage | How should data be stored? | Sensitive account data must use approved storage mechanisms. |
 | Transport | How does data move? | Private user data only through protected channels. |
-| Logging | What must **not** be logged? | Never log passwords, tokens, reset links, or full secret values; recipe/plan data and photos are private (`REQ-NF-007`) — the exact leak list is `Q-012`. |
-| Retention | How long is data kept? | Follow the retention rule in `database-design.md` §7. |
+| Logging | What must **not** be logged? | [TODO: what must never leak or be logged? — Q-012] |
+| Retention | How long is data kept? | [TODO: what are the retention and deletion rules — hard or soft delete, and do generated lists outlive their plan? — Q-013] |
 
 ### 7.5 Secrets management
 
@@ -326,8 +334,7 @@ requests can come from outside the visible interface.
 
 | Secret | Where configured | Must never appear in | Code reference |
 |---|---|---|---|
-| Session/auth signing value (once the auth model is chosen, `Q-009`) | environment variable | source, logs, error messages, client responses | `config.auth_signing_key` |
-| Database location/credential (once the store is deployed) | environment variable | source, logs, client responses | `config.database_url` |
+| [TODO: which authentication model? — Q-009] | environment variable | source, logs, error messages, client responses | — |
 
 ### 7.6 Secure error handling
 
@@ -341,22 +348,23 @@ requests can come from outside the visible interface.
 ### 7.7 Per-feature security specification
 
 ```
-Feature:        Generate the week's shopping list
-Requirement ID: defined in security-specification.md (Round 6) — cited here, not minted
+Feature:        [name]
+Requirement ID: SEC-###
 
-Authentication:  the home cook must be signed in
-Authorization:   the week (and its recipes) must belong to the signed-in account
-Role assignment: single role; no roles to grant (REQ-R-001)
-Validation:      the week must exist and be owned by the account
-Data protection: the list and its recipes are never exposed to another account (BR-002)
-Secure errors:   an unowned or missing week returns a safe not-found, not a detailed reason
-Testing:         owner can generate; a request for another account's week is denied; an
-                 empty week yields an empty list with a message, not an error (AC-003)
+Authentication:  [who must be signed in]
+Authorization:   [which roles may perform this]
+Role assignment: [what roles can be granted, by whom]
+Validation:      [required fields, formats, duplicate rules]
+Data protection: [what must not be exposed or logged]
+Secure errors:   [what unauthorized users receive]
+Testing:         [allowed actor, disallowed actor, invalid input, duplicate, safe error]
 
 Acceptance criteria:
-1. A signed-out request cannot generate a list.
-2. A request for a week the account does not own returns a safe not-found.
+1.
+2.
 ```
+
+A filled version of this block is in the worked example at the end of this file.
 
 ### 7.8 Security review checklist (Ch. 21 §21.8)
 
@@ -381,8 +389,8 @@ Measurable only. Avoid "the app should be fast."
 
 | Workflow | Metric | Target | Expected data size |
 |---|---|---|---|
-| Generate one shopping list from a week | Response time | Prompt for one cook's library — the concrete threshold is deferred (`Q-010`) and enforced as a fitness function once set (FF-001 register). | up to one cook's recipes |
-| Search saved recipes | Response time | Returns promptly over one person's library. | one cook's recipes |
+| Generate the shopping list (REQ-NF-001) | Response time | Under 2 seconds | a weekly plan of up to 21 planned meals |
+| Search recipes (REQ-NF-001) | Response time | Under 1 second | a library of up to 500 recipes |
 
 | Weak statement | Stronger requirement |
 |---|---|
@@ -419,9 +427,9 @@ Measurable only. Avoid "the app should be fast."
 |---|---|
 | Missing required field | Reject, explain the missing field, keep user input on screen. |
 | Not signed in | Return 401 and ask the user to sign in. |
-| No permission | Return 403 (or a safe not-found) and do not reveal the resource. |
+| No permission | Return 403 and explain the user cannot access the resource. |
 | Resource not found | Return 404 with a safe message. |
-| Save fails | Do not show success; return a retry-safe error and preserve input (`REQ-NF-003`). |
+| External service failure | Retry if safe, otherwise show a temporary failure message. |
 | Unexpected server error | Return a general error message and log details internally. |
 
 ### 9.2 Failure sources (Ch. 22 §22.2)
@@ -431,26 +439,26 @@ Measurable only. Avoid "the app should be fast."
 | User input | Missing, invalid, or unexpected data? | Reject with field-level validation messages. |
 | Database | Write fails or takes too long? | Do not show success. Return a retry-safe error and log the failure. |
 | Network | Request times out? | Apply a timeout rule and let the user retry safely. |
-| External service | Third-party API unavailable? | Not applicable in version one — no external services (`Q-007`). |
-| Background job | Job fails after the user left the page? | Not applicable in version one — no background jobs. |
+| External service | Third-party API unavailable? | Queue the action for later or mark it pending. |
+| Background job | Job fails after the user left the page? | Store job status, retry if safe, expose the final result. |
 
 ### 9.3 Failure states
 
 ```
-- Failure state: RECIPE_SAVE_FAILED
-  - Trigger:        The database write for a new or edited recipe fails.
-  - Recovery path:  The action is not reported as saved; the form is returned with input intact.
-  - User message:   "We could not save your recipe right now. Please try again."
-  - Log event:      RECIPE_SAVE_FAILED with account id and a safe error code (no recipe content)
-  - Test case:      see failure-tests.md (Round 7)
+- Failure state: [name]
+  - Trigger:        [what causes it]
+  - Recovery path:  [what the system does next]
+  - User message:   [plain language, safe, with a next action]
+  - Log event:      [EVENT_NAME with safe context fields]
+  - Test case:      TEST-###
 ```
 
 | Error state | Recovery path | What to test |
 |---|---|---|
-| Save fails | Return a retry-safe error; keep the cook's input. | A simulated save failure does not report success and preserves input. |
-| Empty week | Show an empty list with a clear message. | Generating from a week with no meals yields an empty list, not an error (AC-003). |
-| Not signed in | Ask the user to sign in. | A protected action while signed out returns 401. |
-| Another account's data | Safe not-found. | A request for a week the account does not own is denied (BR-002). |
+| Recipe save fails | Reject, keep every typed value, show a clear message (REQ-NF-003). | A simulated write failure never shows a saved recipe. |
+| Shopping-list generation fails | The plan is unchanged; the failure is stated plainly; no partial list is shown. | A simulated failure mid-generation leaves no orphan list. |
+| Not signed in | Redirect to sign-in, preserving the safe destination. | A protected route redirects instead of crashing. |
+| Another account's resource requested | Safe not-found response; nothing about the resource is revealed. | A guessed ID from another account returns the safe 404. |
 
 ### 9.4 Timeout and retry rules (Ch. 22 §22.5)
 
@@ -464,37 +472,45 @@ Measurable only. Avoid "the app should be fast."
 
 | Operation | Safe to retry? | Max retries | Delay | On give-up |
 |---|---|---|---|---|
-| Generate shopping list (read-only) | Yes | 1 | brief | Show a retry-safe error message |
+| Save recipe | No automatic retry — the user retries; typed input is preserved. | 0 | — | Clear error, input kept. |
+| Generate shopping list | Yes — regenerating replaces nothing until it succeeds. | User-initiated only | — | Clear error, plan unchanged. |
 
 > Uncontrolled retry logic creates new problems: duplicate records, hidden failures, and
 > hammered dependencies.
 
 ### 9.5 Background jobs and queues (Ch. 22 §22.6)
 
-None in version one — every action is synchronous. Revisit if list generation becomes slow
-enough to move off the request path (`Q-010`).
+| Requirement | Definition |
+|---|---|
+| Job name | None in version one — every operation completes in the request. |
+| Trigger | n/a |
+| Input data | n/a |
+| Retry rule | n/a |
+| Failure state | n/a |
+| User visibility | n/a — revisit this table if imports, reminders, or photo processing arrive. |
 
 ### 9.6 Logging requirements (Ch. 22 §22.4)
 
 | Log requirement | Good practice |
 |---|---|
-| Event name | Clear names such as `RECIPE_SAVE_FAILED`, `LIST_GENERATED`. |
+| Event name | Clear names such as `AUTH_LOGIN_FAILED`, `JOB_RETRY_SCHEDULED`. |
 | Severity | Use `info`, `warning`, `error`, `critical` consistently. |
 | Request / correlation ID | Attach a request ID so related events can be traced. |
-| Safe context | Account ID and action — never recipe content, photos, or credentials. |
+| Safe context | User ID, role, action — never secrets or raw credentials. |
 | Failure reason | Error type or safe error code, not a sensitive dump. |
-| Outcome | Whether the system recovered, retried, or stopped safely. |
+| Outcome | Whether the system recovered, retried, queued, or stopped safely. |
 
-**Must never be logged:** passwords · tokens · reset links · full secret values · recipe and
-plan content · photos (`REQ-NF-007`; full list is `Q-012`).
+**Must never be logged:** passwords · tokens · reset links · full secret values · raw
+payment data.
 
 **Structured log example**
 ```json
 {
   "level": "error",
-  "event": "recipe_save_failed",
+  "event": "report_export_failed",
   "request_id": "REQ-20491",
-  "account_id": "ACC-118",
+  "user_id": "USER-118",
+  "project_id": "PROJ-42",
   "reason": "database_timeout",
   "duration_ms": 12000,
   "recovery_action": "user_can_retry"
@@ -506,9 +522,9 @@ plan content · photos (`REQ-NF-007`; full list is `Q-012`).
 | Weak message | Better message | Why it is better |
 |---|---|---|
 | `DatabaseError: connection refused` | "We could not save your changes right now. Please try again." | Understandable; reveals no internals. |
-| `Invalid request` | "Please enter a recipe title before saving." | Tells the user exactly what to fix. |
-| `Unauthorized` | "You do not have permission to view this." | Explains without exposing security details. |
-| `Job failed` | "We could not generate your list. Please try again." | Gives a next action. |
+| `Invalid request` | "Please enter a project name before saving." | Tells the user exactly what to fix. |
+| `Unauthorized` | "You do not have permission to edit this project." | Explains without exposing security details. |
+| `Job failed` | "Your report could not be generated. You can try again or contact support." | Gives a next action. |
 
 ### 9.8 Reliability definition of done (Ch. 22 §22.8)
 
@@ -542,7 +558,7 @@ provider whose rate limit becomes a design constraint rather than a configuratio
 
 | Dependency | What its failure costs, and what that forces here |
 |---|---|
-| None in version one (`Q-007`). | No external failure can take a capability down; revisit this table if a dependency is added. |
+| None — no external services in version one (Round 6) | No external failure can take a capability with it; this row fills the day a dependency arrives. |
 
 ---
 
@@ -551,12 +567,12 @@ provider whose rate limit becomes a design constraint rather than a configuratio
 
 | Level | Strategy |
 |---|---|
-| Unit | The core list-generation logic (gathering a week's ingredient lines into one list) — the fullest coverage, since it is what Pantry competes on. |
-| Integration | API + data layer with `account_id` scoping; a planned meal must reference an owned recipe. |
-| End-to-end | Plan a week → generate one list → tick items off (the core flow). |
-| Security | Ownership deny tests: no cross-account read or write (BR-002). |
-| Performance | The list-generation flow, once the target is set (`Q-010`). |
-| Regression | Every fixed failure keeps a test. |
+| Unit | The core — shopping-list generation (BR-001) — gets unit-heavy coverage per the subdomain map. |
+| Integration | API to data store for each capability; ownership scoping verified on every read path. |
+| End-to-end | The core journey: save recipes → plan the week → generate the list. |
+| Security | Deny tests for REQ-R-001 — another account's data is unreachable by any route. |
+| Performance | Against the §8 targets, once wired (FF-004). |
+| Regression | The full suite runs on every change. |
 
 → [`../tests/test-plan.md`](../../03-tests/01-plan/test-plan.md)
 
@@ -566,14 +582,11 @@ provider whose rate limit becomes a design constraint rather than a configuratio
 
 | Area | Summary |
 |---|---|
-| Environments | local and production; whether a test environment sits between them is deferred (`Q-015`). |
-| Configuration | By environment variable; no secret in source (see §7.5). |
-| Migrations | Reversible; plan set in Round 8 — the schema must move from SQLite to Postgres unchanged. |
-| Rollback | Plan set in Round 8; a rollback must not lose the recipe library. |
-| Monitoring | Baseline structured logs + error alerts; the appetite is deferred (`Q-016`). |
-
-The deployment target itself is not yet chosen (`Q-017`); plan for a container so the choice
-stays open.
+| Environments | [TODO: which environments will exist? — Q-019] |
+| Configuration | Environment variables only; no secrets in source (`.env.example` documents the names). |
+| Migrations | → [`database-design.md`](../06-api-and-data-design/database-design.md) §8 |
+| Rollback | [TODO: where will this run? — Q-018] |
+| Monitoring | [TODO: what is your monitoring appetite? — Q-020] |
 
 → [`../ops/deployment-checklist.md`](../../07-ops/01-deployment/deployment-checklist.md) ·
 [`../ops/maintenance-notes.md`](../../07-ops/03-maintenance/maintenance-notes.md)
@@ -586,12 +599,25 @@ stays open.
 
 → [`open-questions.md`](../01-intent/open-questions.md)
 
-| ID | Decision needed | Owner | Must be resolved before |
-|---|---|---|---|
-| Q-009 | The authentication model (built-in sessions vs. an adopted provider). | Developer | Building sign-in |
-| Q-010 | The concrete speed target for the core list-generation flow. | Developer | Setting the performance fitness function |
-| Q-005 | Any hard constraints (budget, mandated technology, storage limits). | Developer | Locking the architecture |
-| Q-017 | The deployment target. | Developer | Deployment |
+> **`Q-` rows are DEFINED in `open-questions.md`, and only there.** This table CITES the
+> questions that block parts of this specification — the id and the section it blocks, never
+> the question restated with its own owner and status. A second home for a question row is a
+> second thing to keep correct, and the day the register closes one, a copy here would still
+> say open.
+
+| Question ID | Spec section IDs it blocks |
+|---|---|
+| Q-004 | §1 system boundary |
+| Q-005 | §1 assumptions, §12 |
+| Q-008 | §7.2 |
+| Q-009 | §7.1, §7.5 |
+| Q-011 | §4 business logic, §8 |
+| Q-012 | §7.4, §9.6 |
+| Q-013 | §7.4 |
+| Q-014 | §1, §4, §10 |
+| Q-018 | §12 |
+| Q-019 | §12 |
+| Q-020 | §12 |
 
 ---
 
@@ -640,7 +666,5 @@ stays open.
 
 **Next:** [`traceability.md`](../08-traceability/traceability.md) · [`decisions.md`](../05-architecture/decisions.md) ·
 [`../tasks/task-index.md`](../../02-tasks/01-planning/task-index.md)
-
----
 
 > Blueprint: blueprints/01-docs/04-technical-spec/technical-spec.md

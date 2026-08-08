@@ -2,8 +2,8 @@
 
 > Source: Ch. 30 — "Building a Repeatable Spec-Driven AI Engineering System".
 > A single successful AI-assisted project is useful. A **repeatable system** is much more
-> valuable. This file holds the system-level guidance that governs how the rest of the
-> Pantry devkit is used and improved.
+> valuable. This file holds the system-level guidance that governs how the rest of this
+> template is used and improved.
 
 > **Final chapter principle (Ch. 30):** the goal is not to use AI more. The goal is to
 > build better software with clearer intent, stronger tests, safer review, and a process
@@ -34,8 +34,7 @@ remove judgment — it gives your judgment a structure.
 
 > **Reusable process rule:** do not design the process around one tool. Design it around
 > **artifacts, decisions, tests, and review evidence**. Tools can change; the engineering
-> system should remain useful. Pantry builds each requirement as a thin vertical slice,
-> one task at a time (TASK-001 → TASK-006).
+> system should remain useful.
 
 ---
 
@@ -45,7 +44,7 @@ Documentation should be organized so a human **or an AI agent** can quickly find
 current source of truth. The structure does not need to be complicated — it needs to be
 **consistent**. Every project should have the same broad sections, even if some are short.
 
-| Section (this devkit) | Purpose | Typical contents | **Update trigger** |
+| Section (this template) | Purpose | Typical contents | **Update trigger** |
 |---|---|---|---|
 | `01-docs/01-intent/` | Captures why the project exists. | Brief, goals, users, constraints, non-goals. | A new product idea, feature, or change request arrives. |
 | `01-docs/02-…09-` | Defines what and how to build. | PRD, technical spec, API spec, database spec, ADRs. | Requirements or design decisions change. |
@@ -77,13 +76,12 @@ A template does not replace thinking. It makes sure important thinking is **not 
 
 | Date | Project / feature | Recurring problem | Template or rule improved | Change made |
 |---|---|---|---|---|
-| 2026-08-08 | Pantry (v1 spec) | None yet — no implementation cycle completed. | — | Log opened; first entry after TASK-001. |
 
 ---
 
 ## 4. Where each system component lives
 
-| Ch. 30 component | This devkit |
+| Ch. 30 component | This template |
 |---|---|
 | §30.1 Reusable process | This file, §1 |
 | §30.2 Documentation organization | This file, §2 + the folder structure itself |
@@ -144,13 +142,13 @@ A template does not replace thinking. It makes sure important thinking is **not 
 
 | Area | Question to ask | Ready? |
 |---|---|---|
-| Process | Can you explain the path from idea to production review? | Yes / No |
-| Documentation | Can a new human or AI agent find the current source of truth? | Yes / No |
-| Versioning | Are requirement and spec changes named, dated, and explained? | Yes / No |
-| Templates | Do projects reuse proven briefs, specs, test plans, and review checklists? | Yes / No |
-| Agent rules | Do agents receive clear constraints, coding standards, and completion rules? | Yes / No |
-| Traceability | Can each feature be traced from requirement to task, test, code, review, and release? | Yes / No |
-| Quality metrics | Do you measure defects, rework, review findings, drift, and production stability? | Yes / No |
-| Adoption | Does the workflow help the team work with less confusion and better evidence? | Yes / No |
+| Process | Can you explain the path from idea to production review? | Yes — §1 above, walked by this workspace. |
+| Documentation | Can a new human or AI agent find the current source of truth? | Yes — the folder structure plus `AGENT.md`'s source-of-truth order. |
+| Versioning | Are requirement and spec changes named, dated, and explained? | Yes — the spec change log. |
+| Templates | Do projects reuse proven briefs, specs, test plans, and review checklists? | Yes — this workspace is the library's output. |
+| Agent rules | Do agents receive clear constraints, coding standards, and completion rules? | Yes — `06-agent/01-instructions/`. |
+| Traceability | Can each feature be traced from requirement to task, test, code, review, and release? | Partly — the RTM is complete to tests; code links wait on implementation. |
+| Quality metrics | Do you measure defects, rework, review findings, drift, and production stability? | Not yet — begins with the first release (engineering-quality-review). |
+| Adoption | Does the workflow help the team work with less confusion and better evidence? | To be judged after the first build cycle. |
 
 > Blueprint: blueprints/01-docs/10-reference/repeatable-system.md

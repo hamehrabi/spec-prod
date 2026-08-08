@@ -25,27 +25,15 @@
 
 | Item | Value |
 |---|---|
-| Service name | Pantry (recipe and shopping-list web app for one home cook) |
-| Environments | `[TODO: environments — (Q-015)]` |
+| Service name | Pantry |
+| Environments | local; test and production open (Q-019, Q-018) |
 | Health endpoint | `/health` |
-| Log location | Structured application logs (baseline monitoring; Q-016) |
-| Metrics dashboard | None at baseline — `[TODO: monitoring appetite — (Q-016)]` |
-| Error tracker | Error alerts on the log events (grouped by `event`) |
-| On-call owner | The owner (single-user project) |
-| Rollback approver | The owner |
-| Backup schedule / restore procedure | Nightly off-box backup; restore procedure in [`backup-and-recovery.md`](../01-deployment/backup-and-recovery.md) (restore not yet tested — first test before production deploy). |
-
----
-
-## Routine maintenance tasks
-
-The whole routine, thin, for a single-user container app:
-
-| Task | Cadence | Note |
-|---|---|---|
-| Verify the nightly backup ran and is off-box | Nightly (alert on failure) | The recipe library is the irreplaceable asset — a silent backup job is the top durability risk (see [`backup-and-recovery.md`](../01-deployment/backup-and-recovery.md)). |
-| Apply dependency updates | Periodic | Keep the modular monolith (ADR-001) and its store (ADR-002) patched; re-run the tests before release. |
-| Perform and time a restore test | Periodic | A backup that has never been restored is a hope — restore the recipe library into a scratch location and confirm Recipe/IngredientLine counts. |
+| Log location | Decided with the deployment target (Q-018) |
+| Metrics dashboard | None until Q-020 sets the appetite |
+| Error tracker | Same |
+| On-call owner | The developer |
+| Rollback approver | The developer |
+| Backup schedule / restore procedure | Nightly, once running; restore per `backup-and-recovery.md` §4 — untested until the first restore test |
 
 ---
 
@@ -54,17 +42,15 @@ The whole routine, thin, for a single-user container app:
 | ID | Issue | Impact | Workaround | Planned fix | Documented for support |
 |---|---|---|---|---|---|
 
-No entries yet — no known issues recorded before first production use.
-
 ## Operational notes
 
 | Topic | Note |
 |---|---|
-| Capacity assumptions | Single B2C user, one account, no sharing. |
-| Recurring manual steps | Nightly backup verification; periodic dependency updates and restore test (above). |
-| Seasonal / traffic patterns | Evening use (meal planning); no 24/7 demand. |
-| Dependencies with known instability | None — no external services in v1 (Q-007). |
-| Data retention jobs | None needed in v1 — private recipe photos (Q-008) are kept with the account, not purged. |
+| Capacity assumptions | Volume unknown (Q-001); the stated limits are REQ-NF-001's — 21 meals, 500 recipes. |
+| Recurring manual steps | None planned; backups must be automatic with a failure alert. |
+| Seasonal / traffic patterns | Unknown until real use. |
+| Dependencies with known instability | None — no external dependencies in version one (Round 6). |
+| Data retention jobs | None defined — retention rules are open (Q-013, Q-023). |
 
 ---
 
@@ -75,15 +61,15 @@ to make a major change to an existing system.
 
 | Maintenance check | Done? |
 |---|---|
-| Key workflows have monitoring requirements. | Yes — plan → one list (REQ-F-004), recipe save, sign-in |
-| Errors are grouped and reviewed by severity. | Yes — error alerts on the log events |
-| Logs include request IDs and useful context. | Yes — and never the leak-list fields (REQ-NF-007; Q-012) |
-| Performance targets exist for important workflows. | Owner-perceived responsiveness (no metrics dashboard — Q-016) |
-| User feedback is mapped to requirements or decisions. | Not yet — no production use before first release |
-| Specs are updated after production behavior changes. | Yes — via the spec-change-log |
-| New or changed behavior has matching tests. | Yes — ATEST/UTEST/ITEST/STEST/PTEST/ETEST/FTEST |
-| AI agent instructions use the current spec, not outdated context. | Yes — refresh the context pack before each agent task |
-| Spec drift review is completed before major changes. | Yes — see [`spec-drift-checklist.md`](spec-drift-checklist.md) |
+| Key workflows have monitoring requirements. | Yes — monitoring-plan.md, pending the Q-020 appetite |
+| Errors are grouped and reviewed by severity. | No — begins with the first release |
+| Logs include request IDs and useful context. | Yes — specified in reliability §7 |
+| Performance targets exist for important workflows. | Yes — REQ-NF-001 |
+| User feedback is mapped to requirements or decisions. | No — the register is empty until there are users |
+| Specs are updated after production behavior changes. | No behavior exists yet |
+| New or changed behavior has matching tests. | Yes — by the Round 7 plan |
+| AI agent instructions use the current spec, not outdated context. | Yes — AGENT.md written this run |
+| Spec drift review is completed before major changes. | No — first one is due after the first release |
 
 ---
 
@@ -91,9 +77,9 @@ to make a major change to an existing system.
 
 | Change type | Artifact to update |
 |---|---|
-| A new user behavior is added. | `01-docs/02-requirements/requirements.md` and `01-docs/03-product-spec/product-spec.md` |
-| A data field or relationship changes. | `01-docs/04-technical-spec/technical-spec.md` and `01-docs/06-api-and-data-design/database-design.md` |
-| A new security rule is added. | `01-docs/02-requirements/requirements.md`, `01-docs/07-security-and-reliability/security-specification.md`, test plan |
+| A new user behavior is added. | `01-docs/requirements.md` and `01-docs/product-spec.md` |
+| A data field or relationship changes. | `01-docs/technical-spec.md` and `01-docs/database-design.md` |
+| A new security rule is added. | `01-docs/requirements.md`, `01-docs/security-specification.md`, test plan |
 | A bug reveals missing expected behavior. | Requirement, test plan, `05-review/debugging-specification.md` |
 | Deployment process changes. | `deployment-checklist.md` and this file |
 
@@ -106,10 +92,10 @@ to make a major change to an existing system.
 
 | Area | What to watch | Action | Spec update required? |
 |---|---|---|---|
-| Correctness | The plan → one-list result is wrong or incomplete. | Investigate the aggregation rules (REQ-F-004). | Yes, if meaning changes. |
-| Performance | A slow save or slow list. | Review only the slow action. | Yes, if limits or targets change. |
-| Error tracking | `RECIPE_SAVE_FAILED`, `LIST_GENERATION_FAILED`, `AUTH_REQUIRED`, backup failure. | Classify cause and create fix tasks. | Yes, if new error states appear. |
-| User feedback | Confusing UI, missing steps. | Convert repeated feedback into requirements. | Yes, when accepted into the roadmap. |
+| Correctness | Impossible values, mismatch with source data. | Investigate ingestion and calculation rules. | Yes, if meaning changes. |
+| Performance | Slow endpoints. | Review queries, indexes, cache rules, ranges. | Yes, if limits or targets change. |
+| Error tracking | API failures, failed jobs, permission errors. | Classify cause and create fix tasks. | Yes, if new error states appear. |
+| User feedback | Confusing UI, missing filters, new requests. | Convert repeated feedback into requirements. | Yes, when accepted into the roadmap. |
 | **Spec drift** | Code behavior no longer matches requirements. | Update specs or refactor code to match approved behavior. | **Always.** |
 
 ---
@@ -123,5 +109,25 @@ to make a major change to an existing system.
 - [ ] **Refresh the project context pack before giving it to an AI agent.**
 
 ---
+
+## Prompt — narrow maintenance change (Ch. 24)
+
+```
+Use the current technical specification and [performance/security/behavior] requirement.
+Refactor only the [specific endpoint or module].
+Do not change authentication, authorization, or unrelated responses.
+Goal: [specific measurable improvement].
+Also update or add tests for the new behavior.
+```
+
+## Prompt — classify production notes (Ch. 27 §27.10)
+
+```
+Review the production notes below.
+Identify whether each item is a bug, missing requirement, performance issue, security
+issue, or spec drift.
+For each item, propose: affected requirement, evidence needed, fix task, test update, and
+specification update.
+```
 
 > Blueprint: blueprints/07-ops/03-maintenance/maintenance-notes.md

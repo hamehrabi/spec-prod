@@ -7,51 +7,49 @@
 > **Production is not the end.** It is where your software begins meeting real users,
 > real traffic, real errors, and real maintenance pressure.
 
-**Baseline for Pantry v1:** structured logs + error alerts. That is the whole appetite for
-now — no metrics dashboard, no tracing. Whether to grow beyond this (logs only vs. +alerts
-vs. full metrics/tracing) is `[TODO: monitoring appetite — (Q-016)]`. Environments are
-`[TODO: environments — (Q-015)]` and the deployment target is `[TODO: deployment target — (Q-017)]`.
+**The appetite is undecided** — [TODO: what is your monitoring appetite? — Q-020]. The
+signal tables below define *what could be watched* from the requirements; how much of it
+is wired up waits on that answer.
 
 ---
 
 ## 1. What to monitor (Ch. 24 §24.2)
 
-Pantry is a single-user web app for one home cook. The things that matter most are: they
-can sign in, they can save a recipe without losing it, and a week of chosen meals turns
-into one shopping list. Alert on error events **and on backup failure** (the recipe library
-is the irreplaceable asset — see [`backup-and-recovery.md`](../01-deployment/backup-and-recovery.md)).
+Start with the features that matter most: for Pantry that is the core flow — save a
+recipe, plan the week, generate the shopping list.
 
 | Area | Question it answers | Signal | Trigger | Response | Owner |
 |---|---|---|---|---|---|
-| Availability | Can the cook reach the app? | App fails to load / `/health` non-200 | Owner notices, or a failed load | Restart the stateless container; check the store | Owner |
-| Correctness | Does a week of meals turn into one list? | `LIST_GENERATION_FAILED` (error); `LIST_GENERATED` (success) | Any `LIST_GENERATION_FAILED` | Check the plan → list path (REQ-F-004 core) | Owner |
-| Performance | Is the app fast enough for evening use? | Manual — the owner notices a slow save or slow list | Owner reports it | Investigate only the slow action (Ch. 24 §24.5) | Owner |
-| Errors | What is breaking and how often? | `RECIPE_SAVE_FAILED`, `LIST_GENERATION_FAILED` counts | Any error event | Read the log, protect the cook's input (FF-002) | Owner |
-| Usage | Is the core flow being used? | `LIST_GENERATED` frequency | Product signal, not an alert | Note it; do not page on it | Owner |
-| Security | Is access working as specified? | `AUTH_REQUIRED` (a protected action reached without a session) | Repeated `AUTH_REQUIRED` | Confirm the auth rule (SEC-A-001..004) is enforced | Owner |
-| Durability | Is the recipe library actually protected? | Backup job result | **Backup failure** | Investigate immediately; a silent backup job is the top durability risk | Owner |
+| Availability | Can users reach the system? | `/health` checks, failed requests | non-200 | Restart; investigate | Developer |
+| Correctness | Is the system producing the expected result? | `LIST_GENERATION_FAILED` count | any repeated occurrence | Check the generation transaction | Developer |
+| Performance | Is the system fast enough? | Generation and search response times | Over the REQ-NF-001 targets | Check queries against performance-tests.md | Developer |
+| Errors | What is breaking and how often? | Error-level log events | sustained appearance | Read the runbook | Developer |
+| Usage | Are users using the feature as intended? | Lists generated per week | product signal, not an alert | Product reflection | Developer |
+| Security | Are suspicious actions happening? | Failed sign-ins, safe-404 spikes | spike over baseline | Review actor and route | Developer |
 
 ## 2. Logging and observability (Ch. 24 §24.3)
 
 Logs are the **messages**. Observability is the ability to use those messages *with*
-metrics, traces, and alerts to understand the system. Pantry's baseline is structured logs
-+ error alerts only; richer observability is deferred (Q-016).
+metrics, traces, and alerts to understand the system.
 
 | Log type | Use it when | What to include |
 |---|---|---|
 | Info | A normal important event occurs. | Operation name, request ID, status, relevant object ID |
 | Warning | Something unusual happens but the system recovers. | Condition, recovery action, affected workflow |
-| Error | A workflow fails or produces an unexpected result. | Error message, request ID, user-safe context |
-| Audit | A sensitive action occurs. | Actor (the one account), action, target, time, result |
-| Performance | A task or request is slow. | Duration, action, threshold exceeded |
+| Error | A workflow fails or produces an unexpected result. | Error message, stack trace, request ID, user-safe context |
+| Audit | A sensitive action occurs. | Actor, action, target, time, permission result |
+| Performance | A task or request is slow. | Duration, endpoint, query or job type, threshold exceeded |
 
 **Structured log example**
 ```json
 {
   "level": "error",
-  "event": "LIST_GENERATION_FAILED",
-  "request_id": "REQ-3F0A",
-  "reason": "plan_read_failed",
+  "event": "list_generation_failed",
+  "request_id": "REQ-20491",
+  "account_id": "ACC-118",
+  "plan_id": "PLAN-42",
+  "reason": "database_timeout",
+  "duration_ms": 12000,
   "recovery_action": "user_can_retry"
 }
 ```
@@ -59,33 +57,37 @@ metrics, traces, and alerts to understand the system. Pantry's baseline is struc
 > A useful log tells you what happened, where, and which request or user action caused it.
 > A noisy log repeats low-value information until important signals become hard to find.
 
-**Never log** (REQ-NF-007; full leak list is `[TODO: leak list — (Q-012)]`): passwords ·
-tokens · reset links · secrets · recipe/plan content · recipe photos.
+**Never log:** passwords · tokens · reset links · full secret values · raw payment data.
+What else must never be logged for Pantry is open — [TODO: what must never leak or be
+logged? — Q-012].
+
+The log events this workspace already names: `LIST_GENERATION_FAILED`,
+`RECIPE_SAVE_FAILED`, `PHOTO_UPLOAD_FAILED` (reliability-specification §3), each with
+`request_id`, `account_id`, and a safe reason.
 
 ## 3. Error tracking (Ch. 24 §24.4)
 
-Group failures so you see **patterns**, not disconnected reports of the same bug. These are
-the log events to reference; alert on every error event.
+Group failures so you see **patterns**, not ten disconnected reports of the same bug.
 
 | Error condition | Capture | Severity | Response |
 |---|---|---|---|
-| A recipe fails to save (`RECIPE_SAVE_FAILED`). | Request ID, reason (no recipe content — REQ-NF-007) | **High** | Preserve the cook's input (FF-002); investigate the save path. |
-| List generation fails (`LIST_GENERATION_FAILED`). | Request ID, reason (no plan content) | **High** | Check the plan → list path (REQ-F-004 core); the cook can retry. |
-| A protected action is reached without a session (`AUTH_REQUIRED`). | Request ID, action, auth step | Medium | Confirm the auth rule (SEC-A-001..004); redirect to sign-in. |
-| Backup job fails. | Job result, reason | **Critical** | Investigate immediately — the recipe library is the irreplaceable asset. |
+| A valid user cannot sign in. | Request ID, account ID, auth step, error class | **High** | Investigate immediately; protect account access. |
+| List generation fails repeatedly. | Request ID, plan ID, duration | **High** — it is the core | Check the transaction and its timeout. |
+| A request reaches another account's data. | Actor, endpoint, permission result | **Critical** | Review SEC-Z-001 enforcement and logs immediately. |
+| Photo upload rejections spike. | Request ID, safe reason | Medium | Check the validation rule against real usage. |
 
 ## 4. Performance monitoring (Ch. 24 §24.5)
 
 Begin with a specific question: *which user action is slow, how slow is it, what is the
 target, and what part of the system is likely responsible?* Do not begin with random
-optimization. Pantry has no metrics dashboard at baseline (Q-016), so performance is watched
-by the owner noticing, then investigated for the one slow action only.
+optimization.
 
 | Workflow | Metric | Target | Action if exceeded |
 |---|---|---|---|
-| Save a recipe | Owner-perceived responsiveness | Feels immediate | Check the save path; do not lose input (FF-002). |
-| Generate the shopping list | Owner-perceived responsiveness | Feels immediate for a week of meals | Check the plan → list aggregation (REQ-F-004). |
-| Sign in | Owner-perceived responsiveness | Feels immediate | Check the auth path (SEC-A-001..004). |
+| Generate shopping list | Response time | Under 2 s for 21 meals (REQ-NF-001) | Check the generation query — one query for the week, not one per meal. |
+| Recipe search | Response time | Under 1 s for 500 recipes (REQ-NF-001) | Check the search query and its index. |
+| Recipe save | Response time | No stated number — a single-transaction write | Investigate only if users notice. |
+| Any request | Maximum wait | 10 s cap (reliability §4) | The request is killed, never hung. |
 
 ## 5. User feedback loop
 
@@ -100,15 +102,13 @@ can have zero errors and still be confusing.
 
 | Section | What to define |
 |---|---|
-| Feature or workflow | The plan → one shopping list flow (REQ-F-004 core); recipe save; sign-in. |
-| Monitoring signals | Structured logs (`RECIPE_SAVE_FAILED`, `LIST_GENERATION_FAILED`, `LIST_GENERATED`, `AUTH_REQUIRED`) + error alerts; backup job result. |
-| Health expectations | Cook can sign in, save recipes without loss, and generate one list per week of meals. |
-| Alert conditions | Any error event, and any backup failure. |
-| Owner or reviewer | The owner (single-user project). |
-| Spec update rule | Update the spec when production behavior changes (spec-change-log at [`../../01-docs/09-change-control/spec-change-log.md`](../../01-docs/09-change-control/spec-change-log.md)). |
-| Test update rule | New or changed behavior gets a matching test (ATEST/UTEST/ITEST/STEST/PTEST/ETEST/FTEST). |
-| Release follow-up | After deploy, confirm the four log events emit and error alerts fire. |
-
----
+| Feature or workflow | Name the production workflow being monitored. |
+| Monitoring signals | Logs, metrics, errors, performance values, user feedback sources. |
+| Health expectations | What healthy behavior looks like. |
+| Alert conditions | When a signal should trigger attention. |
+| Owner or reviewer | Who reviews the signal or issue. |
+| Spec update rule | When the specification must be updated. |
+| Test update rule | When tests must be added or changed. |
+| Release follow-up | What must be checked after the next deployment. |
 
 > Blueprint: blueprints/07-ops/02-monitoring/monitoring-plan.md

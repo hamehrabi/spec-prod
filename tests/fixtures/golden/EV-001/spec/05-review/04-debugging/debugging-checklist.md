@@ -58,11 +58,11 @@ Read the failure bottom to top, then connect it back to the requirement:
 4. Where did actual behavior **first** differ from expected behavior?
 
 ```
-Requirement ID: AUTH-REQ-03
-Expected:  A user with a valid email and password receives a session token.
-Actual:    Login returns 500 Internal Server Error.
-Log:       TypeError: cannot read property "id" of null
-Likely area: user lookup, password check, or token creation.
+Requirement ID: REQ-F-003
+Expected:  Generating the list produces one list covering the week's ingredient lines.
+Actual:    Generation returns 500 Internal Server Error.
+Log:       [the log line captured when it happens]
+Likely area: plan lookup, line collection, or the generation transaction.
 ```
 
 ---
@@ -75,10 +75,10 @@ agent instruction. Patching only the code lets the mistake return.
 
 | Assumption | Risk | Spec update | Test update |
 |---|---|---|---|
-| User always exists | Null error | Define missing-user behavior | Test invalid email |
-| Token is always valid | Unauthorized access | Define token expiry rule | Test expired token |
-| API field is always present | Crash or bad data | Define required fields | Test missing field |
-| Password is always supplied | Weak validation | Define empty input rule | Test empty password |
+| The plan always has meals | Empty or crashing list | Define empty-plan behavior | Test a plan with zero meals |
+| A recipe always has lines | A list that silently misses a meal | UTEST-002 already forbids zero-line recipes | Test the boundary |
+| The session is always valid | Unauthorized access or a 500 | Q-009's model defines expiry | Test the expired path |
+| The photo file always matches its row | Orphan rows or files | database-design addendum: file first, then row | FTEST-007 |
 
 ---
 

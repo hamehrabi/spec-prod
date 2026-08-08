@@ -6,6 +6,12 @@
 *.key
 secrets/
 
+# Local data — the SQLite store and private dish photos (ADR-002, Round 6)
+*.sqlite
+*.sqlite3
+*.db
+data/
+
 # Dependencies and build output
 node_modules/
 venv/
@@ -14,11 +20,6 @@ __pycache__/
 dist/
 build/
 coverage/
-
-# Local database and generated files
-*.sqlite
-*.sqlite3
-*.db
 
 # OS and editor
 .DS_Store

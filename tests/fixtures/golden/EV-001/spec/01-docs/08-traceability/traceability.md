@@ -11,33 +11,26 @@ maintain it.
 
 ## The matrix
 
-Project: Pantry. No application code exists yet, so every row is **Specified** and every
-task is **Not started**. The "Module" column names the owning module (Account/Auth,
-Recipes, Planning, ShoppingList) or "—" where nothing is built yet.
-
-| Req ID | Design / ADR | Task ID | Test ID | Module | Status |
-|---|---|---|---|---|---|
-| REQ-F-001 | ADR-002 | TASK-002 | ATEST-001, UTEST-001, ITEST-001, FTEST-001, FTEST-003 | Recipes | Specified · Not started |
-| REQ-F-002 | — | TASK-003 | ATEST-005, UTEST-002, ITEST-002, PTEST-002 | Recipes | Specified · Not started |
-| REQ-F-003 | — | TASK-004 | ATEST-006, UTEST-005, ITEST-003, FTEST-005 | Planning | Specified · Not started |
-| REQ-F-004 | ADR-001, FF-001 | TASK-005 | ATEST-002, ATEST-003, UTEST-003, UTEST-004, ITEST-004, STEST-001, PTEST-001, ETEST-001, FTEST-002 | ShoppingList | Specified · Not started |
-| REQ-F-005 | — | TASK-001 | ATEST-007, STEST-002, STEST-003, STEST-005, FTEST-004, ETEST-002 | Account/Auth | Specified · Not started |
-| REQ-F-006 | — | TASK-006 | ATEST-008, ITEST-005 | ShoppingList | Specified · Not started |
-| REQ-NF-001 | — | TASK-005 | PTEST-001 (target deferred, Q-010) | ShoppingList | Specified · Not started |
-| REQ-NF-002 | ADR-001 | TASK-001, TASK-005 | ATEST-004, STEST-001, STEST-004 | Account/Auth, ShoppingList | Specified · Not started |
-| REQ-NF-003 | FF-002 | TASK-002, TASK-005 | FTEST-001, FTEST-002 | Recipes, ShoppingList | Specified · Not started |
-| REQ-NF-004 | — | TASK-005 | ETEST-001 | ShoppingList | Specified · Not started |
-| REQ-NF-005 | ADR-001, FF-001 | TASK-005 | UTEST-003 | ShoppingList | Specified · Not started |
-| REQ-NF-006 | FF-003 | (cross-cutting) | governed by FF-003 (a11y scan + keyboard) | — | Specified · Not started |
-| REQ-NF-007 | — | TASK-001, TASK-002 | STEST-003, STEST-004 | Account/Auth, Recipes | Specified · Not started |
-| REQ-R-001 | — | TASK-001 | STEST-001, STEST-002 | Account/Auth | Specified · Not started |
-| BR-001 | — | TASK-005 | ATEST-002, UTEST-003, ITEST-004 | ShoppingList | Specified · Not started |
-| BR-002 | — | TASK-002, TASK-005 | STEST-001, ATEST-004 | Recipes, ShoppingList | Specified · Not started |
-| BR-003 | — | TASK-004 | UTEST-005, ITEST-003, FTEST-005 | Planning | Specified · Not started |
-| BR-004 | — | TASK-004 | ITEST-006, FTEST-006 | Planning | Specified · Not started |
+| Req ID | Requirement | Design / Spec section | Task ID | Test ID | Code link | Review status |
+|---|---|---|---|---|---|---|
+| REQ-F-001 | Save a recipe with its ingredient lines. | technical-spec §4, database-design (recipes) | TASK-003–006 | ATEST-001, UTEST-001, UTEST-002, ITEST-001, ITEST-005, FTEST-001, FTEST-002, FTEST-008 | — (not yet implemented) | Draft |
+| REQ-F-002 | Plan which meals to cook in a week. | technical-spec §4, database-design (plans) | TASK-007–010 | ATEST-002, ITEST-003 | — | Draft |
+| REQ-F-003 | Generate one shopping list from a weekly plan — **the core**. | BR-001, technical-spec §4, api-specification | TASK-011–014 | ATEST-003, ATEST-005, UTEST-003, UTEST-005, ITEST-004, FTEST-005, FTEST-006, PTEST-001, ETEST-003 | — | Draft — ATEST-005/UTEST-003 blocked on Q-011 |
+| REQ-F-004 | Search saved recipes. | technical-spec §4 | TASK-015–016 | ATEST-004, UTEST-004, ITEST-006, PTEST-002 | — | Draft |
+| REQ-NF-001 | Generation ≤ 2 s / 21 meals; search ≤ 1 s / 500 recipes. | runtime-and-scale, FF-002 | TASK-012, TASK-015 | PTEST-001, PTEST-002 | — | Draft |
+| REQ-NF-002 / SEC-A-001 | Only the authenticated account holder reaches their data. | security-specification §1 | TASK-002 | ITEST-002, STEST-002, FTEST-003 | — | Draft — TASK-002 blocked on Q-009 |
+| REQ-NF-003 | Failures say so plainly, keep typed input, never report false success. | reliability-specification | TASK-006, TASK-014 | FTEST-005, FTEST-008, ETEST-004, STEST-004 | — | Draft |
+| REQ-NF-004 | Core flow completable without training. | product-spec, frontend-component-spec | TASK-005, TASK-009, TASK-013 | ETEST-002, ETEST-003 | — | Draft |
+| REQ-NF-005 | Module boundaries, no import cycles. | ADR-001, FF-001 | TASK-001 | — (checked by FF-001) | — | Draft |
+| REQ-NF-006 | Keyboard-complete core flow; zero critical scan violations. | FF-003 | TASK-005, TASK-009, TASK-013 | — (checked by FF-003) | — | Draft |
+| REQ-NF-007 | Privacy — what must never leak or be logged. | security-specification §4 | — | — | — | Draft — blocked on Q-012 |
+| REQ-R-001 / SEC-Z-001 | An account reaches only its own data. | security-specification §2 | TASK-004, TASK-008, TASK-013, TASK-015 | STEST-001, FTEST-004 | — | Draft |
+| SEC-Z-002 | Dish photos are owner-only, never public. | security-specification §7 | TASK-017 | STEST-003, FTEST-007 | — | Draft — TASK-017 blocked on Q-023 |
+| BR-001 | One list covers every ingredient line of the week. | requirements §4 | TASK-012 | ATEST-003, UTEST-003, ITEST-004 | — | Draft |
+| BR-002 | A planned meal references a same-account recipe. | requirements §4 | TASK-008 | ITEST-003, STEST-006 | — | Draft |
+| BR-003 | Every entity belongs to one account; never shared. | requirements §4 | TASK-004, TASK-008, TASK-013 | STEST-001 | — | Draft |
 
 **Status values:** Draft · Ready · In review · Approved · Needs update · Released
-(Pantry v1 pre-implementation: all rows Specified · Not started.)
 
 ---
 
@@ -55,20 +48,20 @@ Recipes, Planning, ShoppingList) or "—" where nothing is built yet.
 ### Linking pattern (Ch. 10 §10.3)
 
 ```
-Requirement ID: REQ-F-004
-Requirement:    Turn a chosen week of meals into ONE consolidated shopping list.
+Requirement ID: REQ-AUTH-001
+Requirement:    A registered user must be able to sign in with an email and password.
 
-Design Decision ID: ADR-001
-Decision: Modular monolith; the ShoppingList module owns list generation and
-          ingredient consolidation, driven by fitness function FF-001 (simplicity).
+Design Decision ID: DD-AUTH-001
+Decision: Use server-side authentication with hashed passwords and a short-lived
+          session token.
 ```
 
 ```
-Test ID:         ATEST-002
-Test:            One week of planned meals produces a single de-duplicated list (BR-001).
-Code link:       [not implemented yet — ShoppingList module]
-Supporting code: [not implemented yet]
-Status:          Specified · Not started
+Test ID:         TEST-AUTH-02
+Test:            Valid credentials return a session token.
+Code link:       auth/login.py -> login_user()
+Supporting code: auth/passwords.py -> verify_password_hash()
+Status:          Passing
 ```
 
 ---
@@ -87,18 +80,9 @@ A **gap is any missing link**. Blank cells are the point of this document.
 
 > Treat code with no requirement as **suspicious until approved**.
 
-### Coverage summary — Pantry v1 (pre-implementation)
-
-| Check | Status |
-|---|---|
-| Every requirement has ≥ 1 task or is marked cross-cutting. | Met — REQ-NF-006 is cross-cutting, governed by FF-003. |
-| Every requirement has ≥ 1 test. | Met — REQ-NF-006 governed by FF-003 (a11y scan + keyboard). |
-| Every requirement links to a design decision or approach. | Partial — several core rows use "—" (no ADR needed for a thin slice); acceptable for express depth. |
-| Every requirement has a code link. | **Open by design** — no code written yet; all rows Not started. |
-| Performance target defined for REQ-NF-001. | **Open (Q-010)** — PTEST-001 exists; concrete target deferred. |
-
-> Honest state: the chain runs requirement → design → task → test today. The **code** and
-> **review** links open as each thin vertical slice is built (TASK-001 → TASK-006).
+The known gaps today: every Code link is empty (nothing is implemented), REQ-NF-007 waits
+on Q-012, and three task chains are blocked on Q-009, Q-011, and Q-023. Each is recorded
+where it lives rather than smoothed over here.
 
 ---
 
@@ -118,16 +102,16 @@ A **gap is any missing link**. Blank cells are the point of this document.
 
 ## Traceability review checklist (Ch. 10 + Appendix F)
 
-- [ ] Every important requirement has a unique ID.
-- [ ] Every Must requirement has at least one task.
-- [ ] Every Must requirement has at least one test.
-- [ ] Every requirement links to at least one design decision or implementation approach.
-- [ ] Every design decision links to one or more small tasks.
-- [ ] Every implemented feature has a code link.
-- [ ] Every security rule maps to validation or authorization code.
-- [ ] Every released feature maps back to a PRD requirement.
-- [ ] Any code without a requirement has been removed, documented, or approved.
-- [ ] Any blank matrix cell has been reviewed before moving forward.
-- [ ] Every changed behavior is reflected in updated specs.
+- [x] Every important requirement has a unique ID.
+- [x] Every Must requirement has at least one task.
+- [x] Every Must requirement has at least one test.
+- [x] Every requirement links to at least one design decision or implementation approach.
+- [x] Every design decision links to one or more small tasks.
+- [ ] Every implemented feature has a code link — nothing is implemented yet.
+- [x] Every security rule maps to validation or authorization coverage.
+- [ ] Every released feature maps back to a PRD requirement — nothing is released yet.
+- [ ] Any code without a requirement has been removed, documented, or approved — no code exists yet.
+- [x] Any blank matrix cell has been reviewed before moving forward.
+- [ ] Every changed behavior is reflected in updated specs — applies once behavior exists.
 
 > Blueprint: blueprints/01-docs/08-traceability/traceability.md

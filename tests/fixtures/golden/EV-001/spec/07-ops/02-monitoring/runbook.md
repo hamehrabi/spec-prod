@@ -4,80 +4,84 @@
 > documented?") + Ch. 22 + Ch. 24.
 > What to do when something breaks — written **before** you need it.
 
-> Pantry is a single-user, stateless container app. The one incident to handle above all
-> others is **protecting the recipe library** — the irreplaceable asset (see
-> [`backup-and-recovery.md`](../01-deployment/backup-and-recovery.md)). Sign-in outage and
-> list-generation failure are the user-facing incidents.
-
 ---
 
 ## Service facts
 
 | Item | Value |
 |---|---|
-| Service name | Pantry (recipe and shopping-list web app for one home cook) |
-| Repository / location | This spec workspace; app is a modular monolith (ADR-001), stateless |
-| Environments | `[TODO: environments — (Q-015)]` |
+| Service name | Pantry |
+| Repository / location | This repository |
+| Environments | local; test and production open (Q-019, Q-018) |
 | Health endpoint | `/health` |
-| Log location | Structured application logs (baseline monitoring; Q-016) |
-| Metrics dashboard | None at baseline — `[TODO: monitoring appetite — (Q-016)]` |
-| Error tracker | Error alerts on the log events (grouped by `event`) |
-| On-call owner | The owner (single-user project) |
-| Rollback approver | The owner |
+| Log location | Decided with the deployment target (Q-018) |
+| Metrics dashboard | None planned until Q-020 sets the appetite |
+| Error tracker | Same |
+| On-call owner | The developer |
+| Rollback approver | The developer |
 
 ## Start / stop / restart
 
 ```
-Start:    [TODO: start command — set with deployment target (Q-017)]
-Stop:     [TODO: stop command — set with deployment target (Q-017)]
-Restart:  [TODO: restart command — set with deployment target (Q-017)]
-Status:   curl -f <app-url>/health
-Logs:     read the structured application logs (Q-016 baseline)
+Start:    decided with TASK-001's stack choice
+Stop:     decided with TASK-001
+Restart:  decided with TASK-001
+Status:   check /health
+Logs:     decided with the deployment target (Q-018)
 ```
 
 ---
 
 ## Incident procedure
 
-1. **Confirm the signal.** What alerted? What is the evidence? (an error event, a failed load, a backup failure)
-2. **Check the health endpoint** and the core flow (sign in → plan a week → generate one list, REQ-F-004).
-3. **Check recent changes.** Was there a deploy in the window?
+1. **Confirm the signal.** What alerted? What is the evidence?
+2. **Check the health endpoint** and the core user flow.
+3. **Check recent changes.** Was there a deploy or migration in the window?
 4. **Classify severity** (see table below).
 5. **Decide: mitigate or roll back** → [`../ops/rollback-plan.md`](../01-deployment/rollback-plan.md)
-6. **Communicate** if the cook is affected.
+6. **Communicate** if users are affected.
 7. **Record** in [`../ops/maintenance-log.md`](../03-maintenance/maintenance-log.md)
    and [`../review/debugging-specification.md`](../../05-review/04-debugging/debugging-specification.md).
 
 | Severity | Condition | Response time | Action |
 |---|---|---|---|
-| **Critical** | Recipe library at risk (data loss / backup failure), data exposure, total outage. | Immediate | Protect the recipe library; restore from backup; roll back. |
-| **High** | Sign-in broken or list generation failing for the cook. | < 30 min | Investigate; roll back if not fixed quickly. |
-| **Medium** | A secondary action fails but the core flow works. | Same day | Fix forward with a task and test. |
+| **Critical** | Data exposure, unauthorized access, total outage, **loss of the recipe library**. | Immediate | Roll back; security review; restore from backup. |
+| **High** | Core flow broken; sign-in failing. | < 30 min | Investigate; roll back if not fixed quickly. |
+| **Medium** | A secondary feature fails (photos, search ranking). | Same day | Fix forward with a task and test. |
 | **Low** | Cosmetic or rare edge case. | Next cycle | Log as feedback. |
+
+The 12 h RTO (Round 8) gives every severity level breathing room — but library loss has
+no acceptable duration, which is why it sits in Critical.
 
 ---
 
 ## Common failure playbooks
 
-### Recipe library at risk (top incident)
-- [ ] Stop making changes — do not let a bad process overwrite good data.
-- [ ] Confirm the most recent good nightly backup exists off-box ([`backup-and-recovery.md`](../01-deployment/backup-and-recovery.md)).
-- [ ] Restore following the documented restore procedure; verify Recipe/IngredientLine counts and a spot-check recipe.
-- [ ] Confirm the recipe library is intact before declaring the incident closed.
-
-### Sign-in outage (user-facing)
-- [ ] Check `/health` and whether the app loads at all.
-- [ ] Check the auth path against SEC-A-001..004; look for repeated `AUTH_REQUIRED` events.
-- [ ] Check for a recent deploy in the window; roll back if it correlates.
-
-### List generation failure (user-facing)
-- [ ] Look for `LIST_GENERATION_FAILED` events and read the reason (no plan content — REQ-NF-007).
-- [ ] Verify the plan → one-list path (REQ-F-004 core); confirm the cook can retry.
-- [ ] Confirm the failure showed a safe message and did not lose the week's plan (FF-002).
-
 ### Application will not start
 - [ ] Check for missing/invalid environment variables (`environment-config.md`).
+- [ ] Check the migration state — did a migration run partially?
 - [ ] Check the last deploy log for build errors.
+
+### High error rate after deploy
+- [ ] Compare the error signature against the previous release.
+- [ ] Check whether a rollback trigger threshold was crossed.
+- [ ] Roll back; then diagnose from the failing test, not from guesswork.
+
+### Slow responses
+- [ ] Identify **which** user action is slow (Ch. 24 §24.5).
+- [ ] Check for queries inside loops, overfetching, unbounded result sets.
+- [ ] Compare against the target in `../tests/performance-tests.md`.
+
+### Database file problems (SQLite)
+- [ ] Confirm the file at `DATABASE_PATH` exists and is not locked by another process.
+- [ ] If corrupt: stop the application and restore per `backup-and-recovery.md` — never
+      edit the live file.
+- [ ] Confirm the photo directory and the database still agree after any restore.
+
+### Photo storage drift
+- [ ] Check for orphan files (file without a row) or orphan rows (row without a file).
+- [ ] The write order is file first, then row (database-design addendum) — an orphan file
+      is expected debris after a failure; an orphan row is a bug.
 
 ---
 
@@ -85,8 +89,7 @@ Logs:     read the structured application logs (Q-016 baseline)
 
 | Situation | Procedure | Risk | Approver |
 |---|---|---|---|
-| Recipe library lost or corrupted | Restore the latest nightly off-box backup per [`backup-and-recovery.md`](../01-deployment/backup-and-recovery.md); verify counts and a spot-check recipe | Discards edits written since the last nightly backup (up to ~24 h) | Owner |
-| App unresponsive (stateless) | Restart / replace the container; no state is lost on restart | None — the store is external | Owner |
+| Database corruption or accidental mass delete | Restore per `backup-and-recovery.md` §4 | Loses edits since the snapshot (≤ 24 h) | The developer |
 
 ---
 
@@ -97,7 +100,5 @@ Logs:     read the structured application logs (Q-016 baseline)
 - Do not deploy an unreviewed change to production to "try something."
 - Do not disable a test or a validation rule to make an error disappear.
 - Do not skip recording the incident once service is restored.
-
----
 
 > Blueprint: blueprints/07-ops/02-monitoring/runbook.md

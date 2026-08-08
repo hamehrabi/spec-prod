@@ -41,10 +41,10 @@ Protects three different things. Say which one you are protecting — they need 
 
 | Endpoint / group | Limit | Window | Scope | On exceed | Needed? |
 |---|---|---|---|---|---|
-| Login | a small number of attempts | short window | per IP + per account | 429 + `Retry-After` | ✅ even a single-user app benefits against credential stuffing; the concrete limit is set with the auth model (`Q-009`). |
-| Write endpoints | — | — | per user | — | ☐ Not needed — one user, cheap writes. *Revisit when:* the user count grows (`Q-001`). |
-| Expensive / AI endpoints | — | — | — | — | ☐ Not needed — no paid or AI APIs (`Q-007`). *Revisit when:* one is added. |
-| Everything else | — | — | — | — | ☐ Not needed — single user, no paid APIs. *Revisit when:* a real multi-user count appears (`Q-001`). |
+| Sign-in | [TODO: which authentication model? — Q-009] | — | per IP + per account | 429 + `Retry-After` | Yes in principle — the sign-in surface exists whatever Q-009 decides; its numbers follow the model. |
+| Write endpoints | — | — | per user | — | ☐ Not needed — *why:* a single-user personal tool; traffic is one person's. *Revisit when:* Q-001 is answered above 1,000 users, or abuse is observed. |
+| Expensive / AI endpoints | — | — | per user per day | — | ☐ Not needed — *why:* no paid API is known to exist (Q-014 open). *Revisit when:* Q-014 names a paid dependency. |
+| Everything else | — | — | — | — | ☐ Not needed — *why:* reads are cheap at personal-library scale. *Revisit when:* Q-001 is answered above 1,000 users. |
 
 **Rules**
 - Return **429** with `Retry-After`. Never fail silently or drop the request.
@@ -60,10 +60,10 @@ Protects three different things. Say which one you are protecting — they need 
 
 | What | Where | TTL | Invalidated by | Stale is acceptable? | Needed? |
 |---|---|---|---|---|---|
-| Static assets | CDN / app | 1 year | content hash in filename | yes | ☐ Not needed now — one user, tiny assets. *Revisit when:* assets exceed ~1 MB or a second region appears. |
-| Reference data | — | — | — | — | ☐ Not needed — negligible single-user data. *Revisit when:* a real multi-user count appears (`Q-001`). |
-| Expensive query | — | — | — | — | ☐ Not needed — performance is not a driver and the data is one cook's library. *Revisit when:* list generation is slow (`Q-010`). |
-| Per-user data | — | — | — | **usually no** | ☐ Not needed — one account; a shared cache would add an invalidation bug for no gain. *Revisit when:* a real multi-user count appears (`Q-001`). |
+| Static assets | — | — | content hash in filename | yes | ☐ Not needed — *why:* a small app's assets from one origin; no measured problem. *Revisit when:* asset payload exceeds a megabyte or load time is measured slow. |
+| Reference data | — | — | — | — | ☐ Not needed — *why:* Pantry has no shared reference data; everything is per-account. *Revisit when:* shared data (e.g. a public ingredient catalogue) appears. |
+| Expensive query | — | — | — | — | ☐ Not needed — *why:* performance is not a driving characteristic, and generation is cheap aggregation at personal scale. *Revisit when:* FF-004 breaches its threshold. |
+| Per-user data | — | — | — | **usually no** | ☐ Not needed — *why:* the classic cross-user leak for no measurable gain. *Revisit when:* FF-004 breaches and profiling names a specific query. |
 
 **Rules**
 - Never cache **per-user data in a shared cache** without the user ID in the key. This is
@@ -77,33 +77,33 @@ Protects three different things. Say which one you are protecting — they need 
 
 | Question | Answer |
 |---|---|
-| Is the app **stateless**? | Yes — no important state lives in the process; all state is in the database. |
-| Where do **sessions** live? | In a token or shared store, per the auth model (`Q-009`). **No sticky sessions.** |
-| Scaling trigger | n/a — single instance in version one. |
+| Is the app **stateless**? | Intended stateless — no important state in process memory. Session storage depends on Q-009. |
+| Where do **sessions** live? | [TODO: which authentication model? — Q-009] |
+| Scaling trigger | n/a — single instance. |
 | Min / max instances | 1 / 1 |
-| **Background workers** | None in version one; nothing to scale separately. |
-| **Database connections** | A small pool on a single instance; well under any store's limit. |
-| Long-running work | None — every action is synchronous. |
+| **Background workers** | None in version one (technical-spec §9.5). |
+| **Database connections** | SQLite is in-process — no connection pool to size. Revisit at the Postgres move (ADR-002). |
+| Long-running work | None — generation completes in the request at personal scale. |
 
 > **Statelessness is the option that buys horizontal scaling later.** It costs almost
 > nothing on day one and is expensive to retrofit. Even if you never scale out, being
 > stateless means a restart is not an incident.
 
-☐ **Single instance is fine** — *why:* one user in version one; statelessness is kept anyway
-because it costs nothing now and makes a restart invisible. *revisit when:* the user count
-grows past a real multi-user level (`Q-001`).
+☑ **Single instance is fine** — *why:* a single-user personal tool; user volume is open
+(Q-001) but nothing suggests more than one instance is needed. *Revisit when:* Q-001 is
+answered above 1,000 users, or FF-004 breaches under normal load.
 
 ## 4. Compute & cost
 
 | Item | Value |
 |---|---|
-| Compute shape | A container, so the deployment target stays open (`Q-017`). |
-| Instance size | The smallest that runs the app comfortably for one user. |
-| **Monthly cost ceiling** | Not set — no budget constraint was given (`Q-005`); set one before deploying. |
-| Cost per unit | One user in version one. |
-| Biggest cost driver | The runtime instance, then private photo storage. |
-| Quotas & hard limits | Depend on the deployment target (`Q-017`). |
-| Alert at | Once a ceiling is set (`Q-005`). |
+| Compute shape | [TODO: where will this run? — Q-018] |
+| Instance size | [TODO: where will this run? — Q-018] |
+| **Monthly cost ceiling** | [TODO: what hard constraints already exist? — Q-005] |
+| Cost per unit | Unknown until Q-018 is answered. |
+| Biggest cost driver | Unknown until Q-018 is answered. |
+| Quotas & hard limits | Unknown until Q-018 is answered. |
+| Alert at | Follows the ceiling once Q-005 sets one. |
 
 > **Cost is an architectural characteristic.** It behaves like latency: unmeasured, it
 > only surfaces as a surprise. A cost ceiling with an alert is the cheapest fitness
@@ -113,7 +113,5 @@ grows past a real multi-user level (`Q-001`).
 
 > Blueprint source: this file is new to the template — added to close the runtime layers
 > (rate limiting, cache/CDN, scaling, cost) that the spec-driven method does not cover.
-
----
 
 > Blueprint: blueprints/01-docs/04-technical-spec/runtime-and-scale.md

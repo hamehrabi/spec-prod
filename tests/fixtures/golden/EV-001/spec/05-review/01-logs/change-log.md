@@ -13,8 +13,7 @@
 
 | Date | Type | Change | Requirement / Task | Reason | Decision | Recorded by |
 |---|---|---|---|---|---|---|
-
-No entries yet — the first accepted or rejected change adds the first row.
+| 2026-08-08 | Intent | Specification workspace created for Pantry through the guided intake. | — | Project start | Accepted | Developer |
 
 **Types:** Intent · Spec · Task · Test · Code · Review · Release · Fix · Scope
 
@@ -39,13 +38,13 @@ Follow-up needed:
 
 | Change type | Example entry |
 |---|---|
-| New intent document | Add engineering intent for the Pantry project. |
-| Updated requirements | Refine the generate-one-list requirements and acceptance criteria (REQ-F-004). |
-| New task file | Add TASK-005 for generating one shopping list from a week. |
-| Test plan added | Add acceptance and failure tests for generating the list (ATEST/FTEST). |
-| Implementation completed | Implement TASK-005 one-list-from-a-week workflow. |
-| Review notes added | Record review results for TASK-005. |
-| Change rejected | Reject a recipe-sharing suggestion — outside approved scope (one account, no sharing). |
+| New intent document | Add engineering intent for the task manager project. |
+| Updated requirements | Refine task creation requirements and acceptance criteria. |
+| New task file | Add TASK-001 for task creation API. |
+| Test plan added | Add acceptance and failure tests for task creation. |
+| Implementation completed | Implement TASK-001 task creation workflow. |
+| Review notes added | Record review results for TASK-001. |
+| Change rejected | Reject auto-assign suggestion — outside approved scope. |
 
 ---
 

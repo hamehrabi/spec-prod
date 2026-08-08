@@ -4,9 +4,9 @@
 > A feature is **not** production-ready just because it works locally. It must be
 > configured, observable, recoverable, secure, and maintainable.
 
-**Release:** Pantry v1.0 (first production release)
-**Date:** 2026-08-08
-**Release owner:** The owner/developer (single-user B2C project)
+**Release:** Pantry v1.0 — no release has been prepared yet; this checklist runs before the first one.
+**Date:** —
+**Release owner:** The developer
 
 ---
 
@@ -16,15 +16,15 @@
 |---|---|---|
 | Requirements | Do released behaviors match approved requirements and acceptance criteria? | Not started |
 | Tests | Have unit, integration, end-to-end, security, and regression tests passed? | Not started |
-| Configuration | Are environment variables (`APP_ENV`, `DATABASE_URL`, `APP_SECRET`) documented and separated by environment? | Not started |
+| Configuration | Are environment variables documented and separated by environment? | Not started |
 | Secrets | Are secrets stored outside source code? | Not started |
-| Build | Does the production container build complete successfully? | Not started |
-| Database | Are migrations reversible or safely recoverable (ADR-002)? | Not started |
-| Security | Have the deny tests (STEST-001..005) and SEC-A-001..004 / SEC-Z-001..002 been reviewed? | Not started |
-| Reliability | Are timeouts, retries, recovery paths, and REQ-NF-003 reliability specified? Are FF-001, FF-002, FF-003 green? | Not started |
-| Monitoring | Are structured logs + error alerts available for critical workflows (baseline; Q-016)? | Not started |
-| Rollback | Is there a clear rollback plan that never loses the recipe library? | Not started |
-| Support | Are known issues, user messages, and the backup/restore requirement documented? | Not started |
+| Build | Does the production build complete successfully? | Not started |
+| Database | Are migrations reversible or safely recoverable? | Not started |
+| Security | Have authentication, authorization, validation, and secrets been reviewed? | Not started — authentication waits on Q-009 |
+| Reliability | Are timeouts, retries, recovery paths, and background jobs specified? | Not started — the reliability spec is written; its tests are not |
+| Monitoring | Are logs, metrics, traces, and alerts available for critical workflows? | Not started — appetite open (Q-020) |
+| Rollback | Is there a clear rollback or roll-forward plan? | Not started |
+| Support | Are known issues, user messages, and operational runbooks documented? | Not started — user messages wait on Q-022 |
 
 ---
 
@@ -36,8 +36,8 @@
 | Tests | Do unit, integration, and key end-to-end tests pass? | Not started |
 | Configuration | Are required environment variables documented? | Not started |
 | Secrets | Are secrets stored outside source code? | Not started |
-| Build | Does the production container build complete successfully? | Not started |
-| Migration | Are database changes planned and reversible (ADR-002)? | Not started |
+| Build | Does the production build complete successfully? | Not started |
+| Migration | Are database changes planned and reversible where possible? | Not started |
 | Monitoring | Are logs and error checks available after deployment? | Not started |
 | Rollback | Is the rollback path clear before release? | Not started |
 
@@ -57,12 +57,12 @@
 
 | Review area | Question | Evidence required | Decision |
 |---|---|---|---|
-| Requirements | Did we build what was requested? | Requirements (REQ-F-001..006, REQ-NF-001..007, REQ-R-001) and traceability matrix. | Pass / Fix gaps |
-| Behavior | Does the system do what the spec says? | Test results, incl. the core flow REQ-F-004 (generate one list). | Pass / Improve |
-| Security | Can the owner access only their own data? | Deny tests STEST-001..005 and code review evidence. | Pass / **Block release** |
-| Reliability | Does the system recover from common failures? | REQ-NF-003 reliability, timeout/logging tests, FF-001/FF-002/FF-003 green. | Pass / Add failure handling |
-| Deployment | Can we release and roll back safely? | Deployment checklist, rollback plan, and the backup/restore requirement — a tested restore of the recipe library. | Pass / Delay release |
-| Maintenance | Will the spec stay current after release? | Feedback loop, structured logs (Q-016), spec-drift process. | Pass / Assign owner |
+| Requirements | Did we build what was requested? | Requirements document and traceability matrix. | Pass / Fix gaps |
+| Behavior | Does the system do what the spec says? | Test results and review screens. | Pass / Improve |
+| Security | Can users access only allowed data? | Permission tests and code review evidence. | Pass / **Block release** |
+| Reliability | Does the system recover from common failures? | Retry, timeout, queue, and logging tests. | Pass / Add failure handling |
+| Deployment | Can we release and roll back safely? | Deployment checklist and rollback plan. | Pass / Delay release |
+| Maintenance | Will the spec stay current after release? | Feedback loop, monitoring, spec-drift process. | Pass / Assign owner |
 
 ---
 
@@ -70,15 +70,15 @@
 
 Run against the **deployed** system, not localhost.
 
-1. Sign in as the account owner.
-2. Create a Recipe (the primary entity).
-3. Add an IngredientLine and a PlannedMeal to the WeeklyPlan.
-4. Generate the single ShoppingList from the week's plan (REQ-F-004, the core action).
+1. Sign in as a test user.
+2. Create the primary entity.
+3. Add a child record.
+4. Perform the core action.
 5. Trigger the main failure path and confirm the safe message.
 6. Confirm logs and audit events exist.
 7. Confirm monitoring shows no critical errors.
 
-**Evidence captured:** Captured at the first release (not yet run).
+**Evidence captured:** none yet — fills at the first release.
 
 ---
 
@@ -86,10 +86,8 @@ Run against the **deployed** system, not localhost.
 
 | Role | Name | Date | Decision |
 |---|---|---|---|
-| Release owner | The owner/developer | 2026-08-08 | Hold — pending first pass |
-| Rollback owner | The owner/developer | 2026-08-08 | Acknowledged |
-| Security reviewer | The owner/developer | 2026-08-08 | Pending — STEST-001..005 must pass |
-
----
+| Release owner | The developer | | Approve / Hold |
+| Rollback owner | The developer | | Acknowledged |
+| Security reviewer | The developer | | Pass / Block |
 
 > Blueprint: blueprints/07-ops/01-deployment/production-readiness-checklist.md

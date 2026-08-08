@@ -90,6 +90,4 @@ re-litigating it from scratch later.*
 | Consequences | Makes trade-offs visible. |
 | Related requirements | Keeps architecture tied to product value. |
 
----
-
 > Blueprint: blueprints/01-docs/05-architecture/architecture-decisions/ADR-000-template.md

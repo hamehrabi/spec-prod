@@ -1,59 +1,62 @@
-# Pantry — specification workspace (agent entry point)
+# Pantry — specification workspace map
 
-One map for a session that opens this workspace with no memory of the interview. It **links;
-it does not restate.** The rules live in
-[`06-agent/01-instructions/AGENT.md`](06-agent/01-instructions/AGENT.md) — read them first.
-The human-facing readme is [`README.md`](README.md).
+This folder is a specification workspace. It is a map, not a manual: every rule,
+requirement, and schema lives in exactly one file below, and this page only points.
 
 ## Start here
 
-| What you need | Where |
+| What you need | Which file |
 |---|---|
-| Why this exists | [`01-docs/01-intent/intent.md`](01-docs/01-intent/intent.md) |
-| What it must do | [`01-docs/02-requirements/requirements.md`](01-docs/02-requirements/requirements.md) |
-| How it is built | [`01-docs/04-technical-spec/technical-spec.md`](01-docs/04-technical-spec/technical-spec.md) · [`decisions.md`](01-docs/05-architecture/decisions.md) |
-| Entities & API | [`database-design.md`](01-docs/06-api-and-data-design/database-design.md) · [`api-specification.md`](01-docs/06-api-and-data-design/api-specification.md) |
-| Who can do what / failure | [`security-specification.md`](01-docs/07-security-and-reliability/security-specification.md) · [`reliability-specification.md`](01-docs/07-security-and-reliability/reliability-specification.md) |
-| Rules for the AI agent | [`06-agent/01-instructions/AGENT.md`](06-agent/01-instructions/AGENT.md) |
-| The next unit of work | [`02-tasks/01-planning/task-index.md`](02-tasks/01-planning/task-index.md) |
-| How a requirement is proven | [`03-tests/01-plan/test-plan.md`](03-tests/01-plan/test-plan.md) |
-| Requirement → task → test | [`01-docs/08-traceability/traceability.md`](01-docs/08-traceability/traceability.md) |
-| What changed or was skipped | [`01-docs/09-change-control/spec-change-log.md`](01-docs/09-change-control/spec-change-log.md) |
-| Open questions | [`01-docs/01-intent/open-questions.md`](01-docs/01-intent/open-questions.md) |
+| The idea, the problem, and the goal | [01-docs/01-intent/intent.md](01-docs/01-intent/intent.md) |
+| What must be built, and its acceptance criteria | [01-docs/02-requirements/requirements.md](01-docs/02-requirements/requirements.md) |
+| How the product behaves, screen by screen | [01-docs/03-product-spec/product-spec.md](01-docs/03-product-spec/product-spec.md) |
+| Technical decisions and failure states | [01-docs/04-technical-spec/technical-spec.md](01-docs/04-technical-spec/technical-spec.md) |
+| Architecture decisions (ADR index) | [01-docs/05-architecture/architecture-decisions/adr-index.md](01-docs/05-architecture/architecture-decisions/adr-index.md) |
+| The data model and schema | [01-docs/06-api-and-data-design/database-design.md](01-docs/06-api-and-data-design/database-design.md) |
+| The API contract | [01-docs/06-api-and-data-design/api-specification.md](01-docs/06-api-and-data-design/api-specification.md) |
+| Security rules and deny expectations | [01-docs/07-security-and-reliability/security-specification.md](01-docs/07-security-and-reliability/security-specification.md) |
+| What is still undecided | [01-docs/01-intent/open-questions.md](01-docs/01-intent/open-questions.md) |
+| The task list and what is blocked | [02-tasks/01-planning/task-index.md](02-tasks/01-planning/task-index.md) |
+| The test plan and every test ID | [03-tests/01-plan/test-specification.md](03-tests/01-plan/test-specification.md) |
+| Requirement → task → test chains | [01-docs/08-traceability/traceability.md](01-docs/08-traceability/traceability.md) |
+| What changed, and every accepted stage | [01-docs/09-change-control/spec-change-log.md](01-docs/09-change-control/spec-change-log.md) |
 
 ## Working a task
 
-1. Read [`AGENT.md`](06-agent/01-instructions/AGENT.md) — the rules and the do-not lists.
-2. Take the next task from [`task-index.md`](02-tasks/01-planning/task-index.md); start at TASK-001 and respect the dependency order.
-3. Open its file in [`02-tasks/02-task-files/`](02-tasks/02-task-files/) — one outcome, its tests, its boundaries.
-4. Write the tests it names **before** the code; keep the change inside the task's files.
-5. Trace it in [`traceability.md`](01-docs/08-traceability/traceability.md); update the spec in the same change if behaviour changed.
+1. Read [06-agent/01-instructions/AGENT.md](06-agent/01-instructions/AGENT.md) first.
+   The working rules live there; this map does not restate them.
+2. Take the next unblocked task from
+   [02-tasks/01-planning/task-index.md](02-tasks/01-planning/task-index.md) — TASK-001 first.
+3. Load [06-agent/02-context/context-pack.md](06-agent/02-context/context-pack.md) plus the
+   task's own file under [02-tasks/02-task-files/](02-tasks/02-task-files/).
+4. Use the prompts in [06-agent/03-prompts/prompt-library.md](06-agent/03-prompts/prompt-library.md).
+5. Record the result in [02-tasks/03-control/task-handoff-notes.md](02-tasks/03-control/task-handoff-notes.md).
 
 ## Never
 
-- Never build beyond the current task, or add sharing, nutrition, pricing, or recipe import (out of scope).
-- Never reach another account's data — every read and write is scoped by `account_id` (BR-002, SEC-Z-001).
-- Never put business logic in route handlers or UI; the core list logic imports no UI or store code (ADR-001, FF-001).
-- Never use a SQLite-only feature; keep SQL portable and every migration reversible (ADR-002).
-- Never log a password, token, reset link, secret, recipe/plan content, or photo (REQ-NF-007).
-- Never treat an open question (`Q-###`) as an assumption — stop and ask.
+- Never start a task that is blocked on an open question. An unresolved question is a
+  decision nobody made, not an assumption you may fill in.
+- Never let code move ahead of this specification — the requirement, test, and task change
+  first, in [01-docs/09-change-control/spec-change-log.md](01-docs/09-change-control/spec-change-log.md).
+- Never commit or log a secret. `.env` is excluded by [.gitignore](.gitignore) and stays that way.
+- Never cross account scope. REQ-R-001 and its deny tests are the boundary.
 
 ## Commands
 
-The toolchain is not chosen yet (`Q-018`); set these before the first build.
-
-```
-install: [TODO: ask the team — the dependency install command (Q-018)]
-test:    [TODO: ask the team — the unit/integration/e2e command (Q-018)]
-lint:    [TODO: ask the team — the lint command (Q-018)]
-run:     [TODO: ask the team — the run command (Q-018)]
-gate:    [TODO: ask the team — tests + FF-001/FF-002/FF-003, merge-blocking (Q-018)]
-```
+| Action | Command |
+|---|---|
+| install | [TODO: ask the team - what installs dependencies? No stack is chosen yet; TASK-001 establishes the project structure.] |
+| test | [TODO: ask the team - what runs the test suite? Follows the stack chosen in TASK-001.] |
+| lint | [TODO: ask the team - what runs the linter? Follows the stack chosen in TASK-001.] |
+| run | [TODO: ask the team - what starts the app locally? Follows the stack chosen in TASK-001.] |
+| gate | [TODO: ask the team - the local gate script in [07-ops/01-deployment/cicd-pipeline.md](07-ops/01-deployment/cicd-pipeline.md) is the pipeline until Q-018 is answered; fill its command slots with the stack's real commands.] |
 
 ## Where things stand
 
-- **Stage:** interview complete — all eight rounds accepted (see the change log). No code written yet.
-- **Depth:** express — thinner where lower-priority questions were dropped; every gap is a `Q-###` in [`open-questions.md`](01-docs/01-intent/open-questions.md).
-- **Next task:** TASK-001 (project skeleton + account sign-in), then TASK-002…006 in order.
-- **Must be answered before real use:** auth model (`Q-009`), performance target (`Q-010`), hard constraints (`Q-005`), deployment target (`Q-017`), toolchain (`Q-018`).
-- **Produced by:** spec-driven-devkit v0.1.0. This entry point is the generated map, stamped with the plugin version rather than a blueprint back-link; if a link here breaks, check the installed plugin version against this stamp.
+- **Stage:** all eight intake rounds are accepted and validated; the workspace is complete.
+- **Next task:** TASK-001 — create project structure and config loading.
+- **Blocked tasks:** TASK-002 (on Q-009, authentication model), TASK-012 (on Q-011, the
+  shared-ingredient rule — the core capability's central decision), TASK-017 (on Q-023,
+  photo storage rules). Answer those three in
+  [01-docs/01-intent/open-questions.md](01-docs/01-intent/open-questions.md) to unblock them.
+- **Produced by:** spec-driven-devkit v0.1.0.

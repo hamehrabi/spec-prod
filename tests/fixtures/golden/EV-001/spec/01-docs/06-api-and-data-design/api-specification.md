@@ -5,7 +5,7 @@
 > response formats, or ownership behavior while coding.
 
 **Base path:** `/api/v1`
-**Auth model:** [TODO: which authentication model? — deferred at express depth, decided in Round 5 (`Q-009`). Every endpoint below except sign-in requires the signed-in account.]
+**Auth model:** [TODO: which authentication model? — Q-009]
 **Version:** API v1.0
 
 ---
@@ -14,17 +14,13 @@
 
 | Method | Path | Purpose | Requirement | Permission |
 |---|---|---|---|---|
-| POST | `/api/v1/session` | Sign in to the cook's own account. | REQ-F-005 | Public (creates a session) |
-| POST | `/api/v1/recipes` | Save a recipe with its ingredient lines. | REQ-F-001 | Owner |
-| GET | `/api/v1/recipes?q=` | List and search the cook's saved recipes. | REQ-F-002 | Owner |
-| GET | `/api/v1/recipes/{id}` | Read one recipe. | REQ-F-001 | Owner |
-| PATCH | `/api/v1/recipes/{id}` | Edit a recipe. | REQ-F-001 | Owner |
-| DELETE | `/api/v1/recipes/{id}` | Delete a recipe (blocked while a plan uses it, BR-004). | REQ-F-001 | Owner |
-| POST | `/api/v1/weekly-plans` | Start a plan for a week. | REQ-F-003 | Owner |
-| POST | `/api/v1/weekly-plans/{id}/meals` | Add a planned meal (a recipe on a day). | REQ-F-003 | Owner |
-| POST | `/api/v1/weekly-plans/{id}/shopping-list` | Generate one shopping list from the week (core). | REQ-F-004 | Owner |
-| GET | `/api/v1/weekly-plans/{id}/shopping-list` | Read the generated shopping list. | REQ-F-004 | Owner |
-| PATCH | `/api/v1/shopping-list-items/{id}` | Tick an item off while shopping. | REQ-F-006 | Owner |
+| POST | `/api/v1/recipes` | Save a recipe with its ingredient lines. | REQ-F-001 | Account holder |
+| GET | `/api/v1/recipes?query={text}` | Search saved recipes. | REQ-F-004 | Account holder — own recipes only |
+| POST | `/api/v1/weekly-plans` | Start a weekly plan. | REQ-F-002 | Account holder |
+| GET | `/api/v1/weekly-plans/{plan_id}` | View a weekly plan with its meals. | REQ-F-002 | Account holder — owner of the plan |
+| POST | `/api/v1/weekly-plans/{plan_id}/meals` | Add a planned meal to the week. | REQ-F-002 | Account holder — owner of the plan |
+| POST | `/api/v1/weekly-plans/{plan_id}/shopping-list` | Generate the week's shopping list. | REQ-F-003 | Account holder — owner of the plan |
+| GET | `/api/v1/shopping-lists/{list_id}` | View a shopping list. | REQ-F-003 | Account holder — owner of the list |
 
 ---
 
@@ -63,6 +59,44 @@ Side effects:         [database writes, emails, jobs, audit events]
 Tests required:       TEST-### (unit, integration, edge cases)
 ```
 
+The core endpoint's contract, filled:
+
+```
+Endpoint name:        Generate Shopping List
+Method and path:      POST /api/v1/weekly-plans/{plan_id}/shopping-list
+Purpose:              Turn one weekly plan into one shopping list — the capability
+                      Pantry competes on.
+Requirement:          REQ-F-003
+Authentication:       Required — model open ([TODO: which authentication model? — Q-009])
+Authorization rules:  Only the account holder who owns the weekly plan (REQ-R-001).
+
+Request body:
+{ }  (no fields — the plan is identified by the path)
+
+Success response:     201 Created
+{
+  "id": "string",
+  "weekly_plan_id": "string",
+  "items": [
+    { "name": "string", "quantity": "string or null", "position": "integer" }
+  ]
+}
+
+Error responses:
+  401 — not authenticated
+  403 — authenticated but not the owner of this plan
+  404 — weekly plan not found
+  500 — unexpected server failure
+
+Business rules:       BR-001 — the list covers every ingredient line of the week's
+                      planned meals. Whether duplicate ingredients combine into one
+                      line is open ([TODO: when two planned recipes share an
+                      ingredient, does the shopping list combine them into one line,
+                      or list them separately? — Q-011]).
+Side effects:         The shopping list and its items are written. No emails, no jobs.
+Tests required:       Defined at the test stage (03-tests/) against AC-003 and AC-005.
+```
+
 ---
 
 ## Status code response principles (Appendix D)
@@ -84,9 +118,9 @@ Tests required:       TEST-### (unit, integration, edge cases)
 |---|---|
 | Response consistency | Every success response returns a predictable object shape. |
 | Error consistency | Every error uses `code`, `message`, and optional `field`. |
-| Permission check | Every endpoint checks the signed-in account owns the data before returning it. |
+| Permission check | Every endpoint checks user access before returning data. |
 | Validation timing | Validation happens **before** saving data. |
-| Audit trail | Important create and generate events are recorded. |
+| Audit trail | Important create and status-change events are recorded. |
 
 ---
 
@@ -94,29 +128,28 @@ Tests required:       TEST-### (unit, integration, edge cases)
 
 | Rule type | Example |
 |---|---|
-| Required field | A recipe title is required. |
-| Length rule | A recipe title must be 1–200 characters. |
-| Allowed value | A shopping-list item's `checked` must be true or false. |
-| Relationship rule | A planned meal's recipe must belong to the same account. |
-| Permission rule | Only the owning account may read or write its recipes and plans. |
-| Date rule | A weekly plan's `week_start_date` is a valid date; one plan per week per account. |
+| Required field | A task title is required. |
+| Length rule | A task title must be 3–120 characters. |
+| Allowed value | Status must be `todo`, `doing`, `blocked`, or `done`. |
+| Relationship rule | The assignee must belong to the project. |
+| Permission rule | Only members with write access can create tasks. |
+| Date rule | Due date cannot be before the project start date. |
 
 ---
 
 ## Versioning and compatibility (Ch. 9 §9.8)
 
 **Current version:** v1
-**Breaking-change policy:** Within v1, only additive changes (new optional fields, new endpoints). Any rename, removal, or type change ships as v2.
-**Compatibility notes:** The only client is Pantry's own web UI, so the contract and the UI move together.
+**Breaking-change policy:** The Pantry UI is this API's only consumer in version one; a
+breaking change ships together with the UI change that uses it.
+**Compatibility notes:** None yet — v1 is the first version.
 
 | Change type | Usually safe? | Example |
 |---|---|---|
-| Add optional field | Usually safe | Add `notes` to a recipe response. |
-| Add new endpoint | Usually safe | Add `GET /api/v1/recipes/{id}/history`. |
-| Rename field | **Breaking** | Change `week_start_date` to `starts_on`. |
-| Remove field | **Breaking** | Remove `checked` from a shopping-list item. |
-| Change data type | **Breaking** | Return `quantity` as an object instead of a number. |
-
----
+| Add optional field | Usually safe | Add `priority` to a task response. |
+| Add new endpoint | Usually safe | Add `GET /api/v1/tasks/{id}/history`. |
+| Rename field | **Breaking** | Change `due_date` to `deadline`. |
+| Remove field | **Breaking** | Remove `assignee_id` from task response. |
+| Change data type | **Breaking** | Return `due_date` as an object instead of a string. |
 
 > Blueprint: blueprints/01-docs/06-api-and-data-design/api-specification.md

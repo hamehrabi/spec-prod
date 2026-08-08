@@ -9,21 +9,16 @@
 A constraint is a fixed condition that limits the solution. State real-world limits before
 implementation, because AI agents invent ideal solutions.
 
-> **Deferred at express depth.** The hard-constraints question was not asked (`Q-005`), and a
-> constraint changes the architecture, so it must not be inferred. Every row below is marked
-> open rather than filled with a plausible default — a guessed constraint reads exactly like a
-> stated one, and nobody downstream can tell them apart.
-
 | ID | Type | Constraint |
 |---|---|---|
-| CON-001 | Technology | [TODO: hard constraints not asked at express depth — see `Q-005`] |
-| CON-002 | Time | [TODO: hard constraints not asked at express depth — see `Q-005`] |
-| CON-003 | Data | [TODO: hard constraints not asked at express depth — see `Q-005`] |
-| CON-004 | Environment | [TODO: hard constraints not asked at express depth — see `Q-005`] |
-| CON-005 | Integration | [TODO: hard constraints not asked at express depth — see `Q-005`] |
-| CON-006 | Budget | [TODO: hard constraints not asked at express depth — see `Q-005`] |
-| CON-007 | Compliance / privacy | [TODO: hard constraints not asked at express depth — see `Q-005`] |
-| CON-008 | Team skill | [TODO: hard constraints not asked at express depth — see `Q-005`] |
+| CON-001 | Technology | [TODO: what hard constraints already exist? — Q-005] |
+| CON-002 | Time | [TODO: what hard constraints already exist? — Q-005] |
+| CON-003 | Data | [TODO: what hard constraints already exist? — Q-005] |
+| CON-004 | Environment | [TODO: what hard constraints already exist? — Q-005] |
+| CON-005 | Integration | [TODO: what hard constraints already exist? — Q-005] |
+| CON-006 | Budget | [TODO: what hard constraints already exist? — Q-005] |
+| CON-007 | Compliance / privacy | [TODO: what hard constraints already exist? — Q-005] |
+| CON-008 | Team skill | [TODO: what hard constraints already exist? — Q-005] |
 
 **Examples (Ch. 5 §5.6)**
 
@@ -47,7 +42,7 @@ information**.
 
 | Item | Reason it is excluded now | Future status |
 |---|---|---|
-| [TODO: what is explicitly out of scope for version one? — deferred at express depth (`Q-004`)] | Not asked at express depth. | Waiting for information |
+| [TODO: which capabilities are explicitly out of scope for version one? — Q-004] | Not asked at express depth; recorded as open question Q-004. | Waiting for information |
 
 **Example (Ch. 6 §6.5)**
 
@@ -67,7 +62,5 @@ version. If you cannot explain the value, move it to the table above.
 
 **Prioritization test (Ch. 6 §6.8):** if this feature is missing, can you still test the
 main product idea? If yes, it is probably not a must-have for v1.
-
----
 
 > Blueprint: blueprints/01-docs/01-intent/constraints-and-non-goals.md

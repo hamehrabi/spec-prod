@@ -4,72 +4,69 @@
 > A periodic audit of [`../docs/traceability.md`](../../01-docs/08-traceability/traceability.md).
 > Run it before a release, after a batch of agent work, and before any major change.
 
-**Review date:**
-**Reviewer:**
-**Scope reviewed:** *(release / feature / sprint)*
+**Review date:** 2026-08-08 — the intake's own baseline pass; the first real audit runs after the first batch of agent work.
+**Reviewer:** The developer.
+**Scope reviewed:** The whole version-one chain as specified, before any implementation.
 
 ---
 
 ## 1. Forward trace — every requirement leads somewhere
 
-Mark ✔ / ✘ per cell during the audit against the RTM. Rows below list the Pantry **Must**
-requirements to trace.
-
 | Req ID | Has design decision? | Has task? | Has test? | Has code link? | Reviewed? | Gap |
 |---|---|---|---|---|---|---|
-| REQ-F-001 (save recipe) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
-| REQ-F-002 (search) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
-| REQ-F-003 (plan a week) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
-| REQ-F-004 (generate one list — core) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
-| REQ-F-005 (sign in / private account) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
-| REQ-F-006 (tick off items) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
-| REQ-R-001 (single owner role) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
+| REQ-F-001 | ✔ | ✔ | ✔ | ✘ | ✘ | Code and review arrive with implementation. |
+| REQ-F-002 | ✔ | ✔ | ✔ | ✘ | ✘ | Same. |
+| REQ-F-003 | ✔ | ✔ | ✔ | ✘ | ✘ | ATEST-005 / UTEST-003 blocked on Q-011. |
+| REQ-F-004 | ✔ | ✔ | ✔ | ✘ | ✘ | — |
+| REQ-NF-001 | ✔ | ✔ | ✔ | ✘ | ✘ | — |
+| REQ-NF-003 | ✔ | ✔ | ✔ | ✘ | ✘ | — |
+| REQ-NF-007 | ✘ | ✘ | ✘ | ✘ | ✘ | **Blocked on Q-012 — no privacy rule stated yet.** |
+| SEC-A-001 | ✔ | ✔ | ✔ | ✘ | ✘ | TASK-002 blocked on Q-009. |
+| SEC-Z-002 | ✔ | ✔ | ✔ | ✘ | ✘ | TASK-017 blocked on Q-023. |
 
 ## 2. Backward trace — every change came from somewhere
 
 | Changed file / module | Task ID | Requirement | Approved? | Action |
 |---|---|---|---|---|
 
-No entries yet — the first changed file traced back adds the first row.
-
-> **Code with no requirement is suspicious until approved** (Ch. 10 §10.8).
+> **Code with no requirement is suspicious until approved** (Ch. 10 §10.8). No code
+> exists yet, so the backward trace is empty by construction — it fills with the first
+> agent task.
 
 ---
 
 ## 3. Gap findings
 
-Fill counts, items, owner, and due during the audit.
-
 | Gap type | Count | Items | Action assigned to | Due |
 |---|---|---|---|---|
-| Requirement without design decision | not yet run | — | — | — |
-| Design without task | not yet run | — | — | — |
-| Task without test | not yet run | — | — | — |
-| Test without code link | not yet run | — | — | — |
-| **Code without requirement** | not yet run | — | — | — |
-| Released behavior not in spec | not yet run | — | — | — |
+| Requirement without design decision | 1 | REQ-NF-007 (waits on Q-012) | Developer | Before implementation |
+| Design without task | 0 | — | — | — |
+| Task without test | 0 | — | — | — |
+| Test without code link | all | Expected — nothing is implemented yet | Developer | With each task |
+| **Code without requirement** | 0 | No code exists | — | — |
+| Released behavior not in spec | 0 | Nothing is released | — | — |
 
 ---
 
 ## 4. Checklist (Appendix F)
 
-- [ ] Every **Must** requirement has at least one task.
-- [ ] Every **Must** requirement has at least one test.
-- [ ] Every security rule maps to validation or authorization code (SEC-A-001…004, SEC-Z-001…002).
-- [ ] Every released feature maps back to a PRD requirement.
-- [ ] Every changed behavior is reflected in updated specs.
-- [ ] Every blank matrix cell has been reviewed and explained.
-- [ ] Any code without a requirement has been removed, documented, or approved.
+- [x] Every **Must** requirement has at least one task.
+- [x] Every **Must** requirement has at least one test.
+- [x] Every security rule maps to validation or authorization coverage.
+- [ ] Every released feature maps back to a PRD requirement — nothing is released yet.
+- [ ] Every changed behavior is reflected in updated specs — applies once behavior exists.
+- [x] Every blank matrix cell has been reviewed and explained.
+- [ ] Any code without a requirement has been removed, documented, or approved — no code exists yet.
 
 ---
 
 ## 5. Outcome
 
-- [ ] **Chain complete** — safe to proceed.
-- [ ] **Gaps logged** — tasks created, non-blocking.
-- [ ] **Blocked** — release cannot proceed until listed gaps close.
+- [x] **Gaps logged** — tasks created, non-blocking. The open gaps are the recorded open
+  questions (Q-009, Q-011, Q-012, Q-023); the blocked tasks hold their chains until they
+  are answered.
 
-**Follow-up tasks created:**
+**Follow-up tasks created:** none beyond the existing blocked tasks.
 
 ---
 
