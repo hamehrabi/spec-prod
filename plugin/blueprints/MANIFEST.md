@@ -20,7 +20,7 @@ failure, not a bonus.
 
 ## Library digest
 
-**Library digest:** `435c67ad21db35c70d353c09cd4ebcd56edfb6231b5ff95c90714463e6de5e98`
+**Library digest:** `0c859dd9a60b4fdfe88e30a5945da5ca70e2efaba219cdc03bc3868941386046`
 
 One value for the whole library: SHA-256 over the 81 digests below —
 lowercased, sorted, one per line, each ending in a newline. **Compare this first.** It matches
@@ -46,7 +46,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `01-docs/04-technical-spec/fitness-functions.md` | `07e4605851af7eb4bfdfd49cf9784ded09c2c5a17a923374c6a6feec5a439181` |
 | `01-docs/04-technical-spec/frontend-component-spec.md` | `121d75fe0510397db01071c55ab3ea052717e6e7746cb40ed16d3f0933d0335d` |
 | `01-docs/04-technical-spec/runtime-and-scale.md` | `9c9fcdd46e49827b8d1f54d2d1583fac329925b3e0ecba3ece515efd39d72fe6` |
-| `01-docs/04-technical-spec/technical-spec.md` | `650939d412fafd52df431274e48ccba49be3a20967ccc5972649dbfdd04b9ddd` |
+| `01-docs/04-technical-spec/technical-spec.md` | `965d27bab8b5b507a42f711658405e1d16f4e50b8ab42971f1ed71a1a5c8b0f6` |
 | `01-docs/05-architecture/architecture-decisions/ADR-000-template.md` | `dfb8753724a663841a2e3dbfa6b3eff69707c93deb3996461a324018c99e4ee6` |
 | `01-docs/05-architecture/architecture-decisions/adr-index.md` | `cd4eaadce220ac9b68afbdd730764be667ca7ab57b42a165ea2366881b301c37` |
 | `01-docs/05-architecture/decisions.md` | `25c945748e2543120ed3bfb85e36b3751e6dd03e2c35e1f0c3214ae9add79cda` |
@@ -63,7 +63,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `01-docs/10-reference/repeatable-system.md` | `632fe60b8be4219fa001c71d91e6a3a819386c756750433fa79c5cab7fc422b5` |
 | `02-tasks/01-planning/agent-task-list.md` | `dc5188170be9e2eb9bfb7d3dc8dbc333921eb0b24d120103653d970f4c49f622` |
 | `02-tasks/01-planning/task-index.md` | `28264c6272513aa3d24267de0ff02a930fe848971fdcd919e14898a12f68b591` |
-| `02-tasks/02-task-files/TASK-001.md` | `16dbe72676ae78178ded3e106958904a13b0a31b888c908d35496eb058a08dd6` |
+| `02-tasks/02-task-files/TASK-001.md` | `3d440c726c2da811195ad5cd2015309dc27deaaca4fa95f15da1009a6c947856` |
 | `02-tasks/03-control/scope-change-log.md` | `57737d078abac2d3d0a3cbf478c6519e0fd129e8163745fb348dde53bbeda7fe` |
 | `02-tasks/03-control/task-handoff-notes.md` | `19c27347b6ac6021e14e6285eeeef0cbba9751d9ef41e2835659b70b0de3eab1` |
 | `03-tests/01-plan/test-plan.md` | `fa1db02c46d5437934816405fc7a48ad57f74530264e59de0fbc1226d0ee6247` |
@@ -96,7 +96,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `06-agent/02-context/context-pack.md` | `cd0c7aff1951a37b4b4af4816cd1292fe16c51b3d0b3402ae0301553f2b2f273` |
 | `06-agent/03-prompts/prompt-library.md` | `513bd22c1329f29a11143312bd86f94bbd38de19c267e7b6a867710700bab9ab` |
 | `06-agent/04-handoffs/developer-to-agent-handoff.md` | `418e2b93111b131018c5b6d28f82c54e9c2e65a49685c2071df0da052cfaecc1` |
-| `06-agent/04-handoffs/product-to-engineering-handoff.md` | `ae1001bdd51de2f909b4bf969e1a1efe82c662f9d8b1e3e29b0d6de16ffcd161` |
+| `06-agent/04-handoffs/product-to-engineering-handoff.md` | `a52e4cfb15b6127aee17bd13a087fecee5deb87aaf73115acfe781d7c12de64d` |
 | `06-agent/04-handoffs/team-workflow-pack.md` | `1e8947819e3de55bd48392c60b91ef5dfaca117778de0f78220f7136552a25d3` |
 | `07-ops/01-deployment/backup-and-recovery.md` | `ca5a3f9802b8b9653322b7b2253af2e7528403137221ec296be4b9b299857337` |
 | `07-ops/01-deployment/cicd-pipeline.md` | `4e260ffe336c0cd317959e410a01a081e434147127f0edb09a69061b468140d6` |

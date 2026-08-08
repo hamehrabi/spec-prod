@@ -50,6 +50,12 @@ Date of handoff:
 | Risk notes | Security, privacy, reliability, usability, compliance concerns. | What could go wrong? | Risks are discovered after implementation. |
 | Open questions | Unknowns that need a decision before or during design. | What needs clarification? | The AI agent fills gaps with guesses. |
 
+> **An open question in a handoff is a CITATION.** `Q-` rows are DEFINED in
+> `open-questions.md`, and only there. Cite the id inside prose — *"blocked on `Q-###` until
+> the export format is decided"* — never as a table row whose first cell is the id with
+> the question restated beside it. The register owns the question, its owner, and its status;
+> a restated copy here disagrees with it the day either changes.
+
 ---
 
 ## What each role needs (Ch. 29 §29.1)
