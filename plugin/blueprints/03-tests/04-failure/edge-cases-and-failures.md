@@ -12,19 +12,26 @@ duplicated, expired, unavailable, unauthorized, or invalid*.
 
 ## Case table
 
-| Case ID | Requirement | Case type | Input / condition | Expected result | Risk covered | Status |
-|---|---|---|---|---|---|---|
-| | REQ-### | Edge | Empty value | | | Planned |
-| | | Edge | Value too long | | | |
-| | | Failure | Dependency unavailable | | | |
-| | | Failure | Unauthorized actor | | | |
-| | | Edge | Duplicate submission | | | |
+| Case ID | Requirement | Case type | Input / condition | Risk covered | Status |
+|---|---|---|---|---|---|
+| | REQ-### | Edge | Empty value | | Planned |
+| | | Edge | Value too long | | |
+| | | Failure | Dependency unavailable | | |
+| | | Failure | Unauthorized actor | | |
+| | | Edge | Duplicate submission | | |
 
 > **"Case ID" CITES the test that covers the case — it does not mint a new identifier.**
 > A case found here becomes a test somewhere: a failure case is an `FTEST-###` in
 > [`failure-tests.md`](failure-tests.md), a boundary case is a `UTEST-###` in
 > [`unit-tests.md`](../02-functional/unit-tests.md). Write that id here once it exists, and
 > `[TODO: which test covers this?]` until it does.
+>
+> **And do not restate the test's expected result here.** A run that cites correctly can still
+> copy the outcome into this table in its own words, and then two files describe the same
+> assertion differently — "400; no row written" here against "400 + field-named message;
+> nothing saved" there. Nothing is contradictory on the day it is written and nothing keeps
+> them equal afterwards. **This table records what was DISCOVERED — the input or condition, the
+> case type, the risk it covers — and points at the test for what the system must do.**
 >
 > This table used to arrive numbered `FTEST-001`…`FTEST-005` — **the same identifiers
 > `failure-tests.md` mints, for different conditions.** `FTEST-002` was "Invalid format" there
@@ -75,8 +82,9 @@ Do not write implementation code yet.
 
 Requirement: [paste requirement]
 
-Return the answer as a test planning table with: case type, input, expected result, and
-risk covered.
+Return the answer as a test planning table with: case type, input or condition, and the
+risk it covers. Do NOT include an expected result — that belongs in the test file the case
+cites, and stating it twice lets the two drift apart.
 ```
 
 ---
@@ -85,26 +93,26 @@ risk covered.
 
 ## The seven questions, answered
 
-| Question | ProjectBoard case | Case type | Expected result | Test |
-|---|---|---|---|---|
-| What if the value is empty? | Title is `""` or only spaces | Failure | 400, nothing saved | FTEST-001 |
-| What if the value is too long? | Title is 121 characters | Edge | 400 naming the limit | UTEST-005 |
-| What if the value is duplicated? | User double-clicks Save | Edge | One task created, not two | FTEST-006 |
-| What if the value is expired? | Session token expired mid-form | Failure | Redirect to login; typed values preserved | FTEST-007 |
-| What if the user is not allowed? | Viewer submits the form via API | Security | 403; nothing saved | STEST-002 |
-| What if the dependency fails? | Notification email provider is down | Failure | Task **still saved**; email marked pending | FTEST-009 |
-| What if the action is repeated? | Same request retried by the client | Edge | No duplicate row | FTEST-006 |
+| Question | ProjectBoard case | Case type | Test that covers it |
+|---|---|---|---|
+| What if the value is empty? | Title is `""` or only spaces | Failure | FTEST-001 |
+| What if the value is too long? | Title is 121 characters | Edge | UTEST-005 |
+| What if the value is duplicated? | User double-clicks Save | Edge | FTEST-006 |
+| What if the value is expired? | Session token expired mid-form | Failure | FTEST-007 |
+| What if the user is not allowed? | Viewer submits the form via API | Security | STEST-002 |
+| What if the dependency fails? | Notification email provider is down | Failure | FTEST-009 |
+| What if the action is repeated? | Same request retried by the client | Edge | FTEST-006 |
 
 ## Discovery table
 
-| Case ID | Requirement | Case type | Input / condition | Expected result | Risk covered | Status |
-|---|---|---|---|---|---|---|
-| FTEST-001 | REQ-F-001 | Failure | Title missing | 400 + field name; no row written | Bad data enters the database | Passing |
-| UTEST-005 | REQ-F-001 | Edge | Title = 120 chars / 121 chars | accept / reject | Off-by-one at the boundary | Passing |
-| FTEST-002 | BR-003 | Failure | Due date = yesterday | 400; typed values kept | Invalid planning data | Passing |
-| FTEST-006 | REQ-F-001 | Edge | Two identical creates in 500 ms | One row only | Duplicate work items | Passing |
-| FTEST-009 | REQ-F-009 | Failure | Email provider returns 503 | Task saved; email `pending_review` | A dependency taking down core function | Passing |
-| FTEST-011 | BR-004 | Failure | Delete a project with 3 open tasks | 409; nothing deleted | Silent data loss | Passing |
+| Case ID | Requirement | Case type | Input / condition | Risk covered | Status |
+|---|---|---|---|---|---|
+| FTEST-001 | REQ-F-001 | Failure | Title missing | Bad data enters the database | Passing |
+| UTEST-005 | REQ-F-001 | Edge | Title = 120 chars / 121 chars | Off-by-one at the boundary | Passing |
+| FTEST-002 | BR-003 | Failure | Due date = yesterday | Invalid planning data | Passing |
+| FTEST-006 | REQ-F-001 | Edge | Two identical creates in 500 ms | Duplicate work items | Passing |
+| FTEST-009 | REQ-F-009 | Failure | Email provider returns 503 | A dependency taking down core function | Passing |
+| FTEST-011 | BR-004 | Failure | Delete a project with 3 open tasks | Silent data loss | Passing |
 
 ## Failure sources checked
 
