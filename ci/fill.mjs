@@ -162,6 +162,12 @@ function describesFormat(kind, matchText, line) {
   if (kind === 'id-stub' && /###\s*\/\s*[A-Z]{2,6}(?:-[A-Z])?-###/.test(line)) return true
   if (kind === 'instructional-italic' && /^\*Examples?\b[^*]{0,40}\*$/.test(matchText)) return true
   if (kind === 'placeholder' && /\b[A-Z]{2,6}(?:-[A-Z])?-\[/.test(line)) return true
+  // A DATE ON A KEEP-A-CHANGELOG VERSION HEADING IS THE FORMAT, NOT A GAP. The release-notes
+  // blueprint drafts the first release as `## [1.0.0] — YYYY-MM-DD`, and a run that has
+  // released nothing keeps the stub — the honest state, since inventing a date for a release
+  // that has not happened is exactly what BR-003 forbids. The bracket-version rule above
+  // already reads `[1.0.0]` as format; this is the same judgement for the date beside it.
+  if (kind === 'date-stub' && /^##\s*\[/.test(line.trim())) return true
   return false
 }
 

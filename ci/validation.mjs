@@ -227,7 +227,16 @@ export const CHECKS = {
       // definitions stay scanned everywhere, which can only make this check QUIETER about a
       // fence, never louder.
       const noFences = (t) => t.replace(/^\s*(```|~~~)[\s\S]*?^\s*\1.*$/gm, '')
-      const text = noFences(all(ws)).replace(/\b(?:such as|e\.?g\.?|for example|like)\s+`?\w[\w-]*-\d{3}`?/gi, '')
+      // A MULTI-WORD CODE SPAN IS QUOTATION, the same judgement UTEST-095 made for [TODO]
+      // markers. The version-control checklist keeps a weak-vs-better commit-message table
+      // whose better column is `feat(auth): add login validation for REQ-AUTH-002` — four
+      // invented ids, all inside backticked phrases, all illustrations. Only spans containing
+      // whitespace are stripped: a lone backticked id — `Q-018`, the kit's normal citation
+      // style — keeps counting as a reference, so a real dangler written that way is still
+      // reported. The narrowing is the point; stripping all inline code would blind this
+      // check to most of the workspace's citations.
+      const noCode = (t) => t.replace(/`[^`\n]*\s[^`\n]*`/g, '')
+      const text = noCode(noFences(all(ws))).replace(/\b(?:such as|e\.?g\.?|for example|like)\s+`?\w[\w-]*-\d{3}`?/gi, '')
       // Defined = introduced by a table row or heading that starts with the identifier.
       const defined = new Set([...all(ws).matchAll(/^[|#>\s-]*\**(\w[\w-]*-\d{3})\**\s*[|:—-]/gm)].map((m) => m[1]))
       const dangling = [...new Set(text.match(ID) ?? [])].filter((id) => !defined.has(id))
