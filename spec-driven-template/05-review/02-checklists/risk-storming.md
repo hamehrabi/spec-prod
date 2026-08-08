@@ -4,6 +4,10 @@
 > **When you use it:** before build, before a major feature, before release.
 > **Source:** Richards & Ford, *Fundamentals of Software Architecture*, Ch. 22.
 
+> Copy this file to `risk-storming-<date>.md` and fill it in, once per session. **The scoring
+> cells stay blank in this copy** — a risk nobody has scored yet has no numbers, and writing
+> plausible ones is worse than leaving them empty.
+
 > **Risk = impact × likelihood**, each scored 1–3.
 > `1–2` low · `3–4` medium · `6–9` high. **Unproven technology starts at 9.**
 > Assess impact first. If likelihood is unknown, keep it high until proven otherwise.

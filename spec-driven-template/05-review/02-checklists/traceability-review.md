@@ -4,6 +4,11 @@
 > A periodic audit of [`../docs/traceability.md`](../../01-docs/08-traceability/traceability.md).
 > Run it before a release, after a batch of agent work, and before any major change.
 
+> Copy this file to `traceability-review-<date>.md` and fill it in, once per audit. **The
+> audit cells and the header fields below stay blank in this copy** — an audit that has not
+> happened has no reviewer, no date, and no verdicts, and writing plausible ones is worse
+> than leaving them empty.
+
 **Review date:**
 **Reviewer:**
 **Scope reviewed:** *(release / feature / sprint)*

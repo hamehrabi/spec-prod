@@ -41,9 +41,14 @@ const formatMatches = library.flatMap(([path, text]) =>
 
 // --- The four rules, each held to the size it was measured at ----------------------------------
 
-test('UTEST-067: exactly eleven matches in the library are exempt as described shapes', () => {
-  // The number is the point. An exemption nobody counts is an exemption that grows.
-  assert.equal(formatMatches.length, 11, formatMatches.map((m) => `${m.path}:${m.line} ${m.text}`).join('\n'))
+test('UTEST-067: exactly twelve matches in the library are exempt as described shapes', () => {
+  // The number is the point. An exemption nobody counts is an exemption that grows. It was
+  // eleven; the one that joined is release-notes' drafted-release date stub on its version
+  // heading (`## [1.0.0] — YYYY-MM-DD`, UTEST-097), added when a real run kept the stub
+  // honestly and check 5 invited deleting it. The blueprint's other date stub — in the
+  // copy-per-release fence — was already exempt by position, which is why one joined and
+  // not two.
+  assert.equal(formatMatches.length, 12, formatMatches.map((m) => `${m.path}:${m.line} ${m.text}`).join('\n'))
 })
 
 test('UTEST-067: a changelog version heading is the format, not a gap', () => {
@@ -54,9 +59,15 @@ test('UTEST-067: a changelog version heading is the format, not a gap', () => {
   assert.deepEqual(unfilled('## [Unreleased]\n\n### Added\n'), [])
   assert.deepEqual(unfilled('## [1.0.0]\n'), [])
 
-  // NOT the date beside it. `## [1.0.0] — YYYY-MM-DD` has a real gap on the same line, and an
-  // exemption that swallowed its own line would hide it.
-  assert.deepEqual(unfilled('## [1.0.0] — YYYY-MM-DD\n').map((p) => p.text), ['YYYY-MM-DD'])
+  // THE DATE BESIDE IT REVERSED TOO, on the same evidence pattern as the paragraph below:
+  // this line used to assert `## [1.0.0] — YYYY-MM-DD` kept a real gap, on the reasoning
+  // that an exemption swallowing its own line would hide something. Then the third e2e run
+  // (2026-08-08) released nothing, kept the blueprint's drafted heading stub — the only
+  // honest value for a release that has not happened (BR-003) — and check 5 invited deleting
+  // it. The date on a version heading is the format (UTEST-097); a date stub anywhere else
+  // is still a gap, which is what keeps the exemption from swallowing lines.
+  assert.deepEqual(unfilled('## [1.0.0] — YYYY-MM-DD\n'), [])
+  assert.equal(unfilled('| Date | YYYY-MM-DD |\n').length, 1, 'off a heading, a date stub is still a gap')
   // NOT a bracket span that merely sits in a heading.
   assert.equal(unfilled('## [project name] — specification\n').length, 1)
 

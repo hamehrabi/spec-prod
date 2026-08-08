@@ -280,7 +280,7 @@ const SURVIVING_PLACEHOLDERS = {
   },
   'spec/05-review/02-checklists/code-review-checklist.md': {
     n: 1,
-    why: 'REAL GAP (BUG-048) — the Decision form ships "follow-up tasks created: ______" with no "copy this file per review" declaration, so a blank form field reads as delivered content. BUG-034b\'s defect in a second file: security-review.md got the declaration, this checklist never did. Fixed in the payload; UNVERIFIED until a future run produces this file without the bare slot.',
+    why: 'REAL GAP (BUG-048) — the Decision form ships "follow-up tasks created: ______" with no "copy this file per review" declaration, so a blank form field reads as delivered content. BUG-034b\'s defect in a second file. Fixed in the payload and VERIFIED by the third e2e run (2026-08-08): its produced checklist carries the declaration and check 5 no longer reports the slot. The entry stays because THIS committed fixture predates the declaration; it comes out with the next swap.',
   },
 }
 
@@ -308,7 +308,7 @@ test('GOLD-001: one real gap remains, and it is named as a gap — BUG-048', () 
   const real = Object.entries(SURVIVING_PLACEHOLDERS).filter(([, e]) => e.why.includes('REAL GAP'))
   assert.deepEqual(real.map(([p]) => p), ['spec/05-review/02-checklists/code-review-checklist.md'])
   assert.match(real[0][1].why, /BUG-048/, 'the gap names no defect to fix')
-  assert.match(real[0][1].why, /UNVERIFIED until a future run/, 'and no exit condition — it would rot here')
+  assert.match(real[0][1].why, /comes out with the next swap/, 'and no exit condition — it would rot here')
 
   // Check 5 agrees, and it is the ONE failing check in this workspace: the survival above is
   // exactly what it reports. If check 5 ever passes here, the payload declaration took and
