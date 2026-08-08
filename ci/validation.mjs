@@ -94,7 +94,23 @@ const norm = (s) => s.toLowerCase().replace(/[*`_]/g, '').replace(/\s+/g, ' ').t
 
 // Identifiers this workspace uses. Deliberately narrow: a pattern loose enough to catch
 // everything also catches prose, and a check with false positives gets switched off.
-const ID = /\b(REQ-[A-Z]+|BR|CON|AC|US|ADR|DD|FF|TASK|Q|RISK|SEC-[AZ]|EV|[UAEFSP]?TEST)-\d{3}\b/g
+// `I` FOR INTEGRATION WAS MISSING, AND ITEST IS THE MOST-USED TEST PREFIX THERE IS (BUG-044).
+//
+// The class read `[UAEFSP]?TEST` — unit, acceptance, end-to-end, failure, security, performance,
+// and bare TEST. The produced workspace contains 41 `ITEST-###` and the library mints them in
+// `integration-tests.md`, so the single commonest test identifier was invisible to every check
+// that uses this pattern.
+//
+// What that cost: check 1 could not report a dangling `ITEST-999`, and check 2 undercounted the
+// identifiers in a citation row. `| REQ-F-001 | Save a recipe with ingredients | ATEST-001,
+// ITEST-001 |` in `deployment-plan.md` has TWO other ids and should have been read as a
+// citation; only one of them matched, so the row was counted as a second DEFINITION of
+// REQ-F-001 and reported as a duplicate on every workspace. I nearly changed the blueprint to
+// satisfy that report before checking why the check believed it.
+//
+// UTEST-093 derives the alphabet from the library rather than trusting this line, so the next
+// prefix someone adds fails a test instead of going quietly missing.
+const ID = /\b(REQ-[A-Z]+|BR|CON|AC|US|ADR|DD|FF|TASK|Q|RISK|SEC-[AZ]|EV|[UAEFSIP]?TEST)-\d{3}\b/g
 
 // --- Reading a table the way a reader reads one ------------------------------------------
 //
