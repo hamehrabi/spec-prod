@@ -73,7 +73,7 @@ pending the `[TODO]` above.
 | RISK-008 | The kit's own definition of success (SM-2) is unmeasurable under CON-007 (RSK-7) | 2 | 3 | **6** | → | **Unmitigated by design.** Q-002. The eval golden set is the only substitute for field data | Kit author | **Accepted** |
 | RISK-009 | **Instruction-driven validation shares a failure mode with instruction-driven generation** | 3 | 2 | **6** | → | CI fitness functions are the independent check. Named as a permanent weakness in ADR-002's Consequences rather than mitigated away | Kit author | **Accepted** |
 | RISK-010 | The blueprint library is really core, not supporting (Q-003) | 2 | 2 | 4 | → | Revisit after the first ten real intakes. If wrong, its thin specs and acceptance-only tests are the wrong strategy | Kit author | Open |
-| RISK-011 | Two sessions in one repository corrupt a workspace | 2 | 2 | 4 | → | **None yet.** SC-008 open; TASK-019 blocked pending a requirement | Kit author | Open |
+| RISK-011 | Two sessions in one repository corrupt a workspace | 2 | 2 | 4 | → | **Rejected for v1 via SC-008 (2026-08-08)** — one session per repository at a time is a documented non-goal. The behaviour stays unmeasured; the risk is consciously accepted, not mitigated | Kit author | **Accepted** |
 | RISK-012 | Solo developer, no redundancy | 3 | 2 | **6** | → | This workspace **is** the mitigation — the specs outlive the session that wrote them. Accepted knowingly | Kit author | **Accepted** |
 | RISK-013 | Licence / attribution position on blueprints derived from a published method (Q-007) | 3 | 2 | **6** | → | **Unresolved.** Must be answered before release, not after | Kit author | **Open** |
 

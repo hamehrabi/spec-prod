@@ -52,7 +52,7 @@ Recorded rather than forgotten. An empty deferred list usually means nobody is t
 | No second person can perform a restore | One-person project (CON-008) | Anyone else joins | RISK-012, accepted knowingly |
 | No user-report channel | No users yet | **Before the first release** | Every runbook entry assumes a report arrives somehow |
 | `todo_density` threshold unset | Needs ten real runs to set honestly | After ten real intakes | "Hollow" has no definition until then |
-| Two-sessions-one-repo concurrency | No requirement yet | SC-008 decided | Unknown behaviour, unmeasured |
+| Two-sessions-one-repo concurrency | **Resolved — no longer deferred.** SC-008 (2026-08-08) rejected it for v1; one session per repository at a time is a documented non-goal | First real collision report | Behaviour stays unmeasured — the rejection declines the work, not the risk |
 
 > **The third row is the one to fix first.** It costs nothing, and every entry in the runbook
 > quietly depends on it.

@@ -57,7 +57,7 @@ The intake's own validation pass, recorded as a review because that is what it w
 | 2 | The blueprint library is classified *supporting* but plausibly passes the core test | Medium | **Q-003 — open.** Revisit after ten real intakes |
 | 3 | Instruction-driven validation shares a failure mode with instruction-driven generation | Medium | **Accepted.** Named in ADR-002's Consequences and RISK-009. CI is the independent check |
 | 4 | FF-006's worked-example detector is a string search and would miss a *reworded* example | Medium | Documented as an honest limit in `fitness-functions.md`. Mitigated by ADR-003's delete-whole rule |
-| 5 | **Two sessions in one repository would both write to `spec/`.** No lock, no state file permitted | Medium | **SC-008 open; TASK-019 blocked.** Found by the seven-questions worksheet, not by design review |
+| 5 | **Two sessions in one repository would both write to `spec/`.** No lock, no state file permitted | Medium | **SC-008 decided 2026-08-08: rejected for v1** — one session per repository at a time, a documented non-goal; TASK-019 → Rejected. Found by the seven-questions worksheet, not by design review |
 | 6 | Licence and attribution for blueprints derived from a published method | **Release blocker** | **Q-007 — open.** RISK-013. Nothing in the build will ever fail because of it |
 | 7 | Four `Should` priorities (resume, contradiction detection, inference, depth scaling) defend the primary risk | Medium | Flagged in `product-spec.md` §11. `[TODO: confirm whether they move to Must]` |
 | 8 | RSK-3 had no detector | High | **Closed in Round 8** — scheduled CI install test |
