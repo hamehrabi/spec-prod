@@ -72,9 +72,10 @@ duplicated, expired, unavailable, unauthorized, or invalid*.
 - [ ] ~~Network~~ — **n/a**, zero network calls (CON-003)
 - [ ] ~~External service~~ — **n/a**, none (CON-006)
 - [ ] ~~Background job~~ — **n/a**, none, and the tempting one is pre-rejected
-- [ ] ~~Concurrency~~ — **n/a**: one developer, one machine, one run. `[TODO: is this actually
-      safe? Two Claude Code sessions open in the same repository, both running intake, would
-      both write to spec/. Nothing prevents it. Raise before release.]`
+- [ ] ~~Concurrency~~ — **rejected for v1** (SC-008, 2026-08-08), not "n/a": one session per
+      repository at a time, recorded as a non-goal. It WAS raised before release, as the
+      `[TODO]` here demanded, and the author declined the work — see Q-015, which keeps the
+      unmeasured half honest.
 
 Each failure state must have a **recovery path, user message, log event, and test case** →
 [`reliability-specification.md`](../../01-docs/07-security-and-reliability/reliability-specification.md) §3
@@ -95,6 +96,13 @@ Each failure state must have a **recovery path, user message, log event, and tes
 > It is logged as a `[TODO]` above rather than assumed away, because it is exactly the shape
 > of thing this worksheet exists to surface: a category dismissed on a reason that sounds
 > right and is off by one word.
+>
+> **Closed by decision, not by measurement (SC-008, 2026-08-08).** Concurrency handling is
+> rejected for v1 and *one session per repository at a time* is the documented non-goal.
+> *Nobody has checked* is still true, and the decision records that the work is declined —
+> never that the collision is safe. The near-miss above stands as written: the row earned its
+> place in this worksheet by almost being dismissed, and the dismissal it finally got is a
+> dated decision with an owner instead of a reason that sounded right.
 
 ---
 

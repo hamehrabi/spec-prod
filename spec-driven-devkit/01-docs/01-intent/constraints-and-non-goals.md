@@ -54,6 +54,7 @@ information**.
 | **Telemetry, usage analytics, or error reporting** | CON-007. See Q-002 — this exclusion makes success measure SM-2 unmeasurable, which is an unresolved conflict rather than a settled decision. | **Rejected for v1**, pending Q-002. |
 | **A standalone re-runnable validation command** | **Assumed, not decided.** Validation currently sits as the final step of the intake. Whether it is *also* separately invokable later is open — see Q-001. | Waiting for information. |
 | **Redesigning the blueprint library** | The ~90 templates already exist in `spec-driven-template/`. v1 packages and versions them; it does not rewrite them. | Deferred — treat as a supporting subdomain, per `subdomain-map.md`. |
+| **Concurrent sessions in one repository** (two intakes writing to one `spec/`) | Decided via SC-008 (2026-08-08). **One session per repository at a time** is the documented limitation: this is a solo-developer kit, and ADR-004 forbids the state file a lock would need. What two interleaved intakes actually do remains **unmeasured** — the rejection declines the work, it does not claim the collision is safe (Q-015 records both halves). | **Rejected for v1.** Revisit on the first real collision report, or with any team/multi-session feature — which reopens far more than this row. |
 
 ---
 

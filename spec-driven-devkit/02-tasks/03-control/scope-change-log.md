@@ -52,7 +52,7 @@ Artifacts updated:
 | SC-005 | 2026-08-03 | A hosted or team component (shared specs, dashboards) | **Reject for v1** | Kit author (inferred, then confirmed) | Non-goals list only |
 | SC-006 | 2026-08-03 | Telemetry to measure intake completion rate | **Reject for v1** | Kit author | Non-goals list; **Q-002 opened** |
 | SC-007 | 2026-08-03 | Standalone re-runnable validation command | **Defer** | Kit author | Q-001 closed; DD-010 recorded |
-| SC-008 | — | **Two sessions in one repository** — concurrency handling | **Open** | Kit author | None yet — TASK-019 blocked pending this |
+| SC-008 | 2026-08-08 | **Two sessions in one repository** — concurrency handling | **Reject for v1** | Kit author | Q-015 answered by decision; TASK-019 → Rejected; a non-goal row records "one session per repository at a time"; the collision behaviour stays unmeasured and every record says so |
 | **SC-009** | 2026-08-03 | **A stage acceptance gate** — show each round's result and require acceptance before continuing | **Accept** | Kit author | REQ-F-038/039/041, AC-036–038/040/041, **ADR-006**, `StageReview`, TASK-020, 13 tests |
 | **SC-010** | 2026-08-03 | **Blueprint coverage** — every template used or recorded as skipped | **Accept** | Kit author | REQ-F-040/043, AC-039/044, FF-015/FF-018, check 13, TASK-022, 6 tests |
 | **SC-011** | 2026-08-03 | **Blueprint integrity** — the library ships verifiably unmodified and drives progress | **Accept** | Kit author | REQ-F-042, AC-042/043, FF-017, check 15, TASK-021, 5 tests |
@@ -261,9 +261,12 @@ Named in advance, because each is a helpful-sounding suggestion that supersedes 
 | A small script for validation | The twelve checks are mechanical and code does them better. | **ADR-002.** A check that silently skips where the runtime is absent is BR-009's violation built into the architecture. |
 | A templating engine | The fill procedure looks like rendering. | **`subdomain-map.md`.** Blueprints are Markdown; substitution is a fill, not a render. This is the predicted over-engineering. |
 
-**SC-008 is open and deliberately visible.** Two Claude Code sessions in one repository would
-both write to `spec/`. It came from the seven-questions worksheet, not from a requirement, so
-TASK-019 stays blocked until it passes through this log. **A task with no requirement is as
-suspicious as code with no requirement.**
+**SC-008 stayed open until the author decided it, which is the process working.** Two Claude
+Code sessions in one repository would both write to `spec/`. It came from the seven-questions
+worksheet, not from a requirement, so TASK-019 stayed blocked until it passed through this log
+— **a task with no requirement is as suspicious as code with no requirement** — and on
+2026-08-08 the kit author rejected it for v1: one session per repository at a time, recorded as
+a non-goal. The rejection declines the work; it does not claim the collision is safe, and Q-015
+keeps that distinction on the record.
 
 > Blueprint: ../../../spec-driven-template/02-tasks/03-control/scope-change-log.md

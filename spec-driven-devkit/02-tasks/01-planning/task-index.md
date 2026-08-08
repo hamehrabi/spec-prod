@@ -38,7 +38,7 @@ a time, directed by one developer (CON-008).
 | **TASK-020** | **The stage acceptance gate** — present, then accept / revise / stop | REQ-F-038, REQ-F-039, REQ-F-041, ADR-006 | **P0** | TASK-006 | **Done** — *resume half landed with TASK-007 (ETEST-009 x8)* | agent | ATEST-041…043, ATEST-045, UTEST-026…029, **ETEST-013**, **ETEST-014 (×8)**, FTEST-019, FTEST-022, STEST-016 |
 | **TASK-021** | **Blueprint integrity manifest and verification** | REQ-F-042 | **P0** | TASK-003 | **Done** | agent | ATEST-046, UTEST-030, FTEST-020, STEST-015, ETEST-015 |
 | **TASK-022** | **Blueprint coverage — every template used or recorded as skipped** | REQ-F-040, REQ-F-043 | **P1** | TASK-012, TASK-021 | **Done** | agent | ATEST-044, ATEST-047, UTEST-031, TEST-019, FTEST-021, ETEST-015 |
-| TASK-019 | Two-sessions-in-one-repo concurrency | — | **P3 — blocked** | — | **Blocked** | — | — |
+| TASK-019 | Two-sessions-in-one-repo concurrency | — | P3 | — | **Rejected** — *SC-008 (2026-08-08): rejected for v1; one session per repository at a time, recorded as a non-goal. The collision stays unmeasured, and the records say so rather than claiming safety* | — | — |
 
 **Status values:** Not started · In progress · Blocked · In review · Done · Rejected
 
@@ -54,11 +54,14 @@ a time, directed by one developer (CON-008).
 > When using an AI agent, start with P0 and P1. Do not give it P2 or P3 work until the
 > foundation is implemented, tested, and reviewed.
 
-**TASK-019 is blocked and deliberately visible.** Two Claude Code sessions open on the same
-repository would both write to `spec/`, with no lock and no state file to hold one (ADR-004
-forbids it). Nobody has checked what happens. It has **no requirement**, so it stays P3 and
-unassigned until it passes through
-[`scope-change-log.md`](../03-control/scope-change-log.md). Recorded in
+**TASK-019 stayed blocked until the author decided it, and is now Rejected.** Two Claude Code
+sessions open on the same repository would both write to `spec/`, with no lock and no state
+file to hold one (ADR-004 forbids it). It had **no requirement**, so it stayed P3 and
+unassigned until it passed through
+[`scope-change-log.md`](../03-control/scope-change-log.md) — which it did on 2026-08-08 as
+SC-008, **Reject for v1**: one session per repository at a time, recorded as a non-goal.
+Nobody has measured what a collision does, and the rejection declines the work rather than
+claiming safety. The discovery is still recorded in
 [`edge-cases-and-failures.md`](../../03-tests/04-failure/edge-cases-and-failures.md) as
 *"the one that was nearly missed"*.
 
@@ -128,7 +131,7 @@ commit that could break it.
 ## Task breakdown checklist (Ch. 14)
 
 - [x] Each task has one clear outcome.
-- [x] Each task points back to a requirement, specification, or design decision — **except TASK-019, which is why it is blocked.**
+- [x] Each task points back to a requirement, specification, or design decision — **except TASK-019, which is why it stayed blocked until SC-008 rejected it.**
 - [x] Each task has done criteria that can be checked.
 - [x] Dependencies are listed before implementation begins.
 - [x] P0 and P1 tasks are completed before optional improvements.
