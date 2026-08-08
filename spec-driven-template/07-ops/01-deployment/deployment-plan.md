@@ -47,7 +47,7 @@ Release must include:
 
 ## 2. Requirements included
 
-| Req ID | Requirement | Test evidence |
+| Req ID | Requirement | Test evidence ID |
 |---|---|---|
 | REQ-### | | TEST-### |
 

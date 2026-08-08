@@ -20,7 +20,7 @@ failure, not a bonus.
 
 ## Library digest
 
-**Library digest:** `d1e9cb62a3997b56a2089db1090f955c91f2ad7df235eb32c9e80ecdb3b0e8cc`
+**Library digest:** `435c67ad21db35c70d353c09cd4ebcd56edfb6231b5ff95c90714463e6de5e98`
 
 One value for the whole library: SHA-256 over the 81 digests below —
 lowercased, sorted, one per line, each ending in a newline. **Compare this first.** It matches
@@ -43,7 +43,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `01-docs/02-requirements/driving-characteristics.md` | `8bdf0e370773be7d0c76f45e48f168739cf2977ab61dbd332b4a917368c6c96f` |
 | `01-docs/02-requirements/requirements.md` | `d74222099b6a94d4ccff95ac0278ef4a052de53803cd1a53321b0aec389a7160` |
 | `01-docs/03-product-spec/product-spec.md` | `d2f0c44f87560f3a73c93ff0b28cc4aaffa8a147bb549bf2c343ba8465f9c5e5` |
-| `01-docs/04-technical-spec/fitness-functions.md` | `9e35989328e76b63d7ed019ee86e0f582d2187e2c8fe9399a64f0ea483f5e68c` |
+| `01-docs/04-technical-spec/fitness-functions.md` | `07e4605851af7eb4bfdfd49cf9784ded09c2c5a17a923374c6a6feec5a439181` |
 | `01-docs/04-technical-spec/frontend-component-spec.md` | `121d75fe0510397db01071c55ab3ea052717e6e7746cb40ed16d3f0933d0335d` |
 | `01-docs/04-technical-spec/runtime-and-scale.md` | `9c9fcdd46e49827b8d1f54d2d1583fac329925b3e0ecba3ece515efd39d72fe6` |
 | `01-docs/04-technical-spec/technical-spec.md` | `650939d412fafd52df431274e48ccba49be3a20967ccc5972649dbfdd04b9ddd` |
@@ -67,7 +67,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `02-tasks/03-control/scope-change-log.md` | `57737d078abac2d3d0a3cbf478c6519e0fd129e8163745fb348dde53bbeda7fe` |
 | `02-tasks/03-control/task-handoff-notes.md` | `19c27347b6ac6021e14e6285eeeef0cbba9751d9ef41e2835659b70b0de3eab1` |
 | `03-tests/01-plan/test-plan.md` | `fa1db02c46d5437934816405fc7a48ad57f74530264e59de0fbc1226d0ee6247` |
-| `03-tests/01-plan/test-specification.md` | `37b0bfc6912e59a7ec33614c6409085c94d8a078a616642161ffbf5f52cd48b2` |
+| `03-tests/01-plan/test-specification.md` | `80cab3422c8e174016a80f12a1817b0f430b2825d75253fa0caa3706002bee1d` |
 | `03-tests/02-functional/acceptance-tests.md` | `3b648fd60977cf5f4142f07be67f826a2903d022df7a7fb1d00b6a29fc0d0944` |
 | `03-tests/02-functional/end-to-end-tests.md` | `4af82d6e39a541548ff1a2067aa2900e9b7de18dbc57e068afe862f495e7cfa9` |
 | `03-tests/02-functional/integration-tests.md` | `48cdabdd021eb02b79a73435f839f9ef47df4a0c59d0a77014107757da64d421` |
@@ -75,7 +75,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `03-tests/03-non-functional/ai-evals.md` | `52be655dace6570121ab3805a56c98facaa3ca1bf536d1967ba8f0cc2eb74732` |
 | `03-tests/03-non-functional/performance-tests.md` | `ee876be30dde23fbdaf4242688987fbb9d0461463e4d803224cad0005df9dc84` |
 | `03-tests/03-non-functional/security-tests.md` | `4d81e11845fc50d7e31d3af30f58b89352d1b398d3b7fff2763f2bfb3322e199` |
-| `03-tests/04-failure/edge-cases-and-failures.md` | `235d627140990befcc95bcbc31da310b69fc55ba6e370aac4b2f68154fb66ad6` |
+| `03-tests/04-failure/edge-cases-and-failures.md` | `41fa8c42579dfb8e2811f29908da39f90b8ace59c6844b0a3976c4299837d7e6` |
 | `03-tests/04-failure/failure-tests.md` | `c2ed361fe18c94f3056e497208e41cc848acc40be29d8190db9a74709055ed37` |
 | `03-tests/05-executable/executable-tests.md` | `8ab99c6bb4af735bcffaf786905e09fa64097588cc956b4104ae2e88344279d0` |
 | `04-src/README.md` | `48b4f69dc9403bc0e1337aacf409cd90e6671e2395bf9137cccddc662f37d74c` |
@@ -91,7 +91,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `05-review/03-version-control/version-control-checklist.md` | `55094dac84d4f9c168bb7d02b84fff354d9b163048d8493deaa455fccf41cfcb` |
 | `05-review/04-debugging/debugging-checklist.md` | `c781485b64b688bb0fded946baec0df12e6ac45ff54f98b620beadb0831af551` |
 | `05-review/04-debugging/debugging-specification.md` | `e86a6d8b77499722ebd5d9be202b79b1dddf8d6bd57f1a86b660750e18607e18` |
-| `06-agent/01-instructions/AGENT.md` | `5a26d1308b57918d9ad25d97493b24852c0fcde65a6216e1dbbe91658bc1187e` |
+| `06-agent/01-instructions/AGENT.md` | `20d52290bbb13eac3d2739fa74ae9caa9d3ea30e96077cc567a659e7240c7148` |
 | `06-agent/01-instructions/agent-rules-and-coding-standards.md` | `2014d6ebca42944f0712006f53e361c15c90066aba6211acbd8d7a77cfc05671` |
 | `06-agent/02-context/context-pack.md` | `cd0c7aff1951a37b4b4af4816cd1292fe16c51b3d0b3402ae0301553f2b2f273` |
 | `06-agent/03-prompts/prompt-library.md` | `513bd22c1329f29a11143312bd86f94bbd38de19c267e7b6a867710700bab9ab` |
@@ -102,7 +102,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `07-ops/01-deployment/cicd-pipeline.md` | `4e260ffe336c0cd317959e410a01a081e434147127f0edb09a69061b468140d6` |
 | `07-ops/01-deployment/database-migration-plan.md` | `b186337b35ccd15bb3778f3599e3097e873fb4d1b7bb65084a16333d38732fb9` |
 | `07-ops/01-deployment/deployment-checklist.md` | `86c5b89a6c2e6b60da5da5c6d66cbbac0385db921b4e0f06749a8427d9f96e10` |
-| `07-ops/01-deployment/deployment-plan.md` | `c284b65d499b0a83261a1a2baf90b8d9f78bd6fca746d28305fae108f1a2bd65` |
+| `07-ops/01-deployment/deployment-plan.md` | `2dc8862035c22e48496fbe6d73f4a3651f1fd4933356dbd6a2b1470664b3d868` |
 | `07-ops/01-deployment/environment-config.md` | `dcd04fbb5ebfefc82409605925ffea92cb181bf78c13eef73b6631535b93f547` |
 | `07-ops/01-deployment/production-readiness-checklist.md` | `4869b03b75304bb03e2828298d8742fa482a761e48fa4dd52ad0af8a2a0d0ed1` |
 | `07-ops/01-deployment/rollback-plan.md` | `6b875982df4ee3b82ead82ba738f2029111e72df50e48d7b01160cdc499411e4` |
@@ -112,7 +112,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `07-ops/03-maintenance/maintenance-notes.md` | `e783ec27a972c8aafacc7e70b34288e93a011a3b36d9d158f11f67425e38a41f` |
 | `07-ops/03-maintenance/spec-drift-checklist.md` | `5714bac9d2954ebe0918b9b19cd4b1fe3e874667b781650f9142ed170fad90a1` |
 | `07-ops/04-release/engineering-quality-review.md` | `0ebc664fbc745e9c6410340492f3612f02b80e53804ae01ae5c0e883c3553152` |
-| `07-ops/04-release/release-notes.md` | `c0f99b6d5375d72d19ae26f4c5b05f042d8b6edd9af2bdce282254df907c4787` |
+| `07-ops/04-release/release-notes.md` | `02b0f1d5576fdc005762c4d5f145cb75504386a3f7dfa3bc5677591ca65b8f10` |
 | `README.md` | `51a709c0965d7b5f77490a5ee966b82fa6dd9063962fb5fbb2b897a60500cbea` |
 | `env-example.md` | `8bbe13d1bfa763d9c412b64afe5f52ea2b096415d2e8a2da98e7c3da151d07cc` |
 | `gitignore.md` | `70526bbe405c809e53b2504381a790331850977094522cd3d0ca38d280665570` |

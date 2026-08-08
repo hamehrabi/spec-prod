@@ -115,9 +115,9 @@ Every completion must include:
 
 ## Project-specific rules from ADRs
 
-| ADR | Rule the agent must follow |
-|---|---|
-| | |
+| ADR ID | Rule the agent must follow | Fitness function ID |
+|---|---|---|
+| | | |
 
 > **Cite the ADR; do not restate the decision.** Every accepted ADR that constrains
 > implementation gets a row here, and the right-hand cell is **the one imperative it puts on
@@ -219,12 +219,12 @@ Implementation (v1.0 hardening)
 
 ## Project-specific rules from ADRs
 
-| ADR | Rule the agent must follow |
-|---|---|
-| ADR-001 | Each feature area lives in a named module. Route handlers must not contain business rules. Business logic goes in domain modules, never in UI components. |
-| ADR-002 | Task status is only `todo`, `in_progress`, `done`. Never add a status without a new ADR. |
-| ADR-003 | Every list endpoint is paginated. Never return an unbounded result set. |
-| ADR-005 | Never call the email provider inside a request handler. Enqueue a job. |
+| ADR ID | Rule the agent must follow | Fitness function ID |
+|---|---|---|
+| ADR-001 | Each feature area lives in a named module. Route handlers must not contain business rules. Business logic goes in domain modules, never in UI components. | — |
+| ADR-002 | Task status is only `todo`, `in_progress`, `done`. Never add a status without a new ADR. | — |
+| ADR-003 | Every list endpoint is paginated. Never return an unbounded result set. | — |
+| ADR-005 | Never call the email provider inside a request handler. Enqueue a job. | — |
 
 ## Lessons from past mistakes
 

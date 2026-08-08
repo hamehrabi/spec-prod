@@ -23,6 +23,16 @@ still has the shape you decided on**. They are different jobs; you need both.
 | FF-003 | | Security | | | | |
 | FF-004 | | Process | | | | |
 
+> **`FF-` identifiers are DEFINED here, and only here.** Downstream files cite them — a task
+> names the fitness functions it must satisfy, a CI pipeline names the gates it runs — and a
+> citation is the id plus, at most, the characteristic it guards. **Do not restate what the
+> function checks or its threshold**; those live in this register, and a second copy is a second
+> thing to keep correct.
+>
+> A run put `FF-001`, `FF-002` and `FF-003` into a task file's test table and into an invented
+> CI gate table, each with its own wording of the same check. Nothing was wrong on the day it
+> was written and nothing kept the three in step afterwards.
+>
 > **`Runs` and `On failure` are claims about a gate that has to EXIST.** Writing `CI` here says
 > a pipeline runs this check and a merge is blocked when it fails. If there is no pipeline yet —
 > and on a new project there usually is not — then write **`Not wired yet`** in `Runs` and name

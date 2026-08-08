@@ -12,7 +12,7 @@ duplicated, expired, unavailable, unauthorized, or invalid*.
 
 ## Case table
 
-| Case ID | Requirement | Case type | Input / condition | Risk covered | Status |
+| Case ID | Requirement ID | Case type | Input / condition | Risk covered | Status |
 |---|---|---|---|---|---|
 | | REQ-### | Edge | Empty value | | Planned |
 | | | Edge | Value too long | | |
@@ -106,7 +106,7 @@ cites, and stating it twice lets the two drift apart.
 
 ## Discovery table
 
-| Case ID | Requirement | Case type | Input / condition | Risk covered | Status |
+| Case ID | Requirement ID | Case type | Input / condition | Risk covered | Status |
 |---|---|---|---|---|---|
 | FTEST-001 | REQ-F-001 | Failure | Title missing | Bad data enters the database | Passing |
 | UTEST-005 | REQ-F-001 | Edge | Title = 120 chars / 121 chars | Off-by-one at the boundary | Passing |

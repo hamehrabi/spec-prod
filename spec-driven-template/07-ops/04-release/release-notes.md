@@ -21,7 +21,7 @@
 
 **Requirements delivered**
 
-| Req ID | Requirement | Tests | Traceability status |
+| Req ID | Requirement | Test IDs | Traceability status |
 |---|---|---|---|
 | REQ-### | | TEST-### | Approved |
 
@@ -54,7 +54,7 @@
 Release goal:
 
 Requirements delivered:
-| Req ID | Requirement | Tests | Status |
+| Req ID | Requirement | Test IDs | Status |
 
 ### Added
 ### Changed
@@ -90,7 +90,7 @@ status, and export a project to CSV.
 
 **Requirements delivered**
 
-| Req ID | Requirement | Tests | Traceability status |
+| Req ID | Requirement | Test IDs | Traceability status |
 |---|---|---|---|
 | REQ-AUTH-001 | Sign in with email and password | TEST-AUTH-001…003 | Approved |
 | REQ-AUTH-006 | Lock the account after 5 failed attempts | TEST-AUTH-010…011 | Approved |

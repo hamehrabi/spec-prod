@@ -109,11 +109,35 @@ test('TEST-020: an EMPTY duplicate row is invisible here, on purpose and on the 
   assert.equal(CHECKS[2].run(filled).state, 'failed')
 })
 
-test('TEST-020: the worked example is stripped, or the check reports itself', () => {
-  const raw = {}
+test('TEST-020: the stripping is real — it removes content, and a lot of it', () => {
+  // THIS TEST USED TO ASSERT THE UNSTRIPPED LIBRARY FAILS CHECK 2, on the reasoning that the
+  // worked examples reuse ids across files and would collide. That stopped being true the day
+  // BUG-047 gave the index tables two `ID` headers: the examples' tables became citations too,
+  // the unstripped library came out clean, and this assertion failed.
+  //
+  // Which is the test doing its job. Its own message said "if the unstripped library is clean
+  // too, this stripping is untested" — so the premise was checked rather than assumed, and when
+  // it expired it said so instead of passing quietly.
+  //
+  // What replaces it does not depend on check 2 having an opinion: prove `stripWorkedExample`
+  // actually removes something from the real library, so `shipped()` above is not silently a
+  // no-op that scans the raw blueprints and calls it the shipped state.
+  let stripped = 0
+  let bytesRemoved = 0
   for (const rel of library()) {
     const t = blueprintText(rel)
-    if (t !== null) raw[`spec/${rel}`] = t
+    if (t === null) continue
+    const s = stripWorkedExample(t)
+    if (s.length < t.length) {
+      stripped++
+      bytesRemoved += t.length - s.length
+    }
   }
-  assert.equal(CHECKS[2].run(raw).state, 'failed', 'if the unstripped library is clean too, this stripping is untested')
+  assert.ok(stripped >= 20, `only ${stripped} blueprints have a worked example to strip`)
+  assert.ok(bytesRemoved > 20_000, `only ${bytesRemoved} bytes removed — stripping is doing almost nothing`)
+
+  // And the marker itself is gone from what ships, which is C2's whole promise.
+  for (const [path, text] of Object.entries(shipped())) {
+    assert.doesNotMatch(text, /^# WORKED EXAMPLE/m, `${path} still carries its worked example`)
+  }
 })

@@ -48,12 +48,19 @@ Status:              Not run / Pass / Fail / Needs review
 is specified and what it covers — the scenario, the expected result and the preconditions live
 in the file that owns the test.
 
-| Test ID | Req | Level | Specified in | Risk covered | Status |
+| Test ID | Requirement ID | Level | Specified in | Risk covered | Status |
 |---|---|---|---|---|---|
 | | REQ-F-001 | Integration | `../02-functional/integration-tests.md` | | Planned |
 | | | Unit | `../02-functional/unit-tests.md` | | |
 | | | Security | `../03-non-functional/security-tests.md` | | |
 
+> **Two ID columns, on purpose.** `Test ID` and `Requirement ID` name the two things this row
+> MAPS BETWEEN, and that is what makes it a mapping table rather than a definition of either.
+> The validation reads a table with two `ID` headers as citations — so keep both words, and do
+> not shorten `Requirement ID` to `Req`. It was `Req` once, and every row in this matrix was
+> then reported as a second definition of the test it indexes: seventeen duplicates from one
+> file, on every workspace this kit produced.
+>
 > **The Test ID column CITES; it does not mint.** A test is defined once, in the file for its
 > level — `unit-tests.md`, `integration-tests.md`, `acceptance-tests.md`, `security-tests.md`,
 > `failure-tests.md`. Write that id here once it exists. Until it does, leave the sanctioned
