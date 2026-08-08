@@ -161,6 +161,24 @@ function tableRows(text) {
 }
 
 /** The identifier a row's first cell IS, or null. `**Q-001**` counts; `see Q-001` does not. */
+/**
+ * The first five findings, and an HONEST COUNT OF WHAT WAS NOT SHOWN (BUG-046).
+ *
+ * Every check truncated at five and said nothing about the rest, so a report of five duplicates
+ * and a report of twenty-three duplicates were the same five lines. I read one as the other:
+ * a fix pushed an identifier past the cutoff, I saw it gone from the visible list, and recorded
+ * the defect as verified. It was not fixed — it was hidden by the truncation.
+ *
+ * That is this repository's own failure mode wearing a new hat: a report that looks complete
+ * and is not. Five is still the right number to print — nobody reads twenty-three — but the
+ * count has to be there, because the difference between "these five" and "these five of
+ * twenty-three" is the difference between a finished job and an unfinished one.
+ */
+const capped = (items, render) =>
+  items.length <= 5
+    ? items.map(render)
+    : [...items.slice(0, 5).map(render), `… and ${items.length - 5} more not shown (${items.length} in total)`]
+
 const firstCellId = (row) => row.cells[0]?.replace(/\*/g, '').match(/^(\w[\w-]*-\d{3})$/)?.[1] ?? null
 
 /** Which column is this, by header. -1 when the table has no such column. */
@@ -206,7 +224,7 @@ export const CHECKS = {
       const dangling = [...new Set(text.match(ID) ?? [])].filter((id) => !defined.has(id))
       return dangling.length === 0
         ? passed([`${defined.size} identifiers defined`])
-        : failed(dangling.slice(0, 5).map((id) => `${id} is referenced but never defined`))
+        : failed(capped(dangling, (id) => `${id} is referenced but never defined`))
     },
   },
   2: {
@@ -269,7 +287,7 @@ export const CHECKS = {
       const dupes = [...seen].filter(([, at]) => at.length > 1)
       return dupes.length === 0
         ? passed([`${seen.size} identifiers defined once; ${citations} row(s) read as citations, not definitions`])
-        : failed(dupes.slice(0, 5).map(([id, at]) => `${id} is defined in ${at.join(' and ')}`))
+        : failed(capped(dupes, ([id, at]) => `${id} is defined in ${at.join(' and ')}`))
     },
   },
   3: {
@@ -286,12 +304,12 @@ export const CHECKS = {
       // back-link is the only thing tying it to one.
       const files = md(ws).filter(([p]) => p !== 'spec/CLAUDE.md')
       const missing = files.filter(([, text]) => !blueprintOf(text))
-      if (missing.length) return failed(missing.slice(0, 5).map(([p]) => `${p} has no blueprint back-link`))
+      if (missing.length) return failed(capped(missing, ([p]) => `${p} has no blueprint back-link`))
       if (!library) return notRun('the blueprint library was not supplied, so targets could not be resolved')
       const broken = files.filter(([, text]) => !library.includes(blueprintOf(text)))
       return broken.length === 0
         ? passed([`${files.length} back-links resolve`])
-        : failed(broken.slice(0, 5).map(([p, t]) => `${p} points at ${blueprintOf(t)}, which is not in the library`))
+        : failed(capped(broken, ([p, t]) => `${p} points at ${blueprintOf(t)}, which is not in the library`))
     },
   },
   4: {
@@ -302,7 +320,7 @@ export const CHECKS = {
       const hits = md(ws).filter(([, t]) => /^# WORKED EXAMPLE/m.test(t) || /ProjectBoard|TeamTask Lite|SaaS task app/.test(t))
       return hits.length === 0
         ? passed()
-        : failed(hits.slice(0, 5).map(([p]) => `${p} still contains worked-example content`))
+        : failed(capped(hits, ([p]) => `${p} still contains worked-example content`))
     },
   },
   5: {
@@ -351,7 +369,7 @@ export const CHECKS = {
         .filter(([, u]) => u.length > 0)
       return hits.length === 0
         ? passed()
-        : failed(hits.slice(0, 5).map(([p, u]) => `${p} line ${u[0].line}: ${u[0].text.slice(0, 40)}`))
+        : failed(capped(hits, ([p, u]) => `${p} line ${u[0].line}: ${u[0].text.slice(0, 40)}`))
     },
   },
   6: {
@@ -447,7 +465,7 @@ export const CHECKS = {
       const open = [...rows.values()].filter((r) => !r.answered).length
       return bad.length === 0
         ? passed([`${open} open questions; every [TODO] resolves to one, and none is stale`])
-        : failed(bad.slice(0, 5).map(([p, q, why]) => `${p}: [TODO: ${q.slice(0, 40)}] ${why}`))
+        : failed(capped(bad, ([p, q, why]) => `${p}: [TODO: ${q.slice(0, 40)}] ${why}`))
     },
   },
   7: {
@@ -557,7 +575,7 @@ export const CHECKS = {
       ]
       return problems.length === 0
         ? passed([`${rules.size} rule(s) and ${roles.length} role(s); ${denials.length} denial(s), each with a test that cites it`])
-        : failed(problems.slice(0, 5))
+        : failed(capped(problems, (x) => x))
     },
   },
   9: {
@@ -659,7 +677,7 @@ export const CHECKS = {
         /^\s*(function\s+\w+\s*\(|class\s+\w+[\s({:]|def\s+\w+\s*\(|import\s+[\w{*].*\sfrom\s|const\s+\w+\s*=\s*\()/m.test(t.replace(/```[\s\S]*?```/g, '')))
       return code.length === 0
         ? passed()
-        : failed(code.slice(0, 5).map(([p]) => `${p} appears to contain application source code (BR-001)`))
+        : failed(capped(code, ([p]) => `${p} appears to contain application source code (BR-001)`))
     },
   },
   12: {

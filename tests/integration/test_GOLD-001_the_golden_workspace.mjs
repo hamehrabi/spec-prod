@@ -631,8 +631,17 @@ test('GOLD-001: two scorers could not run, and that is not the same as passing',
 })
 
 test('GOLD-001: the same identifier is defined in two places — BUG-036', () => {
-  // Check 2's whole complaint, pinned. Five duplicates, and they are NOT all the same problem —
-  // sorting that out is what makes this worth a test rather than a bug number:
+  // THIS COMMENT USED TO SAY "check 2's WHOLE complaint, pinned. Five duplicates." It was
+  // false when it was written, and the way it was false is the point of BUG-046: check 2
+  // truncated at five and said nothing about the rest, so I read five lines as the complete
+  // list and pinned them as if they were. There are TEN.
+  //
+  // The report now names its own remainder, so the count below is checked rather than assumed.
+  // A test that pins a truncated report and calls it whole is the same defect as a check that
+  // reports five of twenty-three and calls it done — and I wrote one of each in a day.
+  //
+  // The five that ARE shown are not all the same problem, and sorting that out is what makes
+  // this worth a test rather than a bug number:
   //
   //   Q-009, Q-013   technical-spec.md INVENTED a question table. Its blueprint has none, so the
   //                  run wrote a second home for rows open-questions.md owns — and the day one is
@@ -648,7 +657,13 @@ test('GOLD-001: the same identifier is defined in two places — BUG-036', () =>
   // different direction. A single bug number covering all five would get half-fixed.
   const check2 = validate(workspace, library).results.find((c) => c.n === 2)
   assert.equal(check2.state, 'failed')
-  assert.deepEqual(check2.detail.map((d) => d.split(' ')[0]).sort(), ['Q-009', 'Q-013', 'REQ-F-002', 'REQ-F-005', 'SEC-A-001'])
+
+  // THE REMAINDER, ASSERTED. Five shown, ten found — and the last line has to say so, or this
+  // test is pinning a lie again.
+  assert.equal(check2.detail.length, 6, 'five findings plus the count of what was hidden')
+  assert.match(check2.detail.at(-1), /^… and 5 more not shown \(10 in total\)$/)
+  const shown = check2.detail.filter((d) => !d.startsWith('…')).map((d) => d.split(' ')[0])
+  assert.deepEqual(shown.sort(), ['Q-009', 'Q-013', 'REQ-F-002', 'REQ-F-005', 'SEC-A-001'])
 
   // The three real ones all have technical-spec.md as their second home, which is the pattern:
   // a file that summarises other files ends up redefining them.
