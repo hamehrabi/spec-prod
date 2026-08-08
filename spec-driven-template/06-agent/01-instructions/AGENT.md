@@ -138,7 +138,6 @@ Every completion must include:
 
 | Date | Mistake | Rule added |
 |---|---|---|
-| | | |
 
 ---
 

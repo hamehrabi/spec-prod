@@ -20,7 +20,7 @@ failure, not a bonus.
 
 ## Library digest
 
-**Library digest:** `8e1ee8317ae9fe99382bf18aaf1fae4bdb0bdde014333ef17fad988114f20104`
+**Library digest:** `44629700dc01eed85b076e641880bb49e9433d3c920094bd3fcd80b0bbbce6ad`
 
 One value for the whole library: SHA-256 over the 81 digests below —
 lowercased, sorted, one per line, each ending in a newline. **Compare this first.** It matches
@@ -83,15 +83,15 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `05-review/01-logs/feedback-register.md` | `ccca20eadf50446507128d55542a3e0a81e8bc100d6c72cc8cb49aac827210ed` |
 | `05-review/01-logs/review-log.md` | `5afd93cb912f8ed351fa3a9c3460f13173648bfe7fbd8ddebc00fad27cbc9c9d` |
 | `05-review/02-checklists/code-review-checklist.md` | `2146afb47c05460251f674036830335e10f808e18aabc92bfbac65e8ed2c0055` |
-| `05-review/02-checklists/risk-storming.md` | `5aa093bab26fade6c5b7d456d7179ca4ce8d9f874c75a52d6274157223c54fb3` |
+| `05-review/02-checklists/risk-storming.md` | `782df39d567c5b85267233b5bdd6630e695e7f9e19d0986326b1fafb52098025` |
 | `05-review/02-checklists/security-review.md` | `5e26890d13e79afa669cbb85d85bd94ee825fc5cd4880c6355f05568226cf6fc` |
-| `05-review/02-checklists/traceability-review.md` | `25d2d796af3e2f944bab81690267f53053edc619993c1102361a0474db24bfb1` |
+| `05-review/02-checklists/traceability-review.md` | `d48fd202998c4ff791f536922f87bafcf62711cbfeb719021957924e43f59dae` |
 | `05-review/03-version-control/issue-template.md` | `39d679b7f6ed59a06755d61c8ebb01dfe04daaf13195ad8dee660627c504c6d3` |
 | `05-review/03-version-control/pull-request-template.md` | `943f151b52fe57c7bf19df9dd86de76ca9a4faf45c9020aa8dec403f511b1be1` |
 | `05-review/03-version-control/version-control-checklist.md` | `55094dac84d4f9c168bb7d02b84fff354d9b163048d8493deaa455fccf41cfcb` |
 | `05-review/04-debugging/debugging-checklist.md` | `c781485b64b688bb0fded946baec0df12e6ac45ff54f98b620beadb0831af551` |
 | `05-review/04-debugging/debugging-specification.md` | `e86a6d8b77499722ebd5d9be202b79b1dddf8d6bd57f1a86b660750e18607e18` |
-| `06-agent/01-instructions/AGENT.md` | `20d52290bbb13eac3d2739fa74ae9caa9d3ea30e96077cc567a659e7240c7148` |
+| `06-agent/01-instructions/AGENT.md` | `a2893f5408d40aadf2dedac5d669e7fc2bc9d348c64da3fcd67253de03ae05f3` |
 | `06-agent/01-instructions/agent-rules-and-coding-standards.md` | `2014d6ebca42944f0712006f53e361c15c90066aba6211acbd8d7a77cfc05671` |
 | `06-agent/02-context/context-pack.md` | `cd0c7aff1951a37b4b4af4816cd1292fe16c51b3d0b3402ae0301553f2b2f273` |
 | `06-agent/03-prompts/prompt-library.md` | `513bd22c1329f29a11143312bd86f94bbd38de19c267e7b6a867710700bab9ab` |
