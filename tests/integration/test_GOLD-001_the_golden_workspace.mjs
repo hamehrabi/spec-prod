@@ -77,34 +77,42 @@
 // READ THIS BEFORE BELIEVING THE PINS BELOW.
 //
 // BUG-034 and BUG-036 to BUG-041 have all been FIXED IN THE PAYLOAD — the blueprints and
-// instructions no longer contain the defects described above. **FIVE of those fixes have now
-// been observed working in a produced workspace**, and the assertions in this file are
-// unchanged because THIS FIXTURE PREDATES THEM ALL. Every pin below still describes the
-// committed workspace correctly; none of them describes the current library.
+// instructions no longer contain the defects described above. **ALL EIGHT ARE NOW VERIFIED
+// WORKING in a produced workspace**, and the assertions in this file are unchanged because
+// THIS FIXTURE PREDATES THEM ALL. Every pin below still describes the committed workspace
+// correctly; none of them describes the current library.
 //
-// VERIFIED by a seven-round run on 2026-08-08 (40 files, 32 minutes):
+// VERIFIED by a complete eight-round run on 2026-08-08 — 81 files, 67 minutes, 1 852 turns:
 //
-//   BUG-038  three constraints in the schema, each naming the rule it enforces — including
-//            `unique (account_id, week_start_date) -- one plan per account per week`, which no
-//            instruction named. The core subdomain's invariant reaching the store.
-//   BUG-037  four register rows, ZERO claiming `CI`, honesty marker present.
-//   BUG-039  six refusals, ZERO without a reason. The old fixture had two bare ones, and the
-//            count rising while the failures stay at zero is what makes this a fix rather
-//            than a small sample passing.
 //   BUG-034a zero `TASK-###` stub cells; the story table writes `—`.
-//   BUG-036  `SEC-A-001` defined in exactly one file.
-//
-// PARTIAL — BUG-040. The contradiction is gone: `FTEST-002` used to mean "Invalid format" in
-// one file and "Value too long" in the other, and the run now cites the SAME test from both.
-// But both files still stated the expected result in their own words, so they could drift.
-// The blueprint has been tightened since (the discovery table no longer has an "Expected
-// result" column at all, in the template, the worked example and the prompt) and THAT change
-// is not yet verified.
-//
-// NOT REACHED — BUG-034b and BUG-034c. `security-review.md` and `AGENT.md` are Round 8 files
-// and the run stopped at Round 7.
+//   BUG-034b `security-review.md` declares itself a per-review copy, so its blank Reviewer and
+//            Date are a form awaiting use rather than an unfilled gap — and it went further
+//            than asked, writing `SEC-A-001/002, SEC-Z-001` where the stub had been. The
+//            knowable parts got filled; the unknowable ones stayed blank.
+//   BUG-034c the standing guidance is a blockquote note, not a bare italic, so the fill no
+//            longer reads it as an instruction to consume.
+//   BUG-036  `SEC-A-001` is not among check 2's duplicates.
+//   BUG-037  three register rows, ZERO claiming `CI`, honesty marker present.
+//   BUG-039  EIGHT refusals, ZERO without a reason. The old fixture had two bare ones, and the
+//            count rising while failures stay at zero is what makes this a fix rather than a
+//            small sample passing.
+//   BUG-040  `FTEST-002` defined once. The earlier seven-round run had this PARTIAL — the
+//            contradiction gone but both files still stating the expected result — because the
+//            blueprint said "cite, do not restate" while the table it governed still had an
+//            **Expected result** column, as did the worked example and the prompt. With all
+//            three made consistent, the run now routes each case to the test that owns it,
+//            across `FTEST`, `UTEST`, `ITEST` and `STEST`.
+//   BUG-038  `unique (account_id, week_start_date) -- one plan per account per week`, naming
+//            the rule it enforces. The core subdomain's invariant reaching the store.
 //
 // BUG-041 needs no run: it is a runner defect with unit coverage in UTEST-091.
+//
+// THE FIXTURE BELOW IS STILL THE OLD ONE. It has not been replaced, so a green run of this
+// file means "the pre-fix workspace still has its pre-fix defects" — true, and not the same
+// claim as "the fixes work". That second claim rests on the run above, recorded in
+// ai-evals.md §5. Whoever swaps this fixture must expect every pin naming a BUG number to
+// FAIL, and that failure is the evidence; a pin rewritten to stay green is a fix that did
+// not take.
 //
 // BUG-038 IS VERIFIED (2026-08-08). A three-round run against the fixed blueprints produced a
 // `database-design.md` whose schema carries
