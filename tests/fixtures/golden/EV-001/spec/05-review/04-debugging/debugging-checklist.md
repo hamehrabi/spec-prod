@@ -58,11 +58,11 @@ Read the failure bottom to top, then connect it back to the requirement:
 4. Where did actual behavior **first** differ from expected behavior?
 
 ```
-Requirement ID: REQ-F-005
-Expected:  A plan with meals produces a list with every planned ingredient.
-Actual:    List generation returns 500 Internal Server Error.
-Log:       TypeError: cannot read property "ingredients" of null
-Likely area: a planned meal references a recipe that could not be loaded.
+Requirement ID: AUTH-REQ-03
+Expected:  A user with a valid email and password receives a session token.
+Actual:    Login returns 500 Internal Server Error.
+Log:       TypeError: cannot read property "id" of null
+Likely area: user lookup, password check, or token creation.
 ```
 
 ---
@@ -75,10 +75,10 @@ agent instruction. Patching only the code lets the mistake return.
 
 | Assumption | Risk | Spec update | Test update |
 |---|---|---|---|
-| A recipe always has ingredients | Null error / empty list | Define the empty-recipe rule (BR-002) | Test a recipe with no lines |
-| A planned meal's recipe still exists | Crash on generation | Define missing-recipe behavior | Test a deleted recipe in a plan |
-| Every account owns its data | Cross-account access | Define scoping (BR-003) | Test another account's request |
-| A duplicate ingredient is fine as-is | Confusing list | Define the combine rule (Q-009) | Test the same ingredient in two meals |
+| User always exists | Null error | Define missing-user behavior | Test invalid email |
+| Token is always valid | Unauthorized access | Define token expiry rule | Test expired token |
+| API field is always present | Crash or bad data | Define required fields | Test missing field |
+| Password is always supplied | Weak validation | Define empty input rule | Test empty password |
 
 ---
 
@@ -95,7 +95,5 @@ After a bug is fixed, confirm that:
 > Every serious bug must create at least one new test, one note in the debugging
 > specification, and one correction to the requirement, technical spec, or agent
 > instruction file.
-
----
 
 > Blueprint: blueprints/05-review/04-debugging/debugging-checklist.md

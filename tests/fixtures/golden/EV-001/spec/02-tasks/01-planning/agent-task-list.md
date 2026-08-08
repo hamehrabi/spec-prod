@@ -6,21 +6,18 @@
 >
 > **The best task list is boring, specific, and controlled.**
 
-> Sequencing: **thin vertical slices** — one feature end to end before the next. Built by an
-> **AI coding agent, one task at a time**. IDs match `task-index.md`.
-
 ---
 
 ## Task table
 
 | Task ID | Agent task | Input artifacts | Acceptance check | Depends on | Out of scope |
 |---|---|---|---|---|---|
-| TASK-001 | Create project structure and configuration loading. | technical-spec, .env.example | Project runs locally with an empty health check. | — | Any business feature. |
-| TASK-003 | Implement the Recipe + IngredientLine model with validation (title + ≥1 line). | REQ-F-002, BR-002, database-design §1/§3 | A recipe with a title and ≥1 ingredient line can be stored; invalid is rejected. | TASK-001 | Account/auth; UI; search. |
-| TASK-004 | Implement `POST /api/v1/recipes` and `GET /api/v1/recipes`, scoped to the account. | REQ-F-002, api-specification | Valid recipe saved and returned; another account's recipe is 404. | TASK-003 | UI; search ranking. |
-| TASK-006 | Implement recipe search (`GET /api/v1/recipes?q=`). | REQ-F-003, api-specification | A saved recipe is found by title/ingredient. | TASK-004 | Fuzzy/semantic search. |
-| TASK-007 | Implement weekly-plan create and add-planned-meal. | REQ-F-004, database-design | A plan can be created and a recipe added as a planned meal. | TASK-003 | List generation. |
-| TASK-008 | Implement shopping-list generation from a plan. | REQ-F-005, BR-001, Q-009 | List includes every planned ingredient (per the Q-009 combine rule). | TASK-007 | Anything not in REQ-F-005. |
+| TASK-001 | Create the modular-monolith skeleton and account sign-in. | technical-spec §2/§7, security-spec §1, ADR-001/ADR-002 | App runs; sign-in works; a signed-out data request returns 401. | — | Any recipe, planning, or list feature. |
+| TASK-002 | Add recipe save with ingredient lines, scoped to the account. | requirements REQ-F-001, database-design, security-spec §3 | Recipe saves and lists; missing title rejected; never visible to another account. | TASK-001 | Search, planning, photos. |
+| TASK-003 | Add search over the cook's own recipes. | requirements REQ-F-002, api-specification | Search returns own matches; empty result on no match. | TASK-002 | Ranking, external search service. |
+| TASK-004 | Add weekly planning with the reference and delete-guard rules. | requirements REQ-F-003, database-design (WeeklyPlan, PlannedMeal) | Plan saves; non-owned recipe rejected; delete blocked while referenced. | TASK-002 | List generation. |
+| TASK-005 | Implement the ShoppingList service and generate-list endpoint. | requirements REQ-F-004, database-design, security-spec §7 | One list of all planned meals; empty week → empty list; other account denied. | TASK-004 | Ticking items; pricing; quantities. |
+| TASK-006 | Add check / uncheck for shopping-list items. | requirements REQ-F-006, database-design | Items check and uncheck and persist; own list only. | TASK-005 | Anything beyond checking off. |
 
 ---
 
@@ -63,10 +60,10 @@ They sound helpful but leave too much room for interpretation.
 
 | Weak task | Better task |
 |---|---|
-| Build login. | Create a `POST /auth/login` endpoint that accepts email and password, validates input, checks the password hash, and returns a session token on success. |
-| Add errors. | Return a safe invalid-credentials error without revealing whether the email exists. |
-| Make sessions work. | Create session expiration logic and reject expired tokens. |
-| Build the shopping list. | TASK-008: Generate one shopping list from a weekly plan, covering every planned ingredient per the Q-009 combine rule, scoped to the account, with tests. |
+| Build recipes. | Create the Recipe and IngredientLine entities scoped by `account_id`, validate the title, and add create/read endpoints (TASK-002). |
+| Add errors. | Return a retry-safe error on a save failure without reporting success, preserving the cook's input (REQ-NF-003). |
+| Make the list. | Implement a ShoppingList service that gathers every planned meal's ingredient lines from one week into one list (TASK-005). |
+| Build planning. | Add WeeklyPlan and PlannedMeal, enforce the owned-recipe reference rule (BR-003), and block deletion of a referenced recipe (BR-004). |
 
 ---
 

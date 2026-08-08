@@ -4,30 +4,33 @@
 > A periodic audit of [`../docs/traceability.md`](../../01-docs/08-traceability/traceability.md).
 > Run it before a release, after a batch of agent work, and before any major change.
 
-**Review date:** 2026-08-07
-**Reviewer:** Developer
-**Scope reviewed:** Pantry v1.0 specification (pre-implementation)
+**Review date:**
+**Reviewer:**
+**Scope reviewed:** *(release / feature / sprint)*
 
 ---
 
 ## 1. Forward trace — every requirement leads somewhere
 
+Mark ✔ / ✘ per cell during the audit against the RTM. Rows below list the Pantry **Must**
+requirements to trace.
+
 | Req ID | Has design decision? | Has task? | Has test? | Has code link? | Reviewed? | Gap |
 |---|---|---|---|---|---|---|
-| REQ-F-001 | ✔ | ✔ | ✔ | ✘ | ✘ | Blocked on Q-006 (auth) |
-| REQ-F-002 | ✔ | ✔ | ✔ | ✘ | ✘ | Not built yet |
-| REQ-F-003 | ✔ | ✔ | ✔ | ✘ | ✘ | Not built yet |
-| REQ-F-004 | ✔ | ✔ | ✔ | ✘ | ✘ | Not built yet |
-| REQ-F-005 | ✔ | ✔ | ✔ | ✘ | ✘ | Blocked on Q-009 (combine rule) |
-| REQ-NF-002 | ✔ | ✔ | ✔ | ✘ | ✘ | Not built yet |
-| REQ-NF-003 | ✔ | ✔ | ✔ | ✘ | ✘ | Not built yet |
+| REQ-F-001 (save recipe) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
+| REQ-F-002 (search) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
+| REQ-F-003 (plan a week) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
+| REQ-F-004 (generate one list — core) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
+| REQ-F-005 (sign in / private account) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
+| REQ-F-006 (tick off items) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
+| REQ-R-001 (single owner role) | ☐ | ☐ | ☐ | ☐ | ☐ | — |
 
 ## 2. Backward trace — every change came from somewhere
 
 | Changed file / module | Task ID | Requirement | Approved? | Action |
 |---|---|---|---|---|
 
-No code exists yet — the backward trace runs once the build starts.
+No entries yet — the first changed file traced back adds the first row.
 
 > **Code with no requirement is suspicious until approved** (Ch. 10 §10.8).
 
@@ -35,14 +38,16 @@ No code exists yet — the backward trace runs once the build starts.
 
 ## 3. Gap findings
 
+Fill counts, items, owner, and due during the audit.
+
 | Gap type | Count | Items | Action assigned to | Due |
 |---|---|---|---|---|
-| Requirement without design decision | 0 | — | — | — |
-| Design without task | 0 | — | — | — |
-| Task without test | 0 | — | — | — |
-| Test without code link | 7 | all requirements (pre-implementation) | Developer | During build |
-| **Code without requirement** | 0 | — | — | — |
-| Released behavior not in spec | 0 | — | — | — |
+| Requirement without design decision | not yet run | — | — | — |
+| Design without task | not yet run | — | — | — |
+| Task without test | not yet run | — | — | — |
+| Test without code link | not yet run | — | — | — |
+| **Code without requirement** | not yet run | — | — | — |
+| Released behavior not in spec | not yet run | — | — | — |
 
 ---
 
@@ -50,7 +55,7 @@ No code exists yet — the backward trace runs once the build starts.
 
 - [ ] Every **Must** requirement has at least one task.
 - [ ] Every **Must** requirement has at least one test.
-- [ ] Every security rule maps to validation or authorization code.
+- [ ] Every security rule maps to validation or authorization code (SEC-A-001…004, SEC-Z-001…002).
 - [ ] Every released feature maps back to a PRD requirement.
 - [ ] Every changed behavior is reflected in updated specs.
 - [ ] Every blank matrix cell has been reviewed and explained.
@@ -61,20 +66,15 @@ No code exists yet — the backward trace runs once the build starts.
 ## 5. Outcome
 
 - [ ] **Chain complete** — safe to proceed.
-- [x] **Gaps logged** — non-blocking (pre-implementation): every requirement has a task and a
-  test; code links and reviews follow during the build. TASK-002 and TASK-008 are blocked on
-  Q-006 and Q-009.
+- [ ] **Gaps logged** — tasks created, non-blocking.
 - [ ] **Blocked** — release cannot proceed until listed gaps close.
 
-**Follow-up tasks created:** none — the chain is planned; code and review evidence accrue as
-tasks are implemented.
+**Follow-up tasks created:**
 
 ---
 
 > **Traceability rule (Ch. 30 §30.6):** every accepted code change should point back to a
 > requirement and a test. Every requirement should point forward to at least one task and
 > one reviewable proof.
-
----
 
 > Blueprint: blueprints/05-review/02-checklists/traceability-review.md

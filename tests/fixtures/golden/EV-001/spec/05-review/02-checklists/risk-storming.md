@@ -20,24 +20,24 @@
 
 ## The grid
 
-Rows are your **driving characteristics**. Columns are meaningful areas of the system.
-Score in a live session; the register below holds the current consensus.
+Rows are your **driving characteristics** (the Pantry drivers behind FF-001…003). Columns
+are meaningful areas of the system. Score cells are filled **during** a session; they are
+left blank here on purpose.
 
-| | Recipes | Planning | List generation | Total |
-|---|---|---|---|---|
-| *Simplicity / feasibility* | — | — | — | — |
-| *Reliability / graceful failure* | — | — | — | — |
-| *Accessibility* | — | — | — | — |
+| | Recipes | Planning | ShoppingList (core) | Account/Auth | Total |
+|---|---|---|---|---|---|
+| *Simplicity / feasibility (FF-001)* | — | — | — | — | — |
+| *Reliability / graceful failure (FF-002)* | — | — | — | — | — |
+| *Accessibility (FF-003)* | — | — | — | — | — |
+
+No session run yet — the first risk-storming session fills the score cells.
 
 ## The register
 
 | ID | Risk | Impact | Likelihood | Score | Trend | Mitigation | Owner | Status |
 |---|---|---|---|---|---|---|---|---|
-| RISK-001 | Loss of the recipe library (years of handwritten cards) | 3 | 2 | 6 | → | Nightly backup + a durable/off-site copy of recipe data; tested restore (backup-and-recovery.md) | Developer | Open until a restore is tested |
-| RISK-002 | The shopping list misses or mis-combines ingredients (the core) | 3 | 2 | 6 | → | Decide the combine rule (Q-009); ATEST-001, UTEST-003, FTEST-001 | Developer | Open — blocked on Q-009 |
-| RISK-003 | Cross-account data leak | 3 | 1 | 3 | → | Every query scoped by `account_id` (FF-005); STEST-001 | Developer | Mitigated by design |
-| RISK-004 | Single developer, no redundancy (bus factor) | 3 | 2 | 6 | → | The specification itself is the mitigation. Accepted knowingly. | Developer | Accepted |
-| RISK-005 | Auth built before the model is decided (Q-006) | 2 | 2 | 4 | → | Decide Q-006 before TASK-002; keep the implementation thin | Developer | Open |
+
+No entries yet — the first risk-storming session adds the first row.
 
 > Track the **trend**, not just the snapshot. A medium risk getting worse deserves more
 > attention than a high one already being mitigated.
@@ -48,9 +48,5 @@ Score in a live session; the register below holds the current consensus.
 - Repeat across the lifecycle — a risk assessment is not a one-time gate.
 - A risk with no owner is not managed.
 - Unknown technology scores **9** until you have evidence.
-
----
-
-> Blueprint source: this file is new to the template — added from the architecture review.
 
 > Blueprint: blueprints/05-review/02-checklists/risk-storming.md

@@ -9,20 +9,21 @@
 A constraint is a fixed condition that limits the solution. State real-world limits before
 implementation, because AI agents invent ideal solutions.
 
-> **Not asked at express depth.** Hard constraints change the architecture, and inference
-> forbids guessing one, so every row below is an open `[TODO]` rather than a default that
-> would "probably" apply. See Q-004 (and Q-002 for the build horizon).
+> **Deferred at express depth.** The hard-constraints question was not asked (`Q-005`), and a
+> constraint changes the architecture, so it must not be inferred. Every row below is marked
+> open rather than filled with a plausible default — a guessed constraint reads exactly like a
+> stated one, and nobody downstream can tell them apart.
 
 | ID | Type | Constraint |
 |---|---|---|
-| CON-001 | Technology | [TODO: any mandated or forbidden technology? — Q-004] |
-| CON-002 | Time | [TODO: build horizon for version one — Q-002] |
-| CON-003 | Data | [TODO: is any data forbidden from being stored? — Q-004] |
-| CON-004 | Environment | [TODO: any environment ceiling — server size, region? — Q-004] |
-| CON-005 | Integration | [TODO: any required integration or export format? — Q-004] |
-| CON-006 | Budget | [TODO: any budget limit, e.g. no paid services? — Q-004] |
-| CON-007 | Compliance / privacy | [TODO: any compliance or privacy constraint? — Q-004] |
-| CON-008 | Team skill | [TODO: any team-skill constraint? — Q-004] |
+| CON-001 | Technology | [TODO: hard constraints not asked at express depth — see `Q-005`] |
+| CON-002 | Time | [TODO: hard constraints not asked at express depth — see `Q-005`] |
+| CON-003 | Data | [TODO: hard constraints not asked at express depth — see `Q-005`] |
+| CON-004 | Environment | [TODO: hard constraints not asked at express depth — see `Q-005`] |
+| CON-005 | Integration | [TODO: hard constraints not asked at express depth — see `Q-005`] |
+| CON-006 | Budget | [TODO: hard constraints not asked at express depth — see `Q-005`] |
+| CON-007 | Compliance / privacy | [TODO: hard constraints not asked at express depth — see `Q-005`] |
+| CON-008 | Team skill | [TODO: hard constraints not asked at express depth — see `Q-005`] |
 
 **Examples (Ch. 5 §5.6)**
 
@@ -46,7 +47,7 @@ information**.
 
 | Item | Reason it is excluded now | Future status |
 |---|---|---|
-| [TODO: which capabilities are explicitly out of scope for version one? — Q-003] | Out-of-scope was not asked at express depth. | Waiting for information |
+| [TODO: what is explicitly out of scope for version one? — deferred at express depth (`Q-004`)] | Not asked at express depth. | Waiting for information |
 
 **Example (Ch. 6 §6.5)**
 

@@ -13,11 +13,9 @@
 
 | Business concern (their words) | Candidate characteristics |
 |---|---|
-| Time to market | Agility, testability, deployability |
-| User satisfaction | Performance, availability, fault tolerance |
-| Competitive advantage | Agility, scalability, availability |
-| Mergers / acquisitions | Interoperability, extensibility, adaptability |
-| Tight time / budget | **Simplicity, feasibility** |
+| One person builds a small first version | **Simplicity, feasibility** |
+| Recipes must not be lost, and a failure must not lose the cook's input | Reliability, fault tolerance |
+| Usable by anyone, including with a keyboard or screen reader | Accessibility |
 
 A concern is an **architecture characteristic** only if all three hold:
 it is **non-domain**, it **influences structure**, and it is **critical to success**.
@@ -30,21 +28,21 @@ Keep roughly seven. Preserve the rejected ones — that list is why the decision
 
 | Candidate | Kept? | Reason |
 |---|---|---|
-| Simplicity / feasibility | ✅ | Version one must be finishable; keeps scope and structure small. |
-| Reliability / graceful failure | ✅ | Losing the recipe library would end the project; failures must be safe and recoverable. |
-| Accessibility | ✅ | A consumer web app for all home cooks must be usable by keyboard and screen reader. |
-| Security / access control | ❌ | Already a hard constraint (single-user privacy) with deny tests; a driver slot buys nothing more. |
-| Performance | ❌ | Single user, small data. Speed of the core task matters but is not a structural driver — revisit if scale grows (Q-001). |
-| Scalability | ❌ | One cook, one dataset. Revisit if it becomes multi-user (Q-005). |
-| Auditability | ❌ | No compliance or multi-actor history need in a single-user tool. |
+| Simplicity / feasibility | ✅ | One person, a small first version — feasibility is a real limit. |
+| Reliability / graceful failure | ✅ | The recipe library is years of handwritten cards; a failure that loses data or input ends the project. |
+| Accessibility | ✅ | A consumer product used by anyone; keyboard and screen-reader support are part of "usable without training." |
+| Security / access control | ❌ | Already a hard constraint (single account, private data) enforced by controls and deny tests — a driver slot buys nothing extra. |
+| Performance | ❌ | "Speed of the core task" is the interface priority, but the data is one user's library; revisit if list generation is slow (`Q-010`). |
+| Scalability | ❌ | One user in version one; revisit if the user count grows (`Q-001`). |
+| Auditability | ❌ | Single user, no compliance need; nothing to reconstruct across actors. |
 
 ## Step 3 — The three drivers (unordered)
 
 | # | Characteristic | Precise definition | Observable measure | Fitness function |
 |---|---|---|---|---|
-| 1 | **Simplicity / feasibility** | One builder can add a feature end to end in a day; modules stay decoupled. | Cyclomatic complexity < 10; 0 import cycles between layers. | → `../04-technical-spec/fitness-functions.md` FF-001, FF-002 |
-| 2 | **Reliability / graceful failure** | A failed action shows a clear error and never loses the recipe library or the weekly plan. | 0 stack traces reach users; every core write path has a failure-path test. | FF-003 |
-| 3 | **Accessibility** | The interface is operable by keyboard and usable with a screen reader. | 0 critical automated accessibility violations on key screens. | FF-004 |
+| 1 | **Simplicity / feasibility** | One person can add or change a feature end to end; the core list-generation logic does not depend on the UI or the store. | No import cycles between the UI, service, and data layers. | → `../04-technical-spec/fitness-functions.md` (FF-001) |
+| 2 | **Reliability / graceful failure** | When an action fails, the cook sees a clear message and loses no input; failures are handled, never crashes. | Every defined failure state has a handler and a failure test; a simulated save failure preserves input. | FF-002 |
+| 3 | **Accessibility** | Core screens are operable by keyboard and labelled for assistive technology. | Zero critical automated accessibility violations on core screens; flows completable by keyboard. | FF-003 |
 
 > If you cannot state a **measure**, the definition is too vague. Rewrite it before
 > moving to the technical spec.
@@ -53,13 +51,15 @@ Keep roughly seven. Preserve the rejected ones — that list is why the decision
 
 | Characteristic | Why it is not a driver here |
 |---|---|
-| Security / access control | A hard constraint with deny tests (FF-005), not a driver — the slot is better spent elsewhere. |
-| Performance | Single user, small data; speed of the core task is a UX priority, not a structural driver. Revisit at scale (Q-001). |
-| Scalability | One cook, one dataset. Revisit if multi-user (Q-005). |
-| Auditability | No multi-actor or compliance history need in a single-user tool. |
+| Security / access control | A hard constraint already, enforced as controls and deny tests (Round 6) — not a driver slot. |
+| Performance | The interface priority is speed of the core task, but the data is small; revisit if the core flow is slow (`Q-010`). |
+| Scalability | One user in version one; revisit at a real multi-user count (`Q-001`). |
+| Auditability | No compliance obligation and one actor; nothing to audit across users. |
 
 ---
 
 > Blueprint source: this file is new to the template — added from the architecture review.
+
+---
 
 > Blueprint: blueprints/01-docs/02-requirements/driving-characteristics.md

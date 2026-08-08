@@ -5,14 +5,19 @@
 > It is dangerous because your next change, your next prompt, and your next AI-assisted
 > task will be based on outdated truth.
 
+> **Code must not move ahead of the spec.** When behavior changes, record it in the
+> spec-change-log at
+> [`../../01-docs/09-change-control/spec-change-log.md`](../../01-docs/09-change-control/spec-change-log.md),
+> and keep the trace intact through the REQ / TEST / TASK identifiers.
+
 ---
 
 ## After every release (Appendix Q)
 
-- [ ] Update requirements to reflect accepted changes.
+- [ ] Update requirements to reflect accepted changes (REQ-F-001..006, REQ-NF-001..007, REQ-R-001, BR-001..004).
 - [ ] Update API, database, and technical specs if contracts changed.
-- [ ] Update the traceability matrix with released test evidence.
-- [ ] Record architecture decisions that changed the design direction.
+- [ ] Update the traceability matrix with released test evidence (ATEST/UTEST/ITEST/STEST/PTEST/ETEST/FTEST).
+- [ ] Record architecture decisions that changed the design direction (ADR-001/002).
 - [ ] Add monitoring observations or known limits to the maintenance notes.
 
 ## Monthly maintenance review (Appendix Q)
@@ -43,10 +48,10 @@
 
 | Drift signal | What it may mean | What you should do |
 |---|---|---|
-| Code behavior does not match acceptance criteria. | The code changed without a spec update, or the requirement was wrong. | Compare production behavior with the requirement and choose the correct source of truth. |
-| Tests pass but users complain. | The tests may not cover the real user expectation. | Update acceptance criteria and add tests for the missing behavior. |
-| AI agent suggests changes outside scope. | The context or task instruction may be too broad. | Narrow the task and restate the boundaries. |
-| A bug fix creates new workflow behavior. | The fix changed product behavior, not just code. | Update the product spec, technical spec, and tests. |
+| Code behavior does not match acceptance criteria. | The code changed without a spec update, or the requirement was wrong. | Compare production behavior with the requirement (REQ/BR ids) and choose the correct source of truth; log in the spec-change-log. |
+| Tests pass but the cook complains. | The tests may not cover the real expectation. | Update acceptance criteria and add a test (ATEST/FTEST/…). |
+| AI agent suggests changes outside scope. | The context or task instruction may be too broad. | Narrow the task (cite the TASK-001..006 boundary) and restate the limits. |
+| A bug fix creates new workflow behavior. | The fix changed product behavior, not just code. | Update the product spec, technical spec, and tests; record in the spec-change-log. |
 
 ---
 
@@ -55,7 +60,19 @@
 | # | Behavior in production | What the spec says | Which is correct? | Action | Owner | Status |
 |---|---|---|---|---|---|---|
 
-No drift audited yet — the build has not started.
+No entries yet — the first drift audit runs after the first release.
+
+---
+
+## Maintenance areas to watch (Ch. 27 §27.10)
+
+| Area | What to watch | Action | Spec update required? |
+|---|---|---|---|
+| Correctness | The plan → one-list result is wrong or incomplete (REQ-F-004). | Investigate the aggregation rules. | Yes, if meaning changes. |
+| Performance | Slow save or slow list. | Review only the slow action. | Yes, if limits or targets change. |
+| Error tracking | `RECIPE_SAVE_FAILED`, `LIST_GENERATION_FAILED`, `AUTH_REQUIRED`, backup failure. | Classify cause and create fix tasks. | Yes, if new error states appear. |
+| User feedback | Confusing UI, missing steps, new requests. | Convert repeated feedback into requirements. | Yes, when accepted into the roadmap. |
+| **Spec drift** | Code behavior no longer matches requirements. | Update specs or refactor code to match approved behavior. | **Always.** |
 
 ---
 

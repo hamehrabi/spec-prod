@@ -9,32 +9,27 @@
 
 ## Configuration table
 
+Every key here must also exist in [`../.env.example`](../../.) as a placeholder. Pantry's
+`.env.example` defines exactly three keys.
+
 | Config key | Purpose | Example value | Required in | Security note |
 |---|---|---|---|---|
-| `APP_ENV` | Identifies the current environment. | `local` / `test` / `production` | all | Not secret. |
-| `APP_PORT` | Port the app listens on. | `3000` | all | Not secret. |
-| `APP_BASE_URL` | Public base URL. | `https://…` | test, production | Not secret. |
-| `DATABASE_URL` | Connects the app to its database (Postgres). | connection string | test, production | **Secret** in production. |
-| `SQLITE_PATH` | Local SQLite file path. | `./pantry.sqlite` | local | Not secret. |
-| `PHOTO_STORAGE_DIR` | Where private dish photos are stored. | `./uploads` or a bucket | all | Not secret (contents are private). |
-| `SESSION_SECRET` | Auth secret — depends on the chosen auth model (Q-006). | long random value | all | **Secret** — never logged. |
-| `LOG_LEVEL` | Controls logging detail. | `info` / `warn` / `error` | all | Avoid `debug` in production. |
+| `APP_ENV` | Identifies the current environment. | `local` / `production` | all | Not secret. |
+| `DATABASE_URL` | Connects the app to its relational store. | `sqlite:///pantry.db` now; `postgres://…` later (ADR-002) | all | **Secret** in production (once it carries credentials). |
+| `APP_SECRET` | Signs the session. | long random value | all | **Secret** — must never be printed in logs. |
 
-Every key here must also exist in [`../.env.example`](../../.) as a placeholder. No external
-service keys appear — Pantry depends on no external services in v1 (Q-007).
+*A test environment between local and production is undecided (Q-015), so "Required in"
+lists the known environments only.*
 
 ---
 
 ## Values by environment
 
-> [TODO: which environments will exist? — Q-017]. Shown for the standard three.
-
 | Key | Local | Test | Production |
 |---|---|---|---|
-| `APP_ENV` | `local` | `test` | `production` |
-| `LOG_LEVEL` | `debug` | `info` | `info` |
-| Store | SQLite file | test store | **managed / chosen at deploy (Q-012)** |
-| `SESSION_SECRET` | dev value | test value | **managed secret** |
+| `APP_ENV` | `local` | [TODO: test env undecided (Q-015)] | `production` |
+| `DATABASE_URL` | local SQLite file | [TODO: test env undecided (Q-015)] | **managed secret** — Postgres URL (ADR-002) |
+| `APP_SECRET` | dev value | [TODO: test env undecided (Q-015)] | **managed secret** — mechanism set with deployment target (Q-017) |
 
 ---
 
@@ -54,8 +49,8 @@ service keys appear — Pantry depends on no external services in v1 (Q-007).
 
 | Secret | Where configured | Rotation owner | Last rotated | Must never appear in |
 |---|---|---|---|---|
-| `SESSION_SECRET` | environment | Developer | — | source, logs, error messages, client responses |
-| `DATABASE_URL` | environment | Developer | — | source, logs, screenshots |
+| `APP_SECRET` | environment (secret mechanism set with deployment target — Q-017; signing scheme depends on Q-009) | the owner/developer | Set at the first production deploy | source, logs, error messages, client responses |
+| `DATABASE_URL` | environment (managed secret once it points at Postgres) | the owner/developer | Set at the first production deploy | source, logs, screenshots |
 
 ---
 
@@ -63,9 +58,9 @@ service keys appear — Pantry depends on no external services in v1 (Q-007).
 
 - [ ] Every key in `.env.example` has a real value set in the target environment.
 - [ ] No secret is present in the repository history.
-- [ ] `LOG_LEVEL` is not `debug` in production.
-- [ ] Timeouts and retry limits are set (not defaulting to "forever").
-- [ ] The store and photo-storage location are set for this environment.
+- [ ] `APP_ENV` is `production` in production.
+- [ ] `APP_SECRET` and `DATABASE_URL` come from the environment, not source.
+- [ ] Private recipe photos (Q-008) are served only to the signed-in owner.
 
 ---
 

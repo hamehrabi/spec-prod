@@ -13,45 +13,59 @@
 
 | Area | Requirement |
 |---|---|
-| Account access | [TODO: how does a user sign in? — auth model — Q-006] |
-| Session lifetime | [TODO: how long does access last, and when does it expire? — Q-006] |
-| Password handling | If passwords are used, plain-text passwords must never be stored or logged — store only a hash. |
+| Account access | A home cook signs in to their own private account before any recipe, plan, list, or photo is read or written. The exact model (built-in sessions vs. an adopted provider) is deferred at express depth (`Q-009`). |
+| Session lifetime | Access lasts for a signed-in session and ends on logout or expiry; the concrete lifetime is set with the auth model (`Q-009`). |
+| Password handling | Plain-text passwords must never be stored or logged; storage holds only a hash. |
 | Account recovery | Reset links must expire and must not reveal whether an account exists. |
-| Logout | Ends the session. |
-| Multi-factor (if any) | Not in version one. |
+| Logout | Ends the session and the account's access. |
+| Multi-factor (if any) | None in version one. |
 
 | ID | Authentication requirement | Acceptance criteria |
 |---|---|---|
-| SEC-A-001 | A user must be signed in before accessing any recipe, plan, list, or photo. | A signed-out request to any protected route returns 401 and the sign-in prompt. |
-| SEC-A-002 | Plain-text passwords are never stored or logged. | Storage holds only `password_hash`; no log line contains a password field. |
+| SEC-A-001 | A home cook must be signed in before any recipe, plan, list, or photo is read or written. | A signed-out request to any data route returns 401 and the sign-in prompt (`REQ-F-005`, `REQ-NF-002`). |
+| SEC-A-002 | Plain-text passwords are never stored or logged; only a hash is stored. | Storage holds only the password hash; no log line contains a password field. |
+| SEC-A-003 | Password reset links expire and never reveal whether an account exists. | An unknown email returns the same message as a known email; an expired link is rejected. |
+| SEC-A-004 | Signing out, or session expiry, ends the session and its access. | After logout, a request to a protected route returns 401; the lifetime is set with `Q-009`. |
+
+> The concrete authentication mechanism is deferred (`Q-009`); these controls hold whichever
+> model is chosen, and the session lifetime in SEC-A-004 is set when it is.
 
 ---
 
 ## 2. Authorization / RBAC (*what are you allowed to do?*)
 
-A user may be authenticated and still not allowed to perform an action. Pantry is
-single-user — one role, the account owner.
+Version one has **one role and no sharing** (`REQ-R-001`), so the matrix is one column.
 
 ### Role permission matrix
 
-| Action | Account owner |
+| Action | Home cook (owner) |
 |---|---|
-| Save / search recipes | Yes |
-| Plan a week | Yes |
-| Generate / view a shopping list | Yes |
-| Upload / view a dish photo | Yes — own only |
-| Access another account's data | No — always denied |
+| Save / edit / delete own recipe | Yes (own data only) |
+| Search own recipes | Yes |
+| Plan a week / edit the plan | Yes (own data only) |
+| Generate a shopping list from a week | Yes (own data only) |
+| Tick off list items | Yes |
+| Upload / view own recipe photo | Yes (own data only) |
+| Reach another account's data | No — there is no other account, and nothing is shared |
 
-> A role table gives the agent a precise boundary. It does not need to guess whether a
-> Member can invite users — the table already says no.
+> A role table gives the agent a precise boundary. It does not need to guess whether one
+> account can read another's recipes — the table already says no.
 
-**Defensive authorization pattern (Ch. 21 §21.3)** — per protected action, in order: deny when
-there is no signed-in user; deny when the resource belongs to another account (return the safe
-404); allow only the account owner. Each rule is one deny test before any code exists.
+**Defensive authorization pattern (Ch. 21 §21.3)** — specify the *order* of the checks, not
+the code that runs them. For every protected action, in this order: deny when there is no
+signed-in account; deny when the resource belongs to another account; allow only when the
+signed-in account owns it. Each rule is one deny test before any code exists.
+
+| Order | Check | Denied when | Test |
+|---|---|---|---|
+| 1 | Signed in | No session | A signed-out request returns 401 (SEC-A-001). |
+| 2 | Owns the resource | The recipe, week, list, or photo belongs to another account | A request for another account's data returns a safe not-found (SEC-Z-001). |
+| 3 | Allowed action | Single role — every owner action is allowed on their own data | The owner can perform the action on their own data. |
 
 | ID | Authorization requirement | Acceptance criteria |
 |---|---|---|
-| SEC-Z-001 | Every read and write is scoped to the signed-in account. | A request for another account's recipe/plan/list/photo returns the safe 404 and writes nothing. |
+| SEC-Z-001 | Every read and write is scoped to the signed-in account; a request for another account's recipe, plan, list, or photo is denied with a safe not-found (BR-002, `REQ-NF-002`, `REQ-R-001`). | A request for a week the account does not own returns a safe not-found, not a detailed reason; the deny tests in Round 7 cite SEC-Z-001. |
+| SEC-Z-002 | A recipe photo is private to the owning account and served only to that account (`Q-008`, `REQ-NF-007`). | An unauthenticated or other-account request for a photo is denied; a photo reference cannot be resolved into another account's file. |
 
 ---
 
@@ -62,9 +76,10 @@ requests can come from outside the visible interface.
 
 | Input | Validation rule | Error behavior |
 |---|---|---|
-| Recipe title | Required; 1–200 characters; trimmed before saving. | Clear message naming the field. |
-| Ingredient lines | At least one required; each has text. | Validation error without saving. |
-| Week start | Required; must be a valid date. | Validation error without saving. |
+| Recipe title | Required; 1–120 characters; trimmed before saving. | Clear message naming the field; typed values kept. |
+| Ingredient line | Required text on each line; a recipe needs at least one. | Validation error without saving. |
+| Planned meal → recipe | Required; must reference a saved recipe owned by the same account (BR-003). | Safe not-found or access-denied response. |
+| Recipe photo (upload) | Optional; must be an image within the configured size limit; stored privately. | Reject oversize or non-image files with a clear message. |
 
 ---
 
@@ -72,27 +87,27 @@ requests can come from outside the visible interface.
 
 | Area | Question | Rule |
 |---|---|---|
-| Data minimization | Do you need this data? | Collect only the account email and the cook's own recipes, plans, lists, and dish photos. |
-| Storage | How should data be stored? | Passwords hashed; dish photos in private storage, never a public bucket. |
+| Data minimization | Do you need this data? | Collect only what a recipe, plan, or list needs; no personal data beyond the one account. |
+| Storage | How should data be stored? | Account credentials via approved storage (a hash, never plain text); photos in private file storage scoped by account. |
 | Transport | How does data move? | Private user data only through protected channels. |
-| Logging | What must **not** be logged? | Never log passwords, tokens, reset links, or full secret values. [TODO: the project-specific list of what must never leak or be logged — Q-014] |
-| Retention | How long is data kept? | Follow the retention rule in `../06-api-and-data-design/database-design.md` §7. |
+| Logging | What must **not** be logged? | Never log passwords, tokens, reset links, full secret values, recipe or plan content, or photos (`REQ-NF-007`); the full leak list is `Q-012`. |
+| Retention | How long is data kept? | Follow the retention rule in [`../06-api-and-data-design/database-design.md`](../06-api-and-data-design/database-design.md) §7. |
 
 ---
 
 ## 5. Secrets management
 
-Secrets are values that allow access to protected systems: API keys, database passwords,
-signing keys, private tokens.
+Secrets are values that allow access to protected systems: signing keys, database
+credentials, private tokens.
 
 - Never hardcode a secret into source code, templates, screenshots, logs, or examples.
-- Use placeholders in documentation → [`../.env.example`](../../.)
-- Document where each real value is configured → [`../ops/environment-config.md`](../../07-ops/01-deployment/environment-config.md)
+- Use placeholders in documentation → [`../../.env.example`](../../.env.example)
+- Document where each real value is configured → [`../../07-ops/01-deployment/environment-config.md`](../../07-ops/01-deployment/environment-config.md)
 
 | Secret | Where configured | Must never appear in | Code reference |
 |---|---|---|---|
-| [TODO: which secrets are needed depends on the auth model — Q-006] | environment variable | source, logs, error messages, client responses | `config.*` |
-| `DATABASE_URL` (when on Postgres) | environment variable | source, logs, screenshots | `config.database_url` |
+| Session / auth signing value (once the model is chosen, `Q-009`) | environment variable | source, logs, error messages, client responses | `config.auth_signing_key` |
+| Database location / credential (once deployed, `Q-017`) | environment variable | source, logs, client responses | `config.database_url` |
 
 ---
 
@@ -112,27 +127,26 @@ from exposing internal details.
 
 ## 7. Feature security specification
 
-Copy per sensitive feature.
+Filled here for the core feature; copy the block per additional sensitive feature.
 
 ```
-Feature:        [name]
-Requirement ID: SEC-###
+Feature:        Generate the week's shopping list
+Requirement ID: SEC-Z-001 (defined in §2 above)
 
-Authentication:  [who must be signed in]
-Authorization:   [which roles may perform this]
-Role assignment: [what roles can be granted, by whom]
-Validation:      [required fields, formats, duplicate rules]
-Data protection: [what must not be exposed or logged]
-Secure errors:   [what unauthorized users receive]
-Testing:         [allowed actor, disallowed actor, invalid input, duplicate, safe error]
+Authentication:  the home cook must be signed in (SEC-A-001)
+Authorization:   the week and its recipes must belong to the signed-in account (SEC-Z-001)
+Role assignment: single role; no roles to grant (REQ-R-001)
+Validation:      the week must exist and be owned by the account
+Data protection: the list and its recipes are never exposed to another account (BR-002)
+Secure errors:   an unowned or missing week returns a safe not-found, not a detailed reason
+Testing:         owner can generate; a request for another account's week is denied; an empty
+                 week yields an empty list with a message, not an error (AC-003)
 
 Acceptance criteria:
-1.
-2.
-3.
+1. A signed-out request cannot generate a list.
+2. A request for a week the account does not own returns a safe not-found.
+3. An empty week yields an empty list with a clear message, not an error.
 ```
-
-A filled version of this block is in the worked example at the end of this file.
 
 ---
 
@@ -149,7 +163,7 @@ A filled version of this block is in the worked example at the end of this file.
 - [ ] Security requirements are linked to tests.
 - [ ] The AI agent has clear instructions not to add unapproved access paths.
 
-Full review pass → [`../review/security-review.md`](../../05-review/02-checklists/security-review.md)
+Full review pass → [`../../05-review/02-checklists/security-review.md`](../../05-review/02-checklists/security-review.md)
 
 ---
 

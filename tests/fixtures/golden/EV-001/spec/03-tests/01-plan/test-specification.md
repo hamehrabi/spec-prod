@@ -44,13 +44,51 @@ Status:              Not run / Pass / Fail / Needs review
 
 ## Test specification matrix
 
-| Test ID | Req | Level | Scenario | Preconditions | Input | Expected result | Risk covered | Status |
-|---|---|---|---|---|---|---|---|---|
-| ATEST-001 | REQ-F-005 | Acceptance | Generate a list from a plan | A plan with planned meals | Click generate | List has every planned ingredient | Missing item at the shop | Planned |
-| UTEST-003 | REQ-F-005 | Unit | Combine ingredients across meals | Two meals share an ingredient | Two ingredient lists | Combined per the Q-009 rule | Wrong core output | Blocked (Q-009) |
-| ITEST-001 | REQ-F-002 | Integration | Save a recipe via the API | Signed-in cook | Valid recipe body | 201; recipe row scoped to the account | Bad/unscoped data | Planned |
-| STEST-001 | REQ-NF-002 | Security | Cross-account access | Two accounts | Request account B's recipe as A | Safe 404; nothing returned | Data leak between accounts | Planned |
-| FTEST-001 | REQ-NF-003 | Failure | Generation fails | A valid plan | Simulated failure | Safe error; plan preserved | Data loss / crash | Planned |
+**This matrix is an INDEX, not a second copy of the tests.** One row per test, naming where it
+is specified and what it covers — the scenario, the expected result and the preconditions live
+in the file that owns the test.
+
+| Test ID | Requirement ID | Level | Specified in | Risk covered | Status |
+|---|---|---|---|---|---|
+| ATEST-001 | REQ-F-001 | Acceptance | `../02-functional/acceptance-tests.md` | A recipe cannot be saved | Planned |
+| ATEST-002 | REQ-F-004 | Acceptance | `../02-functional/acceptance-tests.md` | The core promise fails | Planned |
+| ATEST-003 | REQ-F-004 | Acceptance | `../02-functional/acceptance-tests.md` | Empty week errors instead of empty list | Planned |
+| ATEST-004 | REQ-NF-002 | Acceptance | `../02-functional/acceptance-tests.md` | Cross-account data exposure | Planned |
+| ATEST-005 | REQ-F-002 | Acceptance | `../02-functional/acceptance-tests.md` | Recipes cannot be found | Planned |
+| ATEST-006 | REQ-F-003 | Acceptance | `../02-functional/acceptance-tests.md` | A week cannot be planned | Planned |
+| ATEST-007 | REQ-F-005 | Acceptance | `../02-functional/acceptance-tests.md` | Data is not private to one account | Planned |
+| ATEST-008 | REQ-F-006 | Acceptance | `../02-functional/acceptance-tests.md` | List is not usable in the shop | Planned |
+| UTEST-001 | REQ-F-001 | Unit | `../02-functional/unit-tests.md` | Bad recipe titles enter the store | Planned |
+| UTEST-002 | REQ-F-002 | Unit | `../02-functional/unit-tests.md` | Search misses or leaks matches | Planned |
+| UTEST-003 | REQ-F-004 | Unit | `../02-functional/unit-tests.md` | The core list logic is wrong | Planned |
+| UTEST-004 | REQ-F-004 | Unit | `../02-functional/unit-tests.md` | Empty week not handled | Planned |
+| UTEST-005 | BR-003 | Unit | `../02-functional/unit-tests.md` | A meal references a non-owned recipe | Planned |
+| ITEST-001 | REQ-F-001 | Integration | `../02-functional/integration-tests.md` | Recipe not persisted/scoped | Planned |
+| ITEST-002 | REQ-F-002 | Integration | `../02-functional/integration-tests.md` | Search crosses accounts | Planned |
+| ITEST-003 | REQ-F-003 | Integration | `../02-functional/integration-tests.md` | Plan references cross-account recipe | Planned |
+| ITEST-004 | REQ-F-004 | Integration | `../02-functional/integration-tests.md` | Generated list is wrong via the API | Planned |
+| ITEST-005 | REQ-F-006 | Integration | `../02-functional/integration-tests.md` | Checked state not persisted | Planned |
+| ITEST-006 | BR-004 | Integration | `../02-functional/integration-tests.md` | Deletion breaks a planned week | Planned |
+| STEST-001 | SEC-Z-001 | Security | `../03-non-functional/security-tests.md` | Cross-account data access | Planned |
+| STEST-002 | SEC-A-001 | Security | `../03-non-functional/security-tests.md` | Unauthenticated access | Planned |
+| STEST-003 | SEC-A-002 | Security | `../03-non-functional/security-tests.md` | Passwords stored/logged in the clear | Planned |
+| STEST-004 | SEC-Z-002 | Security | `../03-non-functional/security-tests.md` | A private photo leaks to another account | Planned |
+| STEST-005 | SEC-A-003 | Security | `../03-non-functional/security-tests.md` | Account enumeration via reset | Planned |
+| PTEST-001 | REQ-NF-001 | Performance | `../03-non-functional/performance-tests.md` | Core list generation is slow | Planned |
+| PTEST-002 | REQ-F-002 | Performance | `../03-non-functional/performance-tests.md` | Search is slow | Planned |
+| ETEST-001 | REQ-F-004 | End-to-end | `../02-functional/end-to-end-tests.md` | The core plan→list→tick flow breaks | Planned |
+| ETEST-002 | REQ-F-005 | End-to-end | `../02-functional/end-to-end-tests.md` | Sign-in-to-save flow breaks | Planned |
+| FTEST-001 | REQ-NF-003 | Failure | `../04-failure/failure-tests.md` | False success on a save failure | Planned |
+| FTEST-002 | REQ-NF-003 | Failure | `../04-failure/failure-tests.md` | Partial list on a generation failure | Planned |
+| FTEST-003 | REQ-F-001 | Failure | `../04-failure/failure-tests.md` | Bad data enters the store | Planned |
+| FTEST-004 | SEC-A-001 | Failure | `../04-failure/failure-tests.md` | Action allowed while signed out | Planned |
+| FTEST-005 | BR-003 | Failure | `../04-failure/failure-tests.md` | Plan references a missing recipe | Planned |
+| FTEST-006 | BR-004 | Failure | `../04-failure/failure-tests.md` | A referenced recipe is deleted | Planned |
+
+> **Two ID columns, on purpose.** `Test ID` and `Requirement ID` name the two things this row
+> MAPS BETWEEN, and that is what makes it a mapping table rather than a definition of either.
+> Each test is **defined once**, in the file for its level; this matrix cites those definitions
+> and never restates a scenario or expected result.
 
 **Status values:** Planned · Written · Passing · Failing · Blocked
 
@@ -60,11 +98,11 @@ Status:              Not run / Pass / Fail / Needs review
 
 | Test type | Question it answers | Example |
 |---|---|---|
-| Unit | Does one small function behave correctly? | Recipe validator rejects an empty title. |
+| Unit | Does one small function behave correctly? | List generation gathers a week's ingredient lines. |
 | Integration | Do connected parts work together? | The API saves a recipe and stores it scoped to the account. |
-| End-to-end | Can a user complete the workflow? | Cook plans a week and generates a list. |
-| Security | Can rules be bypassed? | A cook cannot read another account's recipe. |
-| Performance | Does the system respond under expected load? | List generation feels immediate. |
+| End-to-end | Can a user complete the workflow? | Cook signs in, plans a week, generates one list, ticks items off. |
+| Security | Can rules be bypassed? | A cook cannot read another account's week. |
+| Performance | Does the system respond under expected load? | List generation returns within the target time. |
 
 ---
 

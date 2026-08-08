@@ -8,12 +8,10 @@ A useful requirement is **clear, testable, bounded, and traceable**.
 
 **Project name:** Pantry
 
-**Problem statement:** *(from [`intent.md`](../01-intent/intent.md))* Home cooks keep recipes
-scattered and forget items when shopping for a week of meals; the system should keep recipes
-in one place and turn a week of chosen meals into one shopping list.
+**Problem statement:** *(from [`intent.md`](../01-intent/intent.md))* Home cooks keep recipes scattered across screenshots, bookmarks, and handwritten cards and forget items when shopping for a planned week, which costs second trips and spoiled food. Pantry lets a cook keep recipes in one place, plan a week, and shop from a single list.
 
 **Primary users:**
-- Home cook (account owner) — the only role; single user, no sharing.
+- Home cook — an individual consumer who saves recipes, plans a week, and shops (the only role; no sharing in version one)
 
 ---
 
@@ -23,11 +21,12 @@ Format: `REQ-F-###: [Actor] must be able to [action] [object] so that [outcome].
 
 | ID | Requirement | Priority |
 |---|---|---|
-| REQ-F-001 | A home cook must be able to create an account and sign in so that their recipes and plans are private to them. | Must |
-| REQ-F-002 | A home cook must be able to save a recipe with a title and one or more ingredient lines so that their recipes live in one place. | Must |
-| REQ-F-003 | A home cook must be able to search their saved recipes so that they can find a recipe again. | Must |
-| REQ-F-004 | A home cook must be able to create a weekly plan and add planned meals (chosen recipes) to it so that they can decide what to cook that week. | Must |
-| REQ-F-005 | A home cook must be able to generate one shopping list from a weekly plan, covering every ingredient of every planned meal, so that they can shop for the week in one trip. [TODO: should identical ingredients across meals be merged into one line, and how are units combined? — Q-009] | Must |
+| REQ-F-001 | A home cook must be able to save a recipe with a title and a list of ingredient lines so that their recipes live in one place. | Must |
+| REQ-F-002 | A home cook must be able to search their saved recipes so that they can find one quickly. | Must |
+| REQ-F-003 | A home cook must be able to plan which saved recipes to cook on the days of a week so that the week is decided in one place. | Must |
+| REQ-F-004 | A home cook must be able to generate one shopping list from a week's plan, gathering the ingredients of every planned meal, so that they can shop once without forgetting items. | Must |
+| REQ-F-005 | A home cook must be able to sign in to their own private account so that their recipes, plans, and lists are theirs alone. | Must |
+| REQ-F-006 | A home cook must be able to tick off items on the shopping list as they shop so that they can see what is still needed. | Should |
 
 *Example:* `REQ-F-001: A team member must be able to create a task with a title,
 description, due date, and status so that work can be tracked clearly.`
@@ -47,13 +46,13 @@ Format: `REQ-NF-###: [Quality condition with a measurable limit].`
 
 | ID | Category | Requirement |
 |---|---|---|
-| REQ-NF-001 | Performance | Generating a shopping list from a weekly plan must feel immediate for a single cook's data. [TODO: precise target depends on expected scale — Q-001] |
-| REQ-NF-002 | Security | Only the signed-in account owner may read or write their recipes, plans, and lists. |
-| REQ-NF-003 | Reliability | If generating a shopping list fails, the system must show a clear error and preserve the weekly plan. |
-| REQ-NF-004 | Usability | A cook must be able to go from a week's chosen meals to a shopping list without reading a manual. |
-| REQ-NF-005 | Maintainability | Recipe and planning logic must be separable from account and authentication logic. |
-| REQ-NF-006 | Accessibility | The interface must be operable by keyboard and usable with a screen reader. |
-| REQ-NF-007 | Privacy | A cook's recipes, plans, and lists are private to their account and are never shared. |
+| REQ-NF-001 | Performance | Generating a shopping list from a week's plan must return promptly for one cook's library; the measurable threshold is set as a fitness function ([`fitness-functions.md`](../04-technical-spec/fitness-functions.md), Round 4). |
+| REQ-NF-002 | Security | Only the signed-in account may read or write its own recipes, plans, and lists; there is no sharing in version one. |
+| REQ-NF-003 | Reliability | If saving a recipe, plan, or list fails, the system must show a clear error and preserve the cook's input. |
+| REQ-NF-004 | Usability | A home cook must be able to plan a week and generate its shopping list without reading a separate manual. |
+| REQ-NF-005 | Maintainability | The core list-generation logic must be kept separate from recipe storage and account/authentication concerns. |
+| REQ-NF-006 | Accessibility | Core screens must be operable by keyboard and expose text labels for assistive technology. |
+| REQ-NF-007 | Privacy | Recipe and plan data (and any recipe photos) are private to the one account and are never exposed to anyone else or written to logs. |
 
 **Examples (Ch. 5 §5.3)**
 
@@ -78,11 +77,11 @@ features that expose data to the wrong users.
 
 | Role | Can do | Cannot do |
 |---|---|---|
-| Home cook (account owner) | Create, save, and search recipes; plan weeks; generate and view shopping lists; manage their own account. | Access any other account's data; there is no sharing, admin, or viewer role. |
+| Home cook (owner) | Create, read, update, and delete their own recipes, weekly plans, and shopping lists; generate a list from a week. | Reach anyone else's data — there is no other user, and nothing is shared. |
 
 | ID | Role requirement |
 |---|---|
-| REQ-R-001 | A home cook may only read and write data belonging to their own account. |
+| REQ-R-001 | A signed-in home cook may act only on their own recipes, plans, and lists; version one has one role and no sharing, so there are no cross-user permissions to grant. |
 
 **Examples (Ch. 5 §5.4)**
 
@@ -92,6 +91,10 @@ features that expose data to the wrong users.
 | Project manager | Create projects, assign tasks, update project settings. | Manage billing or delete the workspace. |
 | Team member | Create tasks, update assigned tasks, comment on work. | Invite users or change workspace settings. |
 | Viewer | Read permitted projects and tasks. | Create, edit, delete, or assign tasks. |
+
+| Role requirement example |
+|---|
+| A Viewer must be able to read assigned project information but must not create, edit, assign, or delete tasks. |
 
 **A role you list here is a role the agent will build.** Four roles is four permission paths,
 four sets of deny tests, and an invitation flow. A single-user tool has one role; say so.
@@ -107,9 +110,10 @@ instructions** — when the rule changes you update the spec first, then the tes
 
 | ID | Rule | Why it matters |
 |---|---|---|
-| BR-001 | A shopping list is generated from exactly one weekly plan and includes every ingredient of every planned meal in that plan. | This is the product's core promise — nothing forgotten. |
-| BR-002 | A recipe must have a title and at least one ingredient line. | A recipe with no ingredients cannot contribute to a shopping list. |
-| BR-003 | Every recipe, plan, and list belongs to exactly one account and is private to it. | Single-user isolation; a cook must never see another account's data. |
+| BR-001 | A shopping list is generated from exactly one weekly plan and includes the ingredients of every meal planned in that week. | This is the core promise — one week of meals becomes one list. |
+| BR-002 | Every recipe, plan, list, and photo belongs to exactly one account and is never visible to another account. | Protects the single user's private data. |
+| BR-003 | A planned meal must reference a saved recipe owned by the same account. | Keeps a week's plan consistent and prevents cross-account references. |
+| BR-004 | A recipe cannot be deleted while a weekly plan still references it. | Stops a deletion from silently breaking a planned week. |
 
 **Examples (Ch. 5 §5.5)**
 
@@ -129,7 +133,7 @@ which `intent.md` delegates them to. Referenced here as `CON-###`.
 
 | ID | Constraint | Affects requirements |
 |---|---|---|
-| CON-001…008 | [TODO: hard constraints not asked at express depth — Q-004] | REQ-F-001 … REQ-F-005 |
+| CON-001–CON-008 | Deferred at express depth — hard constraints were not asked; see [`constraints-and-non-goals.md`](../01-intent/constraints-and-non-goals.md) and `Q-005`. | — |
 
 ---
 
@@ -140,10 +144,18 @@ Format: Given–When–Then. These become the acceptance tests in
 
 | ID | Requirement | Criterion |
 |---|---|---|
-| AC-001 | REQ-F-005 | **Given** a weekly plan with planned meals, **When** the cook generates a shopping list, **Then** the list contains an item for every ingredient of every planned meal. |
-| AC-002 | REQ-F-005 | **Given** generation fails, **When** the cook retries, **Then** a clear error is shown and the weekly plan is preserved. |
-| AC-003 | REQ-F-002 | **Given** a signed-in cook, **When** they save a recipe with a title and ingredient lines, **Then** it appears in their recipe list and is findable by search. |
-| AC-004 | REQ-NF-002 | **Given** a cook signed into account A, **When** they request account B's data, **Then** access is denied. |
+| AC-001 | REQ-F-001 | **Given** a signed-in cook, **When** they submit a recipe with a title and ingredient lines, **Then** it is saved and appears in their recipe list. |
+| AC-002 | REQ-F-004 | **Given** a week with planned meals, **When** the cook generates the shopping list, **Then** the list contains the ingredients of every planned meal as one list. |
+| AC-003 | REQ-F-004 | **Given** a week with no planned meals, **When** the cook generates the shopping list, **Then** an empty list is shown with a clear message rather than an error. |
+| AC-004 | REQ-NF-002 | **Given** a signed-in cook, **When** they view any recipe, plan, or list, **Then** they only ever see data belonging to their own account. |
+
+**Examples (Ch. 5 §5.7)**
+
+| Requirement | Acceptance criteria |
+|---|---|
+| A team member must be able to create a task. | Given a signed-in team member, when they submit a valid task form, then the task is saved and shown in the task list. |
+| A viewer must not edit tasks. | Given a signed-in viewer, when they open a task, then edit controls are hidden or disabled. |
+| Task creation must handle errors. | Given a network failure, when the user submits the form, then the system shows an error and keeps the typed values. |
 
 ---
 
@@ -196,5 +208,7 @@ Format: Given–When–Then. These become the acceptance tests in
 ---
 
 **Next:** [`product-spec.md`](../03-product-spec/product-spec.md)
+
+---
 
 > Blueprint: blueprints/01-docs/02-requirements/requirements.md

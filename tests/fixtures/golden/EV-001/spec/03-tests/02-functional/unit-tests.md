@@ -12,30 +12,22 @@ enough that code can later be generated against it.
 
 | Test ID | Requirement | Rule under test | Normal case | Edge case | Failure case | Status |
 |---|---|---|---|---|---|---|
-| UTEST-001 | REQ-F-002 / BR-002 | Recipe needs a title and ≥1 ingredient line | title + 1 line accepted | title + many lines accepted | title with 0 lines rejected | Planned |
-| UTEST-002 | REQ-F-002 | Recipe title length/trim | "Soup" accepted | 200 chars accepted | "" rejected; 201 chars rejected | Planned |
-| UTEST-003 | REQ-F-005 / BR-001 | Combine ingredients across meals | two distinct ingredients → two lines | same ingredient in two meals → per Q-009 rule | plan with 0 meals → empty list, not an error | Blocked (Q-009) |
-
----
-
-## Examples (Ch. 17 §17.2)
-
-| Requirement detail | Unit test idea |
-|---|---|
-| A recipe title cannot be empty. | Pass an empty title and confirm validation fails. |
-| A recipe must have at least one ingredient. | Pass zero lines and confirm rejection. |
-| A shopping list covers every planned ingredient. | Pass a plan and confirm every ingredient appears. |
-| A plan with no meals produces an empty list. | Pass an empty plan and confirm an empty (not errored) list. |
+| UTEST-001 | REQ-F-001 | Recipe title required, trimmed, 1–120 chars | "Sunday roast" accepted | 120 chars accepted | `""` rejected with a clear message | Planned |
+| UTEST-002 | REQ-F-002 | Search matches within the cook's own library | "chicken" matches a chicken recipe | partial word matches | no match returns an empty result, not an error | Planned |
+| UTEST-003 | REQ-F-004 | List generation gathers every planned meal's ingredient lines (BR-001) | 3 meals → all their lines in one list | a recipe used on two days contributes its lines each time | a planned meal whose recipe has no lines adds nothing and does not crash | Planned |
+| UTEST-004 | REQ-F-004 | Empty week yields an empty list | week with 0 meals → empty list | all meals removed → empty list | generation on an empty week must not raise an error | Planned |
+| UTEST-005 | BR-003 | Planned meal must reference an owned saved recipe | reference to an owned recipe accepted | a recipe just deleted → reference rejected | reference to a missing or non-owned recipe rejected | Planned |
 
 ---
 
 ## What belongs here
 
 - Validation functions
-- Business-rule predicates (`recipe_is_valid`, `owns_resource`)
+- Business-rule predicates (`owns_resource`, `meal_references_owned_recipe`)
 - Value formatting and parsing
-- The ingredient-combination helper
-- Filter/search-term parsing
+- Metric/aggregation helpers (the list-gathering logic)
+- Filter parsing
+- Status transition rules
 
 ## What does **not** belong here
 
@@ -59,7 +51,26 @@ Failure case: [input] -> [expected, with a clear error]
 Why this rule matters:
 ```
 
-Executable tests live in [`../tests/unit/`](../05-executable/unit).
+Executable tests live in [`../05-executable/executable-tests.md`](../05-executable/executable-tests.md) (`unit/`).
+
+---
+
+## Written out
+
+```
+UNIT TEST PLAN: Shopping-list generation
+Test ID: UTEST-003
+Requirement ID: REQ-F-004 (BR-001)
+Rule: A shopping list gathers the ingredient lines of every meal planned in one week.
+
+Normal case:  a week with 3 planned meals -> a list of all three recipes' ingredient lines
+Edge case:    the same recipe planned on two days -> its lines appear for each planned meal
+Failure case: a planned meal whose recipe has no lines -> contributes nothing; no crash
+
+Why this rule matters:
+  This is the core capability Pantry competes on. If the gather logic drops a meal or a line,
+  the cook forgets an item at the shop — the exact problem the product exists to remove.
+```
 
 ---
 

@@ -8,6 +8,25 @@
 > An explicit *"no CDN: single region, 50 users, static assets are 40 KB"* is a decision.
 > Silence is an accident waiting for traffic. Fill it in fifteen minutes and move on.
 
+> ### What every "Needed?" cell must contain
+>
+> **`☐ Not needed` on its own is not an answer.** It is the same blank as an empty cell, spelled
+> differently, and it reads as a row somebody skipped rather than a row somebody decided.
+>
+> Every refusal takes both halves:
+>
+> - ***why:*** — the fact that makes it unnecessary *today*. "Single user, 40 KB of assets",
+>   not "not required".
+> - ***revisit when:*** — the change that would make it necessary. A number, an event, a
+>   question id. **Without one, a refusal expires silently**: the project grows past the reason
+>   and nothing says so, because the reason was never written as a threshold.
+>
+> **One exception, and it must be stated in the row:** a refusal on *principle* has no revisit
+> trigger, because no number could reverse it — *"refused on principle: the health check has to
+> answer during an incident, and no traffic level makes throttling it correct."* Write
+> ***why:*** and then say which kind of refusal it is. That is a stronger answer than a
+> threshold, and it is only honest when the row says so rather than leaving the trigger off.
+
 ---
 
 ## 1. Rate limiting
@@ -22,10 +41,10 @@ Protects three different things. Say which one you are protecting — they need 
 
 | Endpoint / group | Limit | Window | Scope | On exceed | Needed? |
 |---|---|---|---|---|---|
-| Login | 5 | 10 min | per IP + per account | 429 + `Retry-After` | ✅ protects the one account from credential guessing |
-| Write endpoints | — | — | per user | — | ☐ Not needed — single user |
-| Expensive / AI endpoints | — | — | — | — | ☐ Not needed — no paid or AI API (Round 6) |
-| Everything else | — | — | — | — | ☐ Not needed — single user, small data. Revisit if multi-user (Q-001). |
+| Login | a small number of attempts | short window | per IP + per account | 429 + `Retry-After` | ✅ even a single-user app benefits against credential stuffing; the concrete limit is set with the auth model (`Q-009`). |
+| Write endpoints | — | — | per user | — | ☐ Not needed — one user, cheap writes. *Revisit when:* the user count grows (`Q-001`). |
+| Expensive / AI endpoints | — | — | — | — | ☐ Not needed — no paid or AI APIs (`Q-007`). *Revisit when:* one is added. |
+| Everything else | — | — | — | — | ☐ Not needed — single user, no paid APIs. *Revisit when:* a real multi-user count appears (`Q-001`). |
 
 **Rules**
 - Return **429** with `Retry-After`. Never fail silently or drop the request.
@@ -41,10 +60,10 @@ Protects three different things. Say which one you are protecting — they need 
 
 | What | Where | TTL | Invalidated by | Stale is acceptable? | Needed? |
 |---|---|---|---|---|---|
-| Static assets | CDN (optional) | 1 year | content hash in filename | yes | ☐ Optional — small bundle; content-hash if a CDN is used |
-| Reference data | — | — | — | — | ☐ Not needed |
-| Expensive query | — | — | — | — | ☐ Not needed — small single-user dataset |
-| Per-user data | — | — | — | usually no | ☐ Not needed |
+| Static assets | CDN / app | 1 year | content hash in filename | yes | ☐ Not needed now — one user, tiny assets. *Revisit when:* assets exceed ~1 MB or a second region appears. |
+| Reference data | — | — | — | — | ☐ Not needed — negligible single-user data. *Revisit when:* a real multi-user count appears (`Q-001`). |
+| Expensive query | — | — | — | — | ☐ Not needed — performance is not a driver and the data is one cook's library. *Revisit when:* list generation is slow (`Q-010`). |
+| Per-user data | — | — | — | **usually no** | ☐ Not needed — one account; a shared cache would add an invalidation bug for no gain. *Revisit when:* a real multi-user count appears (`Q-001`). |
 
 **Rules**
 - Never cache **per-user data in a shared cache** without the user ID in the key. This is
@@ -58,32 +77,33 @@ Protects three different things. Say which one you are protecting — they need 
 
 | Question | Answer |
 |---|---|
-| Is the app **stateless**? | Aim for stateless; the session mechanism is set with the auth model (Q-006). |
-| Where do **sessions** live? | Server-side session or token — decided with the auth model (Q-006). No sticky sessions. |
-| Scaling trigger | n/a — single instance. |
+| Is the app **stateless**? | Yes — no important state lives in the process; all state is in the database. |
+| Where do **sessions** live? | In a token or shared store, per the auth model (`Q-009`). **No sticky sessions.** |
+| Scaling trigger | n/a — single instance in version one. |
 | Min / max instances | 1 / 1 |
-| **Background workers** | None needed in version one. |
-| **Database connections** | Small pool on one instance; well under any store limit. |
-| Long-running work | List generation is fast and synchronous; nothing long-running in a request. |
+| **Background workers** | None in version one; nothing to scale separately. |
+| **Database connections** | A small pool on a single instance; well under any store's limit. |
+| Long-running work | None — every action is synchronous. |
 
 > **Statelessness is the option that buys horizontal scaling later.** It costs almost
 > nothing on day one and is expensive to retrofit. Even if you never scale out, being
 > stateless means a restart is not an incident.
 
-☐ **Single instance is fine** — *why:* single user, small data.  *revisit when:* the user
-count is known and grows (Q-001).
+☐ **Single instance is fine** — *why:* one user in version one; statelessness is kept anyway
+because it costs nothing now and makes a restart invisible. *revisit when:* the user count
+grows past a real multi-user level (`Q-001`).
 
 ## 4. Compute & cost
 
 | Item | Value |
 |---|---|
-| Compute shape | Container — the deployment target is not decided yet; plan for a container so the choice stays open (Q-012). |
-| Instance size | Small; single instance. |
-| **Monthly cost ceiling** | Set once a host is chosen; the target is deferred (Q-012). |
-| Cost per unit | Negligible at single-user scale. |
-| Biggest cost driver | The one instance, plus dish-photo storage (Round 6). |
-| Quotas & hard limits | None expected at this scale. |
-| Alert at | Set once a hosting cost ceiling exists (Q-012). |
+| Compute shape | A container, so the deployment target stays open (`Q-017`). |
+| Instance size | The smallest that runs the app comfortably for one user. |
+| **Monthly cost ceiling** | Not set — no budget constraint was given (`Q-005`); set one before deploying. |
+| Cost per unit | One user in version one. |
+| Biggest cost driver | The runtime instance, then private photo storage. |
+| Quotas & hard limits | Depend on the deployment target (`Q-017`). |
+| Alert at | Once a ceiling is set (`Q-005`). |
 
 > **Cost is an architectural characteristic.** It behaves like latency: unmeasured, it
 > only surfaces as a surprise. A cost ceiling with an alert is the cheapest fitness
@@ -93,5 +113,7 @@ count is known and grows (Q-001).
 
 > Blueprint source: this file is new to the template — added to close the runtime layers
 > (rate limiting, cache/CDN, scaling, cost) that the spec-driven method does not cover.
+
+---
 
 > Blueprint: blueprints/01-docs/04-technical-spec/runtime-and-scale.md

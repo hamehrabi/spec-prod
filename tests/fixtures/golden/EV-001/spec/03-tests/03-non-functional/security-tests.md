@@ -14,10 +14,11 @@ For every important feature ask:
 
 | Test ID | Requirement | Risk | Scenario | Expected result | Status |
 |---|---|---|---|---|---|
-| STEST-001 | SEC-Z-001 / REQ-NF-002 / REQ-R-001 | Unauthorized access | Account A requests account B's recipe by changing the ID. | Safe 404; no data returned. | Planned |
-| STEST-002 | SEC-A-001 | Unauthenticated access | Open a protected route without signing in. | 401 or redirect to sign-in. | Planned |
-| STEST-003 | — | Broken validation | Request body carries unexpected fields. | Extra fields ignored; nothing bad stored. | Planned |
-| STEST-004 | — | Information leakage | Force a server error. | Generic 500; no stack trace, path, token, or private data. | Planned |
+| STEST-001 | SEC-Z-001, REQ-R-001 | Unauthorized access | A cook requests another account's recipe, week, or list by id | Safe not-found; no data returned (BR-002) | Planned |
+| STEST-002 | SEC-A-001 | Unauthenticated access | A protected data route is opened without a session | 401 / redirect to sign in | Planned |
+| STEST-003 | SEC-A-002 | Credential exposure | Inspect storage and logs after sign-in | Only a password hash stored; no password in any log line | Planned |
+| STEST-004 | SEC-Z-002 | Private file leakage | Another account or an unauthenticated request fetches a recipe photo | Denied; the photo is not returned | Planned |
+| STEST-005 | SEC-A-003 | Account enumeration | Request a password reset for an unknown vs a known email | Identical response; existence not revealed | Planned |
 
 ---
 
@@ -28,18 +29,19 @@ For every important feature ask:
 | Unauthorized access | What happens when a cook tries to access data they do not own? |
 | Broken validation | What happens when the request contains unexpected fields or dangerous input? |
 | Information leakage | Does an error message reveal private data or system details? |
-| Weak authorization | Can a request reach another account's data at all? |
+| Weak authorization | Can a request reach a resource the account does not own? |
 
 ---
 
 ## Per-role negative matrix
 
-For each protected action, add one test per actor that **must not** be able to perform it.
-Pantry is single-user, so the boundaries are "another account" and "signed out".
+Version one has one role, so the denial cases are another account and signed out. For each
+protected action, the deny cell cites the test that proves the server refuses it.
 
-| Action | Account owner | Another account | Signed out |
+| Action | Home cook (own data) | Another account | Signed out |
 |---|---|---|---|
-| Read/write own recipes, plans, lists, photos | allow | **deny → STEST-001** | **deny → STEST-002** |
+| Read / write a recipe, plan, or list | allow | **deny → STEST-001** | **deny → STEST-002** |
+| View a recipe photo | allow | **deny → STEST-004** | **deny → STEST-002** |
 
 > **Default access is deny unless explicitly allowed** (Appendix M).
 
@@ -48,12 +50,12 @@ Pantry is single-user, so the boundaries are "another account" and "signed out".
 ## Rules
 
 - Security tests must include **negative cases**, not only happy paths.
-- Every rule in [`../docs/security-specification.md`](../../01-docs/07-security-and-reliability/security-specification.md)
+- Every rule in [`../../01-docs/07-security-and-reliability/security-specification.md`](../../01-docs/07-security-and-reliability/security-specification.md)
   needs at least one test.
 - Hiding a control in the UI is not a passing security test — assert the **server**
   rejects the request.
 
-Full review pass → [`../review/security-review.md`](../../05-review/02-checklists/security-review.md)
+Full review pass → [`../../05-review/02-checklists/security-review.md`](../../05-review/02-checklists/security-review.md)
 
 ---
 

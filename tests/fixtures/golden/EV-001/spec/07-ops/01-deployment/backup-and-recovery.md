@@ -23,49 +23,56 @@ knowing what they agreed to.
 
 | Item | Value |
 |---|---|
-| Target uptime | ~99% is ample — being down an evening is acceptable (nobody cooks from it at 3am). |
-| Measured how | External check on `GET /health`. |
-| Planned maintenance excluded? | Yes. |
-| Who is told when it is breached | The developer (single owner). |
+| Target uptime | **99.0%** — a single home cook uses this in the evening; a few hours down "by the next evening" is survivable. No 24/7 need. |
+| Measured how | Manual — the owner notices if the app does not load; baseline is structured logs + error alerts (Q-016 monitoring appetite deferred). |
+| Planned maintenance excluded? | Yes — a short evening maintenance window is acceptable; nobody cooks from it at 3am. |
+| Who is told when it is breached | The owner (single B2C user, one account). |
 
-> High availability is **not** a goal here. This is a personal tool; a few hours of downtime
-> is survivable, so effort goes into **not losing the recipe library**, not into uptime nines.
+> Each extra nine costs roughly an order of magnitude more. **Pick the one the business
+> will actually pay for**, not the one that sounds serious.
 
 ## 2. RTO and RPO — the two numbers that matter
 
 | Term | Question it answers | Your answer |
 |---|---|---|
-| **RTO** — Recovery Time Objective | How long may we be **down**? | **Up to an evening** (a few hours). Being down a whole evening is fine. |
-| **RPO** — Recovery Point Objective | How much **data** may we lose? | **Up to a day of *edits*** (nightly backup). **But the recipe library must never be lost** — it is years of handwritten cards, and losing it would end the project. |
+| **RTO** — Recovery Time Objective | How long may we be **down**? | **A few hours — restored by the next evening.** A whole evening down is fine; nobody cooks from it at 3am. No 24/7 requirement. |
+| **RPO** — Recovery Point Objective | How much **data** may we lose? | **Up to ~24 hours of edits** (a nightly backup). A day of edits would sting but survive — *except* the recipe library, which is near zero-tolerance (see below). |
 
-Your RPO **is** your backup frequency. Nightly backups mean an RPO of 24 hours for edits —
-accepted. The recipe library gets **more** than that: a durable, tested, ideally offline copy,
-because it is irreplaceable.
+Your RPO **is** your backup frequency. Nightly backups mean an RPO of 24 hours — say that
+out loud to whoever owns the data before you write it down.
+
+> **The recipe-library exception.** A lost day of *edits* is survivable, so a nightly
+> backup states a 24-hour objective honestly. But total loss of the **recipe library**
+> (Recipe + IngredientLine — years of handwritten cards) would end the project, so its
+> loss tolerance is effectively **zero**: it requires a durable, off-box copy and a
+> periodically tested restore, regardless of what a day of edits costs.
 
 ## 3. What is backed up
 
 | Asset | Method | Frequency | Retention | Where | Encrypted |
 |---|---|---|---|---|---|
-| Database (recipes, plans, lists) | Full backup + a durable/off-site copy of the recipe data | Nightly | Long — recipes are irreplaceable | Different failure domain from the host | ✅ |
-| Uploaded dish photos | Backed up with the account's data | Nightly | With the database | Different failure domain | ✅ (private) |
-| Secrets / config | Manual export | On rotation | current + 1 | Outside the platform | ✅ |
+| Database (Account, Recipe, IngredientLine, WeeklyPlan, PlannedMeal, ShoppingList, ShoppingListItem) | File/dump backup of the relational store (SQLite now, Postgres-ready — ADR-002) | Nightly | [TODO: retention window — set with deployment target (Q-017)] | Off-box, a different failure domain from production. Exact location set with the deployment target [TODO: Q-017] | [TODO: encryption-at-rest mechanism — set with deployment target and secret mechanism (Q-017)] |
+| Recipe photos (private uploaded files — Q-008) | Included in the nightly off-box backup alongside recipe data | Nightly | [TODO: retention window (Q-017)] | Off-box, same durable location as the DB backup [TODO: Q-017] | [TODO: encryption-at-rest (Q-017)] |
+| Secrets / config (`APP_SECRET`, `DATABASE_URL`) | Kept outside the repo; secret mechanism set with the deployment target | On change | current value | Outside the app, with the deployment target [TODO: Q-017] | Yes — held by the secret store, not with the backups |
+| Audit / structured logs | In the app's structured logs (baseline monitoring) | continuous | not backed up on purpose — see below | local + production log output | n/a |
 
-☐ **Not backed up on purpose:** generated shopping lists — *why:* regenerable from the
-weekly plan, which is in the database. (Kept in the DB backup anyway; not a separate concern.)
+☐ **Not backed up on purpose:** structured application logs — *why:* they are an
+operational signal (error alerts baseline, Q-016), not user data; the recipe library and
+plans are the irreplaceable assets and are covered above.
 
 ## 4. Restore procedure
 
 ```
-1. Provision the store from the most recent backup.
-2. Restore the dish-photo files alongside it.
-3. Point the app at the restored data and restart.
-4. Run the production smoke test (end-to-end-tests.md).
-5. Confirm the most recent recipe is present, and note how much edit data was lost.
+1. Provision a fresh instance of the relational store (SQLite file now; Postgres later — ADR-002).
+2. Restore the most recent nightly backup of the database AND the recipe photos.
+3. Point DATABASE_URL at the restored store (07-ops/01-deployment/environment-config.md).
+4. Start the application and run the post-deploy smoke test (deployment-checklist.md).
+5. Confirm the recipe library is intact — the recipe library must never be lost.
 
-Estimated restore time:            within the RTO (an evening)
-Verification after restore:        smoke test + newest-recipe check
-Who can perform it:                the developer
-Who must approve it:               the developer (a restore discards edits since the backup)
+Estimated restore time:            a few hours, well within RTO (by the next evening)
+Verification after restore:        smoke test + confirm Recipe/IngredientLine counts and a spot-check recipe
+Who can perform it:                the owner/developer (single-user project)
+Who must approve it:               the owner (a restore discards edits written since the nightly backup)
 ```
 
 ## 5. Restore test log
@@ -74,35 +81,30 @@ Who must approve it:               the developer (a restore discards edits since
 
 | Date | What was restored | Into | Time taken | Result | Issues found |
 |---|---|---|---|---|---|
-
-No restore has been tested yet — perform and time one against a copy **before** the first
-production deploy. A backup that has never been restored is a hope, not a backup.
+| — | — | — | — | — | No entries yet — a restore of the recipe library must be performed and timed before the first production deploy, then re-tested periodically. |
 
 ## 6. Failure scenarios
 
 | Scenario | Detected by | Response | Data loss | Owner |
 |---|---|---|---|---|
-| Single instance dies | health check | restart / replace | none | developer |
-| Database corruption | error rate / failed queries | restore latest backup | up to RPO (a day of edits) | developer |
-| **Loss of the recipe library** | user report / failed reads | restore from the durable/off-site copy | **must be none** — the library is irreplaceable | developer |
-| Accidental mass delete | user report | restore from backup | none if caught within retention | developer |
-| Ransomware / compromised credentials | alert / anomalous access | rotate secrets; restore from an offline/immutable copy | up to RPO | developer |
+| Single instance dies | health check / app fails to load | restart / replace the stateless container | none | owner |
+| Database corruption | error alerts + failed queries | restore latest nightly backup | up to RPO (~24 h of edits) | owner |
+| Accidental mass delete | owner notices | restore latest nightly backup; recover the recipe library | up to ~24 h of edits; recipe library must not be lost | owner |
+| Region / provider outage | app unreachable | wait for provider or redeploy the stateless container elsewhere; restore off-box backup if needed | none if backup intact | owner |
+| Ransomware / compromised credentials | error alerts / anomaly | rotate `APP_SECRET`, restore from the durable off-box copy *(needs an offline or immutable copy)* | up to ~24 h; recipe library recovered from off-box copy | owner |
 
 ## 7. Checklist
 
-- [ ] RTO and RPO agreed **with the owner** — done: RTO an evening, RPO a day of edits, library irreplaceable
-- [ ] Backups run automatically and **alert on failure**
-- [ ] Backups live in a **different failure domain** than the host
+- [ ] RTO and RPO agreed **with the business**, not chosen by engineering alone
+- [ ] Backups run automatically and **alert on failure** *(a silent backup job is the most common failure)*
+- [ ] Backups live in a **different failure domain** than production
 - [ ] Backups are encrypted, and the key is not stored with them
-- [ ] **A restore has been performed and timed** — at least once (not yet — do before first deploy)
+- [ ] **A restore has been performed and timed** — at least once
 - [ ] Restore time is within RTO
-- [ ] Someone other than the author can perform the restore (n/a — single owner; write it down clearly instead)
-- [ ] One backup copy of the **recipe library** is offline or immutable — strongly recommended (years of cards)
-- [ ] Retention keeps the recipe library effectively forever
+- [ ] Someone other than the author can perform the restore
+- [ ] One backup copy is offline or immutable *(ransomware)*
+- [ ] Retention satisfies any legal or contractual requirement
 
 ---
-
-> Blueprint source: this file is new to the template — added to close the
-> availability / backup / recovery layer.
 
 > Blueprint: blueprints/07-ops/01-deployment/backup-and-recovery.md

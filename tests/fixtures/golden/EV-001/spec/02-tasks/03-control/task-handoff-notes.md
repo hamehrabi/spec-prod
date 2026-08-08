@@ -4,6 +4,9 @@
 > Notes passed between a human and an agent, or between sessions, when a task is picked
 > up, paused, or returned.
 
+No handoff is in progress yet. When a task is paused or returned, copy the entry block below
+and fill it in.
+
 ---
 
 ## Handoff entries
@@ -25,8 +28,6 @@ Tests currently passing:
 Tests currently failing:
 ```
 
-No handoffs recorded yet — the build has not started.
-
 ---
 
 ## Agent three-stage workflow (Ch. 11 §11.7)
@@ -46,16 +47,16 @@ The agent must not skip a stage. You check the right-hand column.
 
 ## Mid-work checkpoint (Ch. 29 §29.7)
 
-Trigger a checkpoint when the agent or developer finds ambiguity. No task is in flight at
-intake; fill this when a checkpoint is triggered.
+Trigger a checkpoint when the agent or developer finds ambiguity. The Answer column is filled
+per checkpoint.
 
 | Check | Answer |
 |---|---|
-| What assumption is being made? | — |
-| What is blocking progress? | — |
-| Which design choice is in question? | — |
-| Decision needed from whom? | — |
-| Revised task boundary: | — |
+| What assumption is being made? | |
+| What is blocking progress? | |
+| Which design choice is in question? | |
+| Decision needed from whom? | |
+| Revised task boundary: | |
 
 ---
 
@@ -63,7 +64,7 @@ intake; fill this when a checkpoint is triggered.
 
 | Control rule | How you apply it |
 |---|---|
-| One task at a time | Do not combine account, recipe, plan, and list work in one request. |
+| One task at a time | Do not combine sign-in, recipes, planning, and list generation in one request. |
 | Approved files only | Tell the agent which folders or files it may edit. |
 | Plan before edit | Ask for a short plan before allowing implementation. |
 | No silent assumptions | Require the agent to report unclear requirements before coding. |

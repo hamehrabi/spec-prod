@@ -14,8 +14,7 @@
 | Date | Type | Change | Requirement / Task | Reason | Decision | Recorded by |
 |---|---|---|---|---|---|---|
 
-No changes recorded yet — the build has not started. (The specification's own stage
-acceptances live in `01-docs/09-change-control/spec-change-log.md`.)
+No entries yet — the first accepted or rejected change adds the first row.
 
 **Types:** Intent · Spec · Task · Test · Code · Review · Release · Fix · Scope
 
@@ -40,13 +39,13 @@ Follow-up needed:
 
 | Change type | Example entry |
 |---|---|
-| New intent document | Add engineering intent for Pantry. |
-| Updated requirements | Refine save-recipe requirements and acceptance criteria. |
-| New task file | Add TASK-004 for the save-recipe API. |
-| Test plan added | Add acceptance and failure tests for list generation. |
-| Implementation completed | Implement TASK-008 shopping-list generation. |
-| Review notes added | Record review results for TASK-008. |
-| Change rejected | Reject an unrequested feature — outside approved scope. |
+| New intent document | Add engineering intent for the Pantry project. |
+| Updated requirements | Refine the generate-one-list requirements and acceptance criteria (REQ-F-004). |
+| New task file | Add TASK-005 for generating one shopping list from a week. |
+| Test plan added | Add acceptance and failure tests for generating the list (ATEST/FTEST). |
+| Implementation completed | Implement TASK-005 one-list-from-a-week workflow. |
+| Review notes added | Record review results for TASK-005. |
+| Change rejected | Reject a recipe-sharing suggestion — outside approved scope (one account, no sharing). |
 
 ---
 
@@ -59,7 +58,5 @@ Follow-up needed:
 | [`../docs/spec-change-log.md`](../../01-docs/09-change-control/spec-change-log.md) | Versioned specification changes. |
 | [`../tasks/scope-change-log.md`](../../02-tasks/03-control/scope-change-log.md) | Scope additions/removals and their decision trail. |
 | [`../ops/release-notes.md`](../../07-ops/04-release/release-notes.md) | What shipped, when. |
-
----
 
 > Blueprint: blueprints/05-review/01-logs/change-log.md

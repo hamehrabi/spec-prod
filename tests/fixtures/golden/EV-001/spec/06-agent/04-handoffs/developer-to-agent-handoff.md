@@ -24,8 +24,8 @@ Files or modules in scope:
 Files or modules out of scope:
 
 Constraints:
-  -
-  -
+  - 
+  - 
 
 Expected output:
   - [code / tests / documentation / review notes / questions]
@@ -34,14 +34,14 @@ Tests to create or update:
   - TEST-###
 
 Questions to ask before changing code:
-  -
+  - 
 
 Review checklist:
-  [ ]
-  [ ]
+  [ ] 
+  [ ] 
 
 Do not proceed if:
-  -
+  - 
 ```
 
 ---
@@ -108,6 +108,23 @@ then use the agent to perform a narrow, approved implementation task.
 | Creating tests from acceptance criteria. | Detecting every security or performance risk without guidance. |
 | Explaining code and proposing refactors. | Understanding undocumented legacy behavior. |
 | Speeding up repetitive edits. | Protecting your architecture if you give it no boundaries. |
+
+---
+
+# Worked example — Pantry, generate one shopping list
+
+```
+Task: Implement REQ-F-004 shopping-list generation from a weekly plan (TASK-005).
+Source of truth: requirements.md REQ-F-004; BR-001 (one list per week); api-specification.md.
+Allowed files: 04-src/modules/shopping-list/, 03-tests/unit/.
+Do not change: Recipes storage, Account/Auth, the database schema, or the API contract.
+Expected output: list-generation logic and tests for consolidation and BR-001 replacement.
+Completion check: tests pass; the core module imports no UI or store-specific code (ADR-001).
+```
+
+> Notice this does **not** say "build the shopping list." It says exactly which part to work
+> on — generation from an existing plan, bounded by BR-001. That is the difference between
+> uncontrolled AI coding and spec-driven agent work.
 
 ---
 

@@ -18,11 +18,12 @@ This file holds the resulting **test cases**.
 
 | Test ID | Requirement | Failure condition | Input / trigger | Expected result | Log event expected | Status |
 |---|---|---|---|---|---|---|
-| FTEST-001 | REQ-NF-003 | Generation failure | Simulated failure during list build | Safe error; plan preserved; no partial write | `LIST_GENERATION_FAILED` | Planned |
-| FTEST-002 | REQ-F-002 / BR-002 | Missing required field | Recipe with no title or no ingredient line | 400 + field-named message; nothing saved | `RECIPE_VALIDATION_FAILED` | Planned |
-| FTEST-003 | REQ-NF-003 | Database write failure | Simulated write timeout during save | Retry-safe 500; no false success; no partial write | `DB_TIMEOUT` | Planned |
-| FTEST-004 | REQ-NF-002 | Not authorized | Request another account's data | 404 safe message; no data leaked | `AUTHZ_DENIED` | Planned |
-| FTEST-005 | SEC-A-001 | Not authenticated | Request with no session | 401 + sign-in prompt | `AUTH_REQUIRED` | Planned |
+| FTEST-001 | REQ-NF-003 | Database write failure (recipe save) | Simulated write timeout on save | Retry-safe error; no false success; input preserved | RECIPE_SAVE_FAILED | Planned |
+| FTEST-002 | REQ-NF-003 | Read failure during list generation | Simulated read failure while generating | Retry-safe error; no partial list shown | LIST_GENERATION_FAILED | Planned |
+| FTEST-003 | REQ-F-001 | Missing required field | Save a recipe with no title | 400 + field-named message; nothing saved | RECIPE_VALIDATION_FAILED | Planned |
+| FTEST-004 | SEC-A-001 | Not authenticated | A data action with no session | 401 + sign-in prompt; no data changed | AUTH_REQUIRED | Planned |
+| FTEST-005 | BR-003 | Invalid reference | Plan a meal pointing at a missing or non-owned recipe | Safe rejection; nothing planned | PLAN_INVALID_RECIPE | Planned |
+| FTEST-006 | BR-004 | Business-rule violation | Delete a recipe referenced by a plan | 409; nothing deleted | RECIPE_DELETE_BLOCKED | Planned |
 
 ---
 
@@ -57,10 +58,10 @@ Every error state needs a recovery path, a user message, a log event, and a test
 
 | Error state | Recovery path | What to test |
 |---|---|---|
-| Generation failure | Show a safe error; preserve the plan. | A simulated failure keeps the plan and shows no stack trace. |
-| Invalid recipe input | Reject and show clear field-level feedback. | Empty title returns a validation error. |
-| Database timeout | Stop the request, log the timeout, ask the user to retry. | A simulated timeout shows no success and writes nothing. |
-| Expired session | Redirect to sign-in and preserve the next safe destination. | A protected route redirects instead of crashing. |
+| Save fails | Return a retry-safe error; keep the cook's input. | A simulated save failure shows no success and preserves input (FTEST-001). |
+| Generation fails | Show no partial list; return a retry-safe error. | A simulated read failure yields no partial list (FTEST-002). |
+| Not signed in | Ask the user to sign in. | A protected action while signed out returns 401 (FTEST-004). |
+| Referenced recipe deleted | Block the deletion; keep the plan intact. | Deleting a referenced recipe returns 409, nothing deleted (FTEST-006). |
 
 ---
 
@@ -70,24 +71,10 @@ Every error state needs a recovery path, a user message, a log event, and a test
 |---|---|
 | Missing required field | Reject, explain the missing field, keep the user input on screen. |
 | Not signed in | Return 401 and ask the user to sign in. |
-| No permission | Return 404/403 and reveal nothing about another account's data. |
+| No permission | Return a safe not-found and do not reveal the resource. |
 | Resource not found | Return 404 with a safe message. |
-| External service failure | n/a in v1 — no external service. |
+| Business-rule violation | Return a clear conflict and change nothing. |
 | Unexpected server error | Return a general error message and log the details internally. |
-
----
-
-## Testing error handling with AI help (Ch. 18 §18.5)
-
-AI-generated error tests are often too simple. Ask for **exact** expected messages, status
-codes, and recovery behavior.
-
-| Error type | Example scenario | Expected behavior |
-|---|---|---|
-| Missing required input | Recipe title empty. | Validation error explains that a title is required. |
-| Invalid input format | Ingredient line malformed. | Validation error explains the problem. |
-| Unauthorized access | Request another account's recipe. | Safe 404; private data hidden. |
-| Temporary service issue | Database briefly unavailable. | Retry-safe error **without corrupting data**. |
 
 ---
 
@@ -99,7 +86,7 @@ Every fixed bug adds a case here that **fails before** the fix and **passes afte
 | Test ID | Bug ID | Failure it prevents | Added on |
 |---|---|---|---|
 
-No regression failures recorded yet — the build has not started.
+No regressions have been recorded yet — the first fixed bug adds the first row here.
 
 ---
 
@@ -107,9 +94,34 @@ No regression failures recorded yet — the build has not started.
 
 - A failure test asserts the **safe** outcome, not just "an error happened."
 - Assert what must **not** be in the response: stack traces, internal paths, tokens,
-  whether another account exists.
+  whether an account exists.
 - Assert system state: a failed request must leave no partial write.
 - Never delete or weaken a failure test to make code pass.
+
+---
+
+## Written out
+
+```
+Test ID:            FTEST-001
+Requirement:        REQ-NF-003
+Failure condition:  The database write fails or times out while saving a recipe
+Preconditions:      Signed-in cook; a valid recipe with a title and ingredient lines
+Trigger / input:    Database connection forced to time out during the save
+
+Expected user-facing result: "We could not save your recipe right now. Please try again."
+Expected status code:        500
+Expected system state:       NO recipe row and NO ingredient-line rows written
+Expected log event:          RECIPE_SAVE_FAILED with account_id and a safe error code
+Expected recovery path:      The cook can resubmit; the form still holds their typed values
+
+Must NOT happen:
+  - No "Recipe saved" message
+  - No stack trace, connection string, or SQL in the response
+  - No orphaned recipe or ingredient-line row
+
+Status: Planned
+```
 
 ---
 

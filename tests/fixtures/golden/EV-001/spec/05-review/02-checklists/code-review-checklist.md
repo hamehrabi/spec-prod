@@ -4,6 +4,9 @@
 > **Beginner rule:** do not review AI code by asking "does it look okay?" Review it by
 > asking **"which requirement, design decision, and test does this code satisfy?"**
 
+> Copy this file per review and fill the header fields below. They stay blank in this
+> template — a review that has not happened has no reviewer and no date.
+
 **Feature or module:**
 **Requirement IDs:**
 **Task IDs:**
@@ -44,9 +47,9 @@ Review in this order. Reviewing randomly means you miss hidden scope changes.
 - [ ] Responsibilities are placed in the correct module or layer.
 - [ ] Endpoint/controller only receives input, calls the service layer, returns the response.
 - [ ] Validation runs **before** business logic.
-- [ ] Business rules live in the service/domain layer, not in route handlers or UI components.
+- [ ] Business rules live in the service/domain layer, not in route handlers or UI components (ADR-001).
 - [ ] Data access goes through a clear boundary.
-- [ ] No new coupling across boundaries that the ADRs forbid.
+- [ ] No new coupling across boundaries that the ADRs forbid — a module must not reach another account's data (ADR-001); no SQLite-only features and only portable SQL/types (ADR-002).
 
 | Layer | Main responsibility |
 |---|---|
@@ -58,12 +61,12 @@ Review in this order. Reviewing randomly means you miss hidden scope changes.
 
 ## 3. Security and validation
 
-- [ ] The code confirms **who** the user is (authentication).
-- [ ] The code confirms **what** the user is allowed to do (authorization).
+- [ ] The code confirms **who** the user is (authentication) — SEC-A-001.
+- [ ] The code confirms **what** the user is allowed to do (authorization) — SEC-Z-001.
 - [ ] Missing, malformed, or dangerous values are rejected early.
-- [ ] Tokens, keys, and credentials are kept out of source code and logs.
+- [ ] Tokens, keys, and credentials are kept out of source code and logs — SEC-A-002.
 - [ ] Errors are safe for users and useful for internal logs.
-- [ ] Ownership/tenant scoping is enforced on every query.
+- [ ] Ownership/tenant scoping is enforced on every query; cross-account access returns a safe not-found (SEC-Z-001).
 
 → full pass: [`security-review.md`](security-review.md)
 
@@ -79,7 +82,7 @@ Review in this order. Reviewing randomly means you miss hidden scope changes.
 
 - [ ] Tests cover happy paths, failures, edge cases, and permissions.
 - [ ] Tests verify business behavior, not only implementation details.
-- [ ] Security-sensitive paths have **negative** tests.
+- [ ] Security-sensitive paths have **negative** tests (STEST-001…005 deny tests).
 - [ ] Tests were not weakened or deleted to make the code pass.
 - [ ] Refactoring does not change behavior unless the spec approves it.
 
@@ -121,14 +124,14 @@ Refactoring means improving structure **without changing what the code does**.
 | # | Severity | Layer | Finding | Affected requirement / artifact | Risk | Recommended fix | Changes the spec? | Status |
 |---|---|---|---|---|---|---|---|---|
 
-No findings yet — no code has been reviewed.
+No entries yet — the first review finding adds the first row.
 
 ---
 
 ## Decision
 
 - [ ] **Accept** — merge as is.
-- [ ] **Accept with follow-up** — merge; record any follow-up tasks in the task index.
+- [ ] **Accept with follow-up** — merge; follow-up tasks created.
 - [ ] **Revise** — return to the agent with specific findings.
 - [ ] **Block** — security or requirement failure.
 
@@ -163,8 +166,7 @@ No findings yet — no code has been reviewed.
    value than you can here?* If no — **compute it**, do not export it.
 
 > **Complexity is measured by readers, not writers.** If a reviewer says your code is not
-> obvious, it is not obvious — regardless of how clear it looks to you.
-
----
+> obvious, it is not obvious — regardless of how clear it looks to you. You are the one
+> person who already holds the missing context in your head.
 
 > Blueprint: blueprints/05-review/02-checklists/code-review-checklist.md
