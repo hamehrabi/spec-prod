@@ -20,7 +20,7 @@ failure, not a bonus.
 
 ## Library digest
 
-**Library digest:** `be430dcc26d2c6de880ecac2e5ec6a75b158d92e40d21953a1ba611b087133b7`
+**Library digest:** `fdf45480fd5425ad31d8e4e16801ba21de140a714a5eabfdc34525e6369851ed`
 
 One value for the whole library: SHA-256 over the 81 digests below —
 lowercased, sorted, one per line, each ending in a newline. **Compare this first.** It matches
@@ -75,7 +75,7 @@ separator, a leading `./`, or whether the hasher printed upper or lower case.
 | `03-tests/03-non-functional/ai-evals.md` | `52be655dace6570121ab3805a56c98facaa3ca1bf536d1967ba8f0cc2eb74732` |
 | `03-tests/03-non-functional/performance-tests.md` | `ee876be30dde23fbdaf4242688987fbb9d0461463e4d803224cad0005df9dc84` |
 | `03-tests/03-non-functional/security-tests.md` | `4d81e11845fc50d7e31d3af30f58b89352d1b398d3b7fff2763f2bfb3322e199` |
-| `03-tests/04-failure/edge-cases-and-failures.md` | `5598d0f78717dfe01171d3f33bb38d0b39d60346b622658b6fe9ee2fdfb6f826` |
+| `03-tests/04-failure/edge-cases-and-failures.md` | `b0718d3351d8367454baea8997ae4a5bec020c831c1941512d74877a3c134fba` |
 | `03-tests/04-failure/failure-tests.md` | `c2ed361fe18c94f3056e497208e41cc848acc40be29d8190db9a74709055ed37` |
 | `03-tests/05-executable/executable-tests.md` | `8ab99c6bb4af735bcffaf786905e09fa64097588cc956b4104ae2e88344279d0` |
 | `04-src/README.md` | `48b4f69dc9403bc0e1337aacf409cd90e6671e2395bf9137cccddc662f37d74c` |

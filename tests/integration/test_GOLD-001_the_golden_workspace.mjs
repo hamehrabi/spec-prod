@@ -77,10 +77,34 @@
 // READ THIS BEFORE BELIEVING THE PINS BELOW.
 //
 // BUG-034 and BUG-036 to BUG-041 have all been FIXED IN THE PAYLOAD — the blueprints and
-// instructions no longer contain the defects described above. **Only ONE of those fixes has
-// been observed in a produced workspace**, and the assertions in this file are unchanged
-// because THIS FIXTURE PREDATES THEM ALL. Every pin below still describes the committed
-// workspace correctly; none of them describes the current library.
+// instructions no longer contain the defects described above. **FIVE of those fixes have now
+// been observed working in a produced workspace**, and the assertions in this file are
+// unchanged because THIS FIXTURE PREDATES THEM ALL. Every pin below still describes the
+// committed workspace correctly; none of them describes the current library.
+//
+// VERIFIED by a seven-round run on 2026-08-08 (40 files, 32 minutes):
+//
+//   BUG-038  three constraints in the schema, each naming the rule it enforces — including
+//            `unique (account_id, week_start_date) -- one plan per account per week`, which no
+//            instruction named. The core subdomain's invariant reaching the store.
+//   BUG-037  four register rows, ZERO claiming `CI`, honesty marker present.
+//   BUG-039  six refusals, ZERO without a reason. The old fixture had two bare ones, and the
+//            count rising while the failures stay at zero is what makes this a fix rather
+//            than a small sample passing.
+//   BUG-034a zero `TASK-###` stub cells; the story table writes `—`.
+//   BUG-036  `SEC-A-001` defined in exactly one file.
+//
+// PARTIAL — BUG-040. The contradiction is gone: `FTEST-002` used to mean "Invalid format" in
+// one file and "Value too long" in the other, and the run now cites the SAME test from both.
+// But both files still stated the expected result in their own words, so they could drift.
+// The blueprint has been tightened since (the discovery table no longer has an "Expected
+// result" column at all, in the template, the worked example and the prompt) and THAT change
+// is not yet verified.
+//
+// NOT REACHED — BUG-034b and BUG-034c. `security-review.md` and `AGENT.md` are Round 8 files
+// and the run stopped at Round 7.
+//
+// BUG-041 needs no run: it is a runner defect with unit coverage in UTEST-091.
 //
 // BUG-038 IS VERIFIED (2026-08-08). A three-round run against the fixed blueprints produced a
 // `database-design.md` whose schema carries

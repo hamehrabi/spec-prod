@@ -256,6 +256,7 @@ Re-run it on **any** of these:
 | EV-001, all 8 rounds, express | 2026-08-07 | 7 of 11 scorers at floor; 2 breaches; **2 not run** | 4 500 s · 237 turns | **$49.85** | Recorded, not accepted |
 | EV-001, re-run after the BUG-034…041 fixes | 2026-08-07 | **NOT RUN — four attempts, no workspace produced** | ~3 h across 4 attempts | not itemised | **No claim made** |
 | EV-001, rounds 1–3 only, express | 2026-08-08 | **BUG-038 verified**; 7 fixes still unobserved | 25 min (hit the ceiling) | not itemised | Partial — recorded |
+| EV-001, rounds 1–7, express | 2026-08-08 | **5 fixes verified, 1 partial, 2 not reached** | **32 min** · 1 118 turns · 40 files | not itemised | Partial — recorded |
 
 > **This row was corrected downwards after it was published, and the correction is the point.**
 > It read *"9 of 11 scorers at floor; 2 breaches"*. Two of those nine — `inference_stated` and
@@ -332,7 +333,40 @@ it against a defect curve where two runs found five defects.
 > the hard-wrap failure this repository has now hit thirteen times, committed inside the tool
 > built to verify a fix. The result was only trusted after reading the file.
 >
-> **So one fix is verified and seven are shipped-and-unobserved, and the states must not be
+> **A seven-round run on 2026-08-08 verified five fixes, found one partial, and could not reach
+> two.** 40 files in 32 minutes — which also corrects the cost model: this is roughly half the
+> 75 minutes the eight-round row records, so the earlier figure was a slow run rather than the
+> norm.
+>
+> | Fix | Result |
+> |---|---|
+> | BUG-038 | **Verified.** Three schema constraints, each naming its rule — including `unique (account_id, week_start_date)`, which no instruction named. The run found invariants the instruction only taught it to look for. |
+> | BUG-037 | **Verified.** Four register rows, zero claiming `CI`. |
+> | BUG-039 | **Verified.** Six refusals, zero without a reason — and the count rising while failures stay at zero is what separates a fix from a small sample passing. |
+> | BUG-034a | **Verified.** Zero stub cells. |
+> | BUG-036 | **Verified.** `SEC-A-001` defined in exactly one file. |
+> | BUG-040 | **Partial.** See below. |
+> | BUG-034b, BUG-034c | **Not reached** — Round 8 files. |
+>
+> **BUG-040 is the one worth reading.** The contradiction is fixed: `FTEST-002` used to mean
+> "Invalid format" in one file and "Value too long" in the other, and the run now cites the same
+> test from both. But both files still stated the expected result in their own words — *"400; no
+> row written"* against *"400 + field-named message; nothing saved"* — consistent on the day
+> written, with nothing keeping them equal afterwards.
+>
+> The cause was the blueprint contradicting itself, exactly as in BUG-039: the guidance said
+> "cite, do not restate" while the table it governed still had an **Expected result** column, and
+> so did the worked example and the prompt. All three are now consistent, and that change is
+> **not yet verified**.
+>
+> **Two of my own verification scripts reported correct work as broken** during this session —
+> once by looking for a comment on the constraint's own line when it had wrapped, once by reading
+> a citation-with-context as a second definition. Both were caught by opening the file rather
+> than trusting the tool. A checker that fails correct work is the same defect class as the five
+> checks fixed earlier this week, and here it nearly buried the best result of the session and
+> nearly manufactured a false one.
+>
+> **So five fixes are verified, one is partial, two are unobserved, and the states must not be
 > confused.**
 > `GOLD-001` still pins every one of those defects as PRESENT, because the committed fixture
 > predates the fixes and the pins describe it correctly. A green suite therefore means "the old
