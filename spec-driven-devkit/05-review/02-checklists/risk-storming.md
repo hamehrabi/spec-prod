@@ -75,7 +75,7 @@ pending the `[TODO]` above.
 | RISK-010 | The blueprint library is really core, not supporting (Q-003) | 2 | 2 | 4 | → | Revisit after the first ten real intakes. If wrong, its thin specs and acceptance-only tests are the wrong strategy | Kit author | Open |
 | RISK-011 | Two sessions in one repository corrupt a workspace | 2 | 2 | 4 | → | **Rejected for v1 via SC-008 (2026-08-08)** — one session per repository at a time is a documented non-goal. The behaviour stays unmeasured; the risk is consciously accepted, not mitigated | Kit author | **Accepted** |
 | RISK-012 | Solo developer, no redundancy | 3 | 2 | **6** | → | This workspace **is** the mitigation — the specs outlive the session that wrote them. Accepted knowingly | Kit author | **Accepted** |
-| RISK-013 | Licence / attribution position on blueprints derived from a published method (Q-007) | 3 | 2 | **6** | → | **Unresolved.** Must be answered before release, not after | Kit author | **Open** |
+| RISK-013 | Licence / attribution position on blueprints derived from a published method (Q-007) | 3 | 2 | **6** | **↓** | **Q-007 answered 2026-08-04: MIT on the original work plus `ATTRIBUTION.md`** naming the method's source — both shipped at the repository root. This row said "must be answered before release, not after", and it was | Kit author | **Mitigated** |
 
 > Track the **trend**, not just the snapshot. A medium risk getting worse deserves more
 > attention than a high one already being mitigated.
