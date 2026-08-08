@@ -4,10 +4,10 @@
 > Ch. 12 §12.4.
 
 This folder holds the **runnable** tests. The written plans and specifications they come
-from live in [`../tests/`](../01-plan/test-plan.md).
+from live in [`../01-plan/test-plan.md`](../01-plan/test-plan.md).
 
 ```
-03-tests/
+05-executable/
   unit/           # small behavior tests
   integration/    # API, database, and workflow tests
   end-to-end/     # complete user flows
@@ -19,12 +19,12 @@ from live in [`../tests/`](../01-plan/test-plan.md).
 
 | Plan document | Executable location |
 |---|---|
-| [`../tests/unit-tests.md`](../02-functional/unit-tests.md) | `unit/` |
-| [`../tests/integration-tests.md`](../02-functional/integration-tests.md) | `integration/` |
-| [`../tests/end-to-end-tests.md`](../02-functional/end-to-end-tests.md) | `end-to-end/` |
-| [`../tests/security-tests.md`](../03-non-functional/security-tests.md) | `integration/` (negative cases) |
-| [`../tests/edge-cases-and-failures.md`](../04-failure/edge-cases-and-failures.md) | matching level |
-| [`../tests/acceptance-tests.md`](../02-functional/acceptance-tests.md) | `end-to-end/` or `integration/` |
+| [`unit-tests.md`](../02-functional/unit-tests.md) | `unit/` |
+| [`integration-tests.md`](../02-functional/integration-tests.md) | `integration/` |
+| [`end-to-end-tests.md`](../02-functional/end-to-end-tests.md) | `end-to-end/` |
+| [`security-tests.md`](../03-non-functional/security-tests.md) | `integration/` (negative cases) |
+| [`edge-cases-and-failures.md`](../04-failure/edge-cases-and-failures.md) | matching level |
+| [`acceptance-tests.md`](../02-functional/acceptance-tests.md) | `end-to-end/` or `integration/` |
 
 ---
 
@@ -33,9 +33,9 @@ from live in [`../tests/`](../01-plan/test-plan.md).
 Include the test ID and the requirement so a failure points straight at the spec:
 
 ```
-unit/test_UTEST-001_recipe_requires_title_and_line.py
-integration/test_ITEST-001_save_recipe_scoped.py
-end-to-end/test_E2E-002_plan_to_shopping_list.py
+unit/test_UTEST-003_list_generation.py
+integration/test_ITEST-006_delete_recipe_blocked.py
+end-to-end/test_ETEST-001_plan_list_tick_flow.py
 ```
 
 ---

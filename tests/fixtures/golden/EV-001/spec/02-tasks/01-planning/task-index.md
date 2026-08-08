@@ -8,16 +8,12 @@
 
 | Task ID | Title | Requirement | Priority | Depends on | Status | Owner (human / agent) | Test IDs |
 |---|---|---|---|---|---|---|---|
-| TASK-001 | Project structure and config loading | — | P0 | — | Not started | agent | — |
-| TASK-002 | Account model and sign-in | REQ-F-001 | P0 | TASK-001 | **Blocked** | agent | STEST-001 |
-| TASK-003 | Recipe + ingredient-line data model | REQ-F-002 | P0 | TASK-001 | Not started | agent | UTEST-001 |
-| TASK-004 | Save-recipe API and validation | REQ-F-002 | P1 | TASK-003 | Not started | agent | ITEST-001, UTEST-002 |
-| TASK-005 | Recipe form and list UI | REQ-F-002 | P1 | TASK-004 | Not started | agent | E2E-001 |
-| TASK-006 | Recipe search | REQ-F-003 | P1 | TASK-004 | Not started | agent | ITEST-002 |
-| TASK-007 | Weekly plan: create and add planned meals | REQ-F-004 | P1 | TASK-003 | Not started | agent | ITEST-003 |
-| TASK-008 | Generate one shopping list from a plan (core) | REQ-F-005 | P1 | TASK-007 | **Blocked** | agent | ATEST-001, UTEST-003, FTEST-001 |
-| TASK-009 | View and check off shopping-list items | REQ-F-005 | P2 | TASK-008 | Not started | agent | E2E-002 |
-| TASK-010 | Dish-photo upload (private) | REQ-F-002 | P2 | TASK-005 | Not started | agent | STEST-002 |
+| TASK-001 | Project skeleton and account sign-in | REQ-F-005 | P0 | — | Not started | AI agent | ATEST-007, STEST-002 |
+| TASK-002 | Save a recipe with its ingredient lines | REQ-F-001 | P0 | TASK-001 | Not started | AI agent | ATEST-001, ITEST-001, FTEST-001 |
+| TASK-003 | Search saved recipes | REQ-F-002 | P1 | TASK-002 | Not started | AI agent | ATEST-005, ITEST-002 |
+| TASK-004 | Plan which meals to cook in a week | REQ-F-003 | P1 | TASK-002 | Not started | AI agent | ATEST-006, ITEST-003, FTEST-006 |
+| TASK-005 | Generate one shopping list from a week | REQ-F-004 | P1 | TASK-004 | Not started | AI agent | ATEST-002, UTEST-003, STEST-001 |
+| TASK-006 | Tick off shopping-list items | REQ-F-006 | P2 | TASK-005 | Not started | AI agent | ATEST-008, ITEST-005 |
 
 **Status values:** Not started · In progress · Blocked · In review · Done · Rejected
 
@@ -25,38 +21,29 @@
 
 | Priority | Meaning | Example |
 |---|---|---|
-| P0 | Must exist before related work can begin. | Account model, recipe model, project structure. |
-| P1 | Required for the feature to be usable. | Save-recipe API, list generation, search. |
-| P2 | Useful improvement after core behavior works. | Check-off items, photo upload. |
-| P3 | Future or polish item. | — none yet. |
+| P0 | Must exist before related work can begin. | Account model, private data scoping. |
+| P1 | Required for the feature to be usable. | Save recipe, plan a week, generate the list. |
+| P2 | Useful improvement after core behavior works. | Ticking list items off. |
+| P3 | Future or polish item. | Animation, theme variation, optional shortcut. |
 
 > When using an AI agent, start with P0 and P1. Do not give it P2 or P3 work until the
 > foundation is implemented, tested, and reviewed.
-
-**TASK-002 blocked by:** Q-006 — the authentication model is not decided, so sign-in cannot be
-built.
-
-**TASK-008 blocked by:** Q-009 — whether identical ingredients across meals are merged (and how
-units combine) is undecided, and it changes the core generation logic.
 
 ---
 
 ## Dependency map
 
 Draw the build order. If a task cannot be *tested correctly* without an earlier task,
-there is a dependency (Ch. 14 §14.4).
+there is a dependency (Ch. 14 §14.4). Each task is a thin vertical slice — one feature end to
+end — because a slice is reviewable by using it.
 
 ```
-TASK-001 (structure + config)
-    ├── TASK-002 (account + sign-in)        [BLOCKED on Q-006]
-    └── TASK-003 (recipe model)
-            ├── TASK-004 (save-recipe API)
-            │       ├── TASK-005 (recipe UI)
-            │       │       └── TASK-010 (photo upload)
-            │       └── TASK-006 (search)
-            └── TASK-007 (weekly plan)
-                    └── TASK-008 (generate list)   [BLOCKED on Q-009]
-                            └── TASK-009 (view / check off)
+TASK-001 (skeleton + account sign-in)
+    └── TASK-002 (save a recipe)
+            ├── TASK-003 (search recipes)
+            └── TASK-004 (plan a week + delete guard)
+                    └── TASK-005 (generate one list — core)
+                            └── TASK-006 (tick items off)
 ```
 
 ---

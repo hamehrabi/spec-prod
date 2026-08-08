@@ -12,11 +12,8 @@ system becomes slow?
 
 | Test ID | Workflow | Metric | Target | Data volume | Action if exceeded | Status |
 |---|---|---|---|---|---|---|
-| PTEST-001 | Generate shopping list | Response time | Feels immediate [TODO: precise target depends on scale — Q-001] | a week of up to ~21 meals | Check query design; avoid an N+1 over ingredients. | Planned |
-| PTEST-002 | Recipe search | Response time | Feels immediate | one cook's recipe library | Add an index on `recipes(account_id)`. | Planned |
-
-Performance is **not** a driving characteristic here (single user, small data), so targets are
-kept simple and honest.
+| PTEST-001 | Generate one shopping list (REQ-NF-001, REQ-F-004) | Response time | Prompt for one cook's library — the concrete threshold is deferred (`Q-010`) and set as a fitness function once chosen | one cook's recipes and one week | Profile the gather query; add an index; revisit `Q-010`. | Planned |
+| PTEST-002 | Search saved recipes (REQ-F-002) | Response time | Returns promptly over one person's library | one cook's recipes | Add an index or simplify the query. | Planned |
 
 ---
 
@@ -24,10 +21,10 @@ kept simple and honest.
 
 | Feature | Simple performance expectation |
 |---|---|
-| Recipe list | Should load quickly for one cook's library. |
-| Shopping-list generation | Should feel immediate for a week of meals. |
-| Search | Results should appear quickly for common queries. |
-| Photo upload | A bounded upload; the UI stays responsive. |
+| Weekly plan page | Should load quickly for one cook's plan. |
+| Recipe list and search | Should handle one person's library without freezing. |
+| List generation | Should return promptly for a planned week. |
+| No external calls | Version one calls no external service (`Q-007`), so no third-party latency applies. |
 
 ---
 
@@ -35,9 +32,9 @@ kept simple and honest.
 
 | Weak statement | Stronger requirement |
 |---|---|
-| "The list should generate fast." | "Shopping-list generation should feel immediate for a week of up to 21 planned meals." |
-| "Search should be quick." | "Recipe search should return results quickly for one cook's library." |
-| "The app should be responsive." | "The plan → list path should not block the UI." |
+| "The list should generate fast." | "List generation should return within the target set by `Q-010` for one cook's library." |
+| "Search should be quick." | "Recipe search should return results promptly over one person's library." |
+| "The app should support many users." | Not a version-one target — one user (`Q-001`); revisit at a real multi-user count. |
 
 ---
 
@@ -45,11 +42,11 @@ kept simple and honest.
 
 | Performance risk | What to check |
 |---|---|
-| Repeated queries | Does list generation query per ingredient in a loop (N+1)? |
+| Repeated queries | Does the code query the database inside a loop while gathering ingredient lines? |
 | Overfetching | Does it load fields or records that are not needed? |
-| Slow external calls | n/a in v1 — no external service. |
-| Missing limits | Can a request return unbounded records? |
-| Blocking work | Should photo processing move to a background job? |
+| Slow external calls | Not applicable in version one — no external calls (`Q-007`). |
+| Missing limits | Can a request return an unbounded result set? |
+| Blocking work | Should heavy work move to a background job? (None in version one.) |
 
 > Only refactor for performance when the change supports a clear goal: faster response,
 > lower cost, fewer failures, or simpler scaling. Avoid asking the agent to "optimize
@@ -62,7 +59,7 @@ kept simple and honest.
 Set realistic targets for the version you are building now. Overengineering performance
 too early makes the system harder to finish and harder to understand.
 
-Production performance signals → [`../ops/monitoring-plan.md`](../../07-ops/02-monitoring/monitoring-plan.md)
+Production performance signals → [`../../07-ops/02-monitoring/monitoring-plan.md`](../../07-ops/02-monitoring/monitoring-plan.md)
 
 ---
 

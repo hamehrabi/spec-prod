@@ -15,24 +15,24 @@ Target users:
 User goals:
 
 Must-have requirements:
-  -
-  -
+  - 
+  - 
 
 Acceptance criteria:
-  -
-  -
+  - 
+  - 
 
 Non-goals for this release:
-  -
+  - 
 
 Known constraints:
-  -
+  - 
 
 Risks and sensitive areas:
   - [security, privacy, reliability, usability, compliance]
 
 Open questions:
-  -
+  - 
 
 Decision owner:
 Date of handoff:
@@ -92,6 +92,66 @@ Engineering should refuse a handoff that cannot answer these:
 - [ ] Are the non-goals written down?
 - [ ] Are risks and sensitive areas identified?
 - [ ] Are open questions listed with a decision owner?
+
+---
+
+# Worked example — Pantry, generate one shopping list
+
+```
+Feature name:      Generate ONE shopping list from a weekly plan
+Problem statement: A home cook chooses a week of meals but then has to read every recipe
+                   and hand-write a combined shopping list, merging duplicate ingredients
+                   by hand. It is slow and error-prone, and it is the reason Pantry exists.
+Target users:      The single account owner planning a week of home cooking.
+User goals:        Turn the chosen week of meals into one consolidated shopping list without
+                   re-reading each recipe.
+
+Must-have requirements:
+  - A signed-in cook can generate one shopping list from their weekly plan (REQ-F-004).
+  - Ingredient lines from all planned meals are consolidated into shopping-list items.
+  - Only the owner's plan and recipes are read (BR-002, SEC-Z-001).
+
+Acceptance criteria:
+  - Given a weekly plan of planned meals, when the cook generates the list, then all
+    ingredient lines are consolidated into one ShoppingList of items.
+  - Given a list already exists for that week, when the cook generates again, then the
+    previous list is replaced, not duplicated (BR-001).
+  - Given another account's plan, when its data is requested, then the response is a safe
+    not-found (BR-002, SEC-Z-001).
+
+Non-goals for this release:
+  - Sharing a list with anyone else
+  - Nutrition information
+  - Pricing or cost estimates
+  - Importing recipes from external sites
+
+Known constraints:
+  - ADR-001: list-generation is a core module, separate from recipe storage and Account/Auth
+  - ADR-002: relational store, portable SQL only (SQLite now, Postgres-ready)
+
+Risks and sensitive areas:
+  - Data exposure: the list must never include another account's recipes (SEC-Z-001).
+  - Reliability: regenerating a list must not leave two lists for one week (BR-001).
+  - Usability: how a generation failure is shown to the cook.
+
+Open questions:
+  - Q-013: what should the cook see when list generation fails partway?
+    decision owner: Product owner
+
+Decision owner: Product owner
+Date of handoff: 2026-08-08
+```
+
+## What engineering did with it
+
+| Handoff item | Became |
+|---|---|
+| Must-have requirements | REQ-F-004 in `../../01-docs/02-requirements/requirements.md` |
+| Acceptance criteria | ATEST/STEST families for consolidation, BR-001 replacement, and account scoping |
+| "list-generation is a core module" | ADR-001 (module boundary), FF-001 |
+| Data-exposure risk | Account-scoped read enforced (BR-002, SEC-Z-001) |
+| Reliability risk | BR-001 replacement test |
+| Q-013 | [TODO: what should the cook see when list generation fails partway? (Q-013)] — blocks the failure-UX portion of TASK-005 until answered |
 
 ---
 

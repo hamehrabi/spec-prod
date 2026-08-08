@@ -5,14 +5,11 @@
 
 **Project name:** Pantry
 
-**Problem you want to solve:** Home cooks keep recipes scattered across screenshots,
-bookmarks and handwritten cards. Planning a week of meals means opening six places and still
-forgetting something at the shop — a second trip, and food that goes off.
+**Problem you want to solve:** Home cooks keep recipes scattered across screenshots, bookmarks, and handwritten cards, and when they plan a week of meals they forget items at the shop — costing a second trip and food that spoils.
 
-**Primary users:** Individual home cooks (B2C), using it for themselves.
+**Primary users:** Individual home cooks (B2C), managing their own recipes and weekly meal planning.
 
-**Main outcome:** A cook keeps their recipes in one place and turns a week of chosen meals
-into one shopping list, forgetting nothing.
+**Main outcome:** A cook keeps recipes in one place, plans a week, and shops from a single list — fewer second trips, less waste.
 
 **Must-have features:**
 - Save a recipe with its ingredients
@@ -21,14 +18,13 @@ into one shopping list, forgetting nothing.
 - Search saved recipes
 
 **Out-of-scope features:**
-- Recorded in [`constraints-and-non-goals.md`](constraints-and-non-goals.md) — out-of-scope was not decided at this depth (Round 2).
+- [TODO: what is explicitly out of scope for version one? — deferred at express depth (Q-004)]
 
 **Known constraints:**
-- [TODO: what is the build horizon for version one? — Q-002]
-- Further hard constraints: see [`constraints-and-non-goals.md`](constraints-and-non-goals.md) (Round 2).
+- A browser-based web application used by one individual consumer.
+- [TODO: what hard constraints already exist — budget, single small server, data-storage limits, mandated technology? — deferred at express depth (Q-005)]
 
-**Success signal:** A cook plans a week and the app produces one shopping list that includes
-every ingredient of every planned meal — no second trip for a forgotten item.
+**Success signal:** A cook plans a week of meals and shops from a single list with no forgotten-item second trip.
 
 ---
 
@@ -38,8 +34,8 @@ Write these in two columns. Do not let implementation ideas contaminate the visi
 
 | Vision statement (what should improve) | Implementation idea (how it might be built) |
 |---|---|
-| A cook can find any of their recipes in one place instead of six. | A saved-recipe store with search over titles and ingredients. |
-| A week of chosen meals becomes one shopping list, with nothing forgotten. | A weekly plan of meals, and a step that rolls its recipes' ingredients into a single list. |
+| A home cook keeps every recipe in one place instead of scattered screenshots, bookmarks, and cards. | You may need a saved-recipe store that holds each recipe with its ingredients. |
+| A week of chosen meals becomes one shopping list, so nothing is forgotten at the shop. | You may need a weekly plan that aggregates its meals' ingredients into a single list. |
 
 ---
 
@@ -47,11 +43,11 @@ Write these in two columns. Do not let implementation ideas contaminate the visi
 
 | Question | Answer |
 |---|---|
-| Who is this for? (the actual user, not the requester) | An individual home cook, cooking for themselves. |
-| What problem hurts enough to solve? | Scattered recipes and forgotten shopping items that cause a second trip and wasted food. |
-| What outcome should improve? | Planning a week and shopping for it becomes one task; nothing is forgotten. |
-| What must the system **not** do? | See [`constraints-and-non-goals.md`](constraints-and-non-goals.md) (Round 2). |
-| What constraints already exist? | [TODO: build horizon for version one — Q-002]; further constraints in [`constraints-and-non-goals.md`](constraints-and-non-goals.md). |
+| Who is this for? (the actual user, not the requester) | Individual home cooks — not a business or a team. |
+| What problem hurts enough to solve? | Recipes are scattered, and shopping for a planned week forgets items, causing second trips and spoiled food. |
+| What outcome should improve? | One place for recipes; a week planned; a single shopping list; fewer second trips and less waste. |
+| What must the system **not** do? | [TODO: what is explicitly out of scope for version one? — deferred at express depth (Q-004)] |
+| What constraints already exist? | A browser-based web app for one individual consumer. Fuller hard constraints not yet decided — [TODO: what hard constraints already exist? — deferred at express depth (Q-005)] |
 
 ---
 
@@ -60,10 +56,7 @@ Write these in two columns. Do not let implementation ideas contaminate the visi
 > [Affected user] currently faces [difficulty], which causes [consequence].
 > The system should [desired improvement].
 
-**Your problem statement:** Home cooks currently keep recipes scattered across screenshots,
-bookmarks and handwritten cards and forget items when shopping for a week of meals, which
-costs them a second trip and food that goes off. The system should keep their recipes in one
-place and turn a week of chosen meals into one complete shopping list.
+**Your problem statement:** Home cooks currently keep recipes scattered across screenshots, bookmarks, and handwritten cards and forget items when shopping for a planned week, which causes second trips and food that spoils. The system should let them keep recipes in one place, plan a week, and shop from a single list.
 
 ---
 

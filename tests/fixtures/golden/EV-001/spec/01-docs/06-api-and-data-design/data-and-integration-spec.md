@@ -3,41 +3,32 @@
 > Source: Ch. 9 §9.7–9.9 — "Technical Specification Template: Data, API, and Integration".
 > Use this when a feature crosses the boundary into an external service.
 
-**Feature name:** Pantry — data and integration overview
-**Requirement:** REQ-F-001 … REQ-F-005
+**Feature name:** Version one — data and integrations (Pantry)
+**Requirement:** REQ-F-001 – REQ-F-006
 
 ---
 
 ## 1. Entities
 
-- **Account** — the single cook.
-  - Key fields: id, email, password_hash
-  - Relationships: owns recipes, weekly plans, shopping lists
-- **Recipe / IngredientLine** — a saved recipe and its ingredients.
-- **WeeklyPlan / PlannedMeal** — a week's chosen meals.
-- **ShoppingList / ShoppingListItem** — one list generated from a plan.
-
-Full field detail: [`database-design.md`](database-design.md).
+- **Account, Recipe, IngredientLine, WeeklyPlan, PlannedMeal, ShoppingList, ShoppingListItem** — the full model, key fields, and relationships are defined once in [`database-design.md`](database-design.md) §1.
+  - Key fields: see `database-design.md` §1 and §3.
+  - Relationships: Account owns recipes and weekly plans; a plan has planned meals and one shopping list of items.
 
 ## 2. Database rules
 
-- Primary keys: `id` on every table.
-- Foreign keys: every child references its parent; all trace back to `accounts.id`.
-- Unique constraints: `accounts.email`.
-- Required indexes: `recipes.account_id`, `weekly_plans.account_id`, `shopping_lists.account_id`.
-- Deletion behavior: hard delete; children removed with their parent.
+- Primary keys: every table has an `id` primary key (see `database-design.md` §3).
+- Foreign keys: the ownership chain to `accounts.id`; `shopping_lists.weekly_plan_id` unique.
+- Unique constraints: `accounts.email`; `weekly_plans (account_id, week_start_date)`; `shopping_lists.weekly_plan_id`.
+- Required indexes: `recipes.account_id`, `weekly_plans.account_id`, `planned_meals.weekly_plan_id`.
+- Deletion behavior: cascade within a plan; recipe delete blocked while referenced (BR-004). See `database-design.md` §7.
 
 ## 3. API endpoints
 
-Full contract: [`api-specification.md`](api-specification.md). All endpoints are scoped to
-the signed-in account.
+- Defined once in [`api-specification.md`](api-specification.md). No endpoint is repeated here.
 
 ## 4. Validation rules
 
-- Required fields: recipe title and at least one ingredient line (BR-002).
-- Allowed values: `shopping_list_items.checked` is boolean.
-- Relationship checks: a planned meal must reference a recipe the same account owns.
-- Permission checks: only the account owner may read or write their data.
+- Defined with the endpoints in [`api-specification.md`](api-specification.md) (required fields, allowed values, relationship and permission checks).
 
 ## 5. Integration rules
 
@@ -45,31 +36,19 @@ An integration connects your system to something outside it: payments, email, ca
 identity providers, storage, analytics, AI model APIs. Outside services fail, change,
 rate-limit, and return the unexpected — specify that **before** implementation.
 
-> **Resolved (Round 6, Q-007): none in version one.** Pantry depends on no external services,
-> so there are no integration blocks and no paid-API rate limit to manage.
-
-| Item | Definition |
-|---|---|
-| Provider | None in version one. |
-| Purpose | — |
-| Data sent | — |
-| Data received | — |
-| Data stored | — |
-| Timeout | — |
-| Retry rule | — |
-| Idempotency | — |
-| Failure behavior | — |
-| Security rule | Secrets, if any, come from the environment — never hardcoded, never sent to the frontend. |
-| Rate limits | None — no external or paid API. |
+**None.** Version one depends on no external service (`Q-007`, answered in Round 6), so there are
+no external integration blocks, and no provider timeout, retry, or rate-limit rules are needed.
+If an external service is ever added, complete the integration table (provider, data in/out,
+timeout, retry, idempotency, failure behaviour, secrets, rate limits) before implementation.
 
 > **Security reminder (Ch. 9 §9.7):** never design an integration that exposes secrets to
 > the frontend or stores tokens in plain text.
 
 ## 6. Versioning rules
 
-- Current version: v1
-- Breaking-change policy: additive within v1; renames or removals require v2.
-- Compatibility notes: consumed only by the Pantry web UI.
+- Current version: API v1 (see [`api-specification.md`](api-specification.md)).
+- Breaking-change policy: additive within v1; renames/removals/type changes ship as v2.
+- Compatibility notes: the only client is Pantry's own web UI.
 
 ---
 

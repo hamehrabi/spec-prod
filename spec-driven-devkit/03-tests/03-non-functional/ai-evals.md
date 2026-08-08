@@ -258,6 +258,7 @@ Re-run it on **any** of these:
 | EV-001, rounds 1–3 only, express | 2026-08-08 | **BUG-038 verified**; 7 fixes still unobserved | 25 min (hit the ceiling) | not itemised | Partial — recorded |
 | EV-001, rounds 1–7, express | 2026-08-08 | **5 fixes verified, 1 partial, 2 not reached** | **32 min** · 1 118 turns · 40 files | not itemised | Partial — recorded |
 | EV-001, all 8 rounds, express | 2026-08-08 | **ALL EIGHT FIXES VERIFIED** | **67 min** · 1 852 turns · 81 files | not itemised | Recorded, not accepted |
+| EV-001 fixture swap (TASK-016) | 2026-08-08 | The run above **became the golden fixture**; 18 GOLD-001 pins failed on the swap and were rewritten against the produced files, none softened; suite 695/695 | — (no run — consumed the row above) | $0 | **Accepted — the committed baseline** |
 
 > **This row was corrected downwards after it was published, and the correction is the point.**
 > It read *"9 of 11 scorers at floor; 2 breaches"*. Two of those nine — `inference_stated` and
@@ -389,13 +390,28 @@ it against a defect curve where two runs found five defects.
 > earlier this week**, and between them these three nearly buried one real result and nearly
 > manufactured two false ones.
 >
-> **So all eight fixes are verified. The GOLDEN FIXTURE IS STILL THE PRE-FIX ONE** — it has not
-> been replaced, so `GOLD-001` passing means the old workspace still has its old defects, which
-> is a different claim from the one this row makes.
-> `GOLD-001` still pins every one of those defects as PRESENT, because the committed fixture
-> predates the fixes and the pins describe it correctly. A green suite therefore means "the old
-> workspace still has the defects it had" — not "the fixes work". Nothing was adjusted to look
-> otherwise, which is the only reason this row can be trusted.
+> **The paragraph that stood here said the golden fixture was still the pre-fix one. It no
+> longer is.** TASK-016 swapped the eight-round run's output in whole on 2026-08-08, and the
+> swap behaved exactly as the rule demanded: **eighteen GOLD-001 pins failed on the new
+> fixture**, each was re-examined against the produced files, and every pin naming a fixed
+> defect was flipped to assert the fix as present — none had to be softened, which is the
+> evidence the rule exists to force. The suite is 695/695 against the new baseline.
+>
+> What the swapped-in workspace still carries, measured rather than remembered:
+>
+> - **Check 2 is the one failing check: 27 duplicate definitions**, up from ten, and systemic.
+>   Six task files restate the scenario and expected result of the 22 tests they should cite,
+>   and two summarising files re-mint Q rows the register owns — `technical-spec.md` invents a
+>   four-row "Decision needed" table one line below its link to `open-questions.md`. No single
+>   blueprint owns that fix, which is why it survived a payload pass that fixed eight others.
+>   An earlier report that header fixes had brought duplication "from 23 to 5" was a
+>   **simulation artefact — retracted**; 27 is what a fresh run produces.
+> - **Zero real placeholder gaps** for the first time: the survivals are the ADR template plus
+>   two italics the run authored about its own empty sections (the BUG-042 shape).
+> - **The swap itself shipped a truncated copy first.** `spec/CLAUDE.md` is written LAST, and
+>   the copy was taken three minutes before the run's final write — 86 files complete, missing
+>   exactly the file whose presence means "this run finished". Two tests caught it. Swap rule:
+>   `diff -rq` against the sandbox AFTER the runner's process exits, never while it is live.
 
 **The eight-round row is the more useful measurement, and it cost seven defects to get.** The
 three breaches are not the run being sloppy; each traces to something no partial workspace

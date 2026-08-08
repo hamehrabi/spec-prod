@@ -9,25 +9,26 @@
 ## Pack
 
 ```
-Project:
-Current release goal:
-Source-of-truth location:
-Decision owner:
-Product owner:
-Engineering owner:
-Reviewer(s):
-AI agent role:
+Project:                Pantry
+Current release goal:   Turn a week of chosen meals into ONE shopping list (v1 core, REQ-F-004)
+Source-of-truth location: 01-docs/ (requirements, specs, decisions), 02-tasks/, 03-tests/
+Decision owner:         Product owner
+Product owner:          Product owner
+Engineering owner:      Engineering owner
+Reviewer(s):            Engineering owner (review checklists in 05-review/)
+AI agent role:          Implements one bounded task at a time from the approved specs
 
-Current requirements:
-Current technical spec:
-Active tasks:
-Test plan:
-Open questions:
-Scope changes:
-Feedback items:
+Current requirements:   REQ-F-001..006, REQ-NF-001..007, REQ-R-001 (01-docs/02-requirements/requirements.md)
+Current technical spec: 01-docs/04-technical-spec/technical-spec.md (+ ADR-001, ADR-002)
+Active tasks:           TASK-001..006 (02-tasks/02-task-files/)
+Test plan:              03-tests/01-plan/test-plan.md (ATEST/UTEST/ITEST/STEST/PTEST/ETEST/FTEST)
+Open questions:         Q-005, Q-009, Q-010, Q-012, Q-013, Q-015, Q-016, Q-018 (01-docs/01-intent/open-questions.md)
+Scope changes:          02-tasks/03-control/scope-change-log.md
+Feedback items:         05-review/
 
-Next review date:
-Definition of done:
+Next review date:       [TODO: schedule the next spec review session (Q-015)]
+Definition of done:     Task's acceptance criteria pass; tests added/updated; account scoping
+                        holds (BR-002, SEC-Z-001); no out-of-scope changes; report produced.
 ```
 
 ---
@@ -83,6 +84,22 @@ Alignment is not a one-time meeting. It is a rhythm.
 | Feedback | Feedback items have affected artifacts, owners, decisions, and status. | [ ] |
 | Scope change | Accepted changes update requirements, design, tests, tasks, and traceability. | [ ] |
 | Alignment rhythm | The team has regular reviews for open questions, decisions, drift, and next tasks. | [ ] |
+
+---
+
+# Worked example — coordinating the shopping-list feature with an agent
+
+| Artifact | Team action | AI-agent action | Review evidence |
+|---|---|---|---|
+| Product handoff | PM defines the "one list per week" goal, the single owner, acceptance criteria, non-goals (no sharing/nutrition/pricing/import). | None yet. | REQ-F-004 approved. |
+| Technical plan | Developer sets the ShoppingList module boundary and the account-scoped read rule. | Agent is asked to **critique the design for gaps**. | technical-spec.md + ADR-001 updated. |
+| Task brief | Developer creates one task: generate list tests from REQ-F-004 acceptance criteria. | Agent drafts **test cases only** (consolidation, BR-001 replacement, scoping). | Tests reviewed before code. |
+| Implementation | Developer assigns TASK-005 (generate one list). | Agent generates draft code and notes assumptions. | Code reviewed against REQ-F-004 and ADR-001. |
+| Feedback | Reviewer flags the failure-UX path is unspecified (Q-013). | Agent updates tests and code **after** the spec update. | Regression test added. |
+| Spec update | Team records the Q-013 decision and updates traceability. | Agent receives a **refreshed context pack** for the next task. | Source of truth matches implementation. |
+
+> **Team principle:** AI agents do not remove the need for teamwork. They increase the need
+> for clear handoffs, shared context, explicit decisions, and disciplined review.
 
 ---
 

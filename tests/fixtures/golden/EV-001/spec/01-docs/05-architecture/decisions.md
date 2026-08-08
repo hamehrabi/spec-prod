@@ -12,13 +12,10 @@ performance in a lasting way, promote it to an ADR in
 
 | ID | Date | Decision | Options considered | Why this one | Affects | Promoted to ADR? |
 |---|---|---|---|---|---|---|
-| DD-001 | 2026-08-07 | Use a modular monolith. | Simple monolith; modular monolith; service-based; serverless. | Structure without deployment complexity for a one-person build; cheap to reverse. | All | **ADR-001** |
-| DD-002 | 2026-08-07 | Relational database — SQLite now, schema kept Postgres-portable. | Relational (SQLite/Postgres); document store; embedded key-value. | Data is relational; SQLite fits one user with no server; nothing in the schema blocks Postgres later. | REQ-NF-005 | **ADR-002** |
-
-> **Still open:** the authentication model is not decided (Q-006), and the pre-launch
-> "safe to run for real" conditions were not asked at this depth — [TODO: what must be true
-> before this is safe to run for real? — Q-013]. Those become production-readiness checks
-> (Round 8) and fitness functions (`../04-technical-spec/fitness-functions.md`).
+| DD-001 | 2026-08-08 | Use a modular monolith with named domain modules. | Simple monolith; modular monolith; microservices. | Structure without deployment complexity for one developer and one user; keeps the core list logic isolated (`REQ-NF-005`). | All modules | **ADR-001** |
+| DD-002 | 2026-08-08 | Relational store — SQLite now, with nothing SQLite-only in the schema so it can become Postgres unchanged. | SQLite only; relational SQLite→Postgres-ready; document store. | Enforces the recipe/plan/list relationships (BR-001–BR-004) and lets a one-person store grow without a rewrite. | `REQ-F-001`–`REQ-F-004`, data model | **ADR-002** |
+| DD-003 | 2026-08-08 | List generation lives in its own ShoppingList service, separate from recipe storage and account/auth. | Logic in route handlers; a dedicated service module. | Keeps the competitive core testable and portable; guards `REQ-NF-005` and FF-001. | `REQ-F-004`, `REQ-NF-005` | n/a |
+| DD-004 | 2026-08-08 | Block deletion of a recipe while a weekly plan still references it. | Cascade delete; soft delete; block. | Prevents a deletion from silently breaking a planned week (BR-004). | BR-004 | n/a |
 
 ---
 
@@ -30,25 +27,6 @@ Related requirement: REQ-###
 Decision:
 Reason:
 Consequences:
-```
-
-## Design decision detail — DD-002
-
-```
-Design Decision ID: DD-002
-Related requirement: REQ-NF-005, REQ-F-005
-Decision:
-  Use a relational database. Run on SQLite while Pantry is one person's, and keep the schema
-  free of anything that would stop it becoming Postgres (generic types, standard SQL,
-  reversible migrations).
-Reason:
-  The data is relational (account -> recipes -> ingredient lines; plan -> planned meals ->
-  list). SQLite is the simplest thing that works for a single user and needs no server.
-  Postgres is the growth path, so the schema avoids SQLite-only features.
-Consequences:
-  - Migrations must be reversible and portable (database-design.md §8).
-  - No SQLite-specific SQL or column types in the schema.
-  - The AI assistant must not use a feature only one of SQLite/Postgres supports.
 ```
 
 ---

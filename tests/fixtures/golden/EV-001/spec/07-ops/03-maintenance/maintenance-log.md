@@ -10,7 +10,7 @@
 | Date | Signal source | Observation | Classification | Root cause | Action taken | Spec updated | Test added | Owner |
 |---|---|---|---|---|---|---|---|---|
 
-No maintenance entries yet — the build has not started.
+No entries yet — the first maintenance action adds the first row.
 
 ---
 
@@ -43,7 +43,7 @@ Owner:
 | ID | Issue | Impact | Workaround | Planned fix | Documented for support |
 |---|---|---|---|---|---|
 
-No known issues yet.
+No entries yet — no known issues recorded before first production use.
 
 ---
 
@@ -51,9 +51,9 @@ No known issues yet.
 
 | Topic | Note |
 |---|---|
-| Capacity assumptions | Single user, small dataset. |
-| Recurring manual steps | Dish-photo orphan cleanup runs on a schedule, if photos are stored. |
-| Seasonal/traffic patterns | Likely peaks around weekly meal planning. |
+| Capacity assumptions | Single B2C user, one account, no sharing — sized for one home cook. |
+| Recurring manual steps | Nightly backup verification and periodic restore test (see [`maintenance-notes.md`](maintenance-notes.md)). |
+| Seasonal/traffic patterns | Evening use (meal planning); no 24/7 demand. |
 | Dependencies with known instability | None — no external services in v1 (Q-007). |
 
 Runbook → [`../ops/runbook.md`](../02-monitoring/runbook.md)

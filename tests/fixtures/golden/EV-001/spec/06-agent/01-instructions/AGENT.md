@@ -14,14 +14,15 @@ the approved requirements, specifications, tasks, and tests.
 
 ## Project goal
 
-Pantry is a single-user web app that keeps one home cook's recipes in one place, lets them
-plan a week of meals, and turns that week into a single shopping list. Version one is a
-modular monolith (ADR-001) on a relational store — SQLite now, kept Postgres-portable
-(ADR-002).
+Pantry is a recipe and shopping-list web application for a single home cook (one account, no
+sharing). The core capability is turning a week of chosen meals into ONE shopping list: the
+cook saves recipes, searches them, plans a week of meals, then generates a single
+consolidated list and ticks items off while shopping (REQ-F-001..006).
 
 ## Current stage
 
-Task planning — the specification is complete; implementation has not started.
+Task planning → implementation (tasks TASK-001..006 defined; code written one task at a time
+by an AI coding agent).
 
 ---
 
@@ -66,6 +67,7 @@ When information conflicts, the higher item wins.
 9. Do not expose secrets, tokens, or private data — in code, logs, examples, or output.
 10. Do not rename public interfaces unless the task explicitly requires it.
 11. If a request has no matching spec entry, **pause and ask** instead of implementing it.
+12. Do not treat an open question (Q-###) as an assumption — stop and ask.
 
 ## Workflow rule
 
@@ -114,24 +116,45 @@ Every completion must include:
 - Do not expose secrets, tokens, or private data.
 - Do not expand scope without approval.
 
+## Scope boundaries (Pantry)
+
+- Build only what the current task cites. One task at a time.
+- Out of scope: sharing, nutrition, pricing, and recipe import. Do not add them.
+- Every behaviour change adds or updates a test.
+- Report unclear requirements before coding; do not fill gaps with guesses.
+
 ---
 
 ## Project-specific rules from ADRs
 
-| ADR | Rule the agent must follow |
-|---|---|
-| ADR-001 | Each feature area (recipes, planning, shopping-list) lives in a named module. Route handlers must not contain business rules. Business logic goes in domain modules, never in UI components. |
-| ADR-002 | Use portable relational SQL only — no SQLite-only or Postgres-only features. Migrations must be reversible. |
+| ADR ID | Rule the agent must follow | Fitness function ID |
+|---|---|---|
+| ADR-001 | Each feature area lives in its named module (Recipes, Planning, ShoppingList, Account/Auth). Route handlers contain no business rules; business logic lives in domain modules, never in UI components. No module reaches another account's data. | FF-001 |
+| ADR-002 | Use only portable SQL and types; no SQLite-only feature, function, or extension. Every migration is reversible. | FF-001 |
+| ADR-001 | Core boundary: the ShoppingList list-generation logic (REQ-F-004, BR-001) stays separate from recipe storage and Account/Auth; it must not import UI or store-specific code. | FF-001, FF-002 |
+| ADR-001 | Ownership: every read/write is scoped by `account_id`; a request for another account's data returns a safe not-found (BR-002, SEC-Z-001). | FF-002 |
+
+> **Cite the ADR; do not restate the decision.** Every accepted ADR that constrains
+> implementation gets a row here, and the right-hand cell is **the one imperative it puts on
+> the agent** — "route handlers must not contain business rules" — not the decision, the options
+> weighed, or the rationale. Those live in the ADR
+> ([`../../01-docs/05-architecture/architecture-decisions/`](../../01-docs/05-architecture/architecture-decisions/)),
+> which is the only place they are defined.
+>
+> This table used to arrive pre-numbered `ADR-001`, so it minted identifiers `adr-index.md`
+> already owned and a run filled both — one decision with two homes, free to disagree the day
+> either is edited. The ID column is blank now because it is a citation.
 
 ## Lessons from past mistakes
 
-*Add a line here whenever a bug reveals a repeatable AI mistake
-(see `05-review/debugging-specification.md`).*
+> **Keep this section current.** Add a line here whenever a bug reveals a repeatable AI
+> mistake (see `05-review/debugging-specification.md`). It is a standing habit, not a gap to
+> fill once — so it stays in the delivered file rather than being replaced by an answer.
 
 | Date | Mistake | Rule added |
 |---|---|---|
 
-No lessons recorded yet — the build has not started.
+No entries yet — the first bug that reveals a repeatable AI mistake adds the first row.
 
 ---
 

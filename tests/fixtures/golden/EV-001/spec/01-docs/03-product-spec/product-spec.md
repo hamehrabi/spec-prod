@@ -10,27 +10,21 @@
 **Product name:** Pantry
 **Version:** PRD v1.0
 **Owner:** Developer
-**Date:** 2026-08-07
+**Date:** 2026-08-08
 
 ---
 
 ## 1. Product summary
 
-Pantry is a web application for one home cook. It keeps their recipes in one place, lets
-them choose which meals to cook across a week, and turns that week into a single shopping
-list. The whole point is that planning and shopping become one quick task instead of six
-scattered ones.
+Pantry is a browser-based app for a home cook to keep all of their recipes in one place, plan which meals to cook across a week, and generate a single shopping list from that week. It is used by one person, for their own cooking, with their data private to them. The thing it competes on is turning a chosen week of meals into one shopping list, so the cook shops once instead of forgetting items and making a second trip. Everything else — saving recipes, planning the week, searching — exists to feed that one outcome.
 
 ## 2. Problem statement
 
-Home cooks keep recipes scattered across screenshots, bookmarks and handwritten cards. When
-they plan a week of meals they open six places and still forget something at the shop — a
-second trip, and food that goes off.
+Home cooks keep recipes scattered across screenshots, bookmarks, and handwritten cards. Planning a week means opening several places and still forgetting items at the shop, which costs a second trip and food that spoils.
 
 ## 3. Product goal
 
-> This product helps **a home cook** turn a week of chosen meals into one complete shopping
-> list, quickly, so nothing is forgotten.
+> This product helps **home cooks** turn a planned week of meals into one shopping list, under the constraint of a simple, single-user web app.
 
 | Weak goal | Stronger goal |
 |---|---|
@@ -42,9 +36,9 @@ second trip, and food that goes off.
 
 | # | Metric | Type |
 |---|---|---|
-| 1 | [TODO: what does success look like in the first month? — Q-010] | Measurable user or business result |
-| 2 | A week of chosen meals produces one shopping list covering every ingredient of every planned meal. | Quality or adoption signal |
-| 3 | No second trip for a forgotten item (no missing-item reports against a generated list). | Failure or risk signal to monitor |
+| 1 | [TODO: what does success look like in the first month? — deferred at express depth (`Q-010`)] | Measurable user or business result |
+| 2 | A cook shops for a planned week without a forgotten-item second trip. | Quality or adoption signal |
+| 3 | The recipe library is never lost or corrupted (a loss would end the project). | Failure or risk signal to monitor |
 
 *Examples:* "80 percent of new users create their first task within five minutes." ·
 "Average first response time is reduced by 30 percent." · "Managers can view the five core
@@ -53,10 +47,9 @@ metrics on one dashboard."
 ## 5. Goals / Non-goals
 
 **Goals**
-- Recipes live in one searchable place.
-- A week of chosen meals becomes one shopping list, fast, with nothing forgotten.
+- Keep every recipe in one place; plan a week; generate one shopping list from that week; find a saved recipe quickly.
 
-**Non-goals** → [`constraints-and-non-goals.md`](../01-intent/constraints-and-non-goals.md#non-goals--out-of-scope)
+**Non-goals** → [`constraints-and-non-goals.md`](../01-intent/constraints-and-non-goals.md#non-goals--out-of-scope) — the explicit out-of-scope list was deferred at express depth (`Q-004`).
 
 ## 6. Primary users (personas)
 
@@ -64,14 +57,14 @@ A persona reminds you that software is built for people with goals, frustrations
 and responsibilities — not for an abstract crowd.
 
 **Persona 1**
-- Role: Home cook (the account owner)
-- Goal: Cook a planned week without forgetting an ingredient at the shop.
-- Frustration: Recipes are scattered; the shopping list is assembled by hand and misses things.
-- Main use cases: Save a recipe, plan a week of meals, generate one shopping list, search recipes.
-- Success condition: Walks into the shop with one complete list.
+- Role: Home cook (the only user)
+- Goal: Cook a planned week without forgetting ingredients at the shop.
+- Frustration: Recipes are scattered across screenshots, bookmarks, and cards; the weekly shop always misses something.
+- Main use cases: Save a recipe, search recipes, plan the week, generate the shopping list, tick items off while shopping.
+- Success condition: Shops once for the whole week's meals, from one list.
 
 **Persona 2**
-- Not applicable — Pantry has a single user type (the home cook); there is no sharing, admin, or viewer role.
+- Not applicable — version one is a single-user consumer product with one role (see `REQ-R-001`). There is no reviewer, manager, or support persona.
 
 *Example (Ch. 6 §6.3)*
 
@@ -89,10 +82,11 @@ and responsibilities — not for an abstract crowd.
 
 | Feature | In-scope behavior | Why it belongs now |
 |---|---|---|
-| Save a recipe | A cook saves a recipe with a title and one or more ingredient lines. | Recipes must live in one place before a list can be built. |
-| Search recipes | A cook finds a saved recipe by title or ingredient. | A library you cannot search is scattered again. |
-| Plan a week | A cook creates a weekly plan and adds chosen recipes as planned meals. | Choosing the week is the input to the core. |
-| Generate one shopping list | A cook generates one list from a weekly plan, covering every planned ingredient. | This is the one thing the product competes on. |
+| Save a recipe | A signed-in cook saves a recipe with a title and a list of ingredient lines. | Recipes are the raw material for the week and the list. |
+| Search recipes | A cook searches their saved recipes by text. | A growing library is useless if a recipe cannot be found. |
+| Plan a week | A cook assigns saved recipes to days of a week. | Deciding the week in one place is the input to the list. |
+| Generate one shopping list | A cook generates a single list from a week's planned meals. | This is the core promise — one week, one list. |
+| Tick off list items | A cook marks items bought while shopping. | Makes the list usable in the shop. |
 
 > **Scope control habit (Ch. 6 §6.4):** for every feature you include, write one sentence
 > explaining why it belongs in this version. If you cannot explain the value, move it to
@@ -104,7 +98,7 @@ and responsibilities — not for an abstract crowd.
 
 | Feature | Reason | Future status |
 |---|---|---|
-| [TODO: explicit out-of-scope list — Q-003] | Not asked at express depth. | Waiting for information |
+| [TODO: what is explicitly out of scope for version one? — deferred at express depth (`Q-004`)] | Not asked at express depth. | Waiting for information |
 
 Full non-goals list → [`constraints-and-non-goals.md`](../01-intent/constraints-and-non-goals.md#non-goals--out-of-scope)
 
@@ -114,10 +108,19 @@ Format: `US-###: As a [specific role], I want [one clear capability], so that [b
 
 | ID | Story | Supports | Produces task | Produces test |
 |---|---|---|---|---|
-| US-001 | As a home cook, I want to save a recipe with its ingredients, so that my recipes live in one place. | REQ-F-002 | TASK-### | TEST-### |
-| US-002 | As a home cook, I want to search my saved recipes, so that I can find one again. | REQ-F-003 | TASK-### | TEST-### |
-| US-003 | As a home cook, I want to plan which meals to cook this week, so that I can decide before shopping. | REQ-F-004 | TASK-### | TEST-### |
-| US-004 | As a home cook, I want one shopping list from my week's plan, so that I shop in one trip and forget nothing. | REQ-F-005 | TASK-### | TEST-### |
+| US-001 | As a home cook, I want to save a recipe with its ingredients, so that my recipes live in one place. | REQ-F-001 | — | — |
+| US-002 | As a home cook, I want to search my saved recipes, so that I can find one quickly. | REQ-F-002 | — | — |
+| US-003 | As a home cook, I want to plan which recipes to cook across a week, so that the week is decided in one place. | REQ-F-003 | — | — |
+| US-004 | As a home cook, I want to generate one shopping list from the week, so that I can shop once without forgetting items. | REQ-F-004 | — | — |
+| US-005 | As a home cook, I want to tick items off while shopping, so that I can see what is still needed. | REQ-F-006 | — | — |
+
+> **"Produces task" and "Produces test" are written by a LATER round, not this one.** Tasks and
+> tests do not exist yet when the stories are written, so the honest value here is `—`.
+>
+> **Never write `TASK-###` or `TEST-###` into these cells.** A stub reads as an identifier that
+> exists — a reader follows it and finds nothing — and it is not the sanctioned way to record
+> something unknown. If a story still has no task once the task list is written, that is a gap
+> worth a `[TODO]`, not a stub.
 
 | Weak story | Stronger story |
 |---|---|
@@ -128,15 +131,16 @@ Format: `US-###: As a [specific role], I want [one clear capability], so that [b
 ## 10. User flows
 
 A good flow includes the start point, user action, system response, success path, and
-**at least one failure path**.
+**at least one failure path**. Failure paths matter because real users make mistakes, lose
+connection, forget fields, or lack permission.
 
-**Flow name:** Generate a shopping list from the week
-- Start: The cook opens a weekly plan with planned meals.
-- Action: The cook selects "Generate shopping list".
-- Input: The weekly plan and its planned meals' recipes.
-- System response: The system gathers every ingredient of every planned meal into one list.
-- Success path: One shopping list is shown, covering all planned ingredients.
-- Failure path: If generation fails, a clear error is shown and the weekly plan is preserved (REQ-NF-003).
+**Flow name:** Generate the week's shopping list (core)
+- Start: The cook opens a week that has planned meals.
+- Action: Selects "Generate shopping list".
+- Input: The week's planned meals (each a saved recipe with ingredient lines).
+- System response: Gathers the ingredients of every planned meal into one list.
+- Success path: The shopping list is shown; the cook can tick items off while shopping.
+- Failure path: If the week has no planned meals, an empty list with a clear message is shown — not an error (AC-003).
 
 *Example (Ch. 6 §6.7)*
 
@@ -153,26 +157,25 @@ A good flow includes the start point, user action, system response, success path
 
 | Priority | Meaning | Features |
 |---|---|---|
-| Must-have | The first useful version fails without it. | Save recipe, plan a week, generate one shopping list, search recipes. |
-| Should-have | Important, but the product can still be tested without it. | Check off items on a shopping list. |
-| Could-have | Useful improvement if time allows. | Photos of finished dishes (see Round 6). |
-| Later / Won't | Not needed for the first version. | Sharing, multi-user (Q-005). |
+| Must-have | The first useful version fails without it. | Save a recipe; plan a week; generate one shopping list; sign in. |
+| Should-have | Important, but the product can still be tested without it. | Search recipes; tick off list items. |
+| Could-have | Useful improvement if time allows. | — |
+| Later / Won't | Not needed for the first version. | → [`constraints-and-non-goals.md`](../01-intent/constraints-and-non-goals.md#non-goals--out-of-scope) (`Q-004`) |
 
 > **Prioritization test (Ch. 6 §6.8):** if this feature is missing, can you still test the
 > main product idea? If yes, it may not be a must-have for the first version.
 
 ## 12. Dependencies
 
-No external services are confirmed for version one — external dependencies are decided in
-Round 6 (Q-007). The data store choice is recorded in
-[`../05-architecture/decisions.md`](../05-architecture/decisions.md).
+None planned for version one. Whether any external service is used is decided in Round 6 (`Q-007`); the working assumption is none.
 
 ## 13. Risks
 
 | Risk | Type (product / technical / security / operational) | Mitigation |
 |---|---|---|
-| Shopping list misses or mis-combines ingredients | Product | Nail the combine rule (Q-009); cover with acceptance and failure tests. |
-| Loss of the recipe library | Operational | Backups sized to the recovery objective (see Round 8 backup-and-recovery). |
+| The "week → one list" flow does not clearly beat the scattered status quo, so cooks do not switch. | Product | Keep the core flow fast (interface priority) and simple; make it the shortest path in the UI. |
+| The recipe library is lost or corrupted (years of handwritten cards). | Operational | Backup and recovery targets set in Round 8; the store enforces ownership and cascades so data stays consistent. |
+| One account's private data is exposed. | Security | Single account, private by design; every query scoped by `account_id` (Round 6 controls and deny tests). |
 
 ## 14. Open questions
 
@@ -180,9 +183,9 @@ Round 6 (Q-007). The data store choice is recorded in
 
 ## 15. Links to requirements
 
-- Supports REQ-F-002, REQ-F-003, REQ-F-004, REQ-F-005
-- Supports REQ-NF-003, REQ-NF-004
-- Supports BR-001
+- Supports REQ-F-001 – REQ-F-006
+- Supports REQ-NF-001 – REQ-NF-007
+- Supports BR-001 – BR-004
 
 ---
 
@@ -238,5 +241,7 @@ Notes:
 ---
 
 **Next:** [`technical-spec.md`](../04-technical-spec/technical-spec.md)
+
+---
 
 > Blueprint: blueprints/01-docs/03-product-spec/product-spec.md

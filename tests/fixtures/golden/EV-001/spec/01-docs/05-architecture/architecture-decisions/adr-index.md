@@ -13,12 +13,8 @@ context and tell the assistant to follow it.
 | ID | Title | Status | Date | Supersedes |
 |---|---|---|---|---|
 | [ADR-000](ADR-000-template.md) | Template — copy me | — | — | — |
-| ADR-001 | Use a modular monolith for Pantry | Accepted | 2026-08-07 | — |
-| ADR-002 | Relational store — SQLite now, Postgres-portable | Accepted | 2026-08-07 | — |
-
-> ADR-001 and ADR-002 are recorded in [`../decisions.md`](../decisions.md) (DD-001, DD-002).
-> Expand either into a full `ADR-###-short-title.md` from the template when more context is
-> needed; the numbers are already reserved.
+| [ADR-001](ADR-001-modular-monolith.md) | Use a modular monolith for Pantry | Accepted | 2026-08-08 | — |
+| [ADR-002](ADR-002-relational-store-sqlite-to-postgres.md) | Relational store: SQLite now, Postgres-ready schema | Accepted | 2026-08-08 | — |
 
 ## Conventions
 
@@ -37,15 +33,6 @@ context and tell the assistant to follow it.
 | Accepted | Agreed; binding on implementation. |
 | Rejected | Considered and declined; kept for the record. |
 | Replaced / Superseded | A later ADR governs instead. |
-
-## Rules the ADRs impose on the AI assistant
-
-These must also appear in `06-agent/01-instructions/AGENT.md`.
-
-| ADR | Rule the agent must follow |
-|---|---|
-| ADR-001 | Each feature area (recipes, planning, shopping-list) lives in a named module. Route handlers must not contain business rules. Business logic goes in domain modules, never inside UI components. |
-| ADR-002 | Use portable relational SQL only — no SQLite-only or Postgres-only features. Migrations must be reversible. |
 
 ---
 

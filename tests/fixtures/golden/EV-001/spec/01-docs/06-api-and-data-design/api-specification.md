@@ -5,7 +5,7 @@
 > response formats, or ownership behavior while coding.
 
 **Base path:** `/api/v1`
-**Auth model:** [TODO: which authentication model? — Q-006]
+**Auth model:** [TODO: which authentication model? — deferred at express depth, decided in Round 5 (`Q-009`). Every endpoint below except sign-in requires the signed-in account.]
 **Version:** API v1.0
 
 ---
@@ -14,12 +14,17 @@
 
 | Method | Path | Purpose | Requirement | Permission |
 |---|---|---|---|---|
-| POST | `/api/v1/recipes` | Save a recipe with ingredient lines | REQ-F-002 | Account owner |
-| GET | `/api/v1/recipes?q=` | Search saved recipes | REQ-F-003 | Account owner |
-| POST | `/api/v1/weekly-plans` | Create a weekly plan | REQ-F-004 | Account owner |
-| POST | `/api/v1/weekly-plans/{id}/meals` | Add a planned meal to a plan | REQ-F-004 | Account owner |
-| POST | `/api/v1/weekly-plans/{id}/shopping-list` | Generate one shopping list from the plan | REQ-F-005 | Account owner |
-| GET | `/api/v1/shopping-lists/{id}` | View a shopping list | REQ-F-005 | Account owner |
+| POST | `/api/v1/session` | Sign in to the cook's own account. | REQ-F-005 | Public (creates a session) |
+| POST | `/api/v1/recipes` | Save a recipe with its ingredient lines. | REQ-F-001 | Owner |
+| GET | `/api/v1/recipes?q=` | List and search the cook's saved recipes. | REQ-F-002 | Owner |
+| GET | `/api/v1/recipes/{id}` | Read one recipe. | REQ-F-001 | Owner |
+| PATCH | `/api/v1/recipes/{id}` | Edit a recipe. | REQ-F-001 | Owner |
+| DELETE | `/api/v1/recipes/{id}` | Delete a recipe (blocked while a plan uses it, BR-004). | REQ-F-001 | Owner |
+| POST | `/api/v1/weekly-plans` | Start a plan for a week. | REQ-F-003 | Owner |
+| POST | `/api/v1/weekly-plans/{id}/meals` | Add a planned meal (a recipe on a day). | REQ-F-003 | Owner |
+| POST | `/api/v1/weekly-plans/{id}/shopping-list` | Generate one shopping list from the week (core). | REQ-F-004 | Owner |
+| GET | `/api/v1/weekly-plans/{id}/shopping-list` | Read the generated shopping list. | REQ-F-004 | Owner |
+| PATCH | `/api/v1/shopping-list-items/{id}` | Tick an item off while shopping. | REQ-F-006 | Owner |
 
 ---
 
@@ -79,9 +84,9 @@ Tests required:       TEST-### (unit, integration, edge cases)
 |---|---|
 | Response consistency | Every success response returns a predictable object shape. |
 | Error consistency | Every error uses `code`, `message`, and optional `field`. |
-| Permission check | Every endpoint checks that the resource belongs to the signed-in account before returning data. |
+| Permission check | Every endpoint checks the signed-in account owns the data before returning it. |
 | Validation timing | Validation happens **before** saving data. |
-| Audit trail | Important create and status-change events are recorded. |
+| Audit trail | Important create and generate events are recorded. |
 
 ---
 
@@ -92,23 +97,23 @@ Tests required:       TEST-### (unit, integration, edge cases)
 | Required field | A recipe title is required. |
 | Length rule | A recipe title must be 1–200 characters. |
 | Allowed value | A shopping-list item's `checked` must be true or false. |
-| Relationship rule | A planned meal must reference a recipe the same account owns. |
-| Permission rule | Only the account owner can create recipes, plans, and lists. |
-| Date rule | A weekly plan's `week_start` must be a valid date. |
+| Relationship rule | A planned meal's recipe must belong to the same account. |
+| Permission rule | Only the owning account may read or write its recipes and plans. |
+| Date rule | A weekly plan's `week_start_date` is a valid date; one plan per week per account. |
 
 ---
 
 ## Versioning and compatibility (Ch. 9 §9.8)
 
 **Current version:** v1
-**Breaking-change policy:** Additive changes ship within v1; a rename or removal requires v2.
-**Compatibility notes:** Single client (the Pantry web UI) consumes this API in v1.
+**Breaking-change policy:** Within v1, only additive changes (new optional fields, new endpoints). Any rename, removal, or type change ships as v2.
+**Compatibility notes:** The only client is Pantry's own web UI, so the contract and the UI move together.
 
 | Change type | Usually safe? | Example |
 |---|---|---|
-| Add optional field | Usually safe | Add `day` to a planned-meal response. |
+| Add optional field | Usually safe | Add `notes` to a recipe response. |
 | Add new endpoint | Usually safe | Add `GET /api/v1/recipes/{id}/history`. |
-| Rename field | **Breaking** | Change `week_start` to `start_date`. |
+| Rename field | **Breaking** | Change `week_start_date` to `starts_on`. |
 | Remove field | **Breaking** | Remove `checked` from a shopping-list item. |
 | Change data type | **Breaking** | Return `quantity` as an object instead of a number. |
 

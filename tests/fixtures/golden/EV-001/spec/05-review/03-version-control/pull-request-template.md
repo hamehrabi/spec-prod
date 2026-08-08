@@ -21,18 +21,18 @@ Related Task:
 - TASK-###
 
 What Changed:
--
--
--
+- 
+- 
+- 
 
 How I Tested It:
--
--
--
+- 
+- 
+- 
 
 Files Changed:
--
--
+- 
+- 
 
 Tests Added / Updated:
 - TEST-###
@@ -47,10 +47,10 @@ Rollback Notes:
 - [how to return to the previous stable state]
 
 Assumptions Made:
--
+- 
 
 Open Questions:
--
+- 
 
 Reviewer checklist:
 [ ] Requirement is satisfied
@@ -71,7 +71,5 @@ Reviewer checklist:
 | Open review request | Explain what changed and why. | Summary, tests, screenshots if useful. | AI output must be reviewed by a human. |
 | Run checks | Prove the change is safe. | Tests, linting, security review, smoke check. | Do not merge failing checks. |
 | Merge after approval | Move verified change into the main line. | Reviewer approval and updated traceability. | Update specs if behavior changed. |
-
----
 
 > Blueprint: blueprints/05-review/03-version-control/pull-request-template.md

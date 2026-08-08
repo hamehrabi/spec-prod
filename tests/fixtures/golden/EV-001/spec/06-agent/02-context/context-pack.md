@@ -10,6 +10,21 @@
 
 ---
 
+## Specs the agent should have on hand (cite by path, do not restate)
+
+| Need | Where it lives |
+|---|---|
+| Requirements + acceptance criteria | `../../01-docs/02-requirements/requirements.md` (REQ-F-001..006, REQ-NF-001..007, REQ-R-001) |
+| Technical decisions + fitness functions | `../../01-docs/04-technical-spec/technical-spec.md`, `../../01-docs/04-technical-spec/fitness-functions.md` (FF-001..003) |
+| Architecture decisions | `../../01-docs/05-architecture/decisions.md`, `../../01-docs/05-architecture/architecture-decisions/` (ADR-001, ADR-002) |
+| API contract | `../../01-docs/06-api-and-data-design/api-specification.md` |
+| Data model + entities | `../../01-docs/06-api-and-data-design/database-design.md` (Account, Recipe, IngredientLine, WeeklyPlan, PlannedMeal, ShoppingList, ShoppingListItem) |
+| Security rules | `../../01-docs/07-security-and-reliability/security-specification.md` (SEC-A-001..004, SEC-Z-001..002) |
+| Reliability rules | `../../01-docs/07-security-and-reliability/reliability-specification.md` |
+| Current task | `../../02-tasks/02-task-files/` (TASK-001..006) |
+
+---
+
 ## Template (Ch. 12 §12.8)
 
 ```markdown
@@ -17,27 +32,31 @@
 
 ## 1. Project Background
 Project name:   Pantry
-Purpose:        Keep a home cook's recipes in one place and turn a week of meals into one list.
-Primary users:  One home cook (account owner)
-Current stage:  [Planning / building / testing / improving]
+Purpose:        Turn a week of chosen meals into ONE shopping list for a single home cook
+Primary users:  One account owner (single-user, no sharing)
+Current stage:  Building the first working version, one task at a time
 
 ## 2. Current Task
-Task:            [One focused task, e.g. TASK-004 save-recipe API]
-Expected output: [What should be created or changed]
-Do not change:   [Files, schema, features, or decisions to protect]
+Task:            Generate one consolidated shopping list from a weekly plan (TASK-005).
+Expected output: ShoppingList generation logic and unit tests.
+Do not change:   Recipe storage, Account/Auth, the database schema, or the API contract.
 
 ## 3. Relevant Requirements
-Requirement ID:        [REQ-###]
-Requirement statement: [What the system must do]
+Requirement ID:        REQ-F-004
+Requirement statement: A signed-in cook can generate ONE consolidated shopping list from a
+                       weekly plan.
 Acceptance criteria:
-- [Criterion 1]
-- [Criterion 2]
+- BR-001: one list per week — a second generation for the same week replaces, not duplicates.
+- Ingredient lines from all planned meals are consolidated into shopping-list items.
+- Only the owner's recipes and plans are read (BR-002, SEC-Z-001).
 
 ## 4. Technical Decisions
-Architecture rule: Modular monolith; business logic in domain modules (ADR-001).
-Data rule:         Every row is scoped by account_id; portable relational SQL only (ADR-002).
-API rule:          [Relevant endpoint or contract rule]
-Security rule:     Only the account owner may read or write their data.
+Architecture rule: ShoppingList list-generation is a core module separate from recipe
+                   storage and Account/Auth; it must not import UI or store-specific code
+                   (ADR-001, REQ-NF-005, FF-001).
+Data rule:         Use only portable SQL and types; every migration is reversible (ADR-002).
+API rule:          Follow the contract in api-specification.md; do not rename fields.
+Security rule:     Scope every read/write by account_id; another account returns not-found.
 
 ## 5. File Map
 [Show only the folders and files relevant to this task]
@@ -72,14 +91,14 @@ For a focused task, supply exactly five things:
 5. **Restrictions** — what the agent must not change.
 
 ```
-Current goal: Implement the save-recipe validation logic.
-Relevant requirement: REQ-F-002 — a cook can save a recipe with a title and ≥1 ingredient line.
+Current goal: Consolidate ingredient lines from a weekly plan into one shopping list.
+Relevant requirement: REQ-F-004 — generate ONE shopping list from a plan.
 Acceptance criteria:
-- Title is required.
-- At least one ingredient line is required.
-- Invalid input returns a safe error message and saves nothing.
-Technical rule: Validation lives in the service layer, not the route handler (ADR-001).
-Restriction: Do not change the database schema or authentication in this task.
+- BR-001: exactly one list per week; regenerating replaces the previous list.
+- Duplicate ingredients across meals are merged into single items.
+- Only the owner's plan and recipes are read.
+Technical rule: The list-generation core must not import UI or store-specific code (ADR-001).
+Restriction: Do not change the database schema or the Account/Auth module in this task.
 ```
 
 ---
@@ -103,18 +122,19 @@ layer, or ignoring the structure you already chose. List only what the current t
 ```
 pantry/
   01-docs/
-    02-requirements/requirements.md
+    02-requirements/requirements.md      # REQ-F-004 and acceptance criteria
     04-technical-spec/technical-spec.md
+    06-api-and-data-design/database-design.md
   06-agent/
-    02-context/context-pack.md
+    02-context/context-pack.md           # compact agent context for current work
   04-src/
-    ui/                      # screens and components
-    api/                     # route handlers
-    domain/                  # business logic (recipes, planning, shopping-list)
-    data/                    # data access and schema helpers
+    modules/shopping-list/               # core list-generation logic (no UI, no store code)
+    modules/planning/                    # weekly plan the generator reads
+    api/                                 # API route handlers
+    data/                                # data access and schema helpers
   03-tests/
-    unit/
-    integration/
+    unit/                                # small behavior tests
+    integration/                         # API and workflow tests
 ```
 
 ---

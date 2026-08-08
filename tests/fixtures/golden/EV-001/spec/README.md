@@ -5,13 +5,9 @@
 > **Who it is for:** anyone about to build, review, or change this software, including an
 > AI coding agent.
 
-**In one sentence, this software:** A recipe and shopping-list app for one home cook that
-turns a week of chosen meals into a single shopping list.
+**In one sentence, this software:** a browser-based app that lets a home cook keep every recipe in one place, plan a week of meals, and shop from a single generated list.
 
-**The problem it exists to solve:** Home cooks keep recipes scattered across screenshots,
-bookmarks and handwritten cards, and forget items when shopping for a week of meals — costing
-a second trip and wasted food. The system should keep recipes in one place and turn a week of
-chosen meals into one complete shopping list.
+**The problem it exists to solve:** home cooks keep recipes scattered across screenshots, bookmarks, and handwritten cards; planning a week means opening several places and still forgetting items at the shop, which costs a second trip and food that spoils. Pantry should let a cook keep recipes in one place, plan a week, and shop from one list.
 
 > **The one rule to remember:**
 > Before code, write the spec. Before accepting code, run the tests. Before release,
@@ -157,5 +153,7 @@ back to 01-docs             when reality changes the spec
 > review → deployment?
 >
 > If yes, the specification is doing its job. If no, there is a gap to find.
+
+---
 
 > Blueprint: blueprints/README.md

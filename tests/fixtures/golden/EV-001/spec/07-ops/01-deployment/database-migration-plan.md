@@ -7,6 +7,11 @@
 AI-generated code may create models or queries but forget the release path. Require
 migration planning in the specification.
 
+> **Two rules hold for every migration in Pantry (ADR-002):** every migration is
+> **reversible** (an up and a down), and the schema must move **SQLite → Postgres
+> unchanged** — no SQLite-only feature, type, or pragma. The store is SQLite now and
+> Postgres-ready; nothing may depend on SQLite specifics.
+
 ---
 
 ## Migration entries
@@ -34,9 +39,10 @@ Tested on:                   [local / staging with production-like data]
 
 | ID | Date | Change | Reversible? | Deploy order | Downtime | Status |
 |---|---|---|---|---|---|---|
-| MIG-001 | 2026-08-07 | Create initial schema (accounts, recipes, ingredient_lines, weekly_plans, planned_meals, shopping_lists, shopping_list_items) | Yes | schema→code | No | Planned |
+| MIG-001 | 2026-08-08 | Create initial schema: Account, Recipe, IngredientLine, WeeklyPlan, PlannedMeal, ShoppingList, ShoppingListItem | Yes | schema→code | No | Planned |
 
-All migrations must use portable relational SQL (ADR-002) so they run on SQLite and Postgres.
+> Later migrations are added here as tasks (TASK-001..006) produce schema change. Keep the
+> ADR-002 rules — reversible, portable SQLite→Postgres — for each new row.
 
 ---
 
@@ -44,10 +50,10 @@ All migrations must use portable relational SQL (ADR-002) so they run on SQLite 
 
 | Migration question | Why it matters | Spec example |
 |---|---|---|
-| Is the migration reversible? | Rollback is harder if the schema cannot return to a previous state. | Provide an **up** and **down** migration. |
+| Is the migration reversible? | Rollback is harder if the schema cannot return to a previous state. | ADR-002 requires an **up** and **down** for every migration. |
 | Will existing data break? | Old rows may not fit new rules. | Backfill missing values **before** making a field required. |
 | Can code and database deploy safely? | A code change may expect a column that does not exist yet. | Deploy the schema change **before** the code that depends on it. |
-| Is downtime required? | Some changes lock tables or interrupt users. | Not at single-user scale; use a staged migration if that changes. |
+| Is downtime required? | Some changes lock tables or interrupt users. | Single-user app; a short evening window is acceptable, but prefer no-downtime staged migrations for large tables (e.g. many Recipe/IngredientLine rows). |
 
 ---
 
@@ -64,11 +70,12 @@ Each step is independently reversible. A single "add NOT NULL column" migration 
 
 ## Pre-migration checklist
 
-- [ ] Migration tested on data that resembles production.
-- [ ] Down migration exists **or** the irreversibility is documented and accepted.
+- [ ] Migration tested on staging data that resembles production.
+- [ ] Down migration exists **or** the irreversibility is documented and accepted (ADR-002 expects a down).
+- [ ] Schema is portable — SQLite → Postgres unchanged, no SQLite-only feature (ADR-002).
 - [ ] Backfill plan written for existing rows.
 - [ ] Deploy order (schema vs. code) is explicit.
-- [ ] Backup or restore point confirmed before running in production.
+- [ ] Backup or restore point confirmed before running in production (see [`backup-and-recovery.md`](backup-and-recovery.md); the recipe library must never be lost).
 - [ ] Verification query written before, not after.
 - [ ] Rollback owner named (see [`rollback-plan.md`](rollback-plan.md)).
 - [ ] Database design spec updated (`../docs/database-design.md`).

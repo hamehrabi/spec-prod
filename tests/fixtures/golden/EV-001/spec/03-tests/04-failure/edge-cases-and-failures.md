@@ -12,12 +12,21 @@ duplicated, expired, unavailable, unauthorized, or invalid*.
 
 ## Case table
 
-| Case ID | Requirement | Case type | Input / condition | Expected result | Risk covered | Status |
-|---|---|---|---|---|---|---|
-| FTEST-001 | REQ-NF-003 | Failure | Shopping-list generation fails | Safe error; plan preserved; no partial write | Data loss / crash | Planned |
-| FTEST-002 | REQ-F-002 / BR-002 | Failure | Recipe with no title or no ingredient line | 400; nothing saved | Bad data enters the database | Planned |
-| FTEST-003 | REQ-NF-003 | Failure | Database write timeout during save | Retry-safe error; no partial write | Silent success / partial write | Planned |
-| E-EMPTY | REQ-F-005 | Edge | Generate from a plan with no meals | Empty list, not an error | Confusing empty state | Planned |
+| Case ID | Requirement ID | Case type | Input / condition | Risk covered | Status |
+|---|---|---|---|---|---|
+| FTEST-003 | REQ-F-001 | Failure | Recipe title empty | Bad data enters the store | Planned |
+| UTEST-001 | REQ-F-001 | Boundary | Title 120 vs 121 characters | Off-by-one at the length limit | Planned |
+| UTEST-004 | REQ-F-004 | Edge | Week with no planned meals | Empty core output must not error | Planned |
+| FTEST-005 | BR-003 | Failure | Planned meal references another account's recipe | Cross-account reference | Planned |
+| FTEST-006 | BR-004 | Failure | Delete a recipe used by a plan | Silent breakage of a planned week | Planned |
+| STEST-001 | SEC-Z-001 | Security | Request another account's week | Cross-account data exposure | Planned |
+| FTEST-001 | REQ-NF-003 | Failure | Database write timeout on save | False success / partial write | Planned |
+
+> **"Case ID" CITES the test that covers the case — it does not mint a new identifier.**
+> A failure case is an `FTEST-###` in [`failure-tests.md`](failure-tests.md); a boundary case
+> is a `UTEST-###` in [`../02-functional/unit-tests.md`](../02-functional/unit-tests.md). This
+> table records what was **discovered** — the input or condition, the case type, the risk it
+> covers — and points at the test for what the system must do.
 
 **Case types:** Normal · Edge · Failure · Security · Boundary
 
@@ -25,30 +34,30 @@ duplicated, expired, unavailable, unauthorized, or invalid*.
 
 ## The seven questions (Ch. 17 §17.7)
 
-| Question to ask | Pantry example |
-|---|---|
-| What if the value is empty? | A recipe title is blank. |
-| What if the value is too long? | A recipe title has 500 characters. |
-| What if the value is duplicated? | The cook clicks Generate twice. |
-| What if the value is expired? | A session expires mid-form. |
-| What if the user is not allowed? | A request targets another account's data. |
-| What if the dependency fails? | n/a in v1 — no external dependency. |
-| What if the action is repeated? | The same save request arrives twice. |
+| Question | Pantry case | Case type | Test that covers it |
+|---|---|---|---|
+| What if the value is empty? | Recipe title is `""` | Failure | FTEST-003 |
+| What if the value is too long? | Title is 121 characters | Boundary | UTEST-001 |
+| What if the value is duplicated? | The list is generated twice for one week | Edge | ITEST-004 |
+| What if the value is expired? | A password reset link is used after expiry | Failure | STEST-005 |
+| What if the user is not allowed? | A cook requests another account's week | Security | STEST-001 |
+| What if the dependency fails? | The database write times out on save | Failure | FTEST-001 |
+| What if the action is repeated? | The same recipe save is submitted twice | Edge | ITEST-001 |
 
 ---
 
 ## Failure sources checklist (Ch. 22 §22.2)
 
-- [ ] User input — missing, invalid, unexpected
-- [ ] Database — write failure, timeout, constraint violation
-- [ ] Network — request timeout, connection reset
-- [ ] External service — n/a in v1 (Q-007)
-- [ ] Background job — photo cleanup fails after the user has left
-- [ ] Concurrency — two edits to the same recipe (single user, low risk)
-- [ ] Authorization — a request for another account's data
+- [x] User input — missing title, oversize title, non-owned recipe reference
+- [x] Database — write timeout on save; read failure on generation
+- [ ] Network — request timeout; covered by the reliability timeout rule, no dedicated test yet
+- [x] External service — none in version one (`Q-007`); nothing to fail
+- [x] Background job — none in version one; nothing to fail
+- [ ] Concurrency — one user; last-write-wins is acceptable, no dedicated test
+- [x] Authorization — cross-account and unauthenticated access (STEST-001, STEST-002)
 
 Each failure state must have a **recovery path, user message, log event, and test case** →
-[`../docs/reliability-specification.md`](../../01-docs/07-security-and-reliability/reliability-specification.md)
+[`../../01-docs/07-security-and-reliability/reliability-specification.md`](../../01-docs/07-security-and-reliability/reliability-specification.md)
 
 ---
 

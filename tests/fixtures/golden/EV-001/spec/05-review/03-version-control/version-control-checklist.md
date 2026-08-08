@@ -33,9 +33,9 @@
 
 **Branch naming**
 ```
-feature/REQ-F-002-save-recipe
-fix/REQ-F-005-list-combine-rule
-chore/TASK-001-project-structure
+feature/REQ-F-004-generate-one-list
+fix/REQ-F-004-list-missing-ingredient
+chore/TASK-004-delete-guard-cleanup
 ```
 
 ## During work
@@ -45,6 +45,8 @@ chore/TASK-001-project-structure
 - [ ] Tests are added or updated **with** the code.
 - [ ] No unrelated formatting or dependency changes are mixed in.
 - [ ] Secrets and credentials are not committed.
+- [ ] No business logic added to route handlers or UI, and no cross-account data access (ADR-001).
+- [ ] Only portable SQL/types; migrations are reversible; no SQLite-only features (ADR-002).
 
 **Commit message format (Ch. 15 §15.3)**
 ```
@@ -53,10 +55,19 @@ type(scope): action linked to requirement ID
 
 | Weak commit message | Better commit message |
 |---|---|
-| `update recipe` | `feat(recipes): add save-recipe validation for REQ-F-002` |
-| `fix bug` | `fix(api): reject a recipe with no ingredient line for BR-002` |
-| `tests` | `test(list): add combine-rule tests for REQ-F-005` |
-| `changes` | `docs(spec): record the ingredient combine rule after review` |
+| `update recipe` | `feat(recipes): add recipe validation for REQ-F-001` |
+| `fix bug` | `fix(shoppinglist): include every planned meal for REQ-F-004` |
+| `tests` | `test(planning): add delete-guard tests for BR-004` |
+| `changes` | `docs(spec): update list-generation rules after review` |
+
+| Change type | Suggested message |
+|---|---|
+| New intent document | `docs(intent): add engineering intent for Pantry` |
+| Updated requirements | `docs(spec): refine save-recipe requirements and acceptance criteria` |
+| New task file | `docs(tasks): add TASK-005 for generate-list core` |
+| Test plan added | `test(shoppinglist): add acceptance and failure tests for list generation` |
+| Implementation completed | `feat(shoppinglist): implement TASK-005 one-list-from-a-week workflow` |
+| Review notes added | `docs(review): record review results for TASK-005` |
 
 ## Pull request / review package
 
@@ -94,12 +105,31 @@ Track more than code — track the documents that explain why the code exists.
 ```
 git init
 git status
-git add spec/ .gitignore
+git add 01-intent 02-specs 03-tasks 04-tests 05-reviews 06-release agent src tests ops README.md .gitignore
 git commit -m "chore(project): create initial spec-driven workspace"
 ```
 
 The first commit should not contain random code. It creates a clean baseline you can
 return to before the AI agent starts changing files.
+
+**Branch workflow**
+```
+git checkout main
+git pull                      # if you use a remote repository
+git checkout -b feature/REQ-F-004-generate-one-list
+
+# Let the agent work on one task.
+# Review the files.
+# Run the tests.
+
+git status
+git diff
+git add src tests 02-specs
+git commit -m "feat(shoppinglist): generate one list from a week for REQ-F-004"
+```
+
+If you are not using a remote repository, use branches locally. The important habit is
+**isolation, review, and traceability** — not the hosting platform.
 
 ---
 
@@ -110,7 +140,5 @@ return to before the AI agent starts changing files.
 | Simple change log | If you are not ready for Git. | Write dated entries in `05-review/change-log.md`. |
 | Local Git | Version history without publishing online. | Commit after meaningful spec, task, test, or code changes. |
 | Manual snapshots | A simple backup method. | Copy the project folder before major changes and label it clearly. |
-
----
 
 > Blueprint: blueprints/05-review/03-version-control/version-control-checklist.md

@@ -2,8 +2,8 @@
 
 > Source: Ch. 30 — "Building a Repeatable Spec-Driven AI Engineering System".
 > A single successful AI-assisted project is useful. A **repeatable system** is much more
-> valuable. This file holds the system-level guidance that governs how the rest of this
-> template is used and improved.
+> valuable. This file holds the system-level guidance that governs how the rest of the
+> Pantry devkit is used and improved.
 
 > **Final chapter principle (Ch. 30):** the goal is not to use AI more. The goal is to
 > build better software with clearer intent, stronger tests, safer review, and a process
@@ -18,7 +18,8 @@ remove judgment — it gives your judgment a structure.
 
 > The process should be simple enough for a small feature and strong enough for a full
 > production application. If it is **too heavy, people avoid it**. If it is **too weak, the
-> AI agent fills gaps with assumptions**.
+> AI agent fills gaps with assumptions**. The best process is lightweight, visible, and
+> strict at the points where failure is expensive.
 
 | Stage | Main artifact | Quality gate | Result |
 |---|---|---|---|
@@ -32,13 +33,19 @@ remove judgment — it gives your judgment a structure.
 | Release and learning | Deployment notes, monitoring, updated specs | Production feedback becomes a spec update. | The process **improves over time**. |
 
 > **Reusable process rule:** do not design the process around one tool. Design it around
-> **artifacts, decisions, tests, and review evidence**.
+> **artifacts, decisions, tests, and review evidence**. Tools can change; the engineering
+> system should remain useful. Pantry builds each requirement as a thin vertical slice,
+> one task at a time (TASK-001 → TASK-006).
 
 ---
 
 ## 2. Documentation organization and update triggers (Ch. 30 §30.2)
 
-| Section (this template) | Purpose | Typical contents | **Update trigger** |
+Documentation should be organized so a human **or an AI agent** can quickly find the
+current source of truth. The structure does not need to be complicated — it needs to be
+**consistent**. Every project should have the same broad sections, even if some are short.
+
+| Section (this devkit) | Purpose | Typical contents | **Update trigger** |
 |---|---|---|---|
 | `01-docs/01-intent/` | Captures why the project exists. | Brief, goals, users, constraints, non-goals. | A new product idea, feature, or change request arrives. |
 | `01-docs/02-…09-` | Defines what and how to build. | PRD, technical spec, API spec, database spec, ADRs. | Requirements or design decisions change. |
@@ -53,15 +60,15 @@ remove judgment — it gives your judgment a structure.
 
 A template does not replace thinking. It makes sure important thinking is **not skipped**.
 
-| Template | Used when | Minimum sections | File |
-|---|---|---|---|
-| Engineering intent | A new idea or project begins. | Problem, users, value, constraints, non-goals, success. | [`../01-intent/intent.md`](../01-intent/intent.md) |
-| PRD | Product behavior must be defined. | Requirements, acceptance criteria, priorities, risks. | [`../03-product-spec/product-spec.md`](../03-product-spec/product-spec.md) |
-| Technical spec | Implementation needs design. | Architecture, data, APIs, integrations, errors, security. | [`../04-technical-spec/technical-spec.md`](../04-technical-spec/technical-spec.md) |
-| Agent task brief | AI receives implementation work. | Task, context, constraints, files, tests, expected output. | [`../../02-tasks/02-task-files/TASK-001.md`](../../02-tasks/02-task-files/TASK-001.md) |
-| Test specification | Work is ready for implementation. | Unit, integration, end-to-end, failure, security, performance. | [`../../03-tests/01-plan/test-specification.md`](../../03-tests/01-plan/test-specification.md) |
-| Review checklist | Output is ready for acceptance. | Requirements, design, security, tests, maintainability. | [`../../05-review/02-checklists/code-review-checklist.md`](../../05-review/02-checklists/code-review-checklist.md) |
-| Release checklist | Work is ready for production. | Config, migration, rollback, monitoring, owner. | [`../../07-ops/01-deployment/deployment-checklist.md`](../../07-ops/01-deployment/deployment-checklist.md) |
+| Template | Used when | Minimum sections | Improvement signal | File |
+|---|---|---|---|---|
+| Engineering intent | A new idea or project begins. | Problem, users, value, constraints, non-goals, success. | People ask fewer basic scope questions. | [`../01-intent/intent.md`](../01-intent/intent.md) |
+| PRD | Product behavior must be defined. | Requirements, acceptance criteria, priorities, risks. | Tests map clearly to requirements. | [`../03-product-spec/product-spec.md`](../03-product-spec/product-spec.md) |
+| Technical spec | Implementation needs design. | Architecture, data, APIs, integrations, errors, security. | AI output respects boundaries. | [`../04-technical-spec/technical-spec.md`](../04-technical-spec/technical-spec.md) |
+| Agent task brief | AI receives implementation work. | Task, context, constraints, files, tests, expected output. | Agent changes fewer unrelated files. | [`../../02-tasks/02-task-files/TASK-001.md`](../../02-tasks/02-task-files/TASK-001.md) |
+| Test specification | Work is ready for implementation. | Unit, integration, end-to-end, failure, security, performance. | Bugs are caught before release. | [`../../03-tests/01-plan/test-specification.md`](../../03-tests/01-plan/test-specification.md) |
+| Review checklist | Output is ready for acceptance. | Requirements, design, security, tests, maintainability. | Review is evidence-based. | [`../../05-review/02-checklists/code-review-checklist.md`](../../05-review/02-checklists/code-review-checklist.md) |
+| Release checklist | Work is ready for production. | Config, migration, rollback, monitoring, owner. | Deployment is calmer and recoverable. | [`../../07-ops/01-deployment/deployment-checklist.md`](../../07-ops/01-deployment/deployment-checklist.md) |
 
 > **Template library rule (Ch. 30 §30.4):** after every project, ask one question —
 > **which template should be improved so the same confusion does not happen again?**
@@ -70,14 +77,13 @@ A template does not replace thinking. It makes sure important thinking is **not 
 
 | Date | Project / feature | Recurring problem | Template or rule improved | Change made |
 |---|---|---|---|---|
-
-No improvements recorded yet — the build has not started.
+| 2026-08-08 | Pantry (v1 spec) | None yet — no implementation cycle completed. | — | Log opened; first entry after TASK-001. |
 
 ---
 
 ## 4. Where each system component lives
 
-| Ch. 30 component | This template |
+| Ch. 30 component | This devkit |
 |---|---|
 | §30.1 Reusable process | This file, §1 |
 | §30.2 Documentation organization | This file, §2 + the folder structure itself |
@@ -95,6 +101,10 @@ No improvements recorded yet — the build has not started.
 ## 5. The future of spec-driven AI engineering (Ch. 30 §30.9)
 
 > The more powerful the agent becomes, the **more important the specification becomes**.
+> Strong teams will not be the teams that simply use the newest AI tool. They will be the
+> teams that can express product intent clearly, convert it into reliable engineering
+> artifacts, supervise AI-generated work, and keep production systems aligned with
+> changing reality.
 
 | Likely direction | What it means for you | Skill to build now |
 |---|---|---|
@@ -119,6 +129,11 @@ No improvements recorded yet — the build has not started.
 8. Treat production feedback as part of the **specification lifecycle**.
 9. Keep improving templates, rules, and checklists after each project.
 
+> Start with small projects. Build your template library. Improve your agent rules. Keep
+> requirements connected to tests. Review generated work with evidence. Update
+> specifications after release. **When a mistake repeats, improve the system instead of
+> only fixing the immediate bug.**
+
 > **Final guidance (Ch. 30):** your advantage is not that you can ask an AI agent to write
 > code. Your advantage is that you can guide AI with clear specifications, verify its
 > output with tests, and build a repeatable system that keeps improving.
@@ -137,7 +152,5 @@ No improvements recorded yet — the build has not started.
 | Traceability | Can each feature be traced from requirement to task, test, code, review, and release? | Yes / No |
 | Quality metrics | Do you measure defects, rework, review findings, drift, and production stability? | Yes / No |
 | Adoption | Does the workflow help the team work with less confusion and better evidence? | Yes / No |
-
----
 
 > Blueprint: blueprints/01-docs/10-reference/repeatable-system.md

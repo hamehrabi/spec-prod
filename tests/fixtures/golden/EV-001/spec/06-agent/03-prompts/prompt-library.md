@@ -1,4 +1,4 @@
-# Prompt Library for Spec-Driven AI Engineering
+# Prompt Library for Spec-Driven AI Engineering — Pantry
 
 > Source: Appendix J + Ch. 13.
 > Replace bracketed sections with your project details. The strongest prompts connect the
@@ -121,6 +121,42 @@ Output required:
 - A short traceability note showing how the output satisfies the requirement
 ```
 
+### From a product spec (§13.3)
+```
+Using the product requirements below, create a feature plan for [FEATURE NAME].
+
+Product goal:  [PASTE PRODUCT GOAL]
+Target user:   [PASTE USER PERSONA]
+In scope:      [PASTE FEATURE SCOPE]
+Out of scope:  [PASTE OUT-OF-SCOPE ITEMS]
+
+Return:
+1. The feature behavior in simple steps
+2. The screens or endpoints needed
+3. The main user flow
+4. Risks or unclear points that must be clarified before coding
+```
+
+### From a technical spec (§13.4)
+```
+Use the technical specification below as the source of truth.
+
+Technical area to work on: [FRONTEND / BACKEND / DATABASE / API / SECURITY]
+Approved technical decisions: [PASTE RELEVANT EXCERPT]
+Task: [STATE ONE SMALL IMPLEMENTATION TASK]
+
+Constraints:
+- Follow the existing folder structure.
+- Use the existing naming style.
+- Do not change unrelated modules.
+- Do not introduce a new library unless the spec says so.
+
+Return:
+- The proposed files to create or edit
+- The implementation
+- A short explanation of how the code follows the technical spec
+```
+
 ### From an API contract (§13.5)
 ```
 Implement the API endpoint using this contract only:
@@ -164,6 +200,75 @@ Return a table with:
 Then provide the test code or test pseudocode.
 ```
 
+### For refactoring (§13.7)
+```
+Refactor the code below without changing its approved behavior.
+
+Current behavior that must remain true: [PASTE REQUIREMENTS OR ACCEPTANCE CRITERIA]
+Reason for refactoring: [SIMPLIFY / REMOVE DUPLICATION / IMPROVE NAMING / IMPROVE ERROR HANDLING]
+
+Boundaries:
+- Do not change public function names unless requested.
+- Do not change request or response formats.
+- Do not remove validation rules.
+- Do not introduce unrelated features.
+
+Tests that must still pass: [PASTE TEST LIST]
+
+Return:
+1. Refactored code
+2. Explanation of what changed
+3. Confirmation of what behavior stayed the same
+4. Any risk that still needs manual review
+```
+
+---
+
+## Lifecycle control prompts
+
+### Stage gate review (§3.4)
+```
+Act as a spec-driven AI engineering reviewer.
+
+Current stage: [stage name]
+Artifact: [paste artifact]
+
+Check whether this artifact is ready for the next stage. Identify missing information,
+vague statements, risky assumptions, and the exact corrections needed. Do not move to
+implementation.
+```
+
+### Implement one controlled task (§3.3 / Ch. 16 §16.7)
+```
+You are implementing one task from the approved spec-to-code pipeline.
+
+Task ID:
+Source requirement:
+Technical design reference:
+Allowed files to change:
+Files not allowed to change:
+Expected behavior:
+Required tests:
+Acceptance criteria:
+
+Instructions:
+1. Make the smallest safe change.
+2. Do not add unrelated features.
+3. Explain changed files after implementation.
+4. Show how the tests prove the requirement.
+```
+
+### Agent self-review before merge (Ch. 15 §15.7)
+```
+Review your own changes before I accept them.
+Explain:
+1. Every file you changed.
+2. Which requirement each change supports.
+3. Which tests prove the change works.
+4. Any assumptions you made.
+5. Any files you changed that were not listed in the task plan.
+```
+
 ---
 
 ## Prompt quality checklist (Ch. 13)
@@ -182,10 +287,73 @@ Then provide the test code or test pseudocode.
 
 | Weak prompt | Spec-driven prompt |
 |---|---|
-| Build the shopping list. | Using REQ-F-005 and BR-001, implement only shopping-list generation from a weekly plan, per the Q-009 combine rule. Add tests before implementation. |
-| Make the app better. | Review the save-recipe workflow against REQ-F-002's acceptance criteria. List missing validations first, then propose the smallest changes. |
-| Fix the bugs. | Use the failing test output and the requirement to identify the root cause. Explain the mismatch before suggesting a patch. |
-| Add accounts. | Implement REQ-F-001 only, once the auth model (Q-006) is decided. Do not add sharing or roles. Add validation and tests. |
+| Build a login system. | Using REQ-F-005 and the security specification, implement only the email/password sign-in endpoint. Do not add social login or account roles. Generate unit tests for the acceptance criteria before implementation (SEC-A-001..004). |
+| Make the app better. | Review the shopping-list generation against REQ-F-004 acceptance criteria. List missing validations first. Then propose only the smallest code changes needed to satisfy the requirement. |
+| Fix the bugs. | Use the failing test output and REQ-F-004 to identify the root cause. Explain the mismatch between expected behavior and current behavior before suggesting a patch. |
+| Add recipe saving. | Implement REQ-F-001 only: save a recipe with its ingredient lines. Use the existing Recipe entity. Do not add nutrition or import. Add validation and tests. |
+| Fix the plan screen. | Fix TASK-004: a planned meal must reference an owned recipe (BR-003). Update the service function and its unit test only. |
+| Improve the API. | Update the shopping-list endpoint to enforce BR-001 (one list per week). Do not change response fields. Add validation errors for a second generation of the same week. |
+
+---
+
+# Worked example — Pantry prompts
+
+## 1. Clarify before building (used before REQ-F-004 was locked)
+
+```
+Before writing code, review the specification below.
+List any missing details, contradictions, risky assumptions, or unclear requirements.
+Do not implement anything yet.
+
+Specification:
+"A signed-in cook can generate ONE consolidated shopping list from their weekly plan."
+
+Return:
+- Missing details
+- Contradictions
+- Questions I should answer
+- Safe assumptions, if any
+```
+
+## 2. Implement one task (TASK-005 — generate one list)
+
+```
+Implement this one task only:
+TASK-005 - Generate one consolidated shopping list from a weekly plan.
+
+Source of truth:
+REQ-F-004: A signed-in cook can generate ONE shopping list from a weekly plan.
+BR-001: one list per week — regenerating replaces the previous list, it does not duplicate.
+API contract: see 01-docs/06-api-and-data-design/api-specification.md
+
+Boundaries:
+- Do not work on other tasks.
+- Allowed files: 04-src/modules/shopping-list/, 03-tests/unit/
+- Do not change: Recipes storage, Account/Auth, the database schema.
+- The list-generation core must not import UI or store-specific code (ADR-001, FF-001).
+
+Return:
+- Code changes
+- Short explanation
+- Requirement IDs covered
+- Suggested tests
+```
+
+## 3. Acceptance criteria → tests (REQ-F-006 — tick off items)
+
+```
+Create tests from the acceptance criteria below.
+Do not test behavior that is not listed.
+
+Feature: Tick off a shopping-list item
+Acceptance criteria:
+1. Ticking an item marks it done for the owner's list only (SEC-Z-001).
+2. Un-ticking returns it to not-done.
+3. A request for another account's list item returns a safe not-found (BR-002).
+
+Return a table with Test ID, Scenario, Input, Expected result, Requirement ID covered.
+Then provide the test code.
+```
 
 ---
 

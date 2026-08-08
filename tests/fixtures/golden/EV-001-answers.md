@@ -43,6 +43,15 @@ workspace is being regenerated rather than patched: four hand-edits are what was
 file-by-file read would find more, and every one repaired by hand recreates the defect being
 repaired.
 
+### And it was closed, on 2026-08-08
+
+The regeneration succeeded — eight rounds, 87 files, the run recorded in `ai-evals.md` §5 —
+and its output **is** now the committed workspace: TASK-016 swapped it in whole, and every
+GOLD-001 assertion was rewritten against what the run wrote rather than against what anyone
+remembered. The four deviations above are gone the only way they could honestly go: the files
+that carried them were replaced by produced ones. The header claim — *produced, not authored* —
+is now true of every file in the fixture, and this record is what it rests on.
+
 ---
 
 ## The free-text problem statement
