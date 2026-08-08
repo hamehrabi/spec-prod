@@ -77,10 +77,29 @@
 // READ THIS BEFORE BELIEVING THE PINS BELOW.
 //
 // BUG-034 and BUG-036 to BUG-041 have all been FIXED IN THE PAYLOAD — the blueprints and
-// instructions no longer contain the defects described above. **None of those fixes has been
-// observed in a produced workspace**, and the assertions in this file are unchanged because
-// THIS FIXTURE PREDATES THEM. Every pin below still describes the committed workspace
-// correctly; none of them describes the current library.
+// instructions no longer contain the defects described above. **Only ONE of those fixes has
+// been observed in a produced workspace**, and the assertions in this file are unchanged
+// because THIS FIXTURE PREDATES THEM ALL. Every pin below still describes the committed
+// workspace correctly; none of them describes the current library.
+//
+// BUG-038 IS VERIFIED (2026-08-08). A three-round run against the fixed blueprints produced a
+// `database-design.md` whose schema carries
+//
+//     - UNIQUE(shopping_list_id, name, unit) on shopping_list_items
+//       -- BR-001 (consolidation): the store REFUSES a second row with the same (name, unit)
+//          in a list, so identical ingredients cannot appear twice
+//
+// which is the core subdomain's invariant reaching the store — the thing the old fixture named
+// and enforced nowhere, and the one finding here that no scorer catches. The run also took the
+// OTHER half of the instruction: a rule that cannot be a constraint ("the recipe belongs to the
+// same account") is recorded as service-layer enforcement naming the test that proves it.
+//
+// It was DERIVED, not copied. The blueprint asks "what would the store refuse?" and illustrates
+// on subscriptions and bookings; the produced comment says "the store REFUSES", so the
+// reasoning transferred rather than the answer. The check for stale answer-key text is clean.
+//
+// The other seven fixes remain unobserved: the run was bounded to three rounds and the files
+// they touch belong to Rounds 4 to 7.
 //
 // So a green run of this file means "the old workspace still has the defects it had", which is
 // true and is not the same claim as "the fixes work". Do not read it as the second.
