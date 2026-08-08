@@ -12,6 +12,38 @@
 // a supporting concern and is built simply.
 
 import { placeholders, unfilled, todos, blueprintOf } from './fill.mjs'
+import { library, blueprintText } from './golden.mjs'
+
+/**
+ * Every instructional italic the shipped blueprints contain, whitespace-normalised.
+ *
+ * Read once and cached, because check 5 runs per workspace and the library does not change
+ * underneath it. Returns null when the library cannot be read — a synthetic workspace in a
+ * unit test, or a checkout without the payload — and check 5 then falls back to its old,
+ * over-reporting behaviour rather than silently exempting everything. **A missing library must
+ * never turn a check off**, which is BUG-013's shape and the reason this returns null rather
+ * than an empty set.
+ */
+let ITALICS = undefined
+function libraryItalics() {
+  if (ITALICS !== undefined) return ITALICS
+  try {
+    const found = new Set()
+    for (const rel of library()) {
+      const text = blueprintText(rel)
+      if (text === null) continue
+      for (const p of placeholders(text)) {
+        if (p.kind === 'instructional-italic') found.add(norm(p.text))
+      }
+    }
+    // An EMPTY set is not a usable answer — it would exempt every italic in every workspace,
+    // which is the check switching itself off. Treated as unreadable instead.
+    ITALICS = found.size > 0 ? found : null
+  } catch {
+    ITALICS = null
+  }
+  return ITALICS
+}
 
 const passed = (detail = []) => ({ state: 'passed', detail })
 const failed = (detail) => ({ state: 'failed', detail })
@@ -272,9 +304,34 @@ export const CHECKS = {
       // DECIDED BY THE FILE'S OWN TEXT, not by a filename list. `isTemplate` asks whether the
       // file tells the developer to copy it — so a new template added to the library is covered
       // the day it arrives, and a file that merely has "template" in its name is not excused.
+      // AN ITALIC THE RUN WROTE IS CONTENT; ONE IT FAILED TO REPLACE IS A GAP (BUG-042).
+      //
+      // `unfilled()` reads a whole line in italics as "the blueprint telling you what to write
+      // there", which is true of the BLUEPRINT's italics and false of the run's. A complete
+      // workspace was reported as holding five gaps, and every one was the run stating a fact:
+      //
+      //   *No scope changes yet. The first accepted change becomes `SC-001`.*
+      //   *No improvements logged yet — the first review after building starts this log.*
+      //   *(The exact set of secrets depends on the auth model, `Q-009`, and any external
+      //     service, `Q-007`.)*
+      //
+      // Those are BETTER than a blank table — they say the section is empty and what will fill
+      // it. Acting on the report would mean deleting them, which is the destructive-repair
+      // shape that got checks 1, 2, 3, 5 and 6 fixed earlier.
+      //
+      // DERIVED FROM THE LIBRARY, NOT GUESSED. The distinction is decidable: an italic that
+      // appears in the blueprints is one the fill was supposed to consume; anything else the
+      // run authored. Imperative-vs-declarative phrasing would have been a guess, and this
+      // repository has paid for enough of those.
+      //
+      // `libraryItalics` is optional. Without it the check behaves as it always did — over-
+      // reporting rather than under-reporting, which is the safe direction for a checker that
+      // cannot tell.
+      const known = libraryItalics()
+      const survived = (u) => u.kind !== 'instructional-italic' || known === null || known.has(norm(u.text))
       const hits = md(ws)
         .filter(([, t]) => !isTemplate(t))
-        .map(([p, t]) => [p, unfilled(t)])
+        .map(([p, t]) => [p, unfilled(t).filter(survived)])
         .filter(([, u]) => u.length > 0)
       return hits.length === 0
         ? passed()
