@@ -174,3 +174,53 @@ jobs:
           $got = ([BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($b)) -replace '-','').ToLower()
           Write-Host "PowerShell form -> $got"
           if ($got -ne '${{ steps.want.outputs.want }}') { Write-Host "::error::Windows Step 0 disagrees with the manifest"; exit 1 }
+
+  # TASK-018 / REQ-NF-008 / CON-004. Step 0 above proves each platform's DOCUMENTED COMMAND
+  # works; this proves the kit's machinery does: every deterministic check, scorer and test —
+  # GOLD-001 over the golden workspace included — on each platform's own filesystem, path
+  # separator and shell. `.gitattributes` pins eol=lf precisely so these three runs judge
+  # identical bytes; what varies is the OS, which is the variable under test.
+  #
+  # Ubuntu repeats gate's stage 2 DELIBERATELY: the three platforms execute the same step
+  # definition, so a difference between them is the OS and never the step.
+  #
+  # WHAT THIS DOES NOT CLAIM: ETEST-012. That case runs the model-driven interview itself on
+  # each platform — a real host, a network, and money — and it stays Planned until somebody
+  # runs it on real machines (three-state reporting: it has not failed, it has not run). This
+  # job is the half of TASK-018 that no hardware blocks.
+  #
+  # Same non-required reasoning as `platforms`: three more runners stay off the merge critical
+  # path until someone decides their pass rate has earned a place on it.
+  suite:
+    name: The full suite on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      # The same zero-test guard as stage 2, for the same reason: a glob that matches nothing
+      # is not a pass, on any platform — and a platform-specific globbing difference is exactly
+      # the kind of defect this job exists to catch.
+      - name: Every deterministic test, on this platform
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test \
+            --test-reporter=tap --test-reporter-destination=suite.tap \
+            --test-reporter=spec --test-reporter-destination=stdout \
+            "tests/**/*.mjs"
+          ran=$(sed -n 's/^# tests \([0-9]\+\)$/\1/p' suite.tap | tail -1)
+          if [ -z "$ran" ] || [ "$ran" -eq 0 ]; then
+            echo "::error::the suite collected no tests on ${{ matrix.os }} — a green run that judged nothing is not a pass"
+            exit 1
+          fi
+          echo "collected $ran test(s) on ${{ matrix.os }}"
