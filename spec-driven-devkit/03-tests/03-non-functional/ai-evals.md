@@ -255,6 +255,7 @@ Re-run it on **any** of these:
 | EV-001, Round 1, express | 2026-08-05 | 7 of 11 scorers at floor; 2 breaches; **2 not run** | 648 s · 23 turns | **$2.78** | Recorded, not accepted |
 | EV-001, all 8 rounds, express | 2026-08-07 | 7 of 11 scorers at floor; 2 breaches; **2 not run** | 4 500 s · 237 turns | **$49.85** | Recorded, not accepted |
 | EV-001, re-run after the BUG-034…041 fixes | 2026-08-07 | **NOT RUN — four attempts, no workspace produced** | ~3 h across 4 attempts | not itemised | **No claim made** |
+| EV-001, rounds 1–3 only, express | 2026-08-08 | **BUG-038 verified**; 7 fixes still unobserved | 25 min (hit the ceiling) | not itemised | Partial — recorded |
 
 > **This row was corrected downwards after it was published, and the correction is the point.**
 > It read *"9 of 11 scorers at floor; 2 breaches"*. Two of those nine — `inference_stated` and
@@ -306,7 +307,33 @@ it against a defect curve where two runs found five defects.
 > **Attempts 3 and 4 are the host hanging, not the kit failing** — the transcript ends mid-turn
 > with no error and no further output. The spend was stopped there rather than continued blind.
 >
-> **So the eight fixes are shipped and unverified, and the two states must not be confused.**
+> **A fifth attempt on 2026-08-08 got through, and it verified the fix that mattered most.**
+> The host was healthy again — the hang was environmental, as attempts 3 and 4 suggested. Bounded
+> to three rounds, it reached `database-design.md` and produced:
+>
+> ```
+> - UNIQUE(shopping_list_id, name, unit) on shopping_list_items
+>   -- BR-001 (consolidation): the store REFUSES a second row with the same (name, unit) in a
+>      list, so identical ingredients cannot appear twice
+> ```
+>
+> **That is BUG-038 fixed and observed** — the core subdomain's invariant reaching the store,
+> which the old fixture named and enforced nowhere, and which no scorer catches. The run also
+> took the second half of the instruction: a rule that cannot be a constraint is recorded as
+> service-layer enforcement naming the test that proves it.
+>
+> **It was derived, not copied.** The blueprint asks *"what would the store refuse?"* and
+> illustrates on subscriptions and bookings; the produced comment says *"the store REFUSES"*.
+> The reasoning transferred, not the answer — which is the whole reason the answer key was
+> removed before this run.
+>
+> One caution worth recording: **the script written to check this reported a false FAIL**, because
+> it looked for the rule's name on the constraint's own line and the comment had wrapped. That is
+> the hard-wrap failure this repository has now hit thirteen times, committed inside the tool
+> built to verify a fix. The result was only trusted after reading the file.
+>
+> **So one fix is verified and seven are shipped-and-unobserved, and the states must not be
+> confused.**
 > `GOLD-001` still pins every one of those defects as PRESENT, because the committed fixture
 > predates the fixes and the pins describe it correctly. A green suite therefore means "the old
 > workspace still has the defects it had" — not "the fixes work". Nothing was adjusted to look
