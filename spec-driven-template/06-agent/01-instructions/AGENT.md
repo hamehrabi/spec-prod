@@ -115,11 +115,20 @@ Every completion must include:
 
 ## Project-specific rules from ADRs
 
-*Every accepted ADR that constrains implementation should list its rule here.*
-
 | ADR | Rule the agent must follow |
 |---|---|
-| ADR-001 | |
+| | |
+
+> **Cite the ADR; do not restate the decision.** Every accepted ADR that constrains
+> implementation gets a row here, and the right-hand cell is **the one imperative it puts on
+> the agent** — "route handlers must not contain business rules" — not the decision, the options
+> weighed, or the rationale. Those live in the ADR
+> ([`../../01-docs/05-architecture/architecture-decisions/`](../../01-docs/05-architecture/architecture-decisions/)),
+> which is the only place they are defined.
+>
+> This table used to arrive pre-numbered `ADR-001`, so it minted identifiers `adr-index.md`
+> already owned and a run filled both — one decision with two homes, free to disagree the day
+> either is edited. The ID column is blank now because it is a citation.
 
 ## Lessons from past mistakes
 

@@ -44,11 +44,25 @@ Status:              Not run / Pass / Fail / Needs review
 
 ## Test specification matrix
 
-| Test ID | Req | Level | Scenario | Preconditions | Input | Expected result | Risk covered | Status |
-|---|---|---|---|---|---|---|---|---|
-| TEST-001 | REQ-F-001 | Integration | | | | | | Planned |
-| TEST-002 | | Unit | | | | | | |
-| TEST-003 | | Security | | | | | | |
+**This matrix is an INDEX, not a second copy of the tests.** One row per test, naming where it
+is specified and what it covers — the scenario, the expected result and the preconditions live
+in the file that owns the test.
+
+| Test ID | Req | Level | Specified in | Risk covered | Status |
+|---|---|---|---|---|---|
+| | REQ-F-001 | Integration | `../02-functional/integration-tests.md` | | Planned |
+| | | Unit | `../02-functional/unit-tests.md` | | |
+| | | Security | `../03-non-functional/security-tests.md` | | |
+
+> **The Test ID column CITES; it does not mint.** A test is defined once, in the file for its
+> level — `unit-tests.md`, `integration-tests.md`, `acceptance-tests.md`, `security-tests.md`,
+> `failure-tests.md`. Write that id here once it exists, and `[TODO: which test covers this?]`
+> until it does.
+>
+> This matrix used to carry `Scenario`, `Preconditions`, `Input` and `Expected result` columns —
+> the whole test, restated. A run filled both, in different words, and the two agreed on the day
+> they were written with nothing keeping them equal afterwards. **An index that repeats what it
+> indexes is a second source of truth wearing a table header.**
 
 **Status values:** Planned · Written · Passing · Failing · Blocked
 
